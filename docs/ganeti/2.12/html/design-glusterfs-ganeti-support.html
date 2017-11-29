@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GlusterFS Ganeti support &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Huge Pages Support for Ganeti" href="design-hugepages-support.html" />
+    <link rel="prev" title="Management of storage types and disk templates, incl. storage space reporting" href="design-storagetypes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-storagetypes.html" title="Management of storage types and disk templates, incl. storage space reporting"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="glusterfs-ganeti-support">
+<h1><a class="toc-backref" href="#id1">GlusterFS Ganeti support</a><a class="headerlink" href="#glusterfs-ganeti-support" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the plan for adding GlusterFS support inside Ganeti.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#glusterfs-ganeti-support" id="id1">GlusterFS Ganeti support</a><ul>
+<li><a class="reference internal" href="#gluster-overview" id="id2">Gluster overview</a><ul>
+<li><a class="reference internal" href="#why-not-use-a-sharedfile-disk-template" id="id3">Why not use a <tt class="docutils literal"><span class="pre">sharedfile</span></tt> disk template?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-strategy" id="id4">Implementation strategy</a><ul>
+<li><a class="reference internal" href="#directory-structure" id="id5">Directory structure</a></li>
+<li><a class="reference internal" href="#changes-to-the-storage-types-system" id="id6">Changes to the storage types system</a></li>
+<li><a class="reference internal" href="#new-configuration-switches" id="id7">New configuration switches</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id8">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="gluster-overview">
+<h2><a class="toc-backref" href="#id2">Gluster overview</a><a class="headerlink" href="#gluster-overview" title="Permalink to this headline">¶</a></h2>
+<p>Gluster is a &#8220;brick&#8221; &#8220;translation&#8221; service that can turn a number of LVM logical
+volume or disks (so-called &#8220;bricks&#8221;) into an unified &#8220;volume&#8221; that can be
+mounted over the network through FUSE or NFS.</p>
+<p>This is a simplified view of what components are at play and how they
+interconnect as data flows from the actual disks to the instances. The parts in
+grey are available for Ganeti to use and included for completeness but not
+targeted for implementation at this stage.</p>
+<p class="graphviz">
+<img src="_images/graphviz-afe6b4e16c8604e4a80cc25f8a95dd0a20d6246b.png" alt="digraph &quot;gluster-ganeti-overview&quot; {
+graph [ spline=ortho ]
+node [ shape=rect ]
+
+{
+
+  node [ shape=none ]
+  _volume [ label=volume ]
+
+  bricks -&gt; translators -&gt; _volume
+  _volume -&gt; network [label=transport]
+  network -&gt; instances
+}
+
+{ rank=same; brick1 [ shape=oval ]
+             brick2 [ shape=oval ]
+             brick3 [ shape=oval ]
+             bricks }
+{ rank=same; translators distribute }
+{ rank=same; volume [ shape=oval ]
+             _volume }
+{ rank=same; instances instanceA instanceB instanceC instanceD }
+{ rank=same; network FUSE NFS QEMUC QEMUD }
+
+{
+  node [ shape=oval ]
+  brick1 [ label=brick ]
+  brick2 [ label=brick ]
+  brick3 [ label=brick ]
+}
+
+{
+  node [ shape=oval ]
+  volume
+}
+
+brick1 -&gt; distribute
+brick2 -&gt; distribute
+brick3 -&gt; distribute -&gt; volume
+volume -&gt; FUSE [ label=&lt;TCP&lt;br/&gt;&lt;font color=&quot;grey&quot;&gt;UDP&lt;/font&gt;&gt;
+                 color=&quot;black:grey&quot; ]
+
+NFS [ color=grey fontcolor=grey ]
+volume -&gt; NFS [ label=&quot;TCP&quot; color=grey fontcolor=grey ]
+NFS -&gt; mountpoint [ color=grey fontcolor=grey ]
+
+mountpoint [ shape=oval ]
+
+FUSE -&gt; mountpoint
+
+instanceA [ label=instances ]
+instanceB [ label=instances ]
+
+mountpoint -&gt; instanceA
+mountpoint -&gt; instanceB
+
+mountpoint [ shape=oval ]
+
+QEMUC [ label=QEMU ]
+QEMUD [ label=QEMU ]
+
+{
+  instanceC [ label=instances ]
+  instanceD [ label=instances ]
+}
+
+volume -&gt; QEMUC [ label=&lt;TCP&lt;br/&gt;&lt;font color=&quot;grey&quot;&gt;UDP&lt;/font&gt;&gt;
+                  color=&quot;black:grey&quot; ]
+volume -&gt; QEMUD [ label=&lt;TCP&lt;br/&gt;&lt;font color=&quot;grey&quot;&gt;UDP&lt;/font&gt;&gt;
+                  color=&quot;black:grey&quot; ]
+QEMUC -&gt; instanceC
+QEMUD -&gt; instanceD
+}" />
+</p>
+<dl class="docutils">
+<dt>brick:</dt>
+<dd>The unit of storage in gluster. Typically a drive or LVM logical volume
+formatted using, for example, XFS.</dd>
+<dt>distribute:</dt>
+<dd>One of the translators in Gluster, it assigns files to bricks based on the
+hash of their full path inside the volume.</dd>
+<dt>volume:</dt>
+<dd>A filesystem you can mount on multiple machines; all machines see the same
+directory tree and files.</dd>
+<dt>FUSE/NFS:</dt>
+<dd>Gluster offers two ways to mount volumes: through FUSE or a custom NFS server
+that is incompatible with other NFS servers. FUSE is more compatible with
+other services running on the storage nodes; NFS gives better performance.
+For now, FUSE is a priority.</dd>
+<dt>QEMU:</dt>
+<dd>QEMU 1.3 has the ability to use Gluster volumes directly in userspace without
+the need for mounting anything. Ganeti still needs kernelspace access at disk
+creation and OS install time.</dd>
+<dt>transport:</dt>
+<dd>FUSE and QEMU allow you to connect using TCP and UDP, whereas NFS only
+supports TCP. Those protocols are called transports in Gluster. For now, TCP
+is a priority.</dd>
+</dl>
+<p>It is the administrator&#8217;s duty to set up the bricks, the translators and thus
+the volume as they see fit. Ganeti will take care of connecting the instances to
+a given volume.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The gluster mountpoint must be whitelisted by the administrator in
+<tt class="docutils literal"><span class="pre">/etc/ganeti/file-storage-paths</span></tt> for security reasons in order to allow
+Ganeti to modify the filesystem.</p>
+</div>
+<div class="section" id="why-not-use-a-sharedfile-disk-template">
+<h3><a class="toc-backref" href="#id3">Why not use a <tt class="docutils literal"><span class="pre">sharedfile</span></tt> disk template?</a><a class="headerlink" href="#why-not-use-a-sharedfile-disk-template" title="Permalink to this headline">¶</a></h3>
+<p>Gluster volumes <cite>can</cite> be used by Ganeti using the generic shared file disk
+template. There is a number of reasons why that is probably not a good idea,
+however:</p>
+<ul class="simple">
+<li>Shared file, being a generic solution, cannot offer userspace access support.</li>
+<li>Even with userspace support, Ganeti still needs kernelspace access in order to
+create disks and install OSes on them. Ganeti can manage the mounting for you
+so that the Gluster servers only have as many connections as necessary.</li>
+<li>Experiments showed that you can&#8217;t trust <tt class="docutils literal"><span class="pre">mount.glusterfs</span></tt> to give useful
+return codes or error messages. Ganeti can work around its oddities so
+administrators don&#8217;t have to.</li>
+<li>The shared file folder scheme (<tt class="docutils literal"><span class="pre">../{instance.name}/disk{disk.id}</span></tt>) does not
+work well with Gluster. The <tt class="docutils literal"><span class="pre">distribute</span></tt> translator distributes files across
+bricks, but directories need to be replicated on <cite>all</cite> bricks. As a result, if
+we have a dozen hundred instances, that means a dozen hundred folders being
+replicated on all bricks. This does not scale well.</li>
+<li>This frees up the shared file disk template to use a different, unsupported
+replication scheme together with Gluster. (Storage pools are the long term
+solution for this, however.)</li>
+</ul>
+<p>So, while gluster <cite>is</cite> a shared file disk template, essentially, Ganeti can
+provide better support for it than that.</p>
+</div>
+</div>
+<div class="section" id="implementation-strategy">
+<h2><a class="toc-backref" href="#id4">Implementation strategy</a><a class="headerlink" href="#implementation-strategy" title="Permalink to this headline">¶</a></h2>
+<p>Working with GlusterFS in kernel space essentially boils down to:</p>
+<ol class="arabic simple">
+<li>Ask FUSE to mount the Gluster volume.</li>
+<li>Check that the mount succeeded.</li>
+<li>Use files stored in the volume as instance disks, just like sharedfile does.</li>
+<li>When the instances are spun down, attempt unmounting the volume. If the
+gluster connection is still required, the mountpoint is allowed to remain.</li>
+</ol>
+<p>Since it is not strictly necessary for Gluster to mount the disk if all that&#8217;s
+needed is userspace access, however, it is inappropriate for the Gluster storage
+class to inherit from FileStorage. So the implementation should resort to
+composition rather than inheritance:</p>
+<ol class="arabic simple">
+<li>Extract the <tt class="docutils literal"><span class="pre">FileStorage</span></tt> disk-facing logic into a <tt class="docutils literal"><span class="pre">FileDeviceHelper</span></tt>
+class.</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>In order not to further inflate bdev.py, Filestorage should join its helper
+functions in filestorage.py (thus reducing their visibility) and add Gluster
+to its own file, gluster.py. Moving the other classes to their own files
+like it&#8217;s been done in <tt class="docutils literal"><span class="pre">lib/hypervisor/</span></tt>) is not addressed as part of this
+design.</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Use the <tt class="docutils literal"><span class="pre">FileDeviceHelper</span></tt> class to implement a <tt class="docutils literal"><span class="pre">GlusterStorage</span></tt> class in
+much the same way.</li>
+<li>Add Gluster as a disk template that behaves like SharedFile in every way.</li>
+<li>Provide Ganeti knowledge about what a <tt class="docutils literal"><span class="pre">GlusterVolume</span></tt> is and how to mount,
+unmount and reference them.</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>Before attempting a mount, we should check if the volume is not mounted
+already. Linux allows mounting partitions multiple times, but then you also
+have to unmount them as many times as you mounted them to actually free the
+resources; this also makes the output of commands such as <tt class="docutils literal"><span class="pre">mount</span></tt> less
+useful.</li>
+<li>Every time the device could be released (after instance shutdown, OS
+installation scripts or file creation), a single unmount is attempted. If
+the device is still busy (e.g. from other instances, jobs or open
+administrator shells), the failure is ignored.</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li>Modify <tt class="docutils literal"><span class="pre">GlusterStorage</span></tt> and customize the disk template behavior to fit
+Gluster&#8217;s needs.</li>
+</ol>
+<div class="section" id="directory-structure">
+<h3><a class="toc-backref" href="#id5">Directory structure</a><a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h3>
+<p>In order to address the shortcomings of the generic shared file handling of
+instance disk directory structure, Gluster uses a different scheme for
+determining a disk&#8217;s logical id and therefore path on the file system.</p>
+<p>The naming scheme is:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>/ganeti/{instance.uuid}.{disk.id}
+</pre></div>
+</div>
+<p>...bringing the actual path on a node&#8217;s file system to:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>/var/run/ganeti/gluster/ganeti/{instance.uuid}.{disk.id}
+</pre></div>
+</div>
+<p>This means Ganeti only uses one folder on the Gluster volume (allowing other
+uses of the Gluster volume in the meantime) and works better with how Gluster
+distributes storage over its bricks.</p>
+</div>
+<div class="section" id="changes-to-the-storage-types-system">
+<h3><a class="toc-backref" href="#id6">Changes to the storage types system</a><a class="headerlink" href="#changes-to-the-storage-types-system" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti has a number of storage types that abstract over disk templates. This
+matters mainly in terms of disk space reporting. Gluster support is improved by
+a rethinking of how disk templates are assigned to storage types in Ganeti.</p>
+<p>This is the summary of the changes:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="12%" />
+<col width="12%" />
+<col width="18%" />
+<col width="22%" />
+<col width="16%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" rowspan="2">Disk
+template</th>
+<th class="head" rowspan="2">Current
+storage
+type</th>
+<th class="head" rowspan="2">New
+storage
+type</th>
+<th class="head" colspan="3">Does it report storage information to...</th>
+</tr>
+<tr class="row-even"><th class="head"><tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">list</span></tt></th>
+<th class="head"><tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">list-storage</span></tt></th>
+<th class="head">iallocator</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td>File</td>
+<td>File</td>
+<td>File</td>
+<td>Yes.</td>
+<td>Yes.</td>
+<td>Yes.</td>
+</tr>
+<tr class="row-even"><td>Shared file</td>
+<td>File</td>
+<td rowspan="2">Shared
+file
+(new)</td>
+<td rowspan="2">No.</td>
+<td rowspan="2">Yes.</td>
+<td rowspan="2">No.</td>
+</tr>
+<tr class="row-odd"><td>Gluster (new)</td>
+<td>N/A</td>
+</tr>
+<tr class="row-even"><td>RBD (for
+reference)</td>
+<td colspan="2">RBD</td>
+<td>No.</td>
+<td>No.</td>
+<td>No.</td>
+</tr>
+</tbody>
+</table>
+<p>Gluster or Shared File should not, like RBD, report storage information to
+gnt-node list or to IAllocators. Regrettably, the simplest way to do so right
+now is by claiming that storage reporting for the relevant storage type is not
+implemented. An effort was made to claim that the shared storage type did support
+disk reporting while refusing to provide any value, but it was not successful
+(<tt class="docutils literal"><span class="pre">hail</span></tt> does not support this combination.)</p>
+<p>To do so without breaking the File disk template, a new storage type must be
+added. Like RBD, it does not claim to support disk reporting. However, we can
+still make an effort of reporting stats to <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list-storage</span></tt>.</p>
+<p>The rationale is simple. For shared file and gluster storage, disk space is not
+a function of any one node. If storage types with disk space reporting are used,
+Hail expects them to give useful numbers for allocation purposes, but a shared
+storage system means disk balancing is not affected by node-instance allocation
+any longer. Moreover, it would be wasteful to mount a Gluster volume on each
+node just for running statvfs() if no machine was actually running gluster VMs.</p>
+<p>As a result, Gluster support for gnt-node list-storage is necessarily limited
+and nodes on which Gluster is available but not in use will report failures.
+Additionally, running <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> will give an output like this:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>Node              DTotal DFree MTotal MNode MFree Pinst Sinst
+node1.example.com      ?     ?   744M  273M  477M     0     0
+node2.example.com      ?     ?   744M  273M  477M     0     0
+</pre></div>
+</div>
+<p>This is expected and consistent with behaviour in RBD.</p>
+<p>An alternative would have been to report DTotal and DFree as 0 in order to allow
+<tt class="docutils literal"><span class="pre">hail</span></tt> to ignore the disk information, but this incorrectly populates the
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> DTotal and DFree fields with 0s as well.</p>
+</div>
+<div class="section" id="new-configuration-switches">
+<h3><a class="toc-backref" href="#id7">New configuration switches</a><a class="headerlink" href="#new-configuration-switches" title="Permalink to this headline">¶</a></h3>
+<p>Configurable at the cluster and node group level (<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span></tt>,
+<tt class="docutils literal"><span class="pre">gnt-group</span> <span class="pre">modify</span></tt> and other commands that support the <cite>-D</cite> switch to edit
+disk parameters):</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">gluster:host</span></tt></dt>
+<dd><p class="first">The IP address or hostname of the Gluster server to connect to. In the default
+deployment of Gluster, that is any machine that is hosting a brick.</p>
+<p class="last">Default: <tt class="docutils literal"><span class="pre">&quot;127.0.0.1&quot;</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">gluster:port</span></tt></dt>
+<dd><p class="first">The port where the Gluster server is listening to.</p>
+<p class="last">Default: <tt class="docutils literal"><span class="pre">24007</span></tt></p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">gluster:volume</span></tt></dt>
+<dd><p class="first">The volume Ganeti should use.</p>
+<p class="last">Default: <tt class="docutils literal"><span class="pre">&quot;gv0&quot;</span></tt></p>
+</dd>
+</dl>
+<p>Configurable at the cluster level only (<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt>) and stored in
+ssconf for all nodes to read (just like shared file):</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">--gluster-dir</span></tt></dt>
+<dd><p class="first">Where the Gluster volume should be mounted.</p>
+<p class="last">Default: <tt class="docutils literal"><span class="pre">/var/run/ganeti/gluster</span></tt></p>
+</dd>
+</dl>
+<p>The default values work if all of the Ganeti nodes also host Gluster bricks.
+This is possible, but <cite>not</cite> recommended as it can cause the host to hardlock due
+to deadlocks in the kernel memory (much in the same way RBD works).</p>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id8">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<p>In no particular order:</p>
+<ul class="simple">
+<li>Support the UDP transport.</li>
+<li>Support mounting through NFS.</li>
+<li>Filter <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> so DTotal and DFree are not shown for RBD and shared
+file disk types, or otherwise report the disk storage values as &#8220;-&#8221; or some
+other special value to clearly distinguish it from the result of a
+communication failure between nodes.</li>
+<li>Allow configuring the in-volume path Ganeti uses.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GlusterFS Ganeti support</a><ul>
+<li><a class="reference internal" href="#gluster-overview">Gluster overview</a><ul>
+<li><a class="reference internal" href="#why-not-use-a-sharedfile-disk-template">Why not use a <tt class="docutils literal"><span class="pre">sharedfile</span></tt> disk template?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-strategy">Implementation strategy</a><ul>
+<li><a class="reference internal" href="#directory-structure">Directory structure</a></li>
+<li><a class="reference internal" href="#changes-to-the-storage-types-system">Changes to the storage types system</a></li>
+<li><a class="reference internal" href="#new-configuration-switches">New configuration switches</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-storagetypes.html"
+                        title="previous chapter">Management of storage types and disk templates, incl. storage space reporting</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-hugepages-support.html"
+                        title="next chapter">Huge Pages Support for Ganeti</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-glusterfs-ganeti-support.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-storagetypes.html" title="Management of storage types and disk templates, incl. storage space reporting"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

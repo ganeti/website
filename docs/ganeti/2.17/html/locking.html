@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti locking &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Man pages" href="manpages.html" />
+    <link rel="prev" title="Ganeti quick installation guide" href="install-quick.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="manpages.html" title="Man pages"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="install-quick.html" title="Ganeti quick installation guide"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-locking">
+<h1>Ganeti locking<a class="headerlink" href="#ganeti-locking" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This document describes lock order dependencies in Ganeti.
+It is divided by functional sections</p>
+</div>
+<div class="section" id="opcode-execution-locking">
+<h2>Opcode Execution Locking<a class="headerlink" href="#opcode-execution-locking" title="Permalink to this headline">¶</a></h2>
+<p>These locks are declared by Logical Units (LUs) (in cmdlib.py) and
+acquired by the Processor (in mcpu.py) with the aid of the Ganeti
+Locking Library (locking.py). They are acquired in the following order:</p>
+<blockquote>
+<div><ul class="simple">
+<li>BGL: this is the Big Ganeti Lock, it exists for retrocompatibility.
+New LUs acquire it in a shared fashion, and are able to execute all
+toghether (baring other lock waits) while old LUs acquire it
+exclusively and can only execute one at a time, and not at the same
+time with new LUs.</li>
+<li>Instance locks: can be declared in ExpandNames() or DeclareLocks()
+by an LU, and have the same name as the instance itself. They are
+acquired as a set.  Internally the locking library acquired them in
+alphabetical order.</li>
+<li>Node locks: can be declared in ExpandNames() or DeclareLocks() by an
+LU, and have the same name as the node itself. They are acquired as
+a set.  Internally the locking library acquired them in alphabetical
+order. Given this order it&#8217;s possible to safely acquire a set of
+instances, and then the nodes they reside on.</li>
+</ul>
+</div></blockquote>
+<p>The ConfigWriter (in config.py) is also protected by a SharedLock, which
+is shared by functions that read the config and acquired exclusively by
+functions that modify it. Since the ConfigWriter calls
+rpc.call_upload_file to all nodes to distribute the config without
+holding the node locks, this call must be able to execute on the nodes
+in parallel with other operations (but not necessarily concurrently with
+itself on the same file, as inside the ConfigWriter this is called with
+the internal config lock held.</p>
+</div>
+<div class="section" id="job-queue-locking">
+<h2>Job Queue Locking<a class="headerlink" href="#job-queue-locking" title="Permalink to this headline">¶</a></h2>
+<p>The job queue is designed to be thread-safe. This means that its public
+functions can be called from any thread. The job queue can be called
+from functions called by the queue itself (e.g. logical units), but
+special attention must be paid not to create deadlocks or an invalid
+state.</p>
+<p>The single queue lock is used from all classes involved in the queue
+handling.  During development we tried to split locks, but deemed it to
+be too dangerous and difficult at the time. Job queue functions
+acquiring the lock can be safely called from all the rest of the code,
+as the lock is released before leaving the job queue again. Unlocked
+functions should only be called from job queue related classes (e.g. in
+jqueue.py) and the lock must be acquired beforehand.</p>
+<p>In the job queue worker (<tt class="docutils literal"><span class="pre">_JobQueueWorker</span></tt>), the lock must be released
+before calling the LU processor. Otherwise a deadlock can occur when log
+messages are added to opcode results.</p>
+</div>
+<div class="section" id="node-daemon-locking">
+<h2>Node Daemon Locking<a class="headerlink" href="#node-daemon-locking" title="Permalink to this headline">¶</a></h2>
+<p>The node daemon contains a lock for the job queue. In order to avoid
+conflicts and/or corruption when an eventual master daemon or another
+node daemon is running, it must be held for all job queue operations</p>
+<p>There&#8217;s one special case for the node daemon running on the master node.
+If grabbing the lock in exclusive fails on startup, the code assumes all
+checks have been done by the process keeping the lock.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti locking</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#opcode-execution-locking">Opcode Execution Locking</a></li>
+<li><a class="reference internal" href="#job-queue-locking">Job Queue Locking</a></li>
+<li><a class="reference internal" href="#node-daemon-locking">Node Daemon Locking</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install-quick.html"
+                        title="previous chapter">Ganeti quick installation guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="manpages.html"
+                        title="next chapter">Man pages</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/locking.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="manpages.html" title="Man pages"
+             >next</a></li>
+        <li class="right" >
+          <a href="install-quick.html" title="Ganeti quick installation guide"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

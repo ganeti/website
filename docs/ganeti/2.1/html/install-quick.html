@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti quick installation guide &mdash; Ganeti v2.1.8 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.1.8',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.1.8 documentation" href="index.html" />
+    <link rel="next" title="Ganeti installation tutorial" href="install.html" />
+    <link rel="prev" title="Welcome to Ganeti’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="install.html" title="Ganeti installation tutorial"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Ganeti’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-quick-installation-guide">
+<h1>Ganeti quick installation guide<a class="headerlink" href="#ganeti-quick-installation-guide" title="Permalink to this headline">¶</a></h1>
+<p>Please note that a more detailed installation procedure is described in
+the <a class="reference external" href="install.html"><em>Ganeti installation tutorial</em></a>. A glossary of terms can be found in the
+<a class="reference external" href="glossary.html"><em>Glossary</em></a>.</p>
+<div class="section" id="software-requirements">
+<h2>Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Before installing, please verify that you have the following programs:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.xen.org/">Xen Hypervisor</a>, version 3.0 or above, if
+running on Xen</li>
+<li><a class="reference external" href="http://www.linux-kvm.org">KVM Hypervisor</a>, version 72 or above, if
+running on KVM. In order to use advanced features, such as live
+migration, virtio, etc, an even newer version is recommended (qemu-kvm
+versions 0.11.X or above have shown good behavior).</li>
+<li><a class="reference external" href="http://www.drbd.org/">DRBD</a>, kernel module and userspace utils,
+version 8.0.7 or above</li>
+<li><a class="reference external" href="http://sourceware.org/lvm2/">LVM2</a></li>
+<li><a class="reference external" href="http://www.openssl.org/">OpenSSL</a></li>
+<li><a class="reference external" href="http://www.openssh.com/portable.html">OpenSSH</a></li>
+<li><a class="reference external" href="http://www.linuxfoundation.org/en/Net:Bridge">bridge utilities</a></li>
+<li><a class="reference external" href="http://www.linuxfoundation.org/en/Net:Iproute2">iproute2</a></li>
+<li><a class="reference external" href="http://www.skbuff.net/iputils/">arping</a> (part of iputils)</li>
+<li><a class="reference external" href="http://www.python.org/">Python</a>, version 2.4 or above, not 3.0</li>
+<li><a class="reference external" href="http://pyopenssl.sourceforge.net/">Python OpenSSL bindings</a></li>
+<li><a class="reference external" href="http://code.google.com/p/simplejson/">simplejson Python module</a></li>
+<li><a class="reference external" href="http://pyparsing.wikispaces.com/">pyparsing Python module</a></li>
+<li><a class="reference external" href="http://trac.dbzteam.org/pyinotify/">pyinotify Python module</a></li>
+<li><a class="reference external" href="http://starship.python.net/crew/theller/ctypes/">ctypes Python module</a>, if running on
+python 2.4 (optional, used for node daemon memory locking)</li>
+<li><a class="reference external" href="http://www.dest-unreach.org/socat/">socat</a></li>
+</ul>
+<p>These programs are supplied as part of most Linux distributions, so
+usually they can be installed via the standard package manager. Also
+many of them will already be installed on a standard machine. On
+Debian/Ubuntu, you can use this command line to install all required
+packages, except for DRBD and Xen:</p>
+<div class="highlight-python"><pre>$ apt-get install lvm2 ssh bridge-utils iproute iputils-arping \
+                  python python-pyopenssl openssl python-pyparsing \
+                  python-simplejson python-pyinotify socat</pre>
+</div>
+<p>If you want to build from source, please see doc/devnotes.rst for more
+dependencies.</p>
+</div>
+<div class="section" id="installation-of-the-software">
+<h2>Installation of the software<a class="headerlink" href="#installation-of-the-software" title="Permalink to this headline">¶</a></h2>
+<p>To install, simply run the following command:</p>
+<div class="highlight-python"><pre>./configure --localstatedir=/var --sysconfdir=/etc &amp;&amp; \
+make &amp;&amp; \
+make install</pre>
+</div>
+<p>This will install the software under <tt class="docutils literal"><span class="pre">/usr/local</span></tt>. You then need to
+copy <tt class="docutils literal"><span class="pre">doc/examples/ganeti.initd</span></tt> to <tt class="docutils literal"><span class="pre">/etc/init.d/ganeti</span></tt> and
+integrate it into your boot sequence (<tt class="docutils literal"><span class="pre">chkconfig</span></tt>, <tt class="docutils literal"><span class="pre">update-rc.d</span></tt>,
+etc.).</p>
+</div>
+<div class="section" id="cluster-initialisation">
+<h2>Cluster initialisation<a class="headerlink" href="#cluster-initialisation" title="Permalink to this headline">¶</a></h2>
+<p>Before initialising the cluster, on each node you need to create the
+following directories:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">/etc/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/var/lib/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/var/log/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti/os</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti/export</span></tt></li>
+</ul>
+<p>After this, use <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Ganeti quick installation guide</a><ul>
+<li><a class="reference external" href="#software-requirements">Software Requirements</a></li>
+<li><a class="reference external" href="#installation-of-the-software">Installation of the software</a></li>
+<li><a class="reference external" href="#cluster-initialisation">Cluster initialisation</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to Ganeti&#8217;s documentation!</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="install.html"
+                                  title="next chapter">Ganeti installation tutorial</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/install-quick.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="install.html" title="Ganeti installation tutorial"
+             >next</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Ganeti’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.7.
+    </div>
+  </body>
+</html>

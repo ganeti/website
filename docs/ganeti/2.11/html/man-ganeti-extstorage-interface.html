@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti-extstorage-interface &mdash; Ganeti 2.11.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.11.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.11.8 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="ganeti-kvmd" href="man-ganeti-kvmd.html" />
+    <link rel="prev" title="ganeti-confd" href="man-ganeti-confd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-kvmd.html" title="ganeti-kvmd"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-confd.html" title="ganeti-confd"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-extstorage-interface">
+<h1>ganeti-extstorage-interface<a class="headerlink" href="#ganeti-extstorage-interface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti-extstorage-interface - Specifications for ExtStorage providers</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The method for supporting external shared storage in Ganeti is to have
+an ExtStorage provider for each external shared storage hardware type.
+The ExtStorage provider is a set of files (executable scripts and text
+files), contained inside a directory which is named after the provider.
+This directory must be present across all nodes of a nodegroup (Ganeti
+doesn&#8217;t replicate it), in order for the provider to be usable by Ganeti
+for this nodegroup (valid). The external shared storage hardware should
+also be accessible by all nodes of this nodegroup too.</p>
+</div>
+<div class="section" id="reference">
+<h2>REFERENCE<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<p>There are eight required files: <em>create</em>, <em>attach</em>, <em>detach</em>, <em>remove</em>,
+<em>grow</em>, <em>setinfo</em>, <em>verify</em> (executables) and <em>parameters.list</em>
+(text file).</p>
+<div class="section" id="common-environment">
+<h3>Common environment<a class="headerlink" href="#common-environment" title="Permalink to this headline">¶</a></h3>
+<p>All commands will get their input via environment variables. A common
+set of variables will be exported for all commands, and some of them
+might have extra ones. Note that all counts are zero-based.</p>
+<p>Since Ganeti version 2.5, the environment will be cleaned up before
+being passed to scripts, therefore they will not inherit the environment
+in with which the ganeti node daemon was started. If you depend on any
+environment variables (non-Ganeti), then you will need to define or
+source them appropriately.</p>
+<dl class="docutils">
+<dt>VOL_NAME</dt>
+<dd>The name of the volume. This is unique for Ganeti and it uses it
+to refer to a specific volume inside the external storage. Its
+format is <tt class="docutils literal"><span class="pre">UUID.ext.diskX</span></tt> where <tt class="docutils literal"><span class="pre">UUID</span></tt> is produced by Ganeti
+and is unique inside the Ganeti context. <tt class="docutils literal"><span class="pre">X</span></tt> is the number of the
+disk count.</dd>
+<dt>VOL_SIZE</dt>
+<dd>The volume&#8217;s size in mebibytes.</dd>
+<dt>VOL_NEW_SIZE</dt>
+<dd>Available only to the <strong>grow</strong> script. It declares the new size of
+the volume after grow (in mebibytes). To find the amount of grow,
+the scipt should calculate the number VOL_NEW_SIZE - VOL_SIZE.</dd>
+<dt>EXTP_*name*</dt>
+<dd>Each ExtStorage parameter (see below) will be exported in its own
+variable, prefixed with <tt class="docutils literal"><span class="pre">EXTP_</span></tt>, and upper-cased. For example, a
+<tt class="docutils literal"><span class="pre">fromsnap</span></tt> parameter will be exported as <tt class="docutils literal"><span class="pre">EXTP_FROMSNAP</span></tt>.</dd>
+<dt>VOL_METADATA</dt>
+<dd>Available only to the <strong>setinfo</strong> script. A string containing
+metadata to be associated with the volume. Currently, Ganeti sets
+this value to <tt class="docutils literal"><span class="pre">originstname+X</span></tt> where <tt class="docutils literal"><span class="pre">X</span></tt> is the instance&#8217;s name.</dd>
+<dt>VOL_CNAME</dt>
+<dd>The name of the Disk config object (optional).</dd>
+<dt>VOL_UUID</dt>
+<dd>The uuid of the Disk config object.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="executable-scripts">
+<h2>EXECUTABLE SCRIPTS<a class="headerlink" href="#executable-scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create">
+<h3>create<a class="headerlink" href="#create" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>create</strong> command is used for creating a new volume inside the
+external storage. The <tt class="docutils literal"><span class="pre">VOL_NAME</span></tt> denotes the volume&#8217;s name, which
+should be unique. After creation, Ganeti will refer to this volume by
+this name for all other actions.</p>
+<p>Ganeti produces this name dynamically and ensures its uniqueness inside
+the Ganeti context. Therefore, you should make sure not to provision
+manually additional volumes inside the external storage with this type
+of name, because this will lead to conflicts and possible loss of data.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_SIZE</span></tt> variable denotes the size of the new volume to be
+created in mebibytes.</p>
+<p>If the script ends successfully, a new volume of size <tt class="docutils literal"><span class="pre">VOL_SIZE</span></tt>
+should exist inside the external storage. e.g:: a lun inside a NAS
+appliance.</p>
+<p>The script returns <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+<div class="section" id="attach">
+<h3>attach<a class="headerlink" href="#attach" title="Permalink to this headline">¶</a></h3>
+<p>This command is used in order to make an already created volume visible
+to the physical node which will host the instance. This is done by
+mapping the already provisioned volume to a block device inside the host
+node.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_NAME</span></tt> variable denotes the volume to be mapped.</p>
+<p>After successful attachment the script returns to its stdout a string,
+which is the full path of the block device to which the volume is
+mapped.  e.g:: /dev/dummy1</p>
+<p>When attach returns, this path should be a valid block device on the
+host node.</p>
+<p>The attach script should be idempotent if the volume is already mapped.
+If the requested volume is already mapped, then the script should just
+return to its stdout the path which is already mapped to.</p>
+</div>
+<div class="section" id="detach">
+<h3>detach<a class="headerlink" href="#detach" title="Permalink to this headline">¶</a></h3>
+<p>This command is used in order to unmap an already mapped volume from the
+host node. Detach undoes everything attach did. This is done by
+unmapping the requested volume from the block device it is mapped to.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_NAME</span></tt> variable denotes the volume to be unmapped.</p>
+<p><tt class="docutils literal"><span class="pre">detach</span></tt> doesn&#8217;t affect the volume itself. It just unmaps it from the
+host node. The volume continues to exist inside the external storage.
+It&#8217;s just not accessible by the node anymore. This script doesn&#8217;t return
+anything to its stdout.</p>
+<p>The detach script should be idempotent if the volume is already
+unmapped. If the volume is not mapped, the script doesn&#8217;t perform any
+action at all.</p>
+<p>The script returns <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+<div class="section" id="remove">
+<h3>remove<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<p>This command is used to remove an existing volume from the external
+storage. The volume is permanently removed from inside the external
+storage along with all its data.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_NAME</span></tt> variable denotes the volume to be removed.</p>
+<p>The script returns <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+<div class="section" id="grow">
+<h3>grow<a class="headerlink" href="#grow" title="Permalink to this headline">¶</a></h3>
+<p>This command is used to grow an existing volume of the external storage.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_NAME</span></tt> variable denotes the volume to grow.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_SIZE</span></tt> variable denotes the current volume&#8217;s size (in
+mebibytes). The <tt class="docutils literal"><span class="pre">VOL_NEW_SIZE</span></tt> variable denotes the final size after
+the volume has been grown (in mebibytes).</p>
+<p>The amount of grow can be easily calculated by the scipt and is:</p>
+<p>grow_amount = VOL_NEW_SIZE - VOL_SIZE (in mebibytes)</p>
+<p>Ganeti ensures that: <tt class="docutils literal"><span class="pre">VOL_NEW_SIZE</span></tt> &gt; <tt class="docutils literal"><span class="pre">VOL_SIZE</span></tt></p>
+<p>If the script returns successfully, then the volume inside the external
+storage will have a new size of <tt class="docutils literal"><span class="pre">VOL_NEW_SIZE</span></tt>. This isn&#8217;t immediately
+reflected to the instance&#8217;s disk. See <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">grow</span></tt> for more
+details on when the running instance becomes aware of its grown disk.</p>
+<p>The script returns <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+<div class="section" id="setinfo">
+<h3>setinfo<a class="headerlink" href="#setinfo" title="Permalink to this headline">¶</a></h3>
+<p>This script is used to add metadata to an existing volume. It is helpful
+when we need to keep an external, Ganeti-independent mapping between
+instances and volumes; primarily for recovery reasons. This is provider
+specific and the author of the provider chooses whether/how to implement
+this. You can just exit with <tt class="docutils literal"><span class="pre">0</span></tt>, if you do not want to implement this
+feature, without harming the overall functionality of the provider.</p>
+<p>The <tt class="docutils literal"><span class="pre">VOL_METADATA</span></tt> variable contains the metadata of the volume.</p>
+<p>Currently, Ganeti sets this value to <tt class="docutils literal"><span class="pre">originstname+X</span></tt> where <tt class="docutils literal"><span class="pre">X</span></tt> is
+the instance&#8217;s name.</p>
+<p>The script returns <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+<div class="section" id="verify">
+<h3>verify<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h3>
+<p>The <em>verify</em> script is used to verify consistency of the external
+parameters (ext-params) (see below). The command should take one or more
+arguments denoting what checks should be performed, and return a proper
+exit code depending on whether the validation failed or succeeded.</p>
+<p>Currently, the script is not invoked by Ganeti, but should be present
+for future use and consistency with gnt-os-interface&#8217;s verify script.</p>
+<p>The script should return <tt class="docutils literal"><span class="pre">0</span></tt> on success.</p>
+</div>
+</div>
+<div class="section" id="text-files">
+<h2>TEXT FILES<a class="headerlink" href="#text-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="parameters-list">
+<h3>parameters.list<a class="headerlink" href="#parameters-list" title="Permalink to this headline">¶</a></h3>
+<p>This file declares the parameters supported by the ExtStorage provider,
+one parameter per line, with name and description (space and/or tab
+separated). For example:</p>
+<div class="highlight-python"><pre>fromsnap Snapshot name to create the volume from
+nas_ip The IP of the NAS appliance</pre>
+</div>
+<p>The parameters can then be used during instance add as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance add --disk=0:fromsnap=&quot;file_name&quot;,nas_ip=&quot;1.2.3.4&quot; ...</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>In the following examples we assume that you have already installed
+successfully two ExtStorage providers: <tt class="docutils literal"><span class="pre">pvdr1</span></tt> and <tt class="docutils literal"><span class="pre">pvdr2</span></tt></p>
+<p>Add a new instance with a 10G first disk provided by <tt class="docutils literal"><span class="pre">pvdr1</span></tt> and a 20G
+second disk provided by <tt class="docutils literal"><span class="pre">pvdr2</span></tt>:</p>
+<div class="highlight-python"><pre># gnt-instance add -t ext --disk=0:size=10G,provider=pvdr1
+                          --disk=1:size=20G,provider=pvdr2</pre>
+</div>
+<p>Add a new instance with a 5G first disk provided by provider <tt class="docutils literal"><span class="pre">pvdr1</span></tt>
+and also pass the <tt class="docutils literal"><span class="pre">prm1</span></tt>, <tt class="docutils literal"><span class="pre">prm2</span></tt> parameters to the provider, with
+the corresponding values <tt class="docutils literal"><span class="pre">val1</span></tt>, <tt class="docutils literal"><span class="pre">val2</span></tt>:</p>
+<div class="highlight-python"><pre># gnt-instance add -t ext
+                   --disk=0:size=5G,provider=pvdr1,prm1=val1,prm2=val2</pre>
+</div>
+<p>Modify an existing instance of disk type <tt class="docutils literal"><span class="pre">ext</span></tt> by adding a new 30G
+disk provided by provider <tt class="docutils literal"><span class="pre">pvdr2</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance modify --disk 1:add,size=30G,provider=pvdr2 &lt;instance&gt;</span>
+</pre></div>
+</div>
+<p>Modify an existing instance of disk type <tt class="docutils literal"><span class="pre">ext</span></tt> by adding 2 new disks,
+of different providers, passing one parameter for the first one:</p>
+<div class="highlight-python"><pre># gnt-instance modify --disk 2:add,size=3G,provider=pvdr1,prm1=val1
+                      --disk 3:add,size=5G,provider=pvdr2
+                      &lt;instance&gt;</pre>
+</div>
+</div>
+<div class="section" id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="backwards-compatibility">
+<h3>Backwards compatibility<a class="headerlink" href="#backwards-compatibility" title="Permalink to this headline">¶</a></h3>
+<p>The ExtStorage Interface was introduced in Ganeti 2.7.
+Ganeti 2.7 and up is compatible with the ExtStorage Interface.</p>
+</div>
+<div class="section" id="common-behaviour">
+<h3>Common behaviour<a class="headerlink" href="#common-behaviour" title="Permalink to this headline">¶</a></h3>
+<p>All the scripts should display an usage message when called with a wrong
+number of arguments or when the first argument is <tt class="docutils literal"><span class="pre">-h</span></tt> or <tt class="docutils literal"><span class="pre">--help</span></tt>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti-extstorage-interface</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#reference">REFERENCE</a><ul>
+<li><a class="reference internal" href="#common-environment">Common environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#executable-scripts">EXECUTABLE SCRIPTS</a><ul>
+<li><a class="reference internal" href="#create">create</a></li>
+<li><a class="reference internal" href="#attach">attach</a></li>
+<li><a class="reference internal" href="#detach">detach</a></li>
+<li><a class="reference internal" href="#remove">remove</a></li>
+<li><a class="reference internal" href="#grow">grow</a></li>
+<li><a class="reference internal" href="#setinfo">setinfo</a></li>
+<li><a class="reference internal" href="#verify">verify</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#text-files">TEXT FILES</a><ul>
+<li><a class="reference internal" href="#parameters-list">parameters.list</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li><a class="reference internal" href="#notes">NOTES</a><ul>
+<li><a class="reference internal" href="#backwards-compatibility">Backwards compatibility</a></li>
+<li><a class="reference internal" href="#common-behaviour">Common behaviour</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-confd.html"
+                        title="previous chapter">ganeti-confd</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-ganeti-kvmd.html"
+                        title="next chapter">ganeti-kvmd</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti-extstorage-interface.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-kvmd.html" title="ganeti-kvmd"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-confd.html" title="ganeti-confd"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

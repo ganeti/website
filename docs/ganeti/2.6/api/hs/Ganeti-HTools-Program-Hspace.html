@@ -1,0 +1,1934 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Program.Hspace</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Program-Hspace.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Program.Hspace</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Cluster space sizing
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aoptions"
+>options</A
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APhase"
+>Phase</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3APInitial"
+>PInitial</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3APFinal"
+>PFinal</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3APTiered"
+>PTiered</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ASpecType"
+>SpecType</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ASpecNormal"
+>SpecNormal</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASpecTiered"
+>SpecTiered</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhtsPrefix"
+>htsPrefix</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AspecPrefix"
+>specPrefix</A
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AspecDescription"
+>specDescription</A
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AeffFn"
+>effFn</A
+> :: (<A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Integer) -&gt; (<A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double) -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmemEff"
+>memEff</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdskEff"
+>dskEff</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcpuEff"
+>cpuEff</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstatsData"
+>statsData</A
+> :: [(String, <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AspecData"
+>specData</A
+> :: [(String, <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AclusterData"
+>clusterData</A
+> :: [(String, <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintStats"
+>printStats</A
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; [(String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintFRScores"
+>printFRScores</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintResults"
+>printResults</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; Int -&gt; Int -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintFinalHTS"
+>printFinalHTS</A
+> :: Bool -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtieredSpecMap"
+>tieredSpecMap</A
+> :: [<A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatSpecMap"
+>formatSpecMap</A
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)] -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatRSpec"
+>formatRSpec</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AAllocInfo"
+>AllocInfo</A
+> -&gt; [(String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintAllocationStats"
+>printAllocationStats</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintKeysHTS"
+>printKeysHTS</A
+> :: [(String, String)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintInstance"
+>printInstance</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintAllocationMap"
+>printAllocationMap</A
+> :: Int -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatResources"
+>formatResources</A
+> ::  a -&gt; [(String, a -&gt; String)] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintCluster"
+>printCluster</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Int -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintISpec"
+>printISpec</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintTiered"
+>printTiered</A
+> :: Bool -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintClusterScores"
+>printClusterScores</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintClusterEff"
+>printClusterEff</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfailureReason"
+>failureReason</A
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsortReasons"
+>sortReasons</A
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArunAllocation"
+>runAllocation</A
+> :: <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+> -&gt; Maybe <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocResult"
+>AllocResult</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocResult"
+>AllocResult</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AFailStats"
+>FailStats</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, Int, [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinstFromSpec"
+>instFromSpec</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amain"
+>main</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:options"
+><A NAME="v%3Aoptions"
+></A
+></A
+><B
+>options</B
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#options"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Options list and functions.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Phase"
+><A NAME="t%3APhase"
+></A
+></A
+><B
+>Phase</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#Phase"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The allocation phase we're in (initial, after tiered allocs, or
+ after regular allocation).
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:PInitial"
+><A NAME="v%3APInitial"
+></A
+></A
+><B
+>PInitial</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:PFinal"
+><A NAME="v%3APFinal"
+></A
+></A
+><B
+>PFinal</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:PTiered"
+><A NAME="v%3APTiered"
+></A
+></A
+><B
+>PTiered</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:SpecType"
+><A NAME="t%3ASpecType"
+></A
+></A
+><B
+>SpecType</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#SpecType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The kind of instance spec we print.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:SpecNormal"
+><A NAME="v%3ASpecNormal"
+></A
+></A
+><B
+>SpecNormal</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SpecTiered"
+><A NAME="v%3ASpecTiered"
+></A
+></A
+><B
+>SpecTiered</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:htsPrefix"
+><A NAME="v%3AhtsPrefix"
+></A
+></A
+><B
+>htsPrefix</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#htsPrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prefix for machine readable names
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:specPrefix"
+><A NAME="v%3AspecPrefix"
+></A
+></A
+><B
+>specPrefix</B
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#specPrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>What we prefix a spec with.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:specDescription"
+><A NAME="v%3AspecDescription"
+></A
+></A
+><B
+>specDescription</B
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#specDescription"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The description of a spec.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:effFn"
+><A NAME="v%3AeffFn"
+></A
+></A
+><B
+>effFn</B
+> :: (<A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Integer) -&gt; (<A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double) -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#effFn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Efficiency generic function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:memEff"
+><A NAME="v%3AmemEff"
+></A
+></A
+><B
+>memEff</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#memEff"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Memory efficiency.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:dskEff"
+><A NAME="v%3AdskEff"
+></A
+></A
+><B
+>dskEff</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#dskEff"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Disk efficiency.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:cpuEff"
+><A NAME="v%3AcpuEff"
+></A
+></A
+><B
+>cpuEff</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#cpuEff"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Cpu efficiency.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:statsData"
+><A NAME="v%3AstatsData"
+></A
+></A
+><B
+>statsData</B
+> :: [(String, <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#statsData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Holds data for converting a <TT
+><A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+></TT
+> structure into
+ detailed statictics.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:specData"
+><A NAME="v%3AspecData"
+></A
+></A
+><B
+>specData</B
+> :: [(String, <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#specData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>List holding <TT
+><A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TT
+> formatting information.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:clusterData"
+><A NAME="v%3AclusterData"
+></A
+></A
+><B
+>clusterData</B
+> :: [(String, <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#clusterData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>List holding <TT
+><A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+></TT
+> formatting information.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printStats"
+><A NAME="v%3AprintStats"
+></A
+></A
+><B
+>printStats</B
+> :: <A HREF="Ganeti-HTools-Program-Hspace.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; [(String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Function to print stats for a given phase.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printFRScores"
+><A NAME="v%3AprintFRScores"
+></A
+></A
+><B
+>printFRScores</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printFRScores"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print failure reason and scores
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printResults"
+><A NAME="v%3AprintResults"
+></A
+></A
+><B
+>printResults</B
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; Int -&gt; Int -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printResults"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print final stats and related metrics.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printFinalHTS"
+><A NAME="v%3AprintFinalHTS"
+></A
+></A
+><B
+>printFinalHTS</B
+> :: Bool -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printFinalHTS"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prints the final <TT
+>OK</TT
+> marker in machine readable output.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tieredSpecMap"
+><A NAME="v%3AtieredSpecMap"
+></A
+></A
+><B
+>tieredSpecMap</B
+> :: [<A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#tieredSpecMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the tiered spec counts from a list of allocated
+ instances.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatSpecMap"
+><A NAME="v%3AformatSpecMap"
+></A
+></A
+><B
+>formatSpecMap</B
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)] -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#formatSpecMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Formats a spec map to strings.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatRSpec"
+><A NAME="v%3AformatRSpec"
+></A
+></A
+><B
+>formatRSpec</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AAllocInfo"
+>AllocInfo</A
+> -&gt; [(String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#formatRSpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Formats &quot;key-metrics&quot; values.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printAllocationStats"
+><A NAME="v%3AprintAllocationStats"
+></A
+></A
+><B
+>printAllocationStats</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printAllocationStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Shows allocations stats.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printKeysHTS"
+><A NAME="v%3AprintKeysHTS"
+></A
+></A
+><B
+>printKeysHTS</B
+> :: [(String, String)] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printKeysHTS"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Format a list of key/values as a shell fragment.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printInstance"
+><A NAME="v%3AprintInstance"
+></A
+></A
+><B
+>printInstance</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts instance data to a list of strings.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printAllocationMap"
+><A NAME="v%3AprintAllocationMap"
+></A
+></A
+><B
+>printAllocationMap</B
+> :: Int -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printAllocationMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Optionally print the allocation map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatResources"
+><A NAME="v%3AformatResources"
+></A
+></A
+><B
+>formatResources</B
+> ::  a -&gt; [(String, a -&gt; String)] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#formatResources"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Formats nicely a list of resources.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printCluster"
+><A NAME="v%3AprintCluster"
+></A
+></A
+><B
+>printCluster</B
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; Int -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print the cluster resources.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printISpec"
+><A NAME="v%3AprintISpec"
+></A
+></A
+><B
+>printISpec</B
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printISpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prints the normal instance spec.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printTiered"
+><A NAME="v%3AprintTiered"
+></A
+></A
+><B
+>printTiered</B
+> :: Bool -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printTiered"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prints the tiered results.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printClusterScores"
+><A NAME="v%3AprintClusterScores"
+></A
+></A
+><B
+>printClusterScores</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printClusterScores"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Displays the initial/final cluster scores.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printClusterEff"
+><A NAME="v%3AprintClusterEff"
+></A
+></A
+><B
+>printClusterEff</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ACStats"
+>CStats</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#printClusterEff"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Displays the cluster efficiency.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:failureReason"
+><A NAME="v%3AfailureReason"
+></A
+></A
+><B
+>failureReason</B
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#failureReason"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the most likely failure reason.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:sortReasons"
+><A NAME="v%3AsortReasons"
+></A
+></A
+><B
+>sortReasons</B
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+>, Int)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#sortReasons"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sorts the failure reasons.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:runAllocation"
+><A NAME="v%3ArunAllocation"
+></A
+></A
+><B
+>runAllocation</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#runAllocation"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+></TD
+><TD CLASS="rdoc"
+>Cluster data
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Maybe <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocResult"
+>AllocResult</A
+></TD
+><TD CLASS="rdoc"
+>Optional stop-allocation
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocResult"
+>AllocResult</A
+></TD
+><TD CLASS="rdoc"
+>Allocation result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+><TD CLASS="rdoc"
+>Requested instance spec
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+><TD CLASS="rdoc"
+>Requested disk template
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Program-Hspace.html#t%3ASpecType"
+>SpecType</A
+></TD
+><TD CLASS="rdoc"
+>Allocation type
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+></TD
+><TD CLASS="rdoc"
+>CLI options
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AFailStats"
+>FailStats</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, Int, [(<A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+>, Int)])</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Runs an allocation algorithm and saves cluster state.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:instFromSpec"
+><A NAME="v%3AinstFromSpec"
+></A
+></A
+><B
+>instFromSpec</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#instFromSpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Create an instance from a given spec.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:main"
+><A NAME="v%3Amain"
+></A
+></A
+><B
+>main</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hspace.html#main"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

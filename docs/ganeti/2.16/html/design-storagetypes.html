@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Management of storage types and disk templates, incl. storage space reporting &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Systemd integration" href="design-systemd.html" />
+    <link rel="prev" title="Design for supporting custom SSH ports for nodes" href="design-ssh-ports.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-systemd.html" title="Systemd integration"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="management-of-storage-types-and-disk-templates-incl-storage-space-reporting">
+<h1><a class="toc-backref" href="#id1">Management of storage types and disk templates, incl. storage space reporting</a><a class="headerlink" href="#management-of-storage-types-and-disk-templates-incl-storage-space-reporting" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#management-of-storage-types-and-disk-templates-incl-storage-space-reporting" id="id1">Management of storage types and disk templates, incl. storage space reporting</a><ul>
+<li><a class="reference internal" href="#background" id="id2">Background</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#configuration-changes" id="id4">Configuration changes</a></li>
+<li><a class="reference internal" href="#storage-reporting" id="id5">Storage reporting</a></li>
+<li><a class="reference internal" href="#rpc-changes" id="id6">RPC changes</a></li>
+<li><a class="reference internal" href="#ganeti-reporting" id="id7">Ganeti reporting</a></li>
+<li><a class="reference internal" href="#allocator-changes" id="id8">Allocator changes</a></li>
+<li><a class="reference internal" href="#rebalancing-changes" id="id9">Rebalancing changes</a></li>
+<li><a class="reference internal" href="#space-reporting-changes" id="id10">Space reporting changes</a></li>
+<li><a class="reference internal" href="#interactions-with-partitioned-ganeti" id="id11">Interactions with Partitioned Ganeti</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id2">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Currently, there is no consistent management of different variants of storage
+in Ganeti. One direct consequence is that storage space reporting is currently
+broken for all storage that is not based on lvm technology. This design looks at
+the root causes and proposes a way to fix it.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to streamline handling of different storage types and disk templates.
+Currently, there is no consistent implementation for dis/enabling of disk
+templates and/or storage types.</p>
+<p>Our idea is to introduce a list of enabled disk templates, which can be
+used by instances in the cluster. Based on this list, we want to provide
+storage reporting mechanisms for the available disk templates. Since some
+disk templates share the same underlying storage technology (for example
+<tt class="docutils literal"><span class="pre">drbd</span></tt> and <tt class="docutils literal"><span class="pre">plain</span></tt> are based on <tt class="docutils literal"><span class="pre">lvm</span></tt>), we map disk templates to storage
+types and implement storage space reporting for each storage type.</p>
+<div class="section" id="configuration-changes">
+<h3><a class="toc-backref" href="#id4">Configuration changes</a><a class="headerlink" href="#configuration-changes" title="Permalink to this headline">¶</a></h3>
+<p>Add a new attribute &#8220;enabled_disk_templates&#8221; (type: list of strings) to the
+cluster config which holds disk templates, for example, &#8220;drbd&#8221;, &#8220;file&#8221;,
+or &#8220;ext&#8221;. This attribute represents the list of disk templates that are enabled
+cluster-wide for usage by the instances. It will not be possible to create
+instances with a disk template that is not enabled, as well as it will not be
+possible to remove a disk template from the list if there are still instances
+using it.</p>
+<p>The list of enabled disk templates can contain any non-empty subset of
+the currently implemented disk templates: <tt class="docutils literal"><span class="pre">blockdev</span></tt>, <tt class="docutils literal"><span class="pre">diskless</span></tt>, <tt class="docutils literal"><span class="pre">drbd</span></tt>,
+<tt class="docutils literal"><span class="pre">ext</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt>, <tt class="docutils literal"><span class="pre">plain</span></tt>, <tt class="docutils literal"><span class="pre">rbd</span></tt>, and <tt class="docutils literal"><span class="pre">sharedfile</span></tt>. See
+<tt class="docutils literal"><span class="pre">DISK_TEMPLATES</span></tt> in <tt class="docutils literal"><span class="pre">constants.py</span></tt>.</p>
+<p>Note that the abovementioned list of enabled disk types is just a &#8220;mechanism&#8221;
+parameter that defines which disk templates the cluster can use. Further
+filtering about what&#8217;s allowed can go in the ipolicy, which is not covered in
+this design doc. Note that it is possible to force an instance to use a disk
+template that is not allowed by the ipolicy. This is not possible if the
+template is not enabled by the cluster.</p>
+<p>The ipolicy also contains a list of enabled disk templates. Since the cluster-
+wide enabled disk templates should be a stronger constraint, the list of
+enabled disk templates in the ipolicy should be a subset of those. In case the
+user tries to create an inconsistent situation here, gnt-cluster should
+display this as an error.</p>
+<p>We consider the first disk template in the list to be the default template for
+instance creation and storage reporting. This will remove the need to specify
+the disk template with <tt class="docutils literal"><span class="pre">-t</span></tt> on instance creation. Note: It would be
+better to take the default disk template from the node-group-specific
+ipolicy. However, when using the iallocator, the nodegroup can only be
+determined from the node which is determined by the iallocator, which in
+turn needs the disk-template first. To solve this
+chicken-and-egg-problem we first need to extend &#8216;gnt-instance add&#8217; to
+accept a nodegroup in the first place.</p>
+<p>Currently, cluster-wide dis/enabling of disk templates is not implemented
+consistently. <tt class="docutils literal"><span class="pre">lvm</span></tt> based disk templates are enabled by specifying a volume
+group name on cluster initialization and can only be disabled by explicitly
+using the option <tt class="docutils literal"><span class="pre">--no-lvm-storage</span></tt>. This will be replaced by adding/removing
+<tt class="docutils literal"><span class="pre">drbd</span></tt> and <tt class="docutils literal"><span class="pre">plain</span></tt> from the set of enabled disk templates.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--no-drbd-storage</span></tt> is also subsumed by dis/enabling the
+disk template <tt class="docutils literal"><span class="pre">drbd</span></tt> on the cluster.</p>
+<p>Up till now, file storage and shared file storage could be dis/enabled at
+<tt class="docutils literal"><span class="pre">./configure</span></tt> time. This will also be replaced by adding/removing the
+respective disk templates from the set of enabled disk templates.</p>
+<p>There is currently no possibility to dis/enable the disk templates
+<tt class="docutils literal"><span class="pre">diskless</span></tt>, <tt class="docutils literal"><span class="pre">blockdev</span></tt>, <tt class="docutils literal"><span class="pre">ext</span></tt>, and <tt class="docutils literal"><span class="pre">rdb</span></tt>. By introducing the set of
+enabled disk templates, we will require these disk templates to be explicitly
+enabled in order to be used. The idea is that the administrator of the cluster
+can tailor the cluster configuration to what is actually needed in the cluster.
+There is hope that this will lead to cleaner code, better performance and fewer
+bugs.</p>
+<p>When upgrading the configuration from a version that did not have the list
+of enabled disk templates, we have to decide which disk templates are enabled
+based on the current configuration of the cluster. We propose the following
+update logic to be implemented in the online update of the config in
+the <tt class="docutils literal"><span class="pre">Cluster</span></tt> class in <tt class="docutils literal"><span class="pre">objects.py</span></tt>:
+- If a <tt class="docutils literal"><span class="pre">volume_group_name</span></tt> is existing, then enable <tt class="docutils literal"><span class="pre">drbd</span></tt> and <tt class="docutils literal"><span class="pre">plain</span></tt>.
+- If <tt class="docutils literal"><span class="pre">file</span></tt> or <tt class="docutils literal"><span class="pre">sharedfile</span></tt> was enabled at configure time, add the
+respective disk template to the list of enabled disk templates.
+- For disk templates <tt class="docutils literal"><span class="pre">diskless</span></tt>, <tt class="docutils literal"><span class="pre">blockdev</span></tt>, <tt class="docutils literal"><span class="pre">ext</span></tt>, and <tt class="docutils literal"><span class="pre">rbd</span></tt>, we
+inspect the current cluster configuration regarding whether or not there
+are instances that use one of those disk templates. We will add only those
+that are currently in use.
+The order in which the list of enabled disk templates is built up will be
+determined by a preference order based on when in the history of Ganeti the
+disk templates were introduced (thus being a heuristic for which are used
+more than others).</p>
+<p>The list of enabled disk templates can be specified on cluster initialization
+with <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt> using the optional parameter
+<tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt>. If it is not set, it will be set to a default
+set of enabled disk templates, which includes the following disk templates:
+<tt class="docutils literal"><span class="pre">drbd</span></tt> and <tt class="docutils literal"><span class="pre">plain</span></tt>. The list can be shrunk or extended by
+<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span></tt> using the same parameter.</p>
+</div>
+<div class="section" id="storage-reporting">
+<h3><a class="toc-backref" href="#id5">Storage reporting</a><a class="headerlink" href="#storage-reporting" title="Permalink to this headline">¶</a></h3>
+<p>The storage reporting in <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> will be the first user of the
+newly introduced list of enabled disk templates. Currently, storage reporting
+works only for lvm-based storage. We want to extend that and report storage
+for the enabled disk templates. The default of <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> will only
+report on storage of the default disk template (the first in the list of enabled
+disk templates). One can explicitly ask for storage reporting on the other
+enabled disk templates with the <tt class="docutils literal"><span class="pre">-o</span></tt> option.</p>
+<p>Some of the currently implemented disk templates share the same base storage
+technology. Since the storage reporting is based on the underlying technology
+rather than on the user-facing disk templates, we introduce storage types to
+represent the underlying technology. There will be a mapping from disk templates
+to storage types, which will be used by the storage reporting backend to pick
+the right method for estimating the storage for the different disk templates.</p>
+<p>The proposed storage types are <tt class="docutils literal"><span class="pre">blockdev</span></tt>, <tt class="docutils literal"><span class="pre">diskless</span></tt>, <tt class="docutils literal"><span class="pre">ext</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt>,
+<tt class="docutils literal"><span class="pre">lvm-pv</span></tt>, <tt class="docutils literal"><span class="pre">lvm-vg</span></tt>, <tt class="docutils literal"><span class="pre">rados</span></tt>.</p>
+<p>The mapping from disk templates to storage types will be: <tt class="docutils literal"><span class="pre">drbd</span></tt> and <tt class="docutils literal"><span class="pre">plain</span></tt>
+to <tt class="docutils literal"><span class="pre">lvm-vg</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt> and <tt class="docutils literal"><span class="pre">sharedfile</span></tt> to <tt class="docutils literal"><span class="pre">file</span></tt>, and all others to their
+obvious counterparts.</p>
+<p>Note that there is no disk template mapping to <tt class="docutils literal"><span class="pre">lvm-pv</span></tt>, because this storage
+type is currently only used to enable the user to mark it as (un)allocatable.
+(See <tt class="docutils literal"><span class="pre">man</span> <span class="pre">gnt-node</span></tt>.) It is not possible to create an instance on a storage
+unit that is of type <tt class="docutils literal"><span class="pre">lvm-pv</span></tt> directly, therefore it is not included in the
+mapping.</p>
+<p>The storage reporting for file and sharedfile storage will report space
+on the file storage dir, which is currently limited to one directory.
+In the future, if we&#8217;ll have support for more directories, or for per-nodegroup
+directories this can be changed.</p>
+<p>For now, we will implement only the storage reporting for lvm-based and
+file-based storage, that is disk templates <tt class="docutils literal"><span class="pre">file</span></tt>, <tt class="docutils literal"><span class="pre">sharedfile</span></tt>, <tt class="docutils literal"><span class="pre">lvm</span></tt>,
+and <tt class="docutils literal"><span class="pre">drbd</span></tt>. For disk template <tt class="docutils literal"><span class="pre">diskless</span></tt>, there is obviously nothing to
+report about. When implementing storage reporting for file, we can also use
+it for <tt class="docutils literal"><span class="pre">sharedfile</span></tt>, since it uses the same file system mechanisms to
+determine the free space. In the future, we can optimize storage reporting
+for shared storage by not querying all nodes that use a common shared file
+for the same space information.</p>
+<p>In the future, we extend storage reporting for shared storage types like
+<tt class="docutils literal"><span class="pre">rados</span></tt> and <tt class="docutils literal"><span class="pre">ext</span></tt>. Note that it will not make sense to query each node for
+storage reporting on a storage unit that is used by several nodes.</p>
+<p>We will not implement storage reporting for the <tt class="docutils literal"><span class="pre">blockdev</span></tt> disk template,
+because block devices are always adopted after being provided by the system
+administrator, thus coming from outside Ganeti. There is no point in storage
+reporting for block devices, because Ganeti will never try to allocate storage
+inside a block device.</p>
+</div>
+<div class="section" id="rpc-changes">
+<h3><a class="toc-backref" href="#id6">RPC changes</a><a class="headerlink" href="#rpc-changes" title="Permalink to this headline">¶</a></h3>
+<p>The noded RPC call that reports node storage space will be changed to
+accept a list of &lt;storage_type&gt;,&lt;key&gt; string tuples. For each of them, it will
+report the free amount of storage space found on storage &lt;key&gt; as known
+by the requested storage_type. Depending on the storage_type, the key would
+be a volume group name in case of lvm, a directory name for the file-based
+storage, and a rados pool name for rados storage.</p>
+<p>Masterd will know through the mapping of storage types to storage calculation
+functions which storage type uses which mechanism for storage calculation
+and invoke only the needed ones.</p>
+<p>Note that for file and sharedfile the node knows which directories are allowed
+and won&#8217;t allow any other directory to be queried for security reasons. The
+actual path still needs to be passed to distinguish the two, as the type will
+be the same for both.</p>
+<p>These calculations will be implemented in the node storage system
+(currently lib/storage.py) but querying will still happen through the
+<tt class="docutils literal"><span class="pre">node</span> <span class="pre">info</span></tt> call, to avoid requiring an extra RPC each time.</p>
+</div>
+<div class="section" id="ganeti-reporting">
+<h3><a class="toc-backref" href="#id7">Ganeti reporting</a><a class="headerlink" href="#ganeti-reporting" title="Permalink to this headline">¶</a></h3>
+<p><cite>gnt-node list`</cite> can be queried for the different disk templates, if they
+are enabled. By default, it will just report information about the default
+disk template. Examples:</p>
+<div class="highlight-python"><pre>&gt; gnt-node list
+Node                       DTotal DFree MTotal MNode MFree Pinst Sinst
+mynode1                      3.6T  3.6T  64.0G 1023M 62.2G     1     0
+mynode2                      3.6T  3.6T  64.0G 1023M 62.0G     2     1
+mynode3                      3.6T  3.6T  64.0G 1023M 62.3G     0     2
+
+&gt; gnt-node list -o dtotal/drbd,dfree/file
+Node      DTotal (drbd, myvg) DFree (file, mydir)
+mynode1                 3.6T                    -
+mynode2                 3.6T                    -</pre>
+</div>
+<p>Note that for drbd, we only report the space of the vg and only if it was not
+renamed to something different than the default volume group name. With this
+design, there is also no possibility to ask about the meta volume group. We
+restrict the design here to make the transition to storage pools easier (as it
+is an interim state only). It is the administrator&#8217;s responsibility to ensure
+that there is enough space for the meta volume group.</p>
+<p>When storage pools are implemented, we switch from referencing the disk template
+to referencing the storage pool name. For that, of course, the pool names need
+to be unique over all storage types. For drbd, we will use the default &#8216;drbd&#8217;
+storage pool and possibly a second lvm-based storage pool for the metavg. It
+will be possible to rename storage pools (thus also the default lvm storage
+pool). There will be new functionality to ask about what storage pools are
+available and of what type. Storage pools will have a storage pool type which is
+one of the disk templates. There can be more than one storage pool based on the
+same disk template, therefore we will then start referencing the storage pool
+name instead of the disk template.</p>
+<p>Note: As of version 2.10, <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> only reports storage space
+information for the default disk template, as supporting more options
+turned out to be not feasible without storage pools.</p>
+<p>Besides in <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt>, storage space information is also
+displayed in <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list-storage</span></tt>. This will also adapt to the
+extended storage reporting capabilities. The user can specify a storage
+type using <tt class="docutils literal"><span class="pre">--storage-type</span></tt>. If he requests storage information about
+a storage type which does not support space reporting, a warning is
+emitted. If no storage type is specified explicitly, <tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">list-storage</span></tt> will try to report storage on the storage type of the
+default disk template. If the default disk template&#8217;s storage type does
+not support space reporting, an error message is emitted.</p>
+<p><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">info</span></tt> will report which disk templates are enabled, i.e.
+which ones are supported according to the cluster configuration. Example
+output:</p>
+<div class="highlight-python"><pre>&gt; gnt-cluster info
+[...]
+Cluster parameters:
+  - [...]
+  - enabled disk templates: plain, drbd, sharedfile, rados
+  - [...]</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list-storage</span></tt> will not be affected by any changes, since this design
+is restricted only to free storage reporting for non-shared storage types.</p>
+</div>
+<div class="section" id="allocator-changes">
+<h3><a class="toc-backref" href="#id8">Allocator changes</a><a class="headerlink" href="#allocator-changes" title="Permalink to this headline">¶</a></h3>
+<p>The iallocator protocol doesn&#8217;t need to change: since we know which
+disk template an instance has, we&#8217;ll pass only the &#8220;free&#8221; value for that
+disk template to the iallocator, when asking for an allocation to be
+made. Note that for DRBD nowadays we ignore the case when vg and metavg
+are different, and we only consider the main volume group. Fixing this is
+outside the scope of this design.</p>
+<p>Although the iallocator protocol itself does not need change, the
+invocation of the iallocator needs quite some adaption. So far, it
+always requested LVM storage information no matter if that was the
+disk template to be considered for the allocation. For instance
+allocation, this is the disk template of the instance.
+TODO: consider other allocator requests.</p>
+<p>With this design, we ensure forward-compatibility with respect to storage
+pools. For now, we&#8217;ll report space for all available disk templates that
+are based on non-shared storage types, in the future, for all available
+storage pools.</p>
+</div>
+<div class="section" id="rebalancing-changes">
+<h3><a class="toc-backref" href="#id9">Rebalancing changes</a><a class="headerlink" href="#rebalancing-changes" title="Permalink to this headline">¶</a></h3>
+<p>Hbal will not need changes, as it handles it already. We don&#8217;t forecast
+any changes needed to it.</p>
+</div>
+<div class="section" id="space-reporting-changes">
+<h3><a class="toc-backref" href="#id10">Space reporting changes</a><a class="headerlink" href="#space-reporting-changes" title="Permalink to this headline">¶</a></h3>
+<p>Hspace will by default report by assuming the allocation will happen on
+the default disk template for the cluster/nodegroup. An option will be added
+to manually specify a different storage.</p>
+</div>
+<div class="section" id="interactions-with-partitioned-ganeti">
+<h3><a class="toc-backref" href="#id11">Interactions with Partitioned Ganeti</a><a class="headerlink" href="#interactions-with-partitioned-ganeti" title="Permalink to this headline">¶</a></h3>
+<p>Also the design for <a class="reference internal" href="design-partitioned.html"><em>Partitioned Ganeti</em></a> deals
+with reporting free space. Partitioned Ganeti has a different way to
+report free space for LVM on nodes where the <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> flag
+is set. That doesn&#8217;t interact directly with this design, as the specifics
+of how the free space is computed is not in the scope of this design.
+But the <tt class="docutils literal"><span class="pre">node</span> <span class="pre">info</span></tt> call contains the value of the
+<tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> flag, which is currently only meaningful for the
+LVM storage type. Additional flags like the <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> flag
+for lvm might be useful for other disk templates / storage types as well.
+We therefore extend the RPC call with &lt;storage_type&gt;,&lt;key&gt; to
+&lt;storage_type&gt;,&lt;key&gt;,[&lt;param&gt;] to include any disk-template-specific
+(or storage-type specific) parameters in the RPC call.</p>
+<p>The reporting of free spindles, also part of Partitioned Ganeti, is not
+concerned with this design doc, as those are seen as a separate resource.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Management of storage types and disk templates, incl. storage space reporting</a><ul>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#configuration-changes">Configuration changes</a></li>
+<li><a class="reference internal" href="#storage-reporting">Storage reporting</a></li>
+<li><a class="reference internal" href="#rpc-changes">RPC changes</a></li>
+<li><a class="reference internal" href="#ganeti-reporting">Ganeti reporting</a></li>
+<li><a class="reference internal" href="#allocator-changes">Allocator changes</a></li>
+<li><a class="reference internal" href="#rebalancing-changes">Rebalancing changes</a></li>
+<li><a class="reference internal" href="#space-reporting-changes">Space reporting changes</a></li>
+<li><a class="reference internal" href="#interactions-with-partitioned-ganeti">Interactions with Partitioned Ganeti</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-ssh-ports.html"
+                        title="previous chapter">Design for supporting custom SSH ports for nodes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-systemd.html"
+                        title="next chapter">Systemd integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-storagetypes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-systemd.html" title="Systemd integration"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

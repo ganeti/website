@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-confd(8) Ganeti | Version 2.18.0~alpha1</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-confd(8) Ganeti | Version 2.18.0~alpha1</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a><ul>
+<li><a href="#role">ROLE</a></li>
+<li><a href="#communication-protocol">COMMUNICATION PROTOCOL</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>ganeti-confd - Ganeti conf daemon</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>ganeti-confd</strong> [-f] [-d] [--syslog] [-p <em>PORT</em>] [-b <em>ADDRESS</em>] [--no-user-checks]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p><strong>ganeti-confd</strong> is a daemon used to answer queries related to the configuration of a Ganeti cluster.</p>
+<p>For testing purposes, you can give the <code>-f</code> option and the program won't detach from the running terminal.</p>
+<p>Debug-level message can be activated by giving the <code>-d</code> option.</p>
+<p>Logging to syslog, rather than its own log file, can be enabled by passing in the <code>--syslog</code> option.</p>
+<p>The <strong>ganeti-confd</strong> daemon listens to port 1814 UDP, on all interfaces, by default. The port can be overridden by an entry the services database (usually <code>/etc/services</code>) or by passing the <code>-p</code> option. The <code>-b</code> option can be used to specify the address to bind to (defaults to <code>0.0.0.0</code>).</p>
+<p>The daemon will refuse to start if the user and group do not match the one defined at build time; this behaviour can be overridden by the <code>--no-user-checks</code> option.</p>
+<h2 id="role"><a href="#TOC">ROLE</a></h2>
+<p>The role of the conf daemon is to make sure we have a highly available and very fast way to query cluster configuration values. This daemon is automatically active on all master candidates, and so has no single point of failure. It communicates via UDP so each query can easily be sent to multiple servers, and it answers queries from a cached copy of the config it keeps in memory, so no disk access is required to get an answer.</p>
+<p>The config is reloaded from disk automatically when it changes, with a rate limit of once per second.</p>
+<p>If the conf daemon is stopped on all nodes, its clients won't be able to get query answers.</p>
+<h2 id="communication-protocol"><a href="#TOC">COMMUNICATION PROTOCOL</a></h2>
+<p>The confd protocol is an HMAC authenticated json-encoded custom format, over UDP. A client library is provided to make it easy to write software to query confd. More information can be found in the Ganeti 2.1 design doc, and an example usage can be seen in the (external) NBMA daemon for Ganeti.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

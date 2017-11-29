@@ -1,0 +1,6598 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Objects</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Objects.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Objects.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Objects</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>NIC definitions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Disk definitions
+</A
+></DT
+><DT
+><A HREF="#3"
+>Instance definitions
+</A
+></DT
+><DT
+><A HREF="#4"
+>Node definitions
+</A
+></DT
+><DT
+><A HREF="#5"
+>NodeGroup definitions
+</A
+></DT
+><DT
+><A HREF="#6"
+>Cluster definitions
+</A
+></DT
+><DT
+><A HREF="#7"
+>ConfigData definitions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Implementation of the Ganeti config objects.
+</P
+><P
+>Some object fields are not implemented yet, and as such they are
+commented out below.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ANICMode"
+>NICMode</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ANMBridged"
+>NMBridged</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ANMRouted"
+>NMRouted</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnICModeFromRaw"
+>nICModeFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a1166]. Monad m[a1166] =&gt; String -&gt; m[a1166] <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnICModeToRaw"
+>nICModeToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APartialNICParams"
+>PartialNICParams</A
+>  = <A HREF="#v%3APartialNICParams"
+>PartialNICParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicpModeP"
+>nicpModeP</A
+> :: Maybe <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicpLinkP"
+>nicpLinkP</A
+> :: Maybe String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AFilledNICParams"
+>FilledNICParams</A
+>  = <A HREF="#v%3AFilledNICParams"
+>FilledNICParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicpMode"
+>nicpMode</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicpLink"
+>nicpLink</A
+> :: String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfillNICParams"
+>fillNICParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadPartialNICParams"
+>loadPartialNICParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsavePartialNICParams"
+>savePartialNICParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictPartialNICParams"
+>toDictPartialNICParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadFilledNICParams"
+>loadFilledNICParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveFilledNICParams"
+>saveFilledNICParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictFilledNICParams"
+>toDictFilledNICParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APartialNIC"
+>PartialNIC</A
+>  = <A HREF="#v%3APartialNIC"
+>PartialNIC</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicMac"
+>nicMac</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicIp"
+>nicIp</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnicNicparams"
+>nicNicparams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadPartialNIC"
+>loadPartialNIC</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsavePartialNIC"
+>savePartialNIC</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictPartialNIC"
+>toDictPartialNIC</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADiskMode"
+>DiskMode</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ADiskRdOnly"
+>DiskRdOnly</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADiskRdWr"
+>DiskRdWr</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskModeFromRaw"
+>diskModeFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11sX]. Monad m[a11sX] =&gt; String -&gt; m[a11sX] <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskModeToRaw"
+>diskModeToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADiskType"
+>DiskType</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ALD_LV"
+>LD_LV</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALD_DRBD8"
+>LD_DRBD8</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALD_FILE"
+>LD_FILE</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALD_BLOCKDEV"
+>LD_BLOCKDEV</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALD_RADOS"
+>LD_RADOS</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskTypeFromRaw"
+>diskTypeFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11zo]. Monad m[a11zo] =&gt; String -&gt; m[a11zo] <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskTypeToRaw"
+>diskTypeToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AFileDriver"
+>FileDriver</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AFileLoop"
+>FileLoop</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AFileBlktap"
+>FileBlktap</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfileDriverFromRaw"
+>fileDriverFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11FA]. Monad m[a11FA] =&gt; String -&gt; m[a11FA] <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfileDriverToRaw"
+>fileDriverToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ABlockDriver"
+>BlockDriver</A
+>  = <A HREF="#v%3ABlockDrvManual"
+>BlockDrvManual</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AblockDriverFromRaw"
+>blockDriverFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11KZ]. Monad m[a11KZ] =&gt; String -&gt; m[a11KZ] <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AblockDriverToRaw"
+>blockDriverToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdevType"
+>devType</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADiskLogicalId"
+>DiskLogicalId</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ALIDPlain"
+>LIDPlain</A
+> String String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALIDDrbd8"
+>LIDDrbd8</A
+> String String Int Int Int String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALIDFile"
+>LIDFile</A
+> <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+> String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALIDBlockDev"
+>LIDBlockDev</A
+> <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+> String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ALIDRados"
+>LIDRados</A
+> String String</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlidDiskType"
+>lidDiskType</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlidEncodeType"
+>lidEncodeType</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AencodeDLId"
+>encodeDLId</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AencodeFullDLId"
+>encodeFullDLId</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; (JSValue, [(String, JSValue)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdecodeDLId"
+>decodeDLId</A
+> :: [(String, JSValue)] -&gt; JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADisk"
+>Disk</A
+>  = <A HREF="#v%3ADisk"
+>Disk</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskLogicalId"
+>diskLogicalId</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskChildren"
+>diskChildren</A
+> :: [<A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+>]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskIvName"
+>diskIvName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskSize"
+>diskSize</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskMode"
+>diskMode</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadDisk"
+>loadDisk</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveDisk"
+>saveDisk</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictDisk"
+>toDictDisk</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADiskTemplate"
+>DiskTemplate</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ADTDiskless"
+>DTDiskless</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADTFile"
+>DTFile</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADTSharedFile"
+>DTSharedFile</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADTPlain"
+>DTPlain</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADTBlock"
+>DTBlock</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADTDrbd8"
+>DTDrbd8</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskTemplateFromRaw"
+>diskTemplateFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a12eb]. Monad m[a12eb] =&gt; String -&gt; m[a12eb] <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdiskTemplateToRaw"
+>diskTemplateToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AAdminState"
+>AdminState</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AAdminOffline"
+>AdminOffline</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAdminDown"
+>AdminDown</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAdminUp"
+>AdminUp</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AadminStateFromRaw"
+>adminStateFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a12kO]. Monad m[a12kO] =&gt; String -&gt; m[a12kO] <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AadminStateToRaw"
+>adminStateToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APartialBEParams"
+>PartialBEParams</A
+>  = <A HREF="#v%3APartialBEParams"
+>PartialBEParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepMinmemP"
+>bepMinmemP</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepMaxmemP"
+>bepMaxmemP</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepVcpusP"
+>bepVcpusP</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepAutoBalanceP"
+>bepAutoBalanceP</A
+> :: Maybe Bool</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AFilledBEParams"
+>FilledBEParams</A
+>  = <A HREF="#v%3AFilledBEParams"
+>FilledBEParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepMinmem"
+>bepMinmem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepMaxmem"
+>bepMaxmem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepVcpus"
+>bepVcpus</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AbepAutoBalance"
+>bepAutoBalance</A
+> :: Bool</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfillBEParams"
+>fillBEParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadPartialBEParams"
+>loadPartialBEParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsavePartialBEParams"
+>savePartialBEParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictPartialBEParams"
+>toDictPartialBEParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadFilledBEParams"
+>loadFilledBEParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveFilledBEParams"
+>saveFilledBEParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictFilledBEParams"
+>toDictFilledBEParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AInstance"
+>Instance</A
+>  = <A HREF="#v%3AInstance"
+>Instance</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstName"
+>instName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstPrimaryNode"
+>instPrimaryNode</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstOs"
+>instOs</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstHypervisor"
+>instHypervisor</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstBeparams"
+>instBeparams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstAdminState"
+>instAdminState</A
+> :: <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstNics"
+>instNics</A
+> :: [<A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+>]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstDisks"
+>instDisks</A
+> :: [<A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+>]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstDiskTemplate"
+>instDiskTemplate</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstNetworkPort"
+>instNetworkPort</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstCtime"
+>instCtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstMtime"
+>instMtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstUuid"
+>instUuid</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstSerial"
+>instSerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadInstance"
+>loadInstance</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveInstance"
+>saveInstance</A
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictInstance"
+>toDictInstance</A
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APartialNDParams"
+>PartialNDParams</A
+>  = <A HREF="#v%3APartialNDParams"
+>PartialNDParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AndpOobProgramP"
+>ndpOobProgramP</A
+> :: Maybe String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AFilledNDParams"
+>FilledNDParams</A
+>  = <A HREF="#v%3AFilledNDParams"
+>FilledNDParams</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AndpOobProgram"
+>ndpOobProgram</A
+> :: String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfillNDParams"
+>fillNDParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadPartialNDParams"
+>loadPartialNDParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsavePartialNDParams"
+>savePartialNDParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictPartialNDParams"
+>toDictPartialNDParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadFilledNDParams"
+>loadFilledNDParams</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveFilledNDParams"
+>saveFilledNDParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictFilledNDParams"
+>toDictFilledNDParams</A
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ANode"
+>Node</A
+>  = <A HREF="#v%3ANode"
+>Node</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeName"
+>nodeName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodePrimaryIp"
+>nodePrimaryIp</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeSecondaryIp"
+>nodeSecondaryIp</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeMasterCandidate"
+>nodeMasterCandidate</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeOffline"
+>nodeOffline</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeDrained"
+>nodeDrained</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeGroup"
+>nodeGroup</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeMasterCapable"
+>nodeMasterCapable</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeVmCapable"
+>nodeVmCapable</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodePowered"
+>nodePowered</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeCtime"
+>nodeCtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeMtime"
+>nodeMtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeUuid"
+>nodeUuid</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnodeSerial"
+>nodeSerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadNode"
+>loadNode</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveNode"
+>saveNode</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictNode"
+>toDictNode</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AAllocPolicy"
+>AllocPolicy</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AAllocPreferred"
+>AllocPreferred</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAllocLastResort"
+>AllocLastResort</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAllocUnallocable"
+>AllocUnallocable</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AallocPolicyFromRaw"
+>allocPolicyFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a13pZ]. Monad m[a13pZ] =&gt; String -&gt; m[a13pZ] <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AallocPolicyToRaw"
+>allocPolicyToRaw</A
+> :: <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ANodeGroup"
+>NodeGroup</A
+>  = <A HREF="#v%3ANodeGroup"
+>NodeGroup</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupName"
+>groupName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupMembers"
+>groupMembers</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupAllocPolicy"
+>groupAllocPolicy</A
+> :: <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupCtime"
+>groupCtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupMtime"
+>groupMtime</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupUuid"
+>groupUuid</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AgroupSerial"
+>groupSerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadNodeGroup"
+>loadNodeGroup</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveNodeGroup"
+>saveNodeGroup</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictNodeGroup"
+>toDictNodeGroup</A
+> :: <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ACluster"
+>Cluster</A
+>  = <A HREF="#v%3ACluster"
+>Cluster</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterRsahostkeypub"
+>clusterRsahostkeypub</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterHighestUsedPort"
+>clusterHighestUsedPort</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterTcpudpPortPool"
+>clusterTcpudpPortPool</A
+> :: [Int]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterMacPrefix"
+>clusterMacPrefix</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterVolumeGroupName"
+>clusterVolumeGroupName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterReservedLvs"
+>clusterReservedLvs</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterMasterNode"
+>clusterMasterNode</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterMasterIp"
+>clusterMasterIp</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterMasterNetdev"
+>clusterMasterNetdev</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterClusterName"
+>clusterClusterName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterFileStorageDir"
+>clusterFileStorageDir</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterEnabledHypervisors"
+>clusterEnabledHypervisors</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterBeparams"
+>clusterBeparams</A
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterNicparams"
+>clusterNicparams</A
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterCandidatePoolSize"
+>clusterCandidatePoolSize</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterModifyEtcHosts"
+>clusterModifyEtcHosts</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterModifySshSetup"
+>clusterModifySshSetup</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterMaintainNodeHealth"
+>clusterMaintainNodeHealth</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterUidPool"
+>clusterUidPool</A
+> :: [Int]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterDefaultIallocator"
+>clusterDefaultIallocator</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterHiddenOs"
+>clusterHiddenOs</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterBlacklistedOs"
+>clusterBlacklistedOs</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterPrimaryIpFamily"
+>clusterPrimaryIpFamily</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterPreallocWipeDisks"
+>clusterPreallocWipeDisks</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AclusterSerial"
+>clusterSerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadCluster"
+>loadCluster</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveCluster"
+>saveCluster</A
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictCluster"
+>toDictCluster</A
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfigData"
+>ConfigData</A
+>  = <A HREF="#v%3AConfigData"
+>ConfigData</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigVersion"
+>configVersion</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigCluster"
+>configCluster</A
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigNodes"
+>configNodes</A
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigNodegroups"
+>configNodegroups</A
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigInstances"
+>configInstances</A
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfigSerial"
+>configSerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConfigData"
+>loadConfigData</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveConfigData"
+>saveConfigData</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictConfigData"
+>toDictConfigData</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>NIC definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:NICMode"
+><A NAME="t%3ANICMode"
+></A
+></A
+><B
+>NICMode</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#NICMode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:NMBridged"
+><A NAME="v%3ANMBridged"
+></A
+></A
+><B
+>NMBridged</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:NMRouted"
+><A NAME="v%3ANMRouted"
+></A
+></A
+><B
+>NMRouted</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nICModeFromRaw"
+><A NAME="v%3AnICModeFromRaw"
+></A
+></A
+><B
+>nICModeFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a1166]. Monad m[a1166] =&gt; String -&gt; m[a1166] <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#nICModeFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nICModeToRaw"
+><A NAME="v%3AnICModeToRaw"
+></A
+></A
+><B
+>nICModeToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#nICModeToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:PartialNICParams"
+><A NAME="t%3APartialNICParams"
+></A
+></A
+><B
+>PartialNICParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#PartialNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:PartialNICParams"
+><A NAME="v%3APartialNICParams"
+></A
+></A
+><B
+>PartialNICParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicpModeP"
+><A NAME="v%3AnicpModeP"
+></A
+></A
+><B
+>nicpModeP</B
+> :: Maybe <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicpLinkP"
+><A NAME="v%3AnicpLinkP"
+></A
+></A
+><B
+>nicpLinkP</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:FilledNICParams"
+><A NAME="t%3AFilledNICParams"
+></A
+></A
+><B
+>FilledNICParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#FilledNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:FilledNICParams"
+><A NAME="v%3AFilledNICParams"
+></A
+></A
+><B
+>FilledNICParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicpMode"
+><A NAME="v%3AnicpMode"
+></A
+></A
+><B
+>nicpMode</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANICMode"
+>NICMode</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicpLink"
+><A NAME="v%3AnicpLink"
+></A
+></A
+><B
+>nicpLink</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fillNICParams"
+><A NAME="v%3AfillNICParams"
+></A
+></A
+><B
+>fillNICParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#fillNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadPartialNICParams"
+><A NAME="v%3AloadPartialNICParams"
+></A
+></A
+><B
+>loadPartialNICParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadPartialNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:savePartialNICParams"
+><A NAME="v%3AsavePartialNICParams"
+></A
+></A
+><B
+>savePartialNICParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#savePartialNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictPartialNICParams"
+><A NAME="v%3AtoDictPartialNICParams"
+></A
+></A
+><B
+>toDictPartialNICParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictPartialNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadFilledNICParams"
+><A NAME="v%3AloadFilledNICParams"
+></A
+></A
+><B
+>loadFilledNICParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadFilledNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveFilledNICParams"
+><A NAME="v%3AsaveFilledNICParams"
+></A
+></A
+><B
+>saveFilledNICParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveFilledNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictFilledNICParams"
+><A NAME="v%3AtoDictFilledNICParams"
+></A
+></A
+><B
+>toDictFilledNICParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictFilledNICParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:PartialNIC"
+><A NAME="t%3APartialNIC"
+></A
+></A
+><B
+>PartialNIC</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#PartialNIC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:PartialNIC"
+><A NAME="v%3APartialNIC"
+></A
+></A
+><B
+>PartialNIC</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicMac"
+><A NAME="v%3AnicMac"
+></A
+></A
+><B
+>nicMac</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicIp"
+><A NAME="v%3AnicIp"
+></A
+></A
+><B
+>nicIp</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nicNicparams"
+><A NAME="v%3AnicNicparams"
+></A
+></A
+><B
+>nicNicparams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNICParams"
+>PartialNICParams</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadPartialNIC"
+><A NAME="v%3AloadPartialNIC"
+></A
+></A
+><B
+>loadPartialNIC</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadPartialNIC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:savePartialNIC"
+><A NAME="v%3AsavePartialNIC"
+></A
+></A
+><B
+>savePartialNIC</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#savePartialNIC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictPartialNIC"
+><A NAME="v%3AtoDictPartialNIC"
+></A
+></A
+><B
+>toDictPartialNIC</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictPartialNIC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Disk definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:DiskMode"
+><A NAME="t%3ADiskMode"
+></A
+></A
+><B
+>DiskMode</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#DiskMode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DiskRdOnly"
+><A NAME="v%3ADiskRdOnly"
+></A
+></A
+><B
+>DiskRdOnly</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DiskRdWr"
+><A NAME="v%3ADiskRdWr"
+></A
+></A
+><B
+>DiskRdWr</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskModeFromRaw"
+><A NAME="v%3AdiskModeFromRaw"
+></A
+></A
+><B
+>diskModeFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11sX]. Monad m[a11sX] =&gt; String -&gt; m[a11sX] <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskModeFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskModeToRaw"
+><A NAME="v%3AdiskModeToRaw"
+></A
+></A
+><B
+>diskModeToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskModeToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:DiskType"
+><A NAME="t%3ADiskType"
+></A
+></A
+><B
+>DiskType</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#DiskType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:LD_LV"
+><A NAME="v%3ALD_LV"
+></A
+></A
+><B
+>LD_LV</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LD_DRBD8"
+><A NAME="v%3ALD_DRBD8"
+></A
+></A
+><B
+>LD_DRBD8</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LD_FILE"
+><A NAME="v%3ALD_FILE"
+></A
+></A
+><B
+>LD_FILE</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LD_BLOCKDEV"
+><A NAME="v%3ALD_BLOCKDEV"
+></A
+></A
+><B
+>LD_BLOCKDEV</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LD_RADOS"
+><A NAME="v%3ALD_RADOS"
+></A
+></A
+><B
+>LD_RADOS</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskTypeFromRaw"
+><A NAME="v%3AdiskTypeFromRaw"
+></A
+></A
+><B
+>diskTypeFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11zo]. Monad m[a11zo] =&gt; String -&gt; m[a11zo] <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskTypeFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskTypeToRaw"
+><A NAME="v%3AdiskTypeToRaw"
+></A
+></A
+><B
+>diskTypeToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskTypeToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:FileDriver"
+><A NAME="t%3AFileDriver"
+></A
+></A
+><B
+>FileDriver</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#FileDriver"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The file driver type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:FileLoop"
+><A NAME="v%3AFileLoop"
+></A
+></A
+><B
+>FileLoop</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:FileBlktap"
+><A NAME="v%3AFileBlktap"
+></A
+></A
+><B
+>FileBlktap</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fileDriverFromRaw"
+><A NAME="v%3AfileDriverFromRaw"
+></A
+></A
+><B
+>fileDriverFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11FA]. Monad m[a11FA] =&gt; String -&gt; m[a11FA] <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#fileDriverFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fileDriverToRaw"
+><A NAME="v%3AfileDriverToRaw"
+></A
+></A
+><B
+>fileDriverToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#fileDriverToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:BlockDriver"
+><A NAME="t%3ABlockDriver"
+></A
+></A
+><B
+>BlockDriver</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#BlockDriver"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The persistent block driver type. Currently only one type is allowed.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:BlockDrvManual"
+><A NAME="v%3ABlockDrvManual"
+></A
+></A
+><B
+>BlockDrvManual</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:blockDriverFromRaw"
+><A NAME="v%3AblockDriverFromRaw"
+></A
+></A
+><B
+>blockDriverFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a11KZ]. Monad m[a11KZ] =&gt; String -&gt; m[a11KZ] <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#blockDriverFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:blockDriverToRaw"
+><A NAME="v%3AblockDriverToRaw"
+></A
+></A
+><B
+>blockDriverToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#blockDriverToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:devType"
+><A NAME="v%3AdevType"
+></A
+></A
+><B
+>devType</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#devType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constant for the dev_type key entry in the disk config.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:DiskLogicalId"
+><A NAME="t%3ADiskLogicalId"
+></A
+></A
+><B
+>DiskLogicalId</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#DiskLogicalId"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The disk configuration type. This includes the disk type itself,
+ for a more complete consistency. Note that since in the Python
+ code-base there's no authoritative place where we document the
+ logical id, this is probably a good reference point.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:LIDPlain"
+><A NAME="v%3ALIDPlain"
+></A
+></A
+><B
+>LIDPlain</B
+> String String</TD
+><TD CLASS="rdoc"
+>Volume group, logical volume
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LIDDrbd8"
+><A NAME="v%3ALIDDrbd8"
+></A
+></A
+><B
+>LIDDrbd8</B
+> String String Int Int Int String</TD
+><TD CLASS="rdoc"
+>NodeA, NodeB, Port, MinorA, MinorB, Secret
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LIDFile"
+><A NAME="v%3ALIDFile"
+></A
+></A
+><B
+>LIDFile</B
+> <A HREF="Ganeti-Objects.html#t%3AFileDriver"
+>FileDriver</A
+> String</TD
+><TD CLASS="rdoc"
+>Driver, path
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LIDBlockDev"
+><A NAME="v%3ALIDBlockDev"
+></A
+></A
+><B
+>LIDBlockDev</B
+> <A HREF="Ganeti-Objects.html#t%3ABlockDriver"
+>BlockDriver</A
+> String</TD
+><TD CLASS="rdoc"
+>Driver, path (must be under /dev)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:LIDRados"
+><A NAME="v%3ALIDRados"
+></A
+></A
+><B
+>LIDRados</B
+> String String</TD
+><TD CLASS="rdoc"
+>Unused, path
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:lidDiskType"
+><A NAME="v%3AlidDiskType"
+></A
+></A
+><B
+>lidDiskType</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3ADiskType"
+>DiskType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#lidDiskType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Mapping from a logical id to a disk type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:lidEncodeType"
+><A NAME="v%3AlidEncodeType"
+></A
+></A
+><B
+>lidEncodeType</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#lidEncodeType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Builds the extra disk_type field for a given logical id.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:encodeDLId"
+><A NAME="v%3AencodeDLId"
+></A
+></A
+><B
+>encodeDLId</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#encodeDLId"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Custom encoder for DiskLogicalId (logical id only).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:encodeFullDLId"
+><A NAME="v%3AencodeFullDLId"
+></A
+></A
+><B
+>encodeFullDLId</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+> -&gt; (JSValue, [(String, JSValue)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#encodeFullDLId"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Custom encoder for DiskLogicalId, composing both the logical id
+ and the extra disk_type field.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:decodeDLId"
+><A NAME="v%3AdecodeDLId"
+></A
+></A
+><B
+>decodeDLId</B
+> :: [(String, JSValue)] -&gt; JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#decodeDLId"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Custom decoder for DiskLogicalId. This is manual for now, since
+ we don't have yet automation for separate-key style fields.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Disk"
+><A NAME="t%3ADisk"
+></A
+></A
+><B
+>Disk</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#Disk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>Disk data structure.
+</P
+><P
+>This is declared manually as it's a recursive structure, and our TH
+ code currently can't build it.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Disk"
+><A NAME="v%3ADisk"
+></A
+></A
+><B
+>Disk</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskLogicalId"
+><A NAME="v%3AdiskLogicalId"
+></A
+></A
+><B
+>diskLogicalId</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskLogicalId"
+>DiskLogicalId</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskChildren"
+><A NAME="v%3AdiskChildren"
+></A
+></A
+><B
+>diskChildren</B
+> :: [<A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskIvName"
+><A NAME="v%3AdiskIvName"
+></A
+></A
+><B
+>diskIvName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskSize"
+><A NAME="v%3AdiskSize"
+></A
+></A
+><B
+>diskSize</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskMode"
+><A NAME="v%3AdiskMode"
+></A
+></A
+><B
+>diskMode</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskMode"
+>DiskMode</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadDisk"
+><A NAME="v%3AloadDisk"
+></A
+></A
+><B
+>loadDisk</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadDisk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveDisk"
+><A NAME="v%3AsaveDisk"
+></A
+></A
+><B
+>saveDisk</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveDisk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictDisk"
+><A NAME="v%3AtoDictDisk"
+></A
+></A
+><B
+>toDictDisk</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictDisk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Instance definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:DiskTemplate"
+><A NAME="t%3ADiskTemplate"
+></A
+></A
+><B
+>DiskTemplate</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#DiskTemplate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Instance disk template type. **Copied from HTools/Types.hs**
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTDiskless"
+><A NAME="v%3ADTDiskless"
+></A
+></A
+><B
+>DTDiskless</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTFile"
+><A NAME="v%3ADTFile"
+></A
+></A
+><B
+>DTFile</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTSharedFile"
+><A NAME="v%3ADTSharedFile"
+></A
+></A
+><B
+>DTSharedFile</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTPlain"
+><A NAME="v%3ADTPlain"
+></A
+></A
+><B
+>DTPlain</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTBlock"
+><A NAME="v%3ADTBlock"
+></A
+></A
+><B
+>DTBlock</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DTDrbd8"
+><A NAME="v%3ADTDrbd8"
+></A
+></A
+><B
+>DTDrbd8</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskTemplateFromRaw"
+><A NAME="v%3AdiskTemplateFromRaw"
+></A
+></A
+><B
+>diskTemplateFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a12eb]. Monad m[a12eb] =&gt; String -&gt; m[a12eb] <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskTemplateFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:diskTemplateToRaw"
+><A NAME="v%3AdiskTemplateToRaw"
+></A
+></A
+><B
+>diskTemplateToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#diskTemplateToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:AdminState"
+><A NAME="t%3AAdminState"
+></A
+></A
+><B
+>AdminState</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#AdminState"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:AdminOffline"
+><A NAME="v%3AAdminOffline"
+></A
+></A
+><B
+>AdminOffline</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AdminDown"
+><A NAME="v%3AAdminDown"
+></A
+></A
+><B
+>AdminDown</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AdminUp"
+><A NAME="v%3AAdminUp"
+></A
+></A
+><B
+>AdminUp</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:adminStateFromRaw"
+><A NAME="v%3AadminStateFromRaw"
+></A
+></A
+><B
+>adminStateFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a12kO]. Monad m[a12kO] =&gt; String -&gt; m[a12kO] <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#adminStateFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:adminStateToRaw"
+><A NAME="v%3AadminStateToRaw"
+></A
+></A
+><B
+>adminStateToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#adminStateToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:PartialBEParams"
+><A NAME="t%3APartialBEParams"
+></A
+></A
+><B
+>PartialBEParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#PartialBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:PartialBEParams"
+><A NAME="v%3APartialBEParams"
+></A
+></A
+><B
+>PartialBEParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepMinmemP"
+><A NAME="v%3AbepMinmemP"
+></A
+></A
+><B
+>bepMinmemP</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepMaxmemP"
+><A NAME="v%3AbepMaxmemP"
+></A
+></A
+><B
+>bepMaxmemP</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepVcpusP"
+><A NAME="v%3AbepVcpusP"
+></A
+></A
+><B
+>bepVcpusP</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepAutoBalanceP"
+><A NAME="v%3AbepAutoBalanceP"
+></A
+></A
+><B
+>bepAutoBalanceP</B
+> :: Maybe Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:FilledBEParams"
+><A NAME="t%3AFilledBEParams"
+></A
+></A
+><B
+>FilledBEParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#FilledBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:FilledBEParams"
+><A NAME="v%3AFilledBEParams"
+></A
+></A
+><B
+>FilledBEParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepMinmem"
+><A NAME="v%3AbepMinmem"
+></A
+></A
+><B
+>bepMinmem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepMaxmem"
+><A NAME="v%3AbepMaxmem"
+></A
+></A
+><B
+>bepMaxmem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepVcpus"
+><A NAME="v%3AbepVcpus"
+></A
+></A
+><B
+>bepVcpus</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:bepAutoBalance"
+><A NAME="v%3AbepAutoBalance"
+></A
+></A
+><B
+>bepAutoBalance</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fillBEParams"
+><A NAME="v%3AfillBEParams"
+></A
+></A
+><B
+>fillBEParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#fillBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadPartialBEParams"
+><A NAME="v%3AloadPartialBEParams"
+></A
+></A
+><B
+>loadPartialBEParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadPartialBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:savePartialBEParams"
+><A NAME="v%3AsavePartialBEParams"
+></A
+></A
+><B
+>savePartialBEParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#savePartialBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictPartialBEParams"
+><A NAME="v%3AtoDictPartialBEParams"
+></A
+></A
+><B
+>toDictPartialBEParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictPartialBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadFilledBEParams"
+><A NAME="v%3AloadFilledBEParams"
+></A
+></A
+><B
+>loadFilledBEParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadFilledBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveFilledBEParams"
+><A NAME="v%3AsaveFilledBEParams"
+></A
+></A
+><B
+>saveFilledBEParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveFilledBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictFilledBEParams"
+><A NAME="v%3AtoDictFilledBEParams"
+></A
+></A
+><B
+>toDictFilledBEParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictFilledBEParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Instance"
+><A NAME="t%3AInstance"
+></A
+></A
+><B
+>Instance</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#Instance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Instance"
+><A NAME="v%3AInstance"
+></A
+></A
+><B
+>Instance</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:instName"
+><A NAME="v%3AinstName"
+></A
+></A
+><B
+>instName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instPrimaryNode"
+><A NAME="v%3AinstPrimaryNode"
+></A
+></A
+><B
+>instPrimaryNode</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instOs"
+><A NAME="v%3AinstOs"
+></A
+></A
+><B
+>instOs</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instHypervisor"
+><A NAME="v%3AinstHypervisor"
+></A
+></A
+><B
+>instHypervisor</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instBeparams"
+><A NAME="v%3AinstBeparams"
+></A
+></A
+><B
+>instBeparams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialBEParams"
+>PartialBEParams</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instAdminState"
+><A NAME="v%3AinstAdminState"
+></A
+></A
+><B
+>instAdminState</B
+> :: <A HREF="Ganeti-Objects.html#t%3AAdminState"
+>AdminState</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instNics"
+><A NAME="v%3AinstNics"
+></A
+></A
+><B
+>instNics</B
+> :: [<A HREF="Ganeti-Objects.html#t%3APartialNIC"
+>PartialNIC</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instDisks"
+><A NAME="v%3AinstDisks"
+></A
+></A
+><B
+>instDisks</B
+> :: [<A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instDiskTemplate"
+><A NAME="v%3AinstDiskTemplate"
+></A
+></A
+><B
+>instDiskTemplate</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instNetworkPort"
+><A NAME="v%3AinstNetworkPort"
+></A
+></A
+><B
+>instNetworkPort</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instCtime"
+><A NAME="v%3AinstCtime"
+></A
+></A
+><B
+>instCtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instMtime"
+><A NAME="v%3AinstMtime"
+></A
+></A
+><B
+>instMtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instUuid"
+><A NAME="v%3AinstUuid"
+></A
+></A
+><B
+>instUuid</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instSerial"
+><A NAME="v%3AinstSerial"
+></A
+></A
+><B
+>instSerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadInstance"
+><A NAME="v%3AloadInstance"
+></A
+></A
+><B
+>loadInstance</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveInstance"
+><A NAME="v%3AsaveInstance"
+></A
+></A
+><B
+>saveInstance</B
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictInstance"
+><A NAME="v%3AtoDictInstance"
+></A
+></A
+><B
+>toDictInstance</B
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Node definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:PartialNDParams"
+><A NAME="t%3APartialNDParams"
+></A
+></A
+><B
+>PartialNDParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#PartialNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:PartialNDParams"
+><A NAME="v%3APartialNDParams"
+></A
+></A
+><B
+>PartialNDParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ndpOobProgramP"
+><A NAME="v%3AndpOobProgramP"
+></A
+></A
+><B
+>ndpOobProgramP</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:FilledNDParams"
+><A NAME="t%3AFilledNDParams"
+></A
+></A
+><B
+>FilledNDParams</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#FilledNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:FilledNDParams"
+><A NAME="v%3AFilledNDParams"
+></A
+></A
+><B
+>FilledNDParams</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ndpOobProgram"
+><A NAME="v%3AndpOobProgram"
+></A
+></A
+><B
+>ndpOobProgram</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fillNDParams"
+><A NAME="v%3AfillNDParams"
+></A
+></A
+><B
+>fillNDParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#fillNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadPartialNDParams"
+><A NAME="v%3AloadPartialNDParams"
+></A
+></A
+><B
+>loadPartialNDParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadPartialNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:savePartialNDParams"
+><A NAME="v%3AsavePartialNDParams"
+></A
+></A
+><B
+>savePartialNDParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#savePartialNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictPartialNDParams"
+><A NAME="v%3AtoDictPartialNDParams"
+></A
+></A
+><B
+>toDictPartialNDParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3APartialNDParams"
+>PartialNDParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictPartialNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadFilledNDParams"
+><A NAME="v%3AloadFilledNDParams"
+></A
+></A
+><B
+>loadFilledNDParams</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadFilledNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveFilledNDParams"
+><A NAME="v%3AsaveFilledNDParams"
+></A
+></A
+><B
+>saveFilledNDParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveFilledNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictFilledNDParams"
+><A NAME="v%3AtoDictFilledNDParams"
+></A
+></A
+><B
+>toDictFilledNDParams</B
+> :: <A HREF="Ganeti-Objects.html#t%3AFilledNDParams"
+>FilledNDParams</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictFilledNDParams"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Node"
+><A NAME="t%3ANode"
+></A
+></A
+><B
+>Node</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#Node"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Node"
+><A NAME="v%3ANode"
+></A
+></A
+><B
+>Node</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeName"
+><A NAME="v%3AnodeName"
+></A
+></A
+><B
+>nodeName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodePrimaryIp"
+><A NAME="v%3AnodePrimaryIp"
+></A
+></A
+><B
+>nodePrimaryIp</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeSecondaryIp"
+><A NAME="v%3AnodeSecondaryIp"
+></A
+></A
+><B
+>nodeSecondaryIp</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeMasterCandidate"
+><A NAME="v%3AnodeMasterCandidate"
+></A
+></A
+><B
+>nodeMasterCandidate</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeOffline"
+><A NAME="v%3AnodeOffline"
+></A
+></A
+><B
+>nodeOffline</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeDrained"
+><A NAME="v%3AnodeDrained"
+></A
+></A
+><B
+>nodeDrained</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeGroup"
+><A NAME="v%3AnodeGroup"
+></A
+></A
+><B
+>nodeGroup</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeMasterCapable"
+><A NAME="v%3AnodeMasterCapable"
+></A
+></A
+><B
+>nodeMasterCapable</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeVmCapable"
+><A NAME="v%3AnodeVmCapable"
+></A
+></A
+><B
+>nodeVmCapable</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodePowered"
+><A NAME="v%3AnodePowered"
+></A
+></A
+><B
+>nodePowered</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeCtime"
+><A NAME="v%3AnodeCtime"
+></A
+></A
+><B
+>nodeCtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeMtime"
+><A NAME="v%3AnodeMtime"
+></A
+></A
+><B
+>nodeMtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeUuid"
+><A NAME="v%3AnodeUuid"
+></A
+></A
+><B
+>nodeUuid</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nodeSerial"
+><A NAME="v%3AnodeSerial"
+></A
+></A
+><B
+>nodeSerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadNode"
+><A NAME="v%3AloadNode"
+></A
+></A
+><B
+>loadNode</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveNode"
+><A NAME="v%3AsaveNode"
+></A
+></A
+><B
+>saveNode</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictNode"
+><A NAME="v%3AtoDictNode"
+></A
+></A
+><B
+>toDictNode</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>NodeGroup definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:AllocPolicy"
+><A NAME="t%3AAllocPolicy"
+></A
+></A
+><B
+>AllocPolicy</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#AllocPolicy"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>The Group allocation policy type.
+</P
+><P
+>Note that the order of constructors is important as the automatic
+ Ord instance will order them in the order they are defined, so when
+ changing this data type be careful about the interaction with the
+ desired sorting order.
+</P
+><P
+>FIXME: COPIED from Types.hs; we need to eliminate this duplication later
+</P
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:AllocPreferred"
+><A NAME="v%3AAllocPreferred"
+></A
+></A
+><B
+>AllocPreferred</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AllocLastResort"
+><A NAME="v%3AAllocLastResort"
+></A
+></A
+><B
+>AllocLastResort</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AllocUnallocable"
+><A NAME="v%3AAllocUnallocable"
+></A
+></A
+><B
+>AllocUnallocable</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:allocPolicyFromRaw"
+><A NAME="v%3AallocPolicyFromRaw"
+></A
+></A
+><B
+>allocPolicyFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a13pZ]. Monad m[a13pZ] =&gt; String -&gt; m[a13pZ] <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#allocPolicyFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:allocPolicyToRaw"
+><A NAME="v%3AallocPolicyToRaw"
+></A
+></A
+><B
+>allocPolicyToRaw</B
+> :: <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#allocPolicyToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:NodeGroup"
+><A NAME="t%3ANodeGroup"
+></A
+></A
+><B
+>NodeGroup</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#NodeGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeGroup"
+><A NAME="v%3ANodeGroup"
+></A
+></A
+><B
+>NodeGroup</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupName"
+><A NAME="v%3AgroupName"
+></A
+></A
+><B
+>groupName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupMembers"
+><A NAME="v%3AgroupMembers"
+></A
+></A
+><B
+>groupMembers</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupAllocPolicy"
+><A NAME="v%3AgroupAllocPolicy"
+></A
+></A
+><B
+>groupAllocPolicy</B
+> :: <A HREF="Ganeti-Objects.html#t%3AAllocPolicy"
+>AllocPolicy</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupCtime"
+><A NAME="v%3AgroupCtime"
+></A
+></A
+><B
+>groupCtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupMtime"
+><A NAME="v%3AgroupMtime"
+></A
+></A
+><B
+>groupMtime</B
+> :: Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupUuid"
+><A NAME="v%3AgroupUuid"
+></A
+></A
+><B
+>groupUuid</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:groupSerial"
+><A NAME="v%3AgroupSerial"
+></A
+></A
+><B
+>groupSerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadNodeGroup"
+><A NAME="v%3AloadNodeGroup"
+></A
+></A
+><B
+>loadNodeGroup</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadNodeGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveNodeGroup"
+><A NAME="v%3AsaveNodeGroup"
+></A
+></A
+><B
+>saveNodeGroup</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveNodeGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictNodeGroup"
+><A NAME="v%3AtoDictNodeGroup"
+></A
+></A
+><B
+>toDictNodeGroup</B
+> :: <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictNodeGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="6"
+><A NAME="6"
+>Cluster definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Cluster"
+><A NAME="t%3ACluster"
+></A
+></A
+><B
+>Cluster</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#Cluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Cluster"
+><A NAME="v%3ACluster"
+></A
+></A
+><B
+>Cluster</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterRsahostkeypub"
+><A NAME="v%3AclusterRsahostkeypub"
+></A
+></A
+><B
+>clusterRsahostkeypub</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterHighestUsedPort"
+><A NAME="v%3AclusterHighestUsedPort"
+></A
+></A
+><B
+>clusterHighestUsedPort</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterTcpudpPortPool"
+><A NAME="v%3AclusterTcpudpPortPool"
+></A
+></A
+><B
+>clusterTcpudpPortPool</B
+> :: [Int]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterMacPrefix"
+><A NAME="v%3AclusterMacPrefix"
+></A
+></A
+><B
+>clusterMacPrefix</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterVolumeGroupName"
+><A NAME="v%3AclusterVolumeGroupName"
+></A
+></A
+><B
+>clusterVolumeGroupName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterReservedLvs"
+><A NAME="v%3AclusterReservedLvs"
+></A
+></A
+><B
+>clusterReservedLvs</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterMasterNode"
+><A NAME="v%3AclusterMasterNode"
+></A
+></A
+><B
+>clusterMasterNode</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterMasterIp"
+><A NAME="v%3AclusterMasterIp"
+></A
+></A
+><B
+>clusterMasterIp</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterMasterNetdev"
+><A NAME="v%3AclusterMasterNetdev"
+></A
+></A
+><B
+>clusterMasterNetdev</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterClusterName"
+><A NAME="v%3AclusterClusterName"
+></A
+></A
+><B
+>clusterClusterName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterFileStorageDir"
+><A NAME="v%3AclusterFileStorageDir"
+></A
+></A
+><B
+>clusterFileStorageDir</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterEnabledHypervisors"
+><A NAME="v%3AclusterEnabledHypervisors"
+></A
+></A
+><B
+>clusterEnabledHypervisors</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterBeparams"
+><A NAME="v%3AclusterBeparams"
+></A
+></A
+><B
+>clusterBeparams</B
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AFilledBEParams"
+>FilledBEParams</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterNicparams"
+><A NAME="v%3AclusterNicparams"
+></A
+></A
+><B
+>clusterNicparams</B
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AFilledNICParams"
+>FilledNICParams</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterCandidatePoolSize"
+><A NAME="v%3AclusterCandidatePoolSize"
+></A
+></A
+><B
+>clusterCandidatePoolSize</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterModifyEtcHosts"
+><A NAME="v%3AclusterModifyEtcHosts"
+></A
+></A
+><B
+>clusterModifyEtcHosts</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterModifySshSetup"
+><A NAME="v%3AclusterModifySshSetup"
+></A
+></A
+><B
+>clusterModifySshSetup</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterMaintainNodeHealth"
+><A NAME="v%3AclusterMaintainNodeHealth"
+></A
+></A
+><B
+>clusterMaintainNodeHealth</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterUidPool"
+><A NAME="v%3AclusterUidPool"
+></A
+></A
+><B
+>clusterUidPool</B
+> :: [Int]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterDefaultIallocator"
+><A NAME="v%3AclusterDefaultIallocator"
+></A
+></A
+><B
+>clusterDefaultIallocator</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterHiddenOs"
+><A NAME="v%3AclusterHiddenOs"
+></A
+></A
+><B
+>clusterHiddenOs</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterBlacklistedOs"
+><A NAME="v%3AclusterBlacklistedOs"
+></A
+></A
+><B
+>clusterBlacklistedOs</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterPrimaryIpFamily"
+><A NAME="v%3AclusterPrimaryIpFamily"
+></A
+></A
+><B
+>clusterPrimaryIpFamily</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterPreallocWipeDisks"
+><A NAME="v%3AclusterPreallocWipeDisks"
+></A
+></A
+><B
+>clusterPreallocWipeDisks</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:clusterSerial"
+><A NAME="v%3AclusterSerial"
+></A
+></A
+><B
+>clusterSerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadCluster"
+><A NAME="v%3AloadCluster"
+></A
+></A
+><B
+>loadCluster</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveCluster"
+><A NAME="v%3AsaveCluster"
+></A
+></A
+><B
+>saveCluster</B
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictCluster"
+><A NAME="v%3AtoDictCluster"
+></A
+></A
+><B
+>toDictCluster</B
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="7"
+><A NAME="7"
+>ConfigData definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfigData"
+><A NAME="t%3AConfigData"
+></A
+></A
+><B
+>ConfigData</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#ConfigData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfigData"
+><A NAME="v%3AConfigData"
+></A
+></A
+><B
+>ConfigData</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:configVersion"
+><A NAME="v%3AconfigVersion"
+></A
+></A
+><B
+>configVersion</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:configCluster"
+><A NAME="v%3AconfigCluster"
+></A
+></A
+><B
+>configCluster</B
+> :: <A HREF="Ganeti-Objects.html#t%3ACluster"
+>Cluster</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:configNodes"
+><A NAME="v%3AconfigNodes"
+></A
+></A
+><B
+>configNodes</B
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:configNodegroups"
+><A NAME="v%3AconfigNodegroups"
+></A
+></A
+><B
+>configNodegroups</B
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3ANodeGroup"
+>NodeGroup</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:configInstances"
+><A NAME="v%3AconfigInstances"
+></A
+></A
+><B
+>configInstances</B
+> :: <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:configSerial"
+><A NAME="v%3AconfigSerial"
+></A
+></A
+><B
+>configSerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConfigData"
+><A NAME="v%3AloadConfigData"
+></A
+></A
+><B
+>loadConfigData</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#loadConfigData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveConfigData"
+><A NAME="v%3AsaveConfigData"
+></A
+></A
+><B
+>saveConfigData</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#saveConfigData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictConfigData"
+><A NAME="v%3AtoDictConfigData"
+></A
+></A
+><B
+>toDictConfigData</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Objects.html#toDictConfigData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

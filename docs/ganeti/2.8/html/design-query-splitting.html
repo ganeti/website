@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Splitting the query and job execution paths &mdash; Ganeti 2.8.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.8.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.8.4 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Partitioned Ganeti" href="design-partitioned.html" />
+    <link rel="prev" title="Resource model changes" href="design-resource-model.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-resource-model.html" title="Resource model changes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="splitting-the-query-and-job-execution-paths">
+<h1>Splitting the query and job execution paths<a class="headerlink" href="#splitting-the-query-and-job-execution-paths" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Currently, the master daemon does two main roles:</p>
+<ul class="simple">
+<li>execute jobs that change the cluster state</li>
+<li>respond to queries</li>
+</ul>
+<p>Due to the technical details of the implementation, the job execution
+and query paths interact with each other, and for example the &#8220;masterd
+hang&#8221; issue that we had late in the 2.5 release cycle was due to the
+interaction between job queries and job execution.</p>
+<p>Furthermore, also because technical implementations (Python lacking
+read-only variables being one example), we can&#8217;t share internal data
+structures for jobs; instead, in the query path, we read them from
+disk in order to not block job execution due to locks.</p>
+<p>All these point to the fact that the integration of both queries and
+job execution in the same process (multi-threaded) creates more
+problems than advantages, and hence we should look into separating
+them.</p>
+</div>
+<div class="section" id="proposed-design">
+<h2>Proposed design<a class="headerlink" href="#proposed-design" title="Permalink to this headline">¶</a></h2>
+<p>In Ganeti 2.7, we will introduce a separate, optional daemon to handle
+queries (note: whether this is an actual &#8220;new&#8221; daemon, or its
+functionality is folded into confd, remains to be seen).</p>
+<p>This daemon will expose exactly the same Luxi interface as masterd,
+except that job submission will be disabled. If so configured (at
+build time), clients will be changed to:</p>
+<ul class="simple">
+<li>keep sending REQ_SUBMIT_JOB, REQ_SUBMIT_MANY_JOBS, and all requests
+except REQ_QUERY_* to the masterd socket (but also QR_LOCK)</li>
+<li>redirect all REQ_QUERY_* requests to the new Luxi socket of the new
+daemon (except generic query with QR_LOCK)</li>
+</ul>
+<p>This new daemon will serve both pure configuration queries (which
+confd can already serve), and run-time queries (which currently only
+masterd can serve). Since the RPC can be done from any node to any
+node, the new daemon can run on all master candidates, not only on the
+master node. This means that all gnt-* list options can be now run on
+other nodes than the master node. If we implement this as a separate
+daemon that talks to confd, then we could actually run this on all
+nodes of the cluster (to be decided).</p>
+<p>During the 2.7 release, masterd will still respond to queries itself,
+but it will log all such queries for identification of &#8220;misbehaving&#8221;
+clients.</p>
+<div class="section" id="advantages">
+<h3>Advantages<a class="headerlink" href="#advantages" title="Permalink to this headline">¶</a></h3>
+<p>As far as I can see, this will bring some significant advantages.</p>
+<p>First, we remove any interaction between the job execution and cluster
+query state. This means that bugs in the locking code (job execution)
+will not impact the query of the cluster state, nor the query of the
+job execution itself. Furthermore, we will be able to have different
+tuning parameters between job execution (e.g. 25 threads for job
+execution) versus query (since these are transient, we could
+practically have unlimited numbers of query threads).</p>
+<p>As a result of the above split, we move from the current model, where
+shutdown of the master daemon practically &#8220;breaks&#8221; the entire Ganeti
+functionality (no job execution nor queries, not even connecting to
+the instance console), to a split model:</p>
+<ul class="simple">
+<li>if just masterd is stopped, then other cluster functionality remains
+available: listing instances, connecting to the console of an
+instance, etc.</li>
+<li>if just &#8220;luxid&#8221; is stopped, masterd can still process jobs, and one
+can furthermore run queries from other nodes (MCs)</li>
+<li>only if both are stopped, we end up with the previous state</li>
+</ul>
+<p>This will help, for example, in the case where the master node has
+crashed and we haven&#8217;t failed it over yet: querying and investigating
+the cluster state will still be possible from other master candidates
+(on small clusters, this will mean from all nodes).</p>
+<p>A last advantage is that we finally will be able to reduce the
+footprint of masterd; instead of previous discussion of splitting
+individual jobs, which requires duplication of all the base
+functionality, this will just split the queries, a more trivial piece
+of code than job execution. This should be a reasonable work effort,
+with a much smaller impact in case of failure (we can still run
+masterd as before).</p>
+</div>
+<div class="section" id="disadvantages">
+<h3>Disadvantages<a class="headerlink" href="#disadvantages" title="Permalink to this headline">¶</a></h3>
+<p>We might get increased inconsistency during queries, as there will be
+a delay between masterd saving an updated configuration and
+confd/query loading and parsing it. However, this could be compensated
+by the fact that queries will only look at &#8220;snapshots&#8221; of the
+configuration, whereas before it could also look at &#8220;in-progress&#8221;
+modifications (due to the non-atomic updates). I think these will
+cancel each other out, we will have to see in practice how it works.</p>
+<p>Another disadvantage <em>might</em> be that we have a more complex setup, due
+to the introduction of a new daemon. However, the query path will be
+much simpler, and when we remove the query functionality from masterd
+we should have a more robust system.</p>
+<p>Finally, we have QR_LOCK, which is an internal query related to the
+master daemon, using the same infrastructure as the other queries
+(related to cluster state). This is unfortunate, and will require
+untangling in order to keep code duplication low.</p>
+</div>
+</div>
+<div class="section" id="long-term-plans">
+<h2>Long-term plans<a class="headerlink" href="#long-term-plans" title="Permalink to this headline">¶</a></h2>
+<p>If this works well, the plan would be (tentatively) to disable the
+query functionality in masterd completely in Ganeti 2.8, in order to
+remove the duplication. This might change based on how/if we split the
+configuration/locking daemon out, or not.</p>
+<p>Once we split this out, there is not technical reason why we can&#8217;t
+execute any query from any node; except maybe practical reasons
+(network topology, remote nodes, etc.) or security reasons (if/whether
+we want to change the cluster security model). In any case, it should
+be possible to do this in a reliable way from all master candidates.</p>
+<div class="section" id="some-implementation-details">
+<h3>Some implementation details<a class="headerlink" href="#some-implementation-details" title="Permalink to this headline">¶</a></h3>
+<p>We will fold this in confd, at least initially, to reduce the
+proliferation of daemons. Haskell will limit (if used properly) any too
+deep integration between the old &#8220;confd&#8221; functionality and the new query
+one. As advantages, we&#8217;ll have a single daemons that handles
+configuration queries.</p>
+<p>The redirection of Luxi requests can be easily done based on the
+request type, if we have both sockets open, or if we open on demand.</p>
+<p>We don&#8217;t want the masterd to talk to the luxid itself (hidden
+redirection), since we want to be able to run queries while masterd is
+down.</p>
+<p>During the 2.7 release cycle, we can test all queries against both
+masterd and luxid in QA, so we know we have exactly the same
+interface and it is consistent.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Splitting the query and job execution paths</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#proposed-design">Proposed design</a><ul>
+<li><a class="reference internal" href="#advantages">Advantages</a></li>
+<li><a class="reference internal" href="#disadvantages">Disadvantages</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#long-term-plans">Long-term plans</a><ul>
+<li><a class="reference internal" href="#some-implementation-details">Some implementation details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-resource-model.html"
+                        title="previous chapter">Resource model changes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-partitioned.html"
+                        title="next chapter">Partitioned Ganeti</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-query-splitting.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-resource-model.html" title="Resource model changes"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

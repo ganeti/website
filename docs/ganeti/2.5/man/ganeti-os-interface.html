@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>ganeti-os-interface(7) Ganeti | Version 2.5.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">ganeti-os-interface(7) Ganeti | Version 2.5.2</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >ganeti-os-interface - Specifications for guest OS types</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The method of supporting guest operating systems in Ganeti is to have, for each guest OS type, a directory containing a number of required files. This directory must be present across all nodes (Ganeti doesn't replicate it) in order for the OS to be usable by Ganeti.</p
+  ></div
+><div id="reference"
+><h1
+  >REFERENCE</h1
+  ><p
+  >There are eight required files: <em
+    >create</em
+    >, <em
+    >import</em
+    >, <em
+    >export</em
+    >, <em
+    >rename</em
+    >, <em
+    >verify</em
+    > (executables), <em
+    >ganeti_api_version</em
+    >, <em
+    >variants.list</em
+    > and <em
+    >parameters.list</em
+    > (text files).</p
+  ><div id="common-environment"
+  ><h2
+    >Common environment</h2
+    ><p
+    >All commands will get their input via environment variables. A common set of variables will be exported for all commands, and some of them might have extra ones. Note that all counts are zero-based.</p
+    ><p
+    >Since Ganeti version 2.5, the environment will be cleaned up before being passed to scripts, therefore they will not inherit the environment in with which the ganeti node daemon was started. If you depend on any environment variables (non-Ganeti), then you will need to define or source them appropriately.</p
+    ><dl
+    ><dt
+      >OS_API_VERSION</dt
+      ><dd
+      ><p
+	>The OS API version that the rest of the environment conforms to.</p
+	></dd
+      ><dt
+      >INSTANCE_NAME</dt
+      ><dd
+      ><p
+	>The instance name the script should operate on.</p
+	></dd
+      ><dt
+      >INSTANCE_OS, OS_NAME</dt
+      ><dd
+      ><p
+	>Both names point to the name of the instance's OS as Ganeti knows it. This can simplify the OS scripts by providing the same scripts under multiple names, and then the scripts can use this name to alter their behaviour.</p
+	><p
+	>With OS API 15 changing the script behavior based on this variable is deprecated: OS_VARIANT should be used instead (see below).</p
+	></dd
+      ><dt
+      >OS_VARIANT</dt
+      ><dd
+      ><p
+	>The variant of the OS which should be installed. Each OS must support all variants listed under its variants.list file, and may support more. Any more supported variants should be properly documented in the per-OS documentation.</p
+	></dd
+      ><dt
+      >HYPERVISOR</dt
+      ><dd
+      ><p
+	>The hypervisor of this instance.</p
+	></dd
+      ><dt
+      >DISK_COUNT</dt
+      ><dd
+      ><p
+	>The number of disks the instance has. The actual disk defitions are in a set of additional variables. The instance's disk will be numbered from 0 to this value minus one.</p
+	></dd
+      ><dt
+      >DISK_%N_PATH</dt
+      ><dd
+      ><p
+	>The path to the storage for disk N of the instance. This might be either a block device or a regular file, in which case the OS scripts should use <code
+	  >losetup</code
+	  > (if they need to mount it). E.g. the first disk of the instance might be exported as <code
+	  >DISK_0_PATH=/dev/drbd0</code
+	  >.</p
+	></dd
+      ><dt
+      >DISK_%N_ACCESS</dt
+      ><dd
+      ><p
+	>This is how the hypervisor will export the instance disks: either read-write (<code
+	  >rw</code
+	  >) or read-only (<code
+	  >ro</code
+	  >).</p
+	></dd
+      ><dt
+      >DISK_%N_FRONTEND_TYPE</dt
+      ><dd
+      ><p
+	>(Optional) If applicable to the current hypervisor type: the type of the device exported by the hypervisor. For example, the Xen HVM hypervisor can export disks as either <code
+	  >paravirtual</code
+	  > or <code
+	  >ioemu</code
+	  >.</p
+	></dd
+      ><dt
+      >DISK_%N_BACKEND_TYPE</dt
+      ><dd
+      ><p
+	>How files are visible on the node side. This can be either <code
+	  >block</code
+	  > (when using block devices) or <code
+	  >file:type</code
+	  >, where <code
+	  >type</code
+	  > is either <code
+	  >loop</code
+	  > or <code
+	  >blktap</code
+	  > depending on how the hypervisor will be configured. Note that not all backend types apply to all hypervisors.</p
+	></dd
+      ><dt
+      >NIC_COUNT</dt
+      ><dd
+      ><p
+	>Similar to the <code
+	  >DISK_COUNT</code
+	  >, this represents the number of NICs of the instance.</p
+	></dd
+      ><dt
+      >NIC_%N_MAC</dt
+      ><dd
+      ><p
+	>The MAC address associated with this interface.</p
+	></dd
+      ><dt
+      >NIC_%N_IP</dt
+      ><dd
+      ><p
+	>The IP address, if any, associated with the N-th NIC of the instance.</p
+	></dd
+      ><dt
+      >NIC_%N_MODE</dt
+      ><dd
+      ><p
+	>The NIC mode, either routed or bridged</p
+	></dd
+      ><dt
+      >NIC_%N_BRIDGE</dt
+      ><dd
+      ><p
+	>The bridge to which this NIC will be attached. This variable is defined only when the NIC is in bridged mode.</p
+	></dd
+      ><dt
+      >NIC_%N_LINK</dt
+      ><dd
+      ><p
+	>If the NIC is in bridged mode, this is the same as <code
+	  >NIC_%N_BRIDGE</code
+	  >. If it is in routed mode, the routing table which will be used by the hypervisor to insert the appropriate routes.</p
+	></dd
+      ><dt
+      >NIC_%N_FRONTEND_TYPE</dt
+      ><dd
+      ><p
+	>(Optional) If applicable, the type of the exported NIC to the instance, this can be one of: <code
+	  >rtl8139</code
+	  >, <code
+	  >ne2k_pci</code
+	  >, <code
+	  >ne2k_isa</code
+	  >, <code
+	  >paravirtual</code
+	  >.</p
+	></dd
+      ><dt
+      >OSP_<em
+	>name</em
+	></dt
+      ><dd
+      ><p
+	>Each OS parameter (see below) will be exported in its own variable, prefixed with <code
+	  >OSP_</code
+	  >, and upper-cased. For example, a <code
+	  >dhcp</code
+	  > parameter will be exported as <code
+	  >OSP_DHCP</code
+	  >.</p
+	></dd
+      ><dt
+      >DEBUG_LEVEL</dt
+      ><dd
+      ><p
+	>If non-zero, this should cause the OS script to generate verbose logs of its execution, for troubleshooting purposes. Currently only <code
+	  >0</code
+	  > and <code
+	  >1</code
+	  > are valid values.</p
+	></dd
+      ></dl
+    ></div
+  ></div
+><div id="executable-scripts"
+><h1
+  >EXECUTABLE SCRIPTS</h1
+  ><div id="create"
+  ><h2
+    >create</h2
+    ><p
+    >The <strong
+      >create</strong
+      > command is used for creating a new instance from scratch. It has no additional environment variables bside the common ones.</p
+    ><p
+    >The <code
+      >INSTANCE_NAME</code
+      > variable denotes the name of the instance, which is guaranteed to resolve to an IP address. The create script should configure the instance according to this name. It can configure the IP statically or not, depending on the deployment environment.</p
+    ><p
+    >The <code
+      >INSTANCE_REINSTALL</code
+      > variable is set to <code
+      >1</code
+      > when this create request is reinstalling an existing instance, rather than creating one anew. This can be used, for example, to preserve some data in the old instance in an OS-specific way.</p
+    ></div
+  ><div id="export"
+  ><h2
+    >export</h2
+    ><p
+    >This command is used in order to make a backup of a given disk of the instance. The command should write to stdout a dump of the given block device. The output of this program will be passed during restore to the <strong
+      >import</strong
+      > command.</p
+    ><p
+    >The specific disk to backup is denoted by two additional environment variables: <code
+      >EXPORT_INDEX</code
+      > which denotes the index in the instance disks structure (and could be used for example to skip the second disk if not needed for backup) and <code
+      >EXPORT_DEVICE</code
+      > which has the same value as <code
+      >DISK_N_PATH</code
+      > but is duplicated here for easier usage by shell scripts (rather than parse the <code
+      >DISK_...</code
+      > variables).</p
+    ><p
+    >To provide the user with an estimate on how long the export will take, a predicted size can be written to the file descriptor passed in the variable <code
+      >EXP_SIZE_FD</code
+      >. The value is in bytes and must be terminated by a newline character (<code
+      >\n</code
+      >). Older versions of Ganeti don't support this feature, hence the variable should be checked before use. Example:</p
+    ><pre
+    ><code
+      >if test -n &quot;$EXP_SIZE_FD&quot;; then
+  blockdev --getsize64 $blockdev &gt;&amp;$EXP_SIZE_FD
+fi
+</code
+      ></pre
+    ></div
+  ><div id="import"
+  ><h2
+    >import</h2
+    ><p
+    >The <strong
+      >import</strong
+      > command is used for restoring an instance from a backup as done by <strong
+      >export</strong
+      >. The arguments are the similar to those passed to <strong
+      >export</strong
+      >, whose output will be provided on stdin.</p
+    ><p
+    >The difference in variables is that the current disk is denoted by <code
+      >IMPORT_DEVICE</code
+      > and <code
+      >IMPORT_INDEX</code
+      > (instead of <code
+      >EXPORT_...</code
+      >).</p
+    ></div
+  ><div id="rename"
+  ><h2
+    >rename</h2
+    ><p
+    >This command is used in order to perform a rename at the instance OS level, after the instance has been renamed in Ganeti. The command should do whatever steps are required to ensure that the instance is updated to use the new name, if the operating system supports it.</p
+    ><p
+    >Note that it is acceptable for the rename script to do nothing at all, however be warned that in this case, there will be a desynchronization between what gnt-instance list shows you and the actual hostname of the instance.</p
+    ><p
+    >The script will be passed one additional environment variable called <code
+      >OLD_INSTANCE_NAME</code
+      > which holds the old instance name. The <code
+      >INSTANCE_NAME</code
+      > variable holds the new instance name.</p
+    ><p
+    >A very simple rename script should at least change the hostname and IP address of the instance, leaving the administrator to update the other services.</p
+    ></div
+  ><div id="verify"
+  ><h2
+    >verify</h2
+    ><p
+    >The <em
+      >verify</em
+      > script is used to verify consistency of the OS parameters (see below). The command should take one or more arguments denoting what checks should be performed, and return a proper exit code depending on whether the validation failed or succeeded.</p
+    ><p
+    >Currently (API version 20), only one parameter is supported: <code
+      >parameters</code
+      >. This should validate the <code
+      >OSP_</code
+      > variables from the environment, and output diagnostic messages in case the validation fails.</p
+    ><p
+    >For the <code
+      >dhcp</code
+      > parameter given as example above, a verification script could be:</p
+    ><pre
+    ><code
+      >#!/bin/sh
+
+case $OSP_DHCP in
+  &quot;&quot;|yes|no)
+      ;;
+  *)
+    echo &quot;Invalid value '$OSP_DHCP' for the dhcp parameter&quot; 1&gt;&amp;2
+    exit 1;
+    ;;
+esac
+
+exit 0
+</code
+      ></pre
+    ></div
+  ></div
+><div id="text-files"
+><h1
+  >TEXT FILES</h1
+  ><div id="ganeti_api_version"
+  ><h2
+    >ganeti_api_version</h2
+    ><p
+    >The ganeti_api_version file is a plain text file containing the version(s) of the guest OS API that this OS definition complies with, one per line. The version documented by this man page is 20, so this file must contain the number 20 followed by a newline if only this version is supported. A script compatible with more than one Ganeti version should contain the most recent version first (i.e. 20), followed by the old version(s) (in this case 15 and/or 10).</p
+    ></div
+  ><div id="variants.list"
+  ><h2
+    >variants.list</h2
+    ><p
+    >variants.list is a plain text file containing all the declared supported variants for this OS, one per line. If this file is missing or empty, then the OS won't be considered to support variants.</p
+    ></div
+  ><div id="parameters.list"
+  ><h2
+    >parameters.list</h2
+    ><p
+    >This file declares the parameters supported by the OS, one parameter per line, with name and description (space and/or tab separated). For example:</p
+    ><pre
+    ><code
+      >dhcp Whether to enable (yes) or disable (no) dhcp
+root_size The size of the root partition, in GiB
+</code
+      ></pre
+    ><p
+    >The parameters can then be used in instance add or modification, as follows:</p
+    ><pre
+    ><code
+      ># gnt-instance add -O dhcp=no,root_size=8 ...
+</code
+      ></pre
+    ></div
+  ></div
+><div id="notes"
+><h1
+  >NOTES</h1
+  ><div id="backwards-compatibility"
+  ><h2
+    >Backwards compatibility</h2
+    ><p
+    >Ganeti 2.3 and up is compatible with API versions 10, 15 and 20. The OS parameters and related scripts (verify) are only supported in version 20. The variants functionality (variants.list, and OS_VARIANT env. var) are supported/present only in version 15 and up.</p
+    ></div
+  ><div id="common-behaviour"
+  ><h2
+    >Common behaviour</h2
+    ><p
+    >All the scripts should display an usage message when called with a wrong number of arguments or when the first argument is <code
+      >-h</code
+      > or <code
+      >--help</code
+      >.</p
+    ></div
+  ><div id="upgrading-from-old-versions"
+  ><h2
+    >Upgrading from old versions</h2
+    ><div id="version-15-to-20"
+    ><h3
+      >Version 15 to 20</h3
+      ><p
+      >The <code
+	>parameters.list</code
+	> file and <code
+	>verify</code
+	> script have been added. For no parameters, an empty parameters file and an empty verify script which returns success can be used.</p
+      ></div
+    ><div id="version-10-to-15"
+    ><h3
+      >Version 10 to 15</h3
+      ><p
+      >The <code
+	>variants.list</code
+	> file has been added, so OSes should support at least one variant, declaring it in that file and must be prepared to parse the OS_VARIANT environment variable. OSes are free to support more variants than just the declared ones. Note that this file is optional; without it, the variants functionality is disabled.</p
+      ></div
+    ><div id="version-5-to-10"
+    ><h3
+      >Version 5 to 10</h3
+      ><p
+      >The method for passing data has changed from command line options to environment variables, so scripts should be modified to use these. For an example of how this can be done in a way compatible with both versions, feel free to look at the debootstrap instance's common.sh auxiliary script.</p
+      ><p
+      >Also, instances can have now a variable number of disks, not only two, and a variable number of NICs (instead of fixed one), so the scripts should deal with this. The biggest change is in the import/export, which are called once per disk, instead of once per instance.</p
+      ></div
+    ><div id="version-4-to-5"
+    ><h3
+      >Version 4 to 5</h3
+      ><p
+      >The rename script has been added. If you don't want to do any changes on the instances after a rename, you can migrate the OS definition to version 5 by creating the rename script simply as:</p
+      ><pre
+      ><code
+	>#!/bin/sh
+
+exit 0
+</code
+	></pre
+      ><p
+      >Note that the script must be executable.</p
+      ></div
+    ></div
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

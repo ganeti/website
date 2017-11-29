@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hspace &mdash; Ganeti 2.8.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.8.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.8.4 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="htools" href="man-htools.html" />
+    <link rel="prev" title="hscan" href="man-hscan.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-htools.html" title="htools"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-hscan.html" title="hscan"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="hspace">
+<h1>hspace<a class="headerlink" href="#hspace" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>hspace - Cluster space analyzer for Ganeti</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>hspace</strong> {backend options...} [algorithm options...] [request options...]
+[output options...] [-v... | -q]</p>
+<p><strong>hspace</strong> &#8211;version</p>
+<p>Backend options:</p>
+<p>{ <strong>-m</strong> <em>cluster</em> | <strong>-L[</strong> <em>path</em> <strong>] [-X]</strong> | <strong>-t</strong> <em>data-file</em> |
+<strong>&#8211;simulate</strong> <em>spec</em> | <strong>-I</strong> <em>path</em> }</p>
+<p>Algorithm options:</p>
+<p><strong>[ &#8211;max-cpu *cpu-ratio* ]</strong>
+<strong>[ &#8211;min-disk *disk-ratio* ]</strong>
+<strong>[ -O *name...* ]</strong></p>
+<p>Request options:</p>
+<p><strong>[&#8211;disk-template</strong> <em>template</em> <strong>]</strong></p>
+<p><strong>[&#8211;standard-alloc</strong> <em>disk,ram,cpu</em>  <strong>]</strong></p>
+<p><strong>[&#8211;tiered-alloc</strong> <em>disk,ram,cpu</em> <strong>]</strong></p>
+<p>Output options:</p>
+<p><strong>[&#8211;machine-readable**[=*CHOICE*] **]</strong>
+<strong>[-p**[*fields*]</strong>]**</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>hspace computes how many additional instances can be fit on a cluster,
+while maintaining N+1 status.</p>
+<p>The program will try to place instances, all of the same size, on the
+cluster, until the point where we don&#8217;t have any N+1 possible
+allocation. It uses the exact same allocation algorithm as the hail
+iallocator plugin in <em>allocate</em> mode.</p>
+<p>The output of the program is designed either for human consumption (the
+default) or, when enabled with the <tt class="docutils literal"><span class="pre">--machine-readable</span></tt> option
+(described further below), for machine consumption. In the latter case,
+it is intended to interpreted as a shell fragment (or parsed as a
+<em>key=value</em> file). Options which extend the output (e.g. -p, -v) will
+output the additional information on stderr (such that the stdout is
+still parseable).</p>
+<p>By default, the instance specifications will be read from the cluster;
+the options <tt class="docutils literal"><span class="pre">--standard-alloc</span></tt> and <tt class="docutils literal"><span class="pre">--tiered-alloc</span></tt> can be used to
+override them.</p>
+<p>The following keys are available in the machine-readable output of the
+script (all prefixed with <em>HTS_</em>):</p>
+<dl class="docutils">
+<dt>SPEC_MEM, SPEC_DSK, SPEC_CPU, SPEC_RQN, SPEC_DISK_TEMPLATE</dt>
+<dd>These represent the specifications of the instance model used for
+allocation (the memory, disk, cpu, requested nodes, disk template).</dd>
+<dt>TSPEC_INI_MEM, TSPEC_INI_DSK, TSPEC_INI_CPU, ...</dt>
+<dd>Only defined when the tiered mode allocation is enabled, these are
+similar to the above specifications but show the initial starting spec
+for tiered allocation.</dd>
+<dt>CLUSTER_MEM, CLUSTER_DSK, CLUSTER_CPU, CLUSTER_NODES</dt>
+<dd>These represent the total memory, disk, CPU count and total nodes in
+the cluster.</dd>
+<dt>INI_SCORE, FIN_SCORE</dt>
+<dd>These are the initial (current) and final cluster score (see the hbal
+man page for details about the scoring algorithm).</dd>
+<dt>INI_INST_CNT, FIN_INST_CNT</dt>
+<dd>The initial and final instance count.</dd>
+<dt>INI_MEM_FREE, FIN_MEM_FREE</dt>
+<dd>The initial and final total free memory in the cluster (but this
+doesn&#8217;t necessarily mean available for use).</dd>
+<dt>INI_MEM_AVAIL, FIN_MEM_AVAIL</dt>
+<dd>The initial and final total available memory for allocation in the
+cluster. If allocating redundant instances, new instances could
+increase the reserved memory so it doesn&#8217;t necessarily mean the
+entirety of this memory can be used for new instance allocations.</dd>
+<dt>INI_MEM_RESVD, FIN_MEM_RESVD</dt>
+<dd>The initial and final reserved memory (for redundancy/N+1 purposes).</dd>
+<dt>INI_MEM_INST, FIN_MEM_INST</dt>
+<dd>The initial and final memory used for instances (actual runtime used
+RAM).</dd>
+<dt>INI_MEM_OVERHEAD, FIN_MEM_OVERHEAD</dt>
+<dd>The initial and final memory overhead, i.e. memory used for the node
+itself and unaccounted memory (e.g. due to hypervisor overhead).</dd>
+<dt>INI_MEM_EFF, HTS_INI_MEM_EFF</dt>
+<dd>The initial and final memory efficiency, represented as instance
+memory divided by total memory.</dd>
+<dt>INI_DSK_FREE, INI_DSK_AVAIL, INI_DSK_RESVD, INI_DSK_INST, INI_DSK_EFF</dt>
+<dd>Initial disk stats, similar to the memory ones.</dd>
+<dt>FIN_DSK_FREE, FIN_DSK_AVAIL, FIN_DSK_RESVD, FIN_DSK_INST, FIN_DSK_EFF</dt>
+<dd>Final disk stats, similar to the memory ones.</dd>
+<dt>INI_CPU_INST, FIN_CPU_INST</dt>
+<dd>Initial and final number of virtual CPUs used by instances.</dd>
+<dt>INI_CPU_EFF, FIN_CPU_EFF</dt>
+<dd>The initial and final CPU efficiency, represented as the count of
+virtual instance CPUs divided by the total physical CPU count.</dd>
+<dt>INI_MNODE_MEM_AVAIL, FIN_MNODE_MEM_AVAIL</dt>
+<dd>The initial and final maximum per-node available memory. This is not
+very useful as a metric but can give an impression of the status of
+the nodes; as an example, this value restricts the maximum instance
+size that can be still created on the cluster.</dd>
+<dt>INI_MNODE_DSK_AVAIL, FIN_MNODE_DSK_AVAIL</dt>
+<dd>Like the above but for disk.</dd>
+<dt>TSPEC</dt>
+<dd>This parameter holds the pairs of specifications and counts of
+instances that can be created in the <em>tiered allocation</em> mode. The
+value of the key is a space-separated list of values; each value is of
+the form <em>memory,disk,vcpu=count</em> where the memory, disk and vcpu are
+the values for the current spec, and count is how many instances of
+this spec can be created. A complete value for this variable could be:
+<strong>4096,102400,2=225 2560,102400,2=20 512,102400,2=21</strong>.</dd>
+<dt>KM_USED_CPU, KM_USED_NPU, KM_USED_MEM, KM_USED_DSK</dt>
+<dd>These represents the metrics of used resources at the start of the
+computation (only for tiered allocation mode). The NPU value is
+&#8220;normalized&#8221; CPU count, i.e. the number of virtual CPUs divided by
+the maximum ratio of the virtual to physical CPUs.</dd>
+<dt>KM_POOL_CPU, KM_POOL_NPU, KM_POOL_MEM, KM_POOL_DSK</dt>
+<dd>These represents the total resources allocated during the tiered
+allocation process. In effect, they represent how much is readily
+available for allocation.</dd>
+<dt>KM_UNAV_CPU, KM_POOL_NPU, KM_UNAV_MEM, KM_UNAV_DSK</dt>
+<dd>These represents the resources left over (either free as in
+unallocable or allocable on their own) after the tiered allocation
+has been completed. They represent better the actual unallocable
+resources, because some other resource has been exhausted. For
+example, the cluster might still have 100GiB disk free, but with no
+memory left for instances, we cannot allocate another instance, so
+in effect the disk space is unallocable. Note that the CPUs here
+represent instance virtual CPUs, and in case the <em>&#8211;max-cpu</em> option
+hasn&#8217;t been specified this will be -1.</dd>
+<dt>ALLOC_USAGE</dt>
+<dd>The current usage represented as initial number of instances divided
+per final number of instances.</dd>
+<dt>ALLOC_COUNT</dt>
+<dd>The number of instances allocated (delta between FIN_INST_CNT and
+INI_INST_CNT).</dd>
+<dt>ALLOC_FAIL*_CNT</dt>
+<dd>For the last attemp at allocations (which would have increased
+FIN_INST_CNT with one, if it had succeeded), this is the count of
+the failure reasons per failure type; currently defined are FAILMEM,
+FAILDISK and FAILCPU which represent errors due to not enough
+memory, disk and CPUs, and FAILN1 which represents a non N+1
+compliant cluster on which we can&#8217;t allocate instances at all.</dd>
+<dt>ALLOC_FAIL_REASON</dt>
+<dd>The reason for most of the failures, being one of the above FAIL*
+strings.</dd>
+<dt>OK</dt>
+<dd>A marker representing the successful end of the computation, and
+having value &#8220;1&#8221;. If this key is not present in the output it means
+that the computation failed and any values present should not be
+relied upon.</dd>
+</dl>
+<p>Many of the <tt class="docutils literal"><span class="pre">INI_</span></tt>/<tt class="docutils literal"><span class="pre">FIN_</span></tt> metrics will be also displayed with a
+<tt class="docutils literal"><span class="pre">TRL_</span></tt> prefix, and denote the cluster status at the end of the tiered
+allocation run.</p>
+<p>The human output format should be self-explanatory, so it is not
+described further.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p>The options that can be passed to the program are as follows:</p>
+<dl class="docutils">
+<dt>&#8211;disk-template <em>template</em></dt>
+<dd>Overrides the disk template for the instance read from the cluster;
+one of the Ganeti disk templates (e.g. plain, drbd, so on) should be
+passed in.</dd>
+<dt>&#8211;spindle-use <em>spindles</em></dt>
+<dd>Override the spindle use for the instance read from the cluster. The
+value can be 0 (for example for instances that use very low I/O), but not
+negative. For shared storage the value is ignored.</dd>
+<dt>&#8211;max-cpu=*cpu-ratio*</dt>
+<dd>The maximum virtual to physical cpu ratio, as a floating point number
+greater than or equal to one. For example, specifying <em>cpu-ratio</em> as
+<strong>2.5</strong> means that, for a 4-cpu machine, a maximum of 10 virtual cpus
+should be allowed to be in use for primary instances. A value of
+exactly one means there will be no over-subscription of CPU (except
+for the CPU time used by the node itself), and values below one do not
+make sense, as that means other resources (e.g. disk) won&#8217;t be fully
+utilised due to CPU restrictions.</dd>
+<dt>&#8211;min-disk=*disk-ratio*</dt>
+<dd>The minimum amount of free disk space remaining, as a floating point
+number. For example, specifying <em>disk-ratio</em> as <strong>0.25</strong> means that
+at least one quarter of disk space should be left free on nodes.</dd>
+<dt>-l <em>rounds</em>, &#8211;max-length=*rounds*</dt>
+<dd>Restrict the number of instance allocations to this length. This is
+not very useful in practice, but can be used for testing hspace
+itself, or to limit the runtime for very big clusters.</dd>
+<dt>-p, &#8211;print-nodes</dt>
+<dd>Prints the before and after node status, in a format designed to allow
+the user to understand the node&#8217;s most important parameters. See the
+man page <strong>htools</strong>(1) for more details about this option.</dd>
+<dt>-O <em>name</em></dt>
+<dd><p class="first">This option (which can be given multiple times) will mark nodes as
+being <em>offline</em>. This means a couple of things:</p>
+<ul class="simple">
+<li>instances won&#8217;t be placed on these nodes, not even temporarily;
+e.g. the <em>replace primary</em> move is not available if the secondary
+node is offline, since this move requires a failover.</li>
+<li>these nodes will not be included in the score calculation (except
+for the percentage of instances on offline nodes)</li>
+</ul>
+<p class="last">Note that the algorithm will also mark as offline any nodes which
+are reported by RAPI as such, or that have &#8221;?&#8221; in file-based input
+in any numeric fields.</p>
+</dd>
+<dt>-S <em>filename</em>, &#8211;save-cluster=*filename*</dt>
+<dd>If given, the state of the cluster at the end of the allocation is
+saved to a file named <em>filename.alloc</em>, and if tiered allocation is
+enabled, the state after tiered allocation will be saved to
+<em>filename.tiered</em>. This allows re-feeding the cluster state to
+either hspace itself (with different parameters) or for example
+hbal, via the <tt class="docutils literal"><span class="pre">-t</span></tt> option.</dd>
+<dt>-t <em>datafile</em>, &#8211;text-data=*datafile*</dt>
+<dd>Backend specification: the name of the file holding node and instance
+information (if not collecting via RAPI or LUXI). This or one of the
+other backends must be selected. The option is described in the man
+page <strong>htools</strong>(1).</dd>
+<dt>-m <em>cluster</em></dt>
+<dd>Backend specification: collect data directly from the <em>cluster</em> given
+as an argument via RAPI. The option is described in the man page
+<strong>htools</strong>(1).</dd>
+<dt>-L [<em>path</em>]</dt>
+<dd>Backend specification: collect data directly from the master daemon,
+which is to be contacted via LUXI (an internal Ganeti protocol). The
+option is described in the man page <strong>htools</strong>(1).</dd>
+<dt>&#8211;simulate <em>description</em></dt>
+<dd>Backend specification: similar to the <strong>-t</strong> option, this allows
+overriding the cluster data with a simulated cluster. For details
+about the description, see the man page <strong>htools</strong>(1).</dd>
+<dt>&#8211;standard-alloc <em>disk,ram,cpu</em></dt>
+<dd><p class="first">This option overrides the instance size read from the cluster for the
+<em>standard</em> allocation mode, where we simply allocate instances of the
+same, fixed size until the cluster runs out of space.</p>
+<p>The specification given is similar to the <em>&#8211;simulate</em> option and it
+holds:</p>
+<ul class="simple">
+<li>the disk size of the instance (units can be used)</li>
+<li>the memory size of the instance (units can be used)</li>
+<li>the vcpu count for the insance</li>
+</ul>
+<p class="last">An example description would be <em>100G,4g,2</em> describing an instance
+specification of 100GB of disk space, 4GiB of memory and 2 VCPUs.</p>
+</dd>
+<dt>&#8211;tiered-alloc <em>disk,ram,cpu</em></dt>
+<dd><p class="first">This option overrides the instance size for the <em>tiered</em> allocation
+mode. In this mode, the algorithm starts from the given specification
+and allocates until there is no more space; then it decreases the
+specification and tries the allocation again. The decrease is done on
+the metric that last failed during allocation. The argument should
+have the same format as for <tt class="docutils literal"><span class="pre">--standard-alloc</span></tt>.</p>
+<p class="last">Also note that the normal allocation and the tiered allocation are
+independent, and both start from the initial cluster state; as such,
+the instance count for these two modes are not related one to
+another.</p>
+</dd>
+<dt>&#8211;machine-readable[=*choice*]</dt>
+<dd>By default, the output of the program is in &#8220;human-readable&#8221; format,
+i.e. text descriptions. By passing this flag you can either enable
+(<tt class="docutils literal"><span class="pre">--machine-readable</span></tt> or <tt class="docutils literal"><span class="pre">--machine-readable=yes</span></tt>) or explicitly
+disable (<tt class="docutils literal"><span class="pre">--machine-readable=no</span></tt>) the machine readable format
+described above.</dd>
+<dt>-v, &#8211;verbose</dt>
+<dd>Increase the output verbosity. Each usage of this option will
+increase the verbosity (currently more than 2 doesn&#8217;t make sense)
+from the default of one.</dd>
+<dt>-q, &#8211;quiet</dt>
+<dd>Decrease the output verbosity. Each usage of this option will
+decrease the verbosity (less than zero doesn&#8217;t make sense) from the
+default of one.</dd>
+<dt>-V, &#8211;version</dt>
+<dd>Just show the program version and exit.</dd>
+</dl>
+<div class="section" id="units">
+<h3>UNITS<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h3>
+<p>By default, all unit-accepting options use mebibytes. Using the
+lower-case letters of <em>m</em>, <em>g</em> and <em>t</em> (or their longer equivalents of
+<em>mib</em>, <em>gib</em>, <em>tib</em>, for which case doesn&#8217;t matter) explicit binary
+units can be selected. Units in the SI system can be selected using the
+upper-case letters of <em>M</em>, <em>G</em> and <em>T</em> (or their longer equivalents of
+<em>MB</em>, <em>GB</em>, <em>TB</em>, for which case doesn&#8217;t matter).</p>
+<p>More details about the difference between the SI and binary systems can
+be read in the <strong>units</strong>(7) man page.</p>
+</div>
+</div>
+<div class="section" id="exit-status">
+<h2>EXIT STATUS<a class="headerlink" href="#exit-status" title="Permalink to this headline">¶</a></h2>
+<p>The exist status of the command will be zero, unless for some reason
+the algorithm fatally failed (e.g. wrong node or instance data).</p>
+</div>
+<div class="section" id="bugs">
+<h2>BUGS<a class="headerlink" href="#bugs" title="Permalink to this headline">¶</a></h2>
+<p>The algorithm is highly dependent on the number of nodes; its runtime
+grows exponentially with this number, and as such is impractical for
+really big clusters.</p>
+<p>The algorithm doesn&#8217;t rebalance the cluster or try to get the optimal
+fit; it just allocates in the best place for the current step, without
+taking into consideration the impact on future placements.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">hspace</a><ul>
+<li><a class="reference internal" href="#name">NAME</a></li>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#options">OPTIONS</a><ul>
+<li><a class="reference internal" href="#units">UNITS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exit-status">EXIT STATUS</a></li>
+<li><a class="reference internal" href="#bugs">BUGS</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-hscan.html"
+                        title="previous chapter">hscan</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-htools.html"
+                        title="next chapter">htools</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-hspace.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-htools.html" title="htools"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-hscan.html" title="hscan"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1409 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti 2.1 design &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti 2.2 design" href="design-2.2.html" />
+    <link rel="prev" title="Ganeti 2.0 design" href="design-2.0.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-2.0.html" title="Ganeti 2.0 design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-2-1-design">
+<h1><a class="toc-backref" href="#id18">Ganeti 2.1 design</a><a class="headerlink" href="#ganeti-2-1-design" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the major changes in Ganeti 2.1 compared to
+the 2.0 version.</p>
+<p>The 2.1 version will be a relatively small release. Its main aim is to
+avoid changing too much of the core code, while addressing issues and
+adding new features and improvements over 2.0, in a timely fashion.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-2-1-design" id="id18">Ganeti 2.1 design</a><ul>
+<li><a class="reference internal" href="#objective" id="id19">Objective</a></li>
+<li><a class="reference internal" href="#detailed-design" id="id20">Detailed design</a><ul>
+<li><a class="reference internal" href="#core-changes" id="id21">Core changes</a><ul>
+<li><a class="reference internal" href="#storage-units-modelling" id="id22">Storage units modelling</a></li>
+<li><a class="reference internal" href="#locking-improvements" id="id23">Locking improvements</a></li>
+<li><a class="reference internal" href="#node-daemon-availability" id="id24">Node daemon availability</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-features" id="id25">New Features</a><ul>
+<li><a class="reference internal" href="#automated-ganeti-cluster-merger" id="id26">Automated Ganeti Cluster Merger</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes" id="id27">Feature changes</a><ul>
+<li><a class="reference internal" href="#ganeti-confd" id="id28">Ganeti Confd</a></li>
+<li><a class="reference internal" href="#redistribute-config" id="id29">Redistribute Config</a></li>
+<li><a class="reference internal" href="#vnc-console-password" id="id30">VNC Console Password</a></li>
+<li><a class="reference internal" href="#disk-net-parameters" id="id31">Disk/Net parameters</a></li>
+<li><a class="reference internal" href="#global-hypervisor-parameters" id="id32">Global hypervisor parameters</a></li>
+<li><a class="reference internal" href="#non-bridged-instances-support" id="id33">Non bridged instances support</a></li>
+<li><a class="reference internal" href="#introducing-persistent-uuids" id="id34">Introducing persistent UUIDs</a></li>
+<li><a class="reference internal" href="#automated-disk-repairs-infrastructure" id="id35">Automated disk repairs infrastructure</a></li>
+<li><a class="reference internal" href="#user-id-pool" id="id36">User-id pool</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-interface-changes" id="id37">External interface changes</a><ul>
+<li><a class="reference internal" href="#os-api" id="id38">OS API</a></li>
+<li><a class="reference internal" href="#iallocator-changes" id="id39">IAllocator changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="objective">
+<h2><a class="toc-backref" href="#id19">Objective</a><a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti 2.1 will add features to help further automatization of cluster
+operations, further improve scalability to even bigger clusters, and
+make it easier to debug the Ganeti core.</p>
+</div>
+<div class="section" id="detailed-design">
+<h2><a class="toc-backref" href="#id20">Detailed design</a><a class="headerlink" href="#detailed-design" title="Permalink to this headline">¶</a></h2>
+<p>As for 2.0 we divide the 2.1 design into three areas:</p>
+<ul class="simple">
+<li>core changes, which affect the master daemon/job queue/locking or
+all/most logical units</li>
+<li>logical unit/feature changes</li>
+<li>external interface changes (eg. command line, os api, hooks, ...)</li>
+</ul>
+<div class="section" id="core-changes">
+<h3><a class="toc-backref" href="#id21">Core changes</a><a class="headerlink" href="#core-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="storage-units-modelling">
+<h4><a class="toc-backref" href="#id22">Storage units modelling</a><a class="headerlink" href="#storage-units-modelling" title="Permalink to this headline">¶</a></h4>
+<p>Currently, Ganeti has a good model of the block devices for instances
+(e.g. LVM logical volumes, files, DRBD devices, etc.) but none of the
+storage pools that are providing the space for these front-end
+devices. For example, there are hardcoded inter-node RPC calls for
+volume group listing, file storage creation/deletion, etc.</p>
+<p>The storage units framework will implement a generic handling for all
+kinds of storage backends:</p>
+<ul class="simple">
+<li>LVM physical volumes</li>
+<li>LVM volume groups</li>
+<li>File-based storage directories</li>
+<li>any other future storage method</li>
+</ul>
+<p>There will be a generic list of methods that each storage unit type
+will provide, like:</p>
+<ul class="simple">
+<li>list of storage units of this type</li>
+<li>check status of the storage unit</li>
+</ul>
+<p>Additionally, there will be specific methods for each method, for
+example:</p>
+<ul class="simple">
+<li>enable/disable allocations on a specific PV</li>
+<li>file storage directory creation/deletion</li>
+<li>VG consistency fixing</li>
+</ul>
+<p>This will allow a much better modeling and unification of the various
+RPC calls related to backend storage pool in the future. Ganeti 2.1 is
+intended to add the basics of the framework, and not necessarilly move
+all the curent VG/FileBased operations to it.</p>
+<p>Note that while we model both LVM PVs and LVM VGs, the framework will
+<strong>not</strong> model any relationship between the different types. In other
+words, we don&#8217;t model neither inheritances nor stacking, since this is
+too complex for our needs. While a <tt class="docutils literal"><span class="pre">vgreduce</span></tt> operation on a LVM VG
+could actually remove a PV from it, this will not be handled at the
+framework level, but at individual operation level. The goal is that
+this is a lightweight framework, for abstracting the different storage
+operation, and not for modelling the storage hierarchy.</p>
+</div>
+<div class="section" id="locking-improvements">
+<h4><a class="toc-backref" href="#id23">Locking improvements</a><a class="headerlink" href="#locking-improvements" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="current-state-and-shortcomings">
+<h5>Current State and shortcomings<a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h5>
+<p>The class <tt class="docutils literal"><span class="pre">LockSet</span></tt> (see <tt class="docutils literal"><span class="pre">lib/locking.py</span></tt>) is a container for one or
+many <tt class="docutils literal"><span class="pre">SharedLock</span></tt> instances. It provides an interface to add/remove
+locks and to acquire and subsequently release any number of those locks
+contained in it.</p>
+<p>Locks in a <tt class="docutils literal"><span class="pre">LockSet</span></tt> are always acquired in alphabetic order. Due to
+the way we&#8217;re using locks for nodes and instances (the single cluster
+lock isn&#8217;t affected by this issue) this can lead to long delays when
+acquiring locks if another operation tries to acquire multiple locks but
+has to wait for yet another operation.</p>
+<p>In the following demonstration we assume to have the instance locks
+<tt class="docutils literal"><span class="pre">inst1</span></tt>, <tt class="docutils literal"><span class="pre">inst2</span></tt>, <tt class="docutils literal"><span class="pre">inst3</span></tt> and <tt class="docutils literal"><span class="pre">inst4</span></tt>.</p>
+<ol class="arabic simple">
+<li>Operation A grabs lock for instance <tt class="docutils literal"><span class="pre">inst4</span></tt>.</li>
+<li>Operation B wants to acquire all instance locks in alphabetic order,
+but it has to wait for <tt class="docutils literal"><span class="pre">inst4</span></tt>.</li>
+<li>Operation C tries to lock <tt class="docutils literal"><span class="pre">inst1</span></tt>, but it has to wait until
+Operation B (which is trying to acquire all locks) releases the lock
+again.</li>
+<li>Operation A finishes and releases lock on <tt class="docutils literal"><span class="pre">inst4</span></tt>. Operation B can
+continue and eventually releases all locks.</li>
+<li>Operation C can get <tt class="docutils literal"><span class="pre">inst1</span></tt> lock and finishes.</li>
+</ol>
+<p>Technically there&#8217;s no need for Operation C to wait for Operation A, and
+subsequently Operation B, to finish. Operation B can&#8217;t continue until
+Operation A is done (it has to wait for <tt class="docutils literal"><span class="pre">inst4</span></tt>), anyway.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h5>Proposed changes<a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="non-blocking-lock-acquiring">
+<h6>Non-blocking lock acquiring<a class="headerlink" href="#non-blocking-lock-acquiring" title="Permalink to this headline">¶</a></h6>
+<p>Acquiring locks for OpCode execution is always done in blocking mode.
+They won&#8217;t return until the lock has successfully been acquired (or an
+error occurred, although we won&#8217;t cover that case here).</p>
+<p><tt class="docutils literal"><span class="pre">SharedLock</span></tt> and <tt class="docutils literal"><span class="pre">LockSet</span></tt> must be able to be acquired in a
+non-blocking way. They must support a timeout and abort trying to
+acquire the lock(s) after the specified amount of time.</p>
+</div>
+<div class="section" id="retry-acquiring-locks">
+<h6>Retry acquiring locks<a class="headerlink" href="#retry-acquiring-locks" title="Permalink to this headline">¶</a></h6>
+<p>To prevent other operations from waiting for a long time, such as
+described in the demonstration before, <tt class="docutils literal"><span class="pre">LockSet</span></tt> must not keep locks
+for a prolonged period of time when trying to acquire two or more locks.
+Instead it should, with an increasing timeout for acquiring all locks,
+release all locks again and sleep some time if it fails to acquire all
+requested locks.</p>
+<p>A good timeout value needs to be determined. In any case should
+<tt class="docutils literal"><span class="pre">LockSet</span></tt> proceed to acquire locks in blocking mode after a few
+(unsuccessful) attempts to acquire all requested locks.</p>
+<p>One proposal for the timeout is to use <tt class="docutils literal"><span class="pre">2**tries</span></tt> seconds, where
+<tt class="docutils literal"><span class="pre">tries</span></tt> is the number of unsuccessful tries.</p>
+<p>In the demonstration before this would allow Operation C to continue
+after Operation B unsuccessfully tried to acquire all locks and released
+all acquired locks (<tt class="docutils literal"><span class="pre">inst1</span></tt>, <tt class="docutils literal"><span class="pre">inst2</span></tt> and <tt class="docutils literal"><span class="pre">inst3</span></tt>) again.</p>
+</div>
+</div>
+<div class="section" id="other-solutions-discussed">
+<h5>Other solutions discussed<a class="headerlink" href="#other-solutions-discussed" title="Permalink to this headline">¶</a></h5>
+<p>There was also some discussion on going one step further and extend the
+job queue (see <tt class="docutils literal"><span class="pre">lib/jqueue.py</span></tt>) to select the next task for a worker
+depending on whether it can acquire the necessary locks. While this may
+reduce the number of necessary worker threads and/or increase throughput
+on large clusters with many jobs, it also brings many potential
+problems, such as contention and increased memory usage, with it. As
+this would be an extension of the changes proposed before it could be
+implemented at a later point in time, but we decided to stay with the
+simpler solution for now.</p>
+</div>
+<div class="section" id="implementation-details">
+<h5>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="sharedlock-redesign">
+<h6><tt class="docutils literal"><span class="pre">SharedLock</span></tt> redesign<a class="headerlink" href="#sharedlock-redesign" title="Permalink to this headline">¶</a></h6>
+<p>The current design of <tt class="docutils literal"><span class="pre">SharedLock</span></tt> is not good for supporting timeouts
+when acquiring a lock and there are also minor fairness issues in it. We
+plan to address both with a redesign. A proof of concept implementation
+was written and resulted in significantly simpler code.</p>
+<p>Currently <tt class="docutils literal"><span class="pre">SharedLock</span></tt> uses two separate queues for shared and
+exclusive acquires and waiters get to run in turns. This means if an
+exclusive acquire is released, the lock will allow shared waiters to run
+and vice versa.  Although it&#8217;s still fair in the end there is a slight
+bias towards shared waiters in the current implementation. The same
+implementation with two shared queues can not support timeouts without
+adding a lot of complexity.</p>
+<p>Our proposed redesign changes <tt class="docutils literal"><span class="pre">SharedLock</span></tt> to have only one single
+queue.  There will be one condition (see <a class="reference internal" href="#condition">Condition</a> for a note about
+performance) in the queue per exclusive acquire and two for all shared
+acquires (see below for an explanation). The maximum queue length will
+always be <tt class="docutils literal"><span class="pre">2</span> <span class="pre">+</span> <span class="pre">(number</span> <span class="pre">of</span> <span class="pre">exclusive</span> <span class="pre">acquires</span> <span class="pre">waiting)</span></tt>. The number of
+queue entries for shared acquires can vary from 0 to 2.</p>
+<p>The two conditions for shared acquires are a bit special. They will be
+used in turn. When the lock is instantiated, no conditions are in the
+queue. As soon as the first shared acquire arrives (and there are
+holder(s) or waiting acquires; see <a class="reference internal" href="#acquire">Acquire</a>), the active condition is
+added to the queue. Until it becomes the topmost condition in the queue
+and has been notified, any shared acquire is added to this active
+condition. When the active condition is notified, the conditions are
+swapped and further shared acquires are added to the previously inactive
+condition (which has now become the active condition). After all waiters
+on the previously active (now inactive) and now notified condition
+received the notification, it is removed from the queue of pending
+acquires.</p>
+<p>This means shared acquires will skip any exclusive acquire in the queue.
+We believe it&#8217;s better to improve parallelization on operations only
+asking for shared (or read-only) locks. Exclusive operations holding the
+same lock can not be parallelized.</p>
+<div class="section" id="acquire">
+<h7>Acquire<a class="headerlink" href="#acquire" title="Permalink to this headline">¶</a></h7>
+<p>For exclusive acquires a new condition is created and appended to the
+queue.  Shared acquires are added to the active condition for shared
+acquires and if the condition is not yet on the queue, it&#8217;s appended.</p>
+<p>The next step is to wait for our condition to be on the top of the queue
+(to guarantee fairness). If the timeout expired, we return to the caller
+without acquiring the lock. On every notification we check whether the
+lock has been deleted, in which case an error is returned to the caller.</p>
+<p>The lock can be acquired if we&#8217;re on top of the queue (there is no one
+else ahead of us). For an exclusive acquire, there must not be other
+exclusive or shared holders. For a shared acquire, there must not be an
+exclusive holder.  If these conditions are all true, the lock is
+acquired and we return to the caller. In any other case we wait again on
+the condition.</p>
+<p>If it was the last waiter on a condition, the condition is removed from
+the queue.</p>
+<p>Optimization: There&#8217;s no need to touch the queue if there are no pending
+acquires and no current holders. The caller can have the lock
+immediately.</p>
+<p class="graphviz">
+<img src="_images/graphviz-100d4f75b04661cbe5479c15ff30af0cefd3c272.png" alt="digraph &quot;design-2.1-lock-acquire&quot; {
+graph[fontsize=8, fontname=&quot;Helvetica&quot;]
+node[fontsize=8, fontname=&quot;Helvetica&quot;, width=&quot;0&quot;, height=&quot;0&quot;]
+edge[fontsize=8, fontname=&quot;Helvetica&quot;]
+
+/* Actions */
+abort[label=&quot;Abort\n(couldn't acquire)&quot;]
+acquire[label=&quot;Acquire lock&quot;]
+add_to_queue[label=&quot;Add condition to queue&quot;]
+wait[label=&quot;Wait for notification&quot;]
+remove_from_queue[label=&quot;Remove from queue&quot;]
+
+/* Conditions */
+alone[label=&quot;Empty queue\nand can acquire?&quot;, shape=diamond]
+have_timeout[label=&quot;Do I have\ntimeout?&quot;, shape=diamond]
+top_of_queue_and_can_acquire[
+  label=&quot;On top of queue and\ncan acquire lock?&quot;,
+  shape=diamond,
+  ]
+
+/* Lines */
+alone-&gt;acquire[label=&quot;Yes&quot;]
+alone-&gt;add_to_queue[label=&quot;No&quot;]
+
+have_timeout-&gt;abort[label=&quot;Yes&quot;]
+have_timeout-&gt;wait[label=&quot;No&quot;]
+
+top_of_queue_and_can_acquire-&gt;acquire[label=&quot;Yes&quot;]
+top_of_queue_and_can_acquire-&gt;have_timeout[label=&quot;No&quot;]
+
+add_to_queue-&gt;wait
+wait-&gt;top_of_queue_and_can_acquire
+acquire-&gt;remove_from_queue
+}" />
+</p>
+</div>
+<div class="section" id="release">
+<h7>Release<a class="headerlink" href="#release" title="Permalink to this headline">¶</a></h7>
+<p>First the lock removes the caller from the internal owner list. If there
+are pending acquires in the queue, the first (the oldest) condition is
+notified.</p>
+<p>If the first condition was the active condition for shared acquires, the
+inactive condition will be made active. This ensures fairness with
+exclusive locks by forcing consecutive shared acquires to wait in the
+queue.</p>
+<p class="graphviz">
+<img src="_images/graphviz-fc20e7d73e06c0e89736201164f78eca9e9846cf.png" alt="digraph &quot;design-2.1-lock-release&quot; {
+graph[fontsize=8, fontname=&quot;Helvetica&quot;]
+node[fontsize=8, fontname=&quot;Helvetica&quot;, width=&quot;0&quot;, height=&quot;0&quot;]
+edge[fontsize=8, fontname=&quot;Helvetica&quot;]
+
+/* Actions */
+remove_from_owners[label=&quot;Remove from owner list&quot;]
+notify[label=&quot;Notify topmost&quot;]
+swap_shared[label=&quot;Swap shared conditions&quot;]
+success[label=&quot;Success&quot;]
+
+/* Conditions */
+have_pending[label=&quot;Any pending\nacquires?&quot;, shape=diamond]
+was_active_queue[
+  label=&quot;Was active condition\nfor shared acquires?&quot;,
+  shape=diamond,
+  ]
+
+/* Lines */
+remove_from_owners-&gt;have_pending
+
+have_pending-&gt;notify[label=&quot;Yes&quot;]
+have_pending-&gt;success[label=&quot;No&quot;]
+
+notify-&gt;was_active_queue
+
+was_active_queue-&gt;swap_shared[label=&quot;Yes&quot;]
+was_active_queue-&gt;success[label=&quot;No&quot;]
+
+swap_shared-&gt;success
+}" />
+</p>
+</div>
+<div class="section" id="delete">
+<h7>Delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h7>
+<p>The caller must either hold the lock in exclusive mode already or the
+lock must be acquired in exclusive mode. Trying to delete a lock while
+it&#8217;s held in shared mode must fail.</p>
+<p>After ensuring the lock is held in exclusive mode, the lock will mark
+itself as deleted and continue to notify all pending acquires. They will
+wake up, notice the deleted lock and return an error to the caller.</p>
+</div>
+</div>
+<div class="section" id="condition">
+<h6>Condition<a class="headerlink" href="#condition" title="Permalink to this headline">¶</a></h6>
+<p>Note: This is not necessary for the locking changes above, but it may be
+a good optimization (pending performance tests).</p>
+<p>The existing locking code in Ganeti 2.0 uses Python&#8217;s built-in
+<tt class="docutils literal"><span class="pre">threading.Condition</span></tt> class. Unfortunately <tt class="docutils literal"><span class="pre">Condition</span></tt> implements
+timeouts by sleeping 1ms to 20ms between tries to acquire the condition
+lock in non-blocking mode. This requires unnecessary context switches
+and contention on the CPython GIL (Global Interpreter Lock).</p>
+<p>By using POSIX pipes (see <tt class="docutils literal"><span class="pre">pipe(2)</span></tt>) we can use the operating system&#8217;s
+support for timeouts on file descriptors (see <tt class="docutils literal"><span class="pre">select(2)</span></tt>). A custom
+condition class will have to be written for this.</p>
+<p>On instantiation the class creates a pipe. After each notification the
+previous pipe is abandoned and re-created (technically the old pipe
+needs to stay around until all notifications have been delivered).</p>
+<p>All waiting clients of the condition use <tt class="docutils literal"><span class="pre">select(2)</span></tt> or <tt class="docutils literal"><span class="pre">poll(2)</span></tt> to
+wait for notifications, optionally with a timeout. A notification will
+be signalled to the waiting clients by closing the pipe. If the pipe
+wasn&#8217;t closed during the timeout, the waiting function returns to its
+caller nonetheless.</p>
+</div>
+</div>
+</div>
+<div class="section" id="node-daemon-availability">
+<h4><a class="toc-backref" href="#id24">Node daemon availability</a><a class="headerlink" href="#node-daemon-availability" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id1">
+<h5>Current State and shortcomings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h5>
+<p>Currently, when a Ganeti node suffers serious system disk damage, the
+migration/failover of an instance may not correctly shutdown the virtual
+machine on the broken node causing instances duplication. The <tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">powercycle</span></tt> command can be used to force a node reboot and thus to
+avoid duplicated instances. This command relies on node daemon
+availability, though, and thus can fail if the node daemon has some
+pages swapped out of ram, for example.</p>
+</div>
+<div class="section" id="id2">
+<h5>Proposed changes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<p>The proposed solution forces node daemon to run exclusively in RAM. It
+uses python ctypes to to call <tt class="docutils literal"><span class="pre">mlockall(MCL_CURRENT</span> <span class="pre">|</span> <span class="pre">MCL_FUTURE)</span></tt> on
+the node daemon process and all its children. In addition another log
+handler has been implemented for node daemon to redirect to
+<tt class="docutils literal"><span class="pre">/dev/console</span></tt> messages that cannot be written on the logfile.</p>
+<p>With these changes node daemon can successfully run basic tasks such as
+a powercycle request even when the system disk is heavily damaged and
+reading/writing to disk fails constantly.</p>
+</div>
+</div>
+</div>
+<div class="section" id="new-features">
+<h3><a class="toc-backref" href="#id25">New Features</a><a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="automated-ganeti-cluster-merger">
+<h4><a class="toc-backref" href="#id26">Automated Ganeti Cluster Merger</a><a class="headerlink" href="#automated-ganeti-cluster-merger" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="current-situation">
+<h5>Current situation<a class="headerlink" href="#current-situation" title="Permalink to this headline">¶</a></h5>
+<p>Currently there&#8217;s no easy way to merge two or more clusters together.
+But in order to optimize resources this is a needed missing piece. The
+goal of this design doc is to come up with a easy to use solution which
+allows you to merge two or more cluster together.</p>
+</div>
+<div class="section" id="initial-contact">
+<h5>Initial contact<a class="headerlink" href="#initial-contact" title="Permalink to this headline">¶</a></h5>
+<p>As the design of Ganeti is based on an autonomous system, Ganeti by
+itself has no way to reach nodes outside of its cluster. To overcome
+this situation we&#8217;re required to prepare the cluster before we can go
+ahead with the actual merge: We&#8217;ve to replace at least the ssh keys on
+the affected nodes before we can do any operation within <tt class="docutils literal"><span class="pre">gnt-</span></tt>
+commands.</p>
+<p>To make this a automated process we&#8217;ll ask the user to provide us with
+the root password of every cluster we&#8217;ve to merge. We use the password
+to grab the current <tt class="docutils literal"><span class="pre">id_dsa</span></tt> key and then rely on that ssh key for any
+further communication to be made until the cluster is fully merged.</p>
+</div>
+<div class="section" id="cluster-merge">
+<h5>Cluster merge<a class="headerlink" href="#cluster-merge" title="Permalink to this headline">¶</a></h5>
+<p>After initial contact we do the cluster merge:</p>
+<ol class="arabic simple">
+<li>Grab the list of nodes</li>
+<li>On all nodes add our own <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> key to <tt class="docutils literal"><span class="pre">authorized_keys</span></tt></li>
+<li>Stop all instances running on the merging cluster</li>
+<li>Disable <tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> as it tries to restart Ganeti daemons</li>
+<li>Stop all Ganeti daemons on all merging nodes</li>
+<li>Grab the <tt class="docutils literal"><span class="pre">config.data</span></tt> from the master of the merging cluster</li>
+<li>Stop local <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt></li>
+<li>Merge the config:<ol class="arabic">
+<li>Open our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+<li>Open cluster <tt class="docutils literal"><span class="pre">config.data</span></tt> of the merging cluster</li>
+<li>Grab all nodes of the merging cluster</li>
+<li>Set <tt class="docutils literal"><span class="pre">master_candidate</span></tt> to false on all merging nodes</li>
+<li>Add the nodes to our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+<li>Grab all the instances on the merging cluster</li>
+<li>Adjust the port if the instance has drbd layout:<ol class="arabic">
+<li>In <tt class="docutils literal"><span class="pre">logical_id</span></tt> (index 2)</li>
+<li>In <tt class="docutils literal"><span class="pre">physical_id</span></tt> (index 1 and 3)</li>
+</ol>
+</li>
+<li>Add the instances to our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+</ol>
+</li>
+<li>Start <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt> with <tt class="docutils literal"><span class="pre">--no-voting</span></tt> <tt class="docutils literal"><span class="pre">--yes-do-it</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">add</span> <span class="pre">--readd</span></tt> on all merging nodes</li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">redist-conf</span></tt></li>
+<li>Restart <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt> normally</li>
+<li>Enable <tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> again</li>
+<li>Start all merging instances again</li>
+</ol>
+</div>
+<div class="section" id="rollback">
+<h5>Rollback<a class="headerlink" href="#rollback" title="Permalink to this headline">¶</a></h5>
+<p>Until we actually (re)add any nodes we can abort and rollback the merge
+at any point. After merging the config, though, we&#8217;ve to get the backup
+copy of <tt class="docutils literal"><span class="pre">config.data</span></tt> (from another master candidate node). And for
+security reasons it&#8217;s a good idea to undo <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> distribution by
+going on every affected node and remove the <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> key again.
+Also we&#8217;ve to keep in mind, that we&#8217;ve to start the Ganeti daemons and
+starting up the instances again.</p>
+</div>
+<div class="section" id="verification">
+<h5>Verification<a class="headerlink" href="#verification" title="Permalink to this headline">¶</a></h5>
+<p>Last but not least we should verify that the merge was successful.
+Therefore we run <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt>, which ensures that the cluster
+overall is in a healthy state. Additional it&#8217;s also possible to compare
+the list of instances/nodes with a list made prior to the upgrade to
+make sure we didn&#8217;t lose any data/instance/node.</p>
+</div>
+<div class="section" id="appendix">
+<h5>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="cluster-merge-py">
+<h6>cluster-merge.py<a class="headerlink" href="#cluster-merge-py" title="Permalink to this headline">¶</a></h6>
+<p>Used to merge the cluster config. This is a POC and might differ from
+actual production code.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">ganeti</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">ganeti</span> <span class="kn">import</span> <span class="n">constants</span>
+
+<span class="n">c_mine</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigWriter</span><span class="p">(</span><span class="n">offline</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">c_other</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigWriter</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">fake_id</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetNodeList</span><span class="p">():</span>
+  <span class="n">node_info</span> <span class="o">=</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetNodeInfo</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+  <span class="n">node_info</span><span class="o">.</span><span class="n">master_candidate</span> <span class="o">=</span> <span class="bp">False</span>
+  <span class="n">c_mine</span><span class="o">.</span><span class="n">AddNode</span><span class="p">(</span><span class="n">node_info</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fake_id</span><span class="p">))</span>
+  <span class="n">fake_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetInstanceList</span><span class="p">():</span>
+  <span class="n">instance_info</span> <span class="o">=</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetInstanceInfo</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">dsk</span> <span class="ow">in</span> <span class="n">instance_info</span><span class="o">.</span><span class="n">disks</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dsk</span><span class="o">.</span><span class="n">dev_type</span> <span class="ow">in</span> <span class="n">constants</span><span class="o">.</span><span class="n">LDS_DRBD</span><span class="p">:</span>
+       <span class="n">port</span> <span class="o">=</span> <span class="n">c_mine</span><span class="o">.</span><span class="n">AllocatePort</span><span class="p">()</span>
+       <span class="n">logical_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsk</span><span class="o">.</span><span class="n">logical_id</span><span class="p">)</span>
+       <span class="n">logical_id</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">port</span>
+       <span class="n">dsk</span><span class="o">.</span><span class="n">logical_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">logical_id</span><span class="p">)</span>
+       <span class="n">physical_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsk</span><span class="o">.</span><span class="n">physical_id</span><span class="p">)</span>
+       <span class="n">physical_id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">physical_id</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">port</span>
+       <span class="n">dsk</span><span class="o">.</span><span class="n">physical_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">physical_id</span><span class="p">)</span>
+  <span class="n">c_mine</span><span class="o">.</span><span class="n">AddInstance</span><span class="p">(</span><span class="n">instance_info</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fake_id</span><span class="p">))</span>
+  <span class="n">fake_id</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="feature-changes">
+<h3><a class="toc-backref" href="#id27">Feature changes</a><a class="headerlink" href="#feature-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="ganeti-confd">
+<h4><a class="toc-backref" href="#id28">Ganeti Confd</a><a class="headerlink" href="#ganeti-confd" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id3">
+<h5>Current State and shortcomings<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h5>
+<p>In Ganeti 2.0 all nodes are equal, but some are more equal than others.
+In particular they are divided between &#8220;master&#8221;, &#8220;master candidates&#8221; and
+&#8220;normal&#8221;.  (Moreover they can be offline or drained, but this is not
+important for the current discussion). In general the whole
+configuration is only replicated to master candidates, and some partial
+information is spread to all nodes via ssconf.</p>
+<p>This change was done so that the most frequent Ganeti operations didn&#8217;t
+need to contact all nodes, and so clusters could become bigger. If we
+want more information to be available on all nodes, we need to add more
+ssconf values, which is counter-balancing the change, or to talk with
+the master node, which is not designed to happen now, and requires its
+availability.</p>
+<p>Information such as the instance-&gt;primary_node mapping will be needed on
+all nodes, and we also want to make sure services external to the
+cluster can query this information as well. This information must be
+available at all times, so we can&#8217;t query it through RAPI, which would
+be a single point of failure, as it&#8217;s only available on the master.</p>
+</div>
+<div class="section" id="id4">
+<h5>Proposed changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h5>
+<p>In order to allow fast and highly available access read-only to some
+configuration values, we&#8217;ll create a new ganeti-confd daemon, which will
+run on master candidates. This daemon will talk via UDP, and
+authenticate messages using HMAC with a cluster-wide shared key. This
+key will be generated at cluster init time, and stored on the clusters
+alongside the ganeti SSL keys, and readable only by root.</p>
+<p>An interested client can query a value by making a request to a subset
+of the cluster master candidates. It will then wait to get a few
+responses, and use the one with the highest configuration serial number.
+Since the configuration serial number is increased each time the ganeti
+config is updated, and the serial number is included in all answers,
+this can be used to make sure to use the most recent answer, in case
+some master candidates are stale or in the middle of a configuration
+update.</p>
+<p>In order to prevent replay attacks queries will contain the current unix
+timestamp according to the client, and the server will verify that its
+timestamp is in the same 5 minutes range (this requires synchronized
+clocks, which is a good idea anyway). Queries will also contain a &#8220;salt&#8221;
+which they expect the answers to be sent with, and clients are supposed
+to accept only answers which contain salt generated by them.</p>
+<p>The configuration daemon will be able to answer simple queries such as:</p>
+<ul class="simple">
+<li>master candidates list</li>
+<li>master node</li>
+<li>offline nodes</li>
+<li>instance list</li>
+<li>instance primary nodes</li>
+</ul>
+<div class="section" id="wire-protocol">
+<h6>Wire protocol<a class="headerlink" href="#wire-protocol" title="Permalink to this headline">¶</a></h6>
+<p>A confd query will look like this, on the wire:</p>
+<div class="highlight-python"><pre>plj0{
+  "msg": "{\"type\": 1,
+           \"rsalt\": \"9aa6ce92-8336-11de-af38-001d093e835f\",
+           \"protocol\": 1,
+           \"query\": \"node1.example.com\"}\n",
+  "salt": "1249637704",
+  "hmac": "4a4139b2c3c5921f7e439469a0a45ad200aead0f"
+}</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">plj0</span></tt> is a fourcc that details the message content. It stands for plain
+json 0, and can be changed as we move on to different type of protocols
+(for example protocol buffers, or encrypted json). What follows is a
+json encoded string, with the following fields:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">msg</span></tt> contains a JSON-encoded query, its fields are:<ul>
+<li><tt class="docutils literal"><span class="pre">protocol</span></tt>, integer, is the confd protocol version (initially
+just <tt class="docutils literal"><span class="pre">constants.CONFD_PROTOCOL_VERSION</span></tt>, with a value of 1)</li>
+<li><tt class="docutils literal"><span class="pre">type</span></tt>, integer, is the query type. For example &#8220;node role by
+name&#8221; or &#8220;node primary ip by instance ip&#8221;. Constants will be
+provided for the actual available query types</li>
+<li><tt class="docutils literal"><span class="pre">query</span></tt> is a multi-type field (depending on the <tt class="docutils literal"><span class="pre">type</span></tt> field):<ul>
+<li>it can be missing, when the request is fully determined by the
+<tt class="docutils literal"><span class="pre">type</span></tt> field</li>
+<li>it can contain a string which denotes the search key: for
+example an IP, or a node name</li>
+<li>it can contain a dictionary, in which case the actual details
+vary further per request type</li>
+</ul>
+</li>
+<li><tt class="docutils literal"><span class="pre">rsalt</span></tt>, string, is the required response salt; the client must
+use it to recognize which answer it&#8217;s getting.</li>
+</ul>
+</li>
+<li><tt class="docutils literal"><span class="pre">salt</span></tt> must be the current unix timestamp, according to the
+client; servers should refuse messages which have a wrong timing,
+according to their configuration and clock</li>
+<li><tt class="docutils literal"><span class="pre">hmac</span></tt> is an hmac signature of salt+msg, with the cluster hmac key</li>
+</ul>
+<p>If an answer comes back (which is optional, since confd works over UDP)
+it will be in this format:</p>
+<div class="highlight-python"><pre>plj0{
+  "msg": "{\"status\": 0,
+           \"answer\": 0,
+           \"serial\": 42,
+           \"protocol\": 1}\n",
+  "salt": "9aa6ce92-8336-11de-af38-001d093e835f",
+  "hmac": "aaeccc0dff9328fdf7967cb600b6a80a6a9332af"
+}</pre>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">plj0</span></tt> the message type magic fourcc, as discussed above</li>
+<li><tt class="docutils literal"><span class="pre">msg</span></tt> contains a JSON-encoded answer, its fields are:<ul>
+<li><tt class="docutils literal"><span class="pre">protocol</span></tt>, integer, is the confd protocol version (initially
+just constants.CONFD_PROTOCOL_VERSION, with a value of 1)</li>
+<li><tt class="docutils literal"><span class="pre">status</span></tt>, integer, is the error code; initially just <tt class="docutils literal"><span class="pre">0</span></tt> for
+&#8216;ok&#8217; or <tt class="docutils literal"><span class="pre">1</span></tt> for &#8216;error&#8217; (in which case answer contains an error
+detail, rather than an answer), but in the future it may be
+expanded to have more meanings (e.g. <tt class="docutils literal"><span class="pre">2</span></tt> if the answer is
+compressed)</li>
+<li><tt class="docutils literal"><span class="pre">answer</span></tt>, is the actual answer; its type and meaning is query
+specific: for example for &#8220;node primary ip by instance ip&#8221; queries
+it will be a string containing an IP address, for &#8220;node role by
+name&#8221; queries it will be an integer which encodes the role
+(master, candidate, drained, offline) according to constants</li>
+</ul>
+</li>
+<li><tt class="docutils literal"><span class="pre">salt</span></tt> is the requested salt from the query; a client can use it
+to recognize what query the answer is answering.</li>
+<li><tt class="docutils literal"><span class="pre">hmac</span></tt> is an hmac signature of salt+msg, with the cluster hmac key</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="redistribute-config">
+<h4><a class="toc-backref" href="#id29">Redistribute Config</a><a class="headerlink" href="#redistribute-config" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id5">
+<h5>Current State and shortcomings<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h5>
+<p>Currently LUClusterRedistConf triggers a copy of the updated
+configuration file to all master candidates and of the ssconf files to
+all nodes. There are other files which are maintained manually but which
+are important to keep in sync. These are:</p>
+<ul class="simple">
+<li>rapi SSL key certificate file (rapi.pem) (on master candidates)</li>
+<li>rapi user/password file rapi_users (on master candidates)</li>
+</ul>
+<p>Furthermore there are some files which are hypervisor specific but we
+may want to keep in sync:</p>
+<ul class="simple">
+<li>the xen-hvm hypervisor uses one shared file for all vnc passwords, and
+copies the file once, during node add. This design is subject to
+revision to be able to have different passwords for different groups
+of instances via the use of hypervisor parameters, and to allow
+xen-hvm and kvm to use an equal system to provide password-protected
+vnc sessions. In general, though, it would be useful if the vnc
+password files were copied as well, to avoid unwanted vnc password
+changes on instance failover/migrate.</li>
+</ul>
+<p>Optionally the admin may want to also ship files such as the global
+xend.conf file, and the network scripts to all nodes.</p>
+</div>
+<div class="section" id="id6">
+<h5>Proposed changes<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h5>
+<p>RedistributeConfig will be changed to copy also the rapi files, and to
+call every enabled hypervisor asking for a list of additional files to
+copy. Users will have the possibility to populate a file containing a
+list of files to be distributed; this file will be propagated as well.
+Such solution is really simple to implement and it&#8217;s easily usable by
+scripts.</p>
+<p>This code will be also shared (via tasklets or by other means, if
+tasklets are not ready for 2.1) with the AddNode and SetNodeParams LUs
+(so that the relevant files will be automatically shipped to new master
+candidates as they are set).</p>
+</div>
+</div>
+<div class="section" id="vnc-console-password">
+<h4><a class="toc-backref" href="#id30">VNC Console Password</a><a class="headerlink" href="#vnc-console-password" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id7">
+<h5>Current State and shortcomings<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h5>
+<p>Currently just the xen-hvm hypervisor supports setting a password to
+connect the the instances&#8217; VNC console, and has one common password
+stored in a file.</p>
+<p>This doesn&#8217;t allow different passwords for different instances/groups of
+instances, and makes it necessary to remember to copy the file around
+the cluster when the password changes.</p>
+</div>
+<div class="section" id="id8">
+<h5>Proposed changes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h5>
+<p>We&#8217;ll change the VNC password file to a vnc_password_file hypervisor
+parameter.  This way it can have a cluster default, but also a different
+value for each instance. The VNC enabled hypervisors (xen and kvm) will
+publish all the password files in use through the cluster so that a
+redistribute-config will ship them to all nodes (see the Redistribute
+Config proposed changes above).</p>
+<p>The current VNC_PASSWORD_FILE constant will be removed, but its value
+will be used as the default HV_VNC_PASSWORD_FILE value, thus retaining
+backwards compatibility with 2.0.</p>
+<p>The code to export the list of VNC password files from the hypervisors
+to RedistributeConfig will be shared between the KVM and xen-hvm
+hypervisors.</p>
+</div>
+</div>
+<div class="section" id="disk-net-parameters">
+<h4><a class="toc-backref" href="#id31">Disk/Net parameters</a><a class="headerlink" href="#disk-net-parameters" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id9">
+<h5>Current State and shortcomings<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h5>
+<p>Currently disks and network interfaces have a few tweakable options and
+all the rest is left to a default we chose. We&#8217;re finding that we need
+more and more to tweak some of these parameters, for example to disable
+barriers for DRBD devices, or allow striping for the LVM volumes.</p>
+<p>Moreover for many of these parameters it will be nice to have
+cluster-wide defaults, and then be able to change them per
+disk/interface.</p>
+</div>
+<div class="section" id="id10">
+<h5>Proposed changes<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h5>
+<p>We will add new cluster level diskparams and netparams, which will
+contain all the tweakable parameters. All values which have a sensible
+cluster-wide default will go into this new structure while parameters
+which have unique values will not.</p>
+<dl class="docutils">
+<dt>Example of network parameters:</dt>
+<dd><ul class="first last simple">
+<li>mode: bridge/route</li>
+<li>link: for mode &#8220;bridge&#8221; the bridge to connect to, for mode route it
+can contain the routing table, or the destination interface</li>
+</ul>
+</dd>
+<dt>Example of disk parameters:</dt>
+<dd><ul class="first last simple">
+<li>stripe: lvm stripes</li>
+<li>stripe_size: lvm stripe size</li>
+<li>meta_flushes: drbd, enable/disable metadata &#8220;barriers&#8221;</li>
+<li>data_flushes: drbd, enable/disable data &#8220;barriers&#8221;</li>
+</ul>
+</dd>
+</dl>
+<p>Some parameters are bound to be disk-type specific (drbd, vs lvm, vs
+files) or hypervisor specific (nic models for example), but for now they
+will all live in the same structure. Each component is supposed to
+validate only the parameters it knows about, and ganeti itself will make
+sure that no &#8220;globally unknown&#8221; parameters are added, and that no
+parameters have overridden meanings for different components.</p>
+<p>The parameters will be kept, as for the BEPARAMS into a &#8220;default&#8221;
+category, which will allow us to expand on by creating instance
+&#8220;classes&#8221; in the future.  Instance classes is not a feature we plan
+implementing in 2.1, though.</p>
+</div>
+</div>
+<div class="section" id="global-hypervisor-parameters">
+<h4><a class="toc-backref" href="#id32">Global hypervisor parameters</a><a class="headerlink" href="#global-hypervisor-parameters" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id11">
+<h5>Current State and shortcomings<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h5>
+<p>Currently all hypervisor parameters are modifiable both globally
+(cluster level) and at instance level. However, there is no other
+framework to held hypervisor-specific parameters, so if we want to add
+a new class of hypervisor parameters that only makes sense on a global
+level, we have to change the hvparams framework.</p>
+</div>
+<div class="section" id="id12">
+<h5>Proposed changes<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h5>
+<p>We add a new (global, not per-hypervisor) list of parameters which are
+not changeable on a per-instance level. The create, modify and query
+instance operations are changed to not allow/show these parameters.</p>
+<p>Furthermore, to allow transition of parameters to the global list, and
+to allow cleanup of inadverdently-customised parameters, the
+<tt class="docutils literal"><span class="pre">UpgradeConfig()</span></tt> method of instances will drop any such parameters
+from their list of hvparams, such that a restart of the master daemon
+is all that is needed for cleaning these up.</p>
+<p>Also, the framework is simple enough that if we need to replicate it
+at beparams level we can do so easily.</p>
+</div>
+</div>
+<div class="section" id="non-bridged-instances-support">
+<h4><a class="toc-backref" href="#id33">Non bridged instances support</a><a class="headerlink" href="#non-bridged-instances-support" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id13">
+<h5>Current State and shortcomings<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h5>
+<p>Currently each instance NIC must be connected to a bridge, and if the
+bridge is not specified the default cluster one is used. This makes it
+impossible to use the vif-route xen network scripts, or other
+alternative mechanisms that don&#8217;t need a bridge to work.</p>
+</div>
+<div class="section" id="id14">
+<h5>Proposed changes<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h5>
+<p>The new &#8220;mode&#8221; network parameter will distinguish between bridged
+interfaces and routed ones.</p>
+<p>When mode is &#8220;bridge&#8221; the &#8220;link&#8221; parameter will contain the bridge the
+instance should be connected to, effectively making things as today. The
+value has been migrated from a nic field to a parameter to allow for an
+easier manipulation of the cluster default.</p>
+<p>When mode is &#8220;route&#8221; the ip field of the interface will become
+mandatory, to allow for a route to be set. In the future we may want
+also to accept multiple IPs or IP/mask values for this purpose. We will
+evaluate possible meanings of the link parameter to signify a routing
+table to be used, which would allow for insulation between instance
+groups (as today happens for different bridges).</p>
+<p>For now we won&#8217;t add a parameter to specify which network script gets
+called for which instance, so in a mixed cluster the network script must
+be able to handle both cases. The default kvm vif script will be changed
+to do so. (Xen doesn&#8217;t have a ganeti provided script, so nothing will be
+done for that hypervisor)</p>
+</div>
+</div>
+<div class="section" id="introducing-persistent-uuids">
+<h4><a class="toc-backref" href="#id34">Introducing persistent UUIDs</a><a class="headerlink" href="#introducing-persistent-uuids" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id15">
+<h5>Current state and shortcomings<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h5>
+<p>Some objects in the Ganeti configurations are tracked by their name
+while also supporting renames. This creates an extra difficulty,
+because neither Ganeti nor external management tools can then track
+the actual entity, and due to the name change it behaves like a new
+one.</p>
+</div>
+<div class="section" id="proposed-changes-part-1">
+<h5>Proposed changes part 1<a class="headerlink" href="#proposed-changes-part-1" title="Permalink to this headline">¶</a></h5>
+<p>We will change Ganeti to use UUIDs for entity tracking, but in a
+staggered way. In 2.1, we will simply add an “uuid” attribute to each
+of the instances, nodes and cluster itself. This will be reported on
+instance creation for nodes, and on node adds for the nodes. It will
+be of course avaiblable for querying via the OpNodeQuery/Instance and
+cluster information, and via RAPI as well.</p>
+<p>Note that Ganeti will not provide any way to change this attribute.</p>
+<p>Upgrading from Ganeti 2.0 will automatically add an ‘uuid’ attribute
+to all entities missing it.</p>
+</div>
+<div class="section" id="proposed-changes-part-2">
+<h5>Proposed changes part 2<a class="headerlink" href="#proposed-changes-part-2" title="Permalink to this headline">¶</a></h5>
+<p>In the next release (e.g. 2.2), the tracking of objects will change
+from the name to the UUID internally, and externally Ganeti will
+accept both forms of identification; e.g. an RAPI call would be made
+either against <tt class="docutils literal"><span class="pre">/2/instances/foo.bar</span></tt> or against
+<tt class="docutils literal"><span class="pre">/2/instances/bb3b2e42…</span></tt>. Since an FQDN must have at least a dot,
+and dots are not valid characters in UUIDs, we will not have namespace
+issues.</p>
+<p>Another change here is that node identification (during cluster
+operations/queries like master startup, “am I the master?” and
+similar) could be done via UUIDs which is more stable than the current
+hostname-based scheme.</p>
+<p>Internal tracking refers to the way the configuration is stored; a
+DRBD disk of an instance refers to the node name (so that IPs can be
+changed easily), but this is still a problem for name changes; thus
+these will be changed to point to the node UUID to ease renames.</p>
+<p>The advantages of this change (after the second round of changes), is
+that node rename becomes trivial, whereas today node rename would
+require a complete lock of all instances.</p>
+</div>
+</div>
+<div class="section" id="automated-disk-repairs-infrastructure">
+<h4><a class="toc-backref" href="#id35">Automated disk repairs infrastructure</a><a class="headerlink" href="#automated-disk-repairs-infrastructure" title="Permalink to this headline">¶</a></h4>
+<p>Replacing defective disks in an automated fashion is quite difficult
+with the current version of Ganeti. These changes will introduce
+additional functionality and interfaces to simplify automating disk
+replacements on a Ganeti node.</p>
+<div class="section" id="fix-node-volume-group">
+<h5>Fix node volume group<a class="headerlink" href="#fix-node-volume-group" title="Permalink to this headline">¶</a></h5>
+<p>This is the most difficult addition, as it can lead to dataloss if it&#8217;s
+not properly safeguarded.</p>
+<p>The operation must be done only when all the other nodes that have
+instances in common with the target node are fine, i.e. this is the only
+node with problems, and also we have to double-check that all instances
+on this node have at least a good copy of the data.</p>
+<p>This might mean that we have to enhance the GetMirrorStatus calls, and
+introduce and a smarter version that can tell us more about the status
+of an instance.</p>
+</div>
+<div class="section" id="stop-allocation-on-a-given-pv">
+<h5>Stop allocation on a given PV<a class="headerlink" href="#stop-allocation-on-a-given-pv" title="Permalink to this headline">¶</a></h5>
+<p>This is somewhat simple. First we need a &#8220;list PVs&#8221; opcode (and its
+associated logical unit) and then a set PV status opcode/LU. These in
+combination should allow both checking and changing the disk/PV status.</p>
+</div>
+<div class="section" id="instance-disk-status">
+<h5>Instance disk status<a class="headerlink" href="#instance-disk-status" title="Permalink to this headline">¶</a></h5>
+<p>This new opcode or opcode change must list the instance-disk-index and
+node combinations of the instance together with their status. This will
+allow determining what part of the instance is broken (if any).</p>
+</div>
+<div class="section" id="repair-instance">
+<h5>Repair instance<a class="headerlink" href="#repair-instance" title="Permalink to this headline">¶</a></h5>
+<p>This new opcode/LU/RAPI call will run <tt class="docutils literal"><span class="pre">replace-disks</span> <span class="pre">-p</span></tt> as needed, in
+order to fix the instance status. It only affects primary instances;
+secondaries can just be moved away.</p>
+</div>
+<div class="section" id="migrate-node">
+<h5>Migrate node<a class="headerlink" href="#migrate-node" title="Permalink to this headline">¶</a></h5>
+<p>This new opcode/LU/RAPI call will take over the current <tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">migrate</span></tt> code and run migrate for all instances on the node.</p>
+</div>
+<div class="section" id="evacuate-node">
+<h5>Evacuate node<a class="headerlink" href="#evacuate-node" title="Permalink to this headline">¶</a></h5>
+<p>This new opcode/LU/RAPI call will take over the current <tt class="docutils literal"><span class="pre">gnt-node</span>
+<span class="pre">evacuate</span></tt> code and run replace-secondary with an iallocator script for
+all instances on the node.</p>
+</div>
+</div>
+<div class="section" id="user-id-pool">
+<h4><a class="toc-backref" href="#id36">User-id pool</a><a class="headerlink" href="#user-id-pool" title="Permalink to this headline">¶</a></h4>
+<p>In order to allow running different processes under unique user-ids
+on a node, we introduce the user-id pool concept.</p>
+<p>The user-id pool is a cluster-wide configuration parameter.
+It is a list of user-ids and/or user-id ranges that are reserved
+for running Ganeti processes (including KVM instances).
+The code guarantees that on a given node a given user-id is only
+handed out if there is no other process running with that user-id.</p>
+<p>Please note, that this can only be guaranteed if all processes in
+the system - that run under a user-id belonging to the pool - are
+started by reserving a user-id first. That can be accomplished
+either by using the RequestUnusedUid() function to get an unused
+user-id or by implementing the same locking mechanism.</p>
+<div class="section" id="implementation">
+<h5>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h5>
+<p>The functions that are specific to the user-id pool feature are located
+in a separate module: <tt class="docutils literal"><span class="pre">lib/uidpool.py</span></tt>.</p>
+<div class="section" id="storage">
+<h6>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h6>
+<p>The user-id pool is a single cluster parameter. It is stored in the
+<em>Cluster</em> object under the <tt class="docutils literal"><span class="pre">uid_pool</span></tt> name as a list of integer
+tuples. These tuples represent the boundaries of user-id ranges.
+For single user-ids, the boundaries are equal.</p>
+<p>The internal user-id pool representation is converted into a
+string: a newline separated list of user-ids or user-id ranges.
+This string representation is distributed to all the nodes via the
+<em>ssconf</em> mechanism. This means that the user-id pool can be
+accessed in a read-only way on any node without consulting the master
+node or master candidate nodes.</p>
+</div>
+<div class="section" id="initial-value">
+<h6>Initial value<a class="headerlink" href="#initial-value" title="Permalink to this headline">¶</a></h6>
+<p>The value of the user-id pool cluster parameter can be initialized
+at cluster initialization time using the</p>
+<p><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span> <span class="pre">--uid-pool</span> <span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span> <span class="pre">...</span></tt></p>
+<p>command.</p>
+<p>As there is no sensible default value for the user-id pool parameter,
+it is initialized to an empty list if no <tt class="docutils literal"><span class="pre">--uid-pool</span></tt> option is
+supplied at cluster init time.</p>
+<p>If the user-id pool is empty, the user-id pool feature is considered
+to be disabled.</p>
+</div>
+<div class="section" id="manipulation">
+<h6>Manipulation<a class="headerlink" href="#manipulation" title="Permalink to this headline">¶</a></h6>
+<p>The user-id pool cluster parameter can be modified from the
+command-line with the following commands:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span> <span class="pre">--uid-pool</span> <span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span> <span class="pre">--add-uids</span> <span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span> <span class="pre">--remove-uids</span> <span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt></li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">--uid-pool</span></tt> option overwrites the current setting with the
+supplied <tt class="docutils literal"><span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt>, while
+<tt class="docutils literal"><span class="pre">--add-uids</span></tt>/<tt class="docutils literal"><span class="pre">--remove-uids</span></tt> adds/removes the listed uids
+or uid-ranges from the pool.</p>
+<p>The <tt class="docutils literal"><span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt> should be a comma-separated list of
+user-ids or user-id ranges. A range should be defined by a lower and
+a higher boundary. The boundaries should be separated with a dash.
+The boundaries are inclusive.</p>
+<p>The <tt class="docutils literal"><span class="pre">&lt;uid-pool</span> <span class="pre">definition&gt;</span></tt> is parsed into the internal
+representation, sanity-checked and stored in the <tt class="docutils literal"><span class="pre">uid_pool</span></tt>
+attribute of the <em>Cluster</em> object.</p>
+<p>It is also immediately converted into a string (formatted in the
+input format) and distributed to all nodes via the <em>ssconf</em> mechanism.</p>
+</div>
+<div class="section" id="inspection">
+<h6>Inspection<a class="headerlink" href="#inspection" title="Permalink to this headline">¶</a></h6>
+<p>The current value of the user-id pool cluster parameter is printed
+by the <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">info</span></tt> command.</p>
+<p>The output format is accepted by the <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span> <span class="pre">--uid-pool</span></tt>
+command.</p>
+</div>
+<div class="section" id="locking">
+<h6>Locking<a class="headerlink" href="#locking" title="Permalink to this headline">¶</a></h6>
+<p>The <tt class="docutils literal"><span class="pre">uidpool.py</span></tt> module provides a function (<tt class="docutils literal"><span class="pre">RequestUnusedUid</span></tt>)
+for requesting an unused user-id from the pool.</p>
+<p>This will try to find a random user-id that is not currently in use.
+The algorithm is the following:</p>
+<ol class="arabic simple">
+<li>Randomize the list of user-ids in the user-id pool</li>
+<li>Iterate over this randomized UID list</li>
+<li>Create a lock file (it doesn&#8217;t matter if it already exists)</li>
+<li>Acquire an exclusive POSIX lock on the file, to provide mutual
+exclusion for the following non-atomic operations</li>
+<li>Check if there is a process in the system with the given UID</li>
+<li>If there isn&#8217;t, return the UID, otherwise unlock the file and
+continue the iteration over the user-ids</li>
+</ol>
+<p>The user can than start a new process with this user-id.
+Once a process is successfully started, the exclusive POSIX lock can
+be released, but the lock file will remain in the filesystem.
+The presence of such a lock file means that the given user-id is most
+probably in use. The lack of a uid lock file does not guarantee that
+there are no processes with that user-id.</p>
+<p>After acquiring the exclusive POSIX lock, <tt class="docutils literal"><span class="pre">RequestUnusedUid</span></tt>
+always performs a check to see if there is a process running with the
+given uid.</p>
+<p>A user-id can be returned to the pool, by calling the
+<tt class="docutils literal"><span class="pre">ReleaseUid</span></tt> function. This will remove the corresponding lock file.
+Note, that it doesn&#8217;t check if there is any process still running
+with that user-id. The removal of the lock file only means that there
+are most probably no processes with the given user-id. This helps
+in speeding up the process of finding a user-id that is guaranteed to
+be unused.</p>
+<p>There is a convenience function, called <tt class="docutils literal"><span class="pre">ExecWithUnusedUid</span></tt> that
+wraps the execution of a function (or any callable) that requires a
+unique user-id. <tt class="docutils literal"><span class="pre">ExecWithUnusedUid</span></tt> takes care of requesting an
+unused user-id and unlocking the lock file. It also automatically
+returns the user-id to the pool if the callable raises an exception.</p>
+</div>
+</div>
+<div class="section" id="code-examples">
+<h5>Code examples<a class="headerlink" href="#code-examples" title="Permalink to this headline">¶</a></h5>
+<p>Requesting a user-id from the pool:</p>
+<div class="highlight-python"><pre>from ganeti import ssconf
+from ganeti import uidpool
+
+# Get list of all user-ids in the uid-pool from ssconf
+ss = ssconf.SimpleStore()
+uid_pool = uidpool.ParseUidPool(ss.GetUidPool(), separator="\n")
+all_uids = set(uidpool.ExpandUidPool(uid_pool))
+
+uid = uidpool.RequestUnusedUid(all_uids)
+try:
+  &lt;start a process with the UID&gt;
+  # Once the process is started, we can release the file lock
+  uid.Unlock()
+except ..., err:
+  # Return the UID to the pool
+  uidpool.ReleaseUid(uid)</pre>
+</div>
+<p>Releasing a user-id:</p>
+<div class="highlight-python"><pre>from ganeti import uidpool
+
+uid = &lt;get the UID the process is running under&gt;
+&lt;stop the process&gt;
+uidpool.ReleaseUid(uid)</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="external-interface-changes">
+<h3><a class="toc-backref" href="#id37">External interface changes</a><a class="headerlink" href="#external-interface-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="os-api">
+<h4><a class="toc-backref" href="#id38">OS API</a><a class="headerlink" href="#os-api" title="Permalink to this headline">¶</a></h4>
+<p>The OS API of Ganeti 2.0 has been built with extensibility in mind.
+Since we pass everything as environment variables it&#8217;s a lot easier to
+send new information to the OSes without breaking retrocompatibility.
+This section of the design outlines the proposed extensions to the API
+and their implementation.</p>
+<div class="section" id="api-version-compatibility-handling">
+<h5>API Version Compatibility Handling<a class="headerlink" href="#api-version-compatibility-handling" title="Permalink to this headline">¶</a></h5>
+<p>In 2.1 there will be a new OS API version (eg. 15), which should be
+mostly compatible with api 10, except for some new added variables.
+Since it&#8217;s easy not to pass some variables we&#8217;ll be able to handle
+Ganeti 2.0 OSes by just filtering out the newly added piece of
+information. We will still encourage OSes to declare support for the new
+API after checking that the new variables don&#8217;t provide any conflict for
+them, and we will drop api 10 support after ganeti 2.1 has released.</p>
+</div>
+<div class="section" id="new-environment-variables">
+<h5>New Environment variables<a class="headerlink" href="#new-environment-variables" title="Permalink to this headline">¶</a></h5>
+<p>Some variables have never been added to the OS api but would definitely
+be useful for the OSes. We plan to add an INSTANCE_HYPERVISOR variable
+to allow the OS to make changes relevant to the virtualization the
+instance is going to use. Since this field is immutable for each
+instance, the os can tight the install without caring of making sure the
+instance can run under any virtualization technology.</p>
+<p>We also want the OS to know the particular hypervisor parameters, to be
+able to customize the install even more.  Since the parameters can
+change, though, we will pass them only as an &#8220;FYI&#8221;: if an OS ties some
+instance functionality to the value of a particular hypervisor parameter
+manual changes or a reinstall may be needed to adapt the instance to the
+new environment. This is not a regression as of today, because even if
+the OSes are left blind about this information, sometimes they still
+need to make compromises and cannot satisfy all possible parameter
+values.</p>
+</div>
+<div class="section" id="os-variants">
+<h5>OS Variants<a class="headerlink" href="#os-variants" title="Permalink to this headline">¶</a></h5>
+<p>Currently we are assisting to some degree of &#8220;os proliferation&#8221; just to
+change a simple installation behavior. This means that the same OS gets
+installed on the cluster multiple times, with different names, to
+customize just one installation behavior. Usually such OSes try to share
+as much as possible through symlinks, but this still causes
+complications on the user side, especially when multiple parameters must
+be cross-matched.</p>
+<p>For example today if you want to install debian etch, lenny or squeeze
+you probably need to install the debootstrap OS multiple times, changing
+its configuration file, and calling it debootstrap-etch,
+debootstrap-lenny or debootstrap-squeeze. Furthermore if you have for
+example a &#8220;server&#8221; and a &#8220;development&#8221; environment which installs
+different packages/configuration files and must be available for all
+installs you&#8217;ll probably end  up with deboostrap-etch-server,
+debootstrap-etch-dev, debootrap-lenny-server, debootstrap-lenny-dev,
+etc. Crossing more than two parameters quickly becomes not manageable.</p>
+<p>In order to avoid this we plan to make OSes more customizable, by
+allowing each OS to declare a list of variants which can be used to
+customize it. The variants list is mandatory and must be written, one
+variant per line, in the new &#8220;variants.list&#8221; file inside the main os
+dir. At least one supported variant must be supported. When choosing the
+OS exactly one variant will have to be specified, and will be encoded in
+the os name as &lt;OS-name&gt;+&lt;variant&gt;. As for today it will be possible to
+change an instance&#8217;s OS at creation or install time.</p>
+<p>The 2.1 OS list will be the combination of each OS, plus its supported
+variants. This will cause the name name proliferation to remain, but at
+least the internal OS code will be simplified to just parsing the passed
+variant, without the need for symlinks or code duplication.</p>
+<p>Also we expect the OSes to declare only &#8220;interesting&#8221; variants, but to
+accept some non-declared ones which a user will be able to pass in by
+overriding the checks ganeti does. This will be useful for allowing some
+variations to be used without polluting the OS list (per-OS
+documentation should list all supported variants). If a variant which is
+not internally supported is forced through, the OS scripts should abort.</p>
+<p>In the future (post 2.1) we may want to move to full fledged parameters
+all orthogonal to each other (for example &#8220;architecture&#8221; (i386, amd64),
+&#8220;suite&#8221; (lenny, squeeze, ...), etc). (As opposed to the variant, which
+is a single parameter, and you need a different variant for all the set
+of combinations you want to support).  In this case we envision the
+variants to be moved inside of Ganeti and be associated with lists
+parameter-&gt;values associations, which will then be passed to the OS.</p>
+</div>
+</div>
+<div class="section" id="iallocator-changes">
+<h4><a class="toc-backref" href="#id39">IAllocator changes</a><a class="headerlink" href="#iallocator-changes" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id16">
+<h5>Current State and shortcomings<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h5>
+<p>The iallocator interface allows creation of instances without manually
+specifying nodes, but instead by specifying plugins which will do the
+required computations and produce a valid node list.</p>
+<p>However, the interface is quite akward to use:</p>
+<ul class="simple">
+<li>one cannot set a &#8216;default&#8217; iallocator script</li>
+<li>one cannot use it to easily test if allocation would succeed</li>
+<li>some new functionality, such as rebalancing clusters and calculating
+capacity estimates is needed</li>
+</ul>
+</div>
+<div class="section" id="id17">
+<h5>Proposed changes<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h5>
+<p>There are two area of improvements proposed:</p>
+<ul class="simple">
+<li>improving the use of the current interface</li>
+<li>extending the IAllocator API to cover more automation</li>
+</ul>
+<div class="section" id="default-iallocator-names">
+<h6>Default iallocator names<a class="headerlink" href="#default-iallocator-names" title="Permalink to this headline">¶</a></h6>
+<p>The cluster will hold, for each type of iallocator, a (possibly empty)
+list of modules that will be used automatically.</p>
+<p>If the list is empty, the behaviour will remain the same.</p>
+<p>If the list has one entry, then ganeti will behave as if
+&#8216;&#8211;iallocator&#8217; was specifyed on the command line. I.e. use this
+allocator by default. If the user however passed nodes, those will be
+used in preference.</p>
+<p>If the list has multiple entries, they will be tried in order until
+one gives a successful answer.</p>
+</div>
+<div class="section" id="dry-run-allocation">
+<h6>Dry-run allocation<a class="headerlink" href="#dry-run-allocation" title="Permalink to this headline">¶</a></h6>
+<p>The create instance LU will get a new &#8216;dry-run&#8217; option that will just
+simulate the placement, and return the chosen node-lists after running
+all the usual checks.</p>
+</div>
+<div class="section" id="cluster-balancing">
+<h6>Cluster balancing<a class="headerlink" href="#cluster-balancing" title="Permalink to this headline">¶</a></h6>
+<p>Instance add/removals/moves can create a situation where load on the
+nodes is not spread equally. For this, a new iallocator mode will be
+implemented called <tt class="docutils literal"><span class="pre">balance</span></tt> in which the plugin, given the current
+cluster state, and a maximum number of operations, will need to
+compute the instance relocations needed in order to achieve a &#8220;better&#8221;
+(for whatever the script believes it&#8217;s better) cluster.</p>
+</div>
+<div class="section" id="cluster-capacity-calculation">
+<h6>Cluster capacity calculation<a class="headerlink" href="#cluster-capacity-calculation" title="Permalink to this headline">¶</a></h6>
+<p>In this mode, called <tt class="docutils literal"><span class="pre">capacity</span></tt>, given an instance specification and
+the current cluster state (similar to the <tt class="docutils literal"><span class="pre">allocate</span></tt> mode), the
+plugin needs to return:</p>
+<ul class="simple">
+<li>how many instances can be allocated on the cluster with that
+specification</li>
+<li>on which nodes these will be allocated (in order)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti 2.1 design</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#detailed-design">Detailed design</a><ul>
+<li><a class="reference internal" href="#core-changes">Core changes</a><ul>
+<li><a class="reference internal" href="#storage-units-modelling">Storage units modelling</a></li>
+<li><a class="reference internal" href="#locking-improvements">Locking improvements</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#non-blocking-lock-acquiring">Non-blocking lock acquiring</a></li>
+<li><a class="reference internal" href="#retry-acquiring-locks">Retry acquiring locks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-solutions-discussed">Other solutions discussed</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a><ul>
+<li><a class="reference internal" href="#sharedlock-redesign"><tt class="docutils literal"><span class="pre">SharedLock</span></tt> redesign</a><ul>
+<li><a class="reference internal" href="#acquire">Acquire</a></li>
+<li><a class="reference internal" href="#release">Release</a></li>
+<li><a class="reference internal" href="#delete">Delete</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#condition">Condition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-daemon-availability">Node daemon availability</a><ul>
+<li><a class="reference internal" href="#id1">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id2">Proposed changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-features">New Features</a><ul>
+<li><a class="reference internal" href="#automated-ganeti-cluster-merger">Automated Ganeti Cluster Merger</a><ul>
+<li><a class="reference internal" href="#current-situation">Current situation</a></li>
+<li><a class="reference internal" href="#initial-contact">Initial contact</a></li>
+<li><a class="reference internal" href="#cluster-merge">Cluster merge</a></li>
+<li><a class="reference internal" href="#rollback">Rollback</a></li>
+<li><a class="reference internal" href="#verification">Verification</a></li>
+<li><a class="reference internal" href="#appendix">Appendix</a><ul>
+<li><a class="reference internal" href="#cluster-merge-py">cluster-merge.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes">Feature changes</a><ul>
+<li><a class="reference internal" href="#ganeti-confd">Ganeti Confd</a><ul>
+<li><a class="reference internal" href="#id3">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#wire-protocol">Wire protocol</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#redistribute-config">Redistribute Config</a><ul>
+<li><a class="reference internal" href="#id5">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id6">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vnc-console-password">VNC Console Password</a><ul>
+<li><a class="reference internal" href="#id7">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id8">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#disk-net-parameters">Disk/Net parameters</a><ul>
+<li><a class="reference internal" href="#id9">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id10">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#global-hypervisor-parameters">Global hypervisor parameters</a><ul>
+<li><a class="reference internal" href="#id11">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id12">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#non-bridged-instances-support">Non bridged instances support</a><ul>
+<li><a class="reference internal" href="#id13">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id14">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#introducing-persistent-uuids">Introducing persistent UUIDs</a><ul>
+<li><a class="reference internal" href="#id15">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes-part-1">Proposed changes part 1</a></li>
+<li><a class="reference internal" href="#proposed-changes-part-2">Proposed changes part 2</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#automated-disk-repairs-infrastructure">Automated disk repairs infrastructure</a><ul>
+<li><a class="reference internal" href="#fix-node-volume-group">Fix node volume group</a></li>
+<li><a class="reference internal" href="#stop-allocation-on-a-given-pv">Stop allocation on a given PV</a></li>
+<li><a class="reference internal" href="#instance-disk-status">Instance disk status</a></li>
+<li><a class="reference internal" href="#repair-instance">Repair instance</a></li>
+<li><a class="reference internal" href="#migrate-node">Migrate node</a></li>
+<li><a class="reference internal" href="#evacuate-node">Evacuate node</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#user-id-pool">User-id pool</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li><a class="reference internal" href="#storage">Storage</a></li>
+<li><a class="reference internal" href="#initial-value">Initial value</a></li>
+<li><a class="reference internal" href="#manipulation">Manipulation</a></li>
+<li><a class="reference internal" href="#inspection">Inspection</a></li>
+<li><a class="reference internal" href="#locking">Locking</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#code-examples">Code examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-interface-changes">External interface changes</a><ul>
+<li><a class="reference internal" href="#os-api">OS API</a><ul>
+<li><a class="reference internal" href="#api-version-compatibility-handling">API Version Compatibility Handling</a></li>
+<li><a class="reference internal" href="#new-environment-variables">New Environment variables</a></li>
+<li><a class="reference internal" href="#os-variants">OS Variants</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iallocator-changes">IAllocator changes</a><ul>
+<li><a class="reference internal" href="#id16">Current State and shortcomings</a></li>
+<li><a class="reference internal" href="#id17">Proposed changes</a><ul>
+<li><a class="reference internal" href="#default-iallocator-names">Default iallocator names</a></li>
+<li><a class="reference internal" href="#dry-run-allocation">Dry-run allocation</a></li>
+<li><a class="reference internal" href="#cluster-balancing">Cluster balancing</a></li>
+<li><a class="reference internal" href="#cluster-capacity-calculation">Cluster capacity calculation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-2.0.html"
+                        title="previous chapter">Ganeti 2.0 design</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-2.2.html"
+                        title="next chapter">Ganeti 2.2 design</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-2.1.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-2.0.html" title="Ganeti 2.0 design"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

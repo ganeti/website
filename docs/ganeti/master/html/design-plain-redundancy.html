@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Redundancy for the plain disk template &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Query version 2 design" href="design-query2.html" />
+    <link rel="prev" title="Performance tests for QA" href="design-performance-tests.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-query2.html" title="Query version 2 design"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-performance-tests.html" title="Performance tests for QA"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="redundancy-for-the-plain-disk-template">
+<h1><a class="toc-backref" href="#id1">Redundancy for the plain disk template</a><a class="headerlink" href="#redundancy-for-the-plain-disk-template" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#redundancy-for-the-plain-disk-template" id="id1">Redundancy for the plain disk template</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definition-of-n-1-redundancy-in-the-presence-of-shared-and-plain-storage" id="id4">Definition of N+1 redundancy in the presence of shared and plain storage</a></li>
+<li><a class="reference internal" href="#modifications-to-existing-tools" id="id5">Modifications to existing tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This document describes how N+1 redundancy is achieved
+for instanes using the plain disk template.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti has long considered N+1 redundancy for DRBD, making sure that
+on the secondary nodes enough memory is reserved to host the instances,
+should one node fail. Recently, <tt class="docutils literal"><span class="pre">htools</span></tt> have been extended to
+also take <a class="reference internal" href="design-shared-storage-redundancy.html"><em>N+1 redundancy for shared storage</em></a> into account.</p>
+<p>For plain instances, there is no direct notion of redundancy: if the
+node the instance is running on dies, the instance is lost. However,
+if the instance can be reinstalled (e.g, because it is providing a
+stateless service), it does make sense to ask if the remaining nodes
+have enough free capacity for the instances to be recreated. This
+form of capacity planning is currently not addressed by current
+Ganeti.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The basic considerations follow those of <a class="reference internal" href="design-shared-storage-redundancy.html"><em>N+1 redundancy for shared storage</em></a>.
+Also, the changes to the tools follow the same pattern.</p>
+<div class="section" id="definition-of-n-1-redundancy-in-the-presence-of-shared-and-plain-storage">
+<h3><a class="toc-backref" href="#id4">Definition of N+1 redundancy in the presence of shared and plain storage</a><a class="headerlink" href="#definition-of-n-1-redundancy-in-the-presence-of-shared-and-plain-storage" title="Permalink to this headline">¶</a></h3>
+<p>A cluster is considered N+1 redundant, if, for every node, the following
+steps can be carried out. First all DRBD instances are migrated out. Then,
+all shared-storage instances of that node are relocated to another node in
+the same node group. Finally, all plain instances of that node are reinstalled
+on a different node in the same node group; in the search for a new nodes for
+the plain instances, they will be recreated in order of decreasing memory
+size.</p>
+<p>Note that the first two setps are those in the definition of N+1 redundancy
+for shared storage. In particular, this notion of redundancy strictly extends
+the one for shared storage. Again, checking this notion of redundancy is
+computationally expensive and the non-DRBD part is mainly a capacity property
+in the sense that we expect the majority of instance moves that are fine
+from a DRBD point of view will not lead from a redundant to a non-redundant
+situation.</p>
+</div>
+<div class="section" id="modifications-to-existing-tools">
+<h3><a class="toc-backref" href="#id5">Modifications to existing tools</a><a class="headerlink" href="#modifications-to-existing-tools" title="Permalink to this headline">¶</a></h3>
+<p>The changes to the exisiting tools are literally the same as
+for <a class="reference internal" href="design-shared-storage-redundancy.html"><em>N+1 redundancy for shared storage</em></a> with the above definition of
+N+1 redundancy substituted in for that of redundancy for shared storage.
+In particular, <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> will not be changed and <tt class="docutils literal"><span class="pre">hbal</span></tt>
+will use N+1 redundancy as a final filter step to disallow moves
+that lead from a redundant to a non-redundant situation.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Redundancy for the plain disk template</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definition-of-n-1-redundancy-in-the-presence-of-shared-and-plain-storage">Definition of N+1 redundancy in the presence of shared and plain storage</a></li>
+<li><a class="reference internal" href="#modifications-to-existing-tools">Modifications to existing tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-performance-tests.html"
+                        title="previous chapter">Performance tests for QA</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-query2.html"
+                        title="next chapter">Query version 2 design</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-plain-redundancy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-query2.html" title="Query version 2 design"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-performance-tests.html" title="Performance tests for QA"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

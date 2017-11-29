@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.metad</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        Module&nbsp;metad
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.metad-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.metad-module.html">Module ganeti.metad</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2014 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"><tt class="py-docstring">"""Module for the Metad protocol</tt> </tt>
+<a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">random</tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">time</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-3', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-5" class="py-name" targets="Package ganeti.rpc=ganeti.rpc-module.html"><a title="ganeti.rpc" class="py-name" href="#" onclick="return doclink('link-5', 'rpc', 'link-5');">rpc</a></tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Package ganeti.client=ganeti.client-module.html,Module ganeti.confd.client=ganeti.confd.client-module.html,Module ganeti.http.client=ganeti.http.client-module.html,Module ganeti.rapi.client=ganeti.rapi.client-module.html,Module ganeti.rpc.client=ganeti.rpc.client-module.html"><a title="ganeti.client
+ganeti.confd.client
+ganeti.http.client
+ganeti.rapi.client
+ganeti.rpc.client" class="py-name" href="#" onclick="return doclink('link-6', 'client', 'link-6');">client</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">cl</tt> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-7', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-8" class="py-name"><a title="ganeti.rpc" class="py-name" href="#" onclick="return doclink('link-8', 'rpc', 'link-5');">rpc</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Module ganeti.rpc.transport=ganeti.rpc.transport-module.html"><a title="ganeti.rpc.transport" class="py-name" href="#" onclick="return doclink('link-9', 'transport', 'link-9');">transport</a></tt> <tt class="py-keyword">import</tt> <tt id="link-10" class="py-name" targets="Class ganeti.rpc.transport.Transport=ganeti.rpc.transport.Transport-class.html"><a title="ganeti.rpc.transport.Transport" class="py-name" href="#" onclick="return doclink('link-10', 'Transport', 'link-10');">Transport</a></tt> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-11" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-11', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="ganeti.rpc" class="py-name" href="#" onclick="return doclink('link-12', 'rpc', 'link-5');">rpc</a></tt> <tt class="py-keyword">import</tt> <tt id="link-13" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-13', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line"> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line"><tt class="py-comment"># If the metadata daemon is disabled, there is no stub generated for it.</tt> </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line"><tt class="py-comment"># So import the module and define the client class only if enabled, otherwise</tt> </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line"><tt class="py-comment"># just generate an empty placeholder class.</tt> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt id="link-14" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-14', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Variable ganeti._constants.ENABLE_METAD=ganeti._constants-module.html#ENABLE_METAD"><a title="ganeti._constants.ENABLE_METAD" class="py-name" href="#" onclick="return doclink('link-15', 'ENABLE_METAD', 'link-15');">ENABLE_METAD</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line">  <tt class="py-keyword">import</tt> <tt id="link-16" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-16', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-17" class="py-name"><a title="ganeti.rpc" class="py-name" href="#" onclick="return doclink('link-17', 'rpc', 'link-5');">rpc</a></tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Package ganeti.rpc.stub=ganeti.rpc.stub-module.html"><a title="ganeti.rpc.stub" class="py-name" href="#" onclick="return doclink('link-18', 'stub', 'link-18');">stub</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Module ganeti.metad=ganeti.metad-module.html,Module ganeti.rpc.stub.metad=ganeti.rpc.stub.metad-module.html"><a title="ganeti.metad
+ganeti.rpc.stub.metad" class="py-name" href="#" onclick="return doclink('link-19', 'metad', 'link-19');">metad</a></tt> <tt class="py-keyword">as</tt> <tt id="link-20" class="py-name"><a title="ganeti.rpc.stub" class="py-name" href="#" onclick="return doclink('link-20', 'stub', 'link-18');">stub</a></tt> </tt>
+<a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line"> </tt>
+<a name="Client"></a><div id="Client-def"><a name="L52"></a><tt class="py-lineno">52</tt> <a class="py-toggle" href="#" id="Client-toggle" onclick="return toggle('Client');">-</a><tt class="py-line">  <tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.metad.Client-class.html">Client</a><tt class="py-op">(</tt><tt class="py-base-class">cl</tt><tt class="py-op">.</tt><tt class="py-base-class">AbstractStubClient</tt><tt class="py-op">,</tt> <tt class="py-base-class">stub</tt><tt class="py-op">.</tt><tt class="py-base-class">ClientRpcStub</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Client-collapsed" style="display:none;" pad="++" indent="++++++"></div><div id="Client-expanded"><a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">    <tt class="py-docstring">"""High-level Metad client implementation.</tt> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line"><tt class="py-docstring">    This uses a backing Transport-like class on top of which it</tt> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line"><tt class="py-docstring">    implements data serialization/deserialization.</tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="Client.__init__"></a><div id="Client.__init__-def"><a name="L59"></a><tt class="py-lineno">59</tt> <a class="py-toggle" href="#" id="Client.__init__-toggle" onclick="return toggle('Client.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.metad.Client-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">timeouts</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">transport</tt><tt class="py-op">=</tt><tt id="link-21" class="py-name"><a title="ganeti.rpc.transport.Transport" class="py-name" href="#" onclick="return doclink('link-21', 'Transport', 'link-10');">Transport</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Client.__init__-collapsed" style="display:none;" pad="++" indent="++++++++++"></div><div id="Client.__init__-expanded"><a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line">      <tt class="py-docstring">"""Constructor for the Client class.</tt> </tt>
+<a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line"><tt class="py-docstring">      Arguments are the same as for L{AbstractClient}.</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line"><tt class="py-docstring">      """</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">      <tt class="py-name">cl</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Class ganeti.rpc.client.AbstractStubClient=ganeti.rpc.client.AbstractStubClient-class.html"><a title="ganeti.rpc.client.AbstractStubClient" class="py-name" href="#" onclick="return doclink('link-22', 'AbstractStubClient', 'link-22');">AbstractStubClient</a></tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Method ganeti.asyncnotifier.AsyncNotifier.__init__()=ganeti.asyncnotifier.AsyncNotifier-class.html#__init__,Method ganeti.asyncnotifier.FileEventHandlerBase.__init__()=ganeti.asyncnotifier.FileEventHandlerBase-class.html#__init__,Method ganeti.asyncnotifier.SingleFileEventHandler.__init__()=ganeti.asyncnotifier.SingleFileEventHandler-class.html#__init__,Method ganeti.backend.HooksRunner.__init__()=ganeti.backend.HooksRunner-class.html#__init__,Method ganeti.build.sphinx_ext._ManPageXRefRole.__init__()=ganeti.build.sphinx_ext._ManPageXRefRole-class.html#__init__,Method ganeti.cli.ArgSuggest.__init__()=ganeti.cli.ArgSuggest-class.html#__init__,Method ganeti.cli.FeedbackFnJobPollReportCb.__init__()=ganeti.cli.FeedbackFnJobPollReportCb-class.html#__init__,Method ganeti.cli.JobExecutor.__init__()=ganeti.cli.JobExecutor-class.html#__init__,Method ganeti.cli.JobPollCbBase.__init__()=ganeti.cli.JobPollCbBase-class.html#__init__,Method ganeti.cli.JobPollReportCbBase.__init__()=ganeti.cli.JobPollReportCbBase-class.html#__init__,Method ganeti.cli.StdioJobPollReportCb.__init__()=ganeti.cli.StdioJobPollReportCb-class.html#__init__,Method ganeti.cli.TableColumn.__init__()=ganeti.cli.TableColumn-class.html#__init__,Method ganeti.cli._Argument.__init__()=ganeti.cli._Argument-class.html#__init__,Method ganeti.cli._LuxiJobPollCb.__init__()=ganeti.cli._LuxiJobPollCb-class.html#__init__,Method ganeti.cli._QueryColumnFormatter.__init__()=ganeti.cli._QueryColumnFormatter-class.html#__init__,Method ganeti.cli._RunWhileDaemonsStoppedHelper.__init__()=ganeti.cli._RunWhileDaemonsStoppedHelper-class.html#__init__,Method ganeti.cli._ShowUsage.__init__()=ganeti.cli._ShowUsage-class.html#__init__,Method ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__()=ganeti.client.gnt_cluster._RunWhenNodesReachableHelper-class.html#__init__,Method ganeti.client.gnt_debug._JobQueueTestReporter.__init__()=ganeti.client.gnt_debug._JobQueueTestReporter-class.html#__init__,Method ganeti.client.gnt_node.ReplyStatus.__init__()=ganeti.client.gnt_node.ReplyStatus-class.html#__init__,Method ganeti.cmdlib.base.LUWConfdClient.__init__()=ganeti.cmdlib.base.LUWConfdClient-class.html#__init__,Method ganeti.cmdlib.base.LogicalUnit.__init__()=ganeti.cmdlib.base.LogicalUnit-class.html#__init__,Method ganeti.cmdlib.base.QueryBase.__init__()=ganeti.cmdlib.base.QueryBase-class.html#__init__,Method ganeti.cmdlib.base.ResultWithJobs.__init__()=ganeti.cmdlib.base.ResultWithJobs-class.html#__init__,Method ganeti.cmdlib.base.Tasklet.__init__()=ganeti.cmdlib.base.Tasklet-class.html#__init__,Method ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__()=ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage-class.html#__init__,Method ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__()=ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__,Method ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__()=ganeti.cmdlib.instance_set_params.InstNicModPrivate-class.html#__init__,Method ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__()=ganeti.cmdlib.instance_storage.TLReplaceDisks-class.html#__init__,Method ganeti.cmdlib.instance_storage.TemporaryDisk.__init__()=ganeti.cmdlib.instance_storage.TemporaryDisk-class.html#__init__,Method ganeti.cmdlib.test.TestSocketWrapper.__init__()=ganeti.cmdlib.test.TestSocketWrapper-class.html#__init__,Method ganeti.confd.client.ConfdAsyncUDPClient.__init__()=ganeti.confd.client.ConfdAsyncUDPClient-class.html#__init__,Method ganeti.confd.client.ConfdClient.__init__()=ganeti.confd.client.ConfdClient-class.html#__init__,Method ganeti.confd.client.ConfdClientRequest.__init__()=ganeti.confd.client.ConfdClientRequest-class.html#__init__,Method ganeti.confd.client.ConfdCountingCallback.__init__()=ganeti.confd.client.ConfdCountingCallback-class.html#__init__,Method ganeti.confd.client.ConfdFilterCallback.__init__()=ganeti.confd.client.ConfdFilterCallback-class.html#__init__,Method ganeti.confd.client.StoreResultCallback.__init__()=ganeti.confd.client.StoreResultCallback-class.html#__init__,Method ganeti.confd.client._Request.__init__()=ganeti.confd.client._Request-class.html#__init__,Method ganeti.config.ConfigWriter.__init__()=ganeti.config.ConfigWriter-class.html#__init__,Method ganeti.config.DetachedConfig.__init__()=ganeti.config.DetachedConfig-class.html#__init__,Method ganeti.config.temporary_reservations.TemporaryReservationManager.__init__()=ganeti.config.temporary_reservations.TemporaryReservationManager-class.html#__init__,Method ganeti.config.utils.ConfigManager.__init__()=ganeti.config.utils.ConfigManager-class.html#__init__,Method ganeti.daemon.AsyncAwaker.__init__()=ganeti.daemon.AsyncAwaker-class.html#__init__,Method ganeti.daemon.AsyncTerminatedMessageStream.__init__()=ganeti.daemon.AsyncTerminatedMessageStream-class.html#__init__,Method ganeti.daemon.AsyncUDPSocket.__init__()=ganeti.daemon.AsyncUDPSocket-class.html#__init__,Method ganeti.daemon.AsyncoreScheduler.__init__()=ganeti.daemon.AsyncoreScheduler-class.html#__init__,Method ganeti.daemon.Mainloop.__init__()=ganeti.daemon.Mainloop-class.html#__init__,Method ganeti.daemon._ShutdownCheck.__init__()=ganeti.daemon._ShutdownCheck-class.html#__init__,Method ganeti.errors.DeviceCreationError.__init__()=ganeti.errors.DeviceCreationError-class.html#__init__,Method ganeti.hooksmaster.HooksMaster.__init__()=ganeti.hooksmaster.HooksMaster-class.html#__init__,Method ganeti.ht._WrapperBase.__init__()=ganeti.ht._WrapperBase-class.html#__init__,Method ganeti.http.HttpBase.__init__()=ganeti.http.HttpBase-class.html#__init__,Method ganeti.http.HttpClientToServerStartLine.__init__()=ganeti.http.HttpClientToServerStartLine-class.html#__init__,Method ganeti.http.HttpException.__init__()=ganeti.http.HttpException-class.html#__init__,Method ganeti.http.HttpMessage.__init__()=ganeti.http.HttpMessage-class.html#__init__,Method ganeti.http.HttpMessageReader.__init__()=ganeti.http.HttpMessageReader-class.html#__init__,Method ganeti.http.HttpMessageWriter.__init__()=ganeti.http.HttpMessageWriter-class.html#__init__,Method ganeti.http.HttpServerToClientStartLine.__init__()=ganeti.http.HttpServerToClientStartLine-class.html#__init__,Method ganeti.http.HttpSslParams.__init__()=ganeti.http.HttpSslParams-class.html#__init__,Method ganeti.http.auth.PasswordFileUser.__init__()=ganeti.http.auth.PasswordFileUser-class.html#__init__,Method ganeti.http.client.HttpClientRequest.__init__()=ganeti.http.client.HttpClientRequest-class.html#__init__,Method ganeti.http.client._PendingRequest.__init__()=ganeti.http.client._PendingRequest-class.html#__init__,Method ganeti.http.client._PendingRequestMonitor.__init__()=ganeti.http.client._PendingRequestMonitor-class.html#__init__,Method ganeti.http.server.HttpResponder.__init__()=ganeti.http.server.HttpResponder-class.html#__init__,Method ganeti.http.server.HttpServer.__init__()=ganeti.http.server.HttpServer-class.html#__init__,Method ganeti.http.server.HttpServerRequestExecutor.__init__()=ganeti.http.server.HttpServerRequestExecutor-class.html#__init__,Method ganeti.http.server._HttpServerRequest.__init__()=ganeti.http.server._HttpServerRequest-class.html#__init__,Method ganeti.http.server._HttpServerToClientMessageWriter.__init__()=ganeti.http.server._HttpServerToClientMessageWriter-class.html#__init__,Method ganeti.hypervisor.hv_chroot.ChrootManager.__init__()=ganeti.hypervisor.hv_chroot.ChrootManager-class.html#__init__,Method ganeti.hypervisor.hv_fake.FakeHypervisor.__init__()=ganeti.hypervisor.hv_fake.FakeHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__()=ganeti.hypervisor.hv_kvm.KVMHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__()=ganeti.hypervisor.hv_kvm.monitor.MonitorSocket-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpConnection-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpMessage-class.html#__init__,Method ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__()=ganeti.hypervisor.hv_lxc.LXCHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_xen.XenHypervisor.__init__()=ganeti.hypervisor.hv_xen.XenHypervisor-class.html#__init__,Method ganeti.impexpd.ChildIOProcessor.__init__()=ganeti.impexpd.ChildIOProcessor-class.html#__init__,Method ganeti.impexpd.CommandBuilder.__init__()=ganeti.impexpd.CommandBuilder-class.html#__init__,Method ganeti.jqueue.JobQueue.__init__()=ganeti.jqueue.JobQueue-class.html#__init__,Method ganeti.jqueue._JobDependencyManager.__init__()=ganeti.jqueue._JobDependencyManager-class.html#__init__,Method ganeti.jqueue._JobProcessor.__init__()=ganeti.jqueue._JobProcessor-class.html#__init__,Method ganeti.jqueue._OpExecCallbacks.__init__()=ganeti.jqueue._OpExecCallbacks-class.html#__init__,Method ganeti.jqueue._OpExecContext.__init__()=ganeti.jqueue._OpExecContext-class.html#__init__,Method ganeti.jqueue._QueuedJob.__init__()=ganeti.jqueue._QueuedJob-class.html#__init__,Method ganeti.jqueue._QueuedOpCode.__init__()=ganeti.jqueue._QueuedOpCode-class.html#__init__,Method ganeti.jqueue._TimeoutStrategyWrapper.__init__()=ganeti.jqueue._TimeoutStrategyWrapper-class.html#__init__,Method ganeti.locking.PipeCondition.__init__()=ganeti.locking.PipeCondition-class.html#__init__,Method ganeti.locking.SharedLock.__init__()=ganeti.locking.SharedLock-class.html#__init__,Method ganeti.locking.SingleNotifyPipeCondition.__init__()=ganeti.locking.SingleNotifyPipeCondition-class.html#__init__,Method ganeti.locking._BaseCondition.__init__()=ganeti.locking._BaseCondition-class.html#__init__,Method ganeti.locking._PipeConditionWithMode.__init__()=ganeti.locking._PipeConditionWithMode-class.html#__init__,Method ganeti.locking._SingleNotifyPipeConditionWaiter.__init__()=ganeti.locking._SingleNotifyPipeConditionWaiter-class.html#__init__,Method ganeti.luxi.Client.__init__()=ganeti.luxi.Client-class.html#__init__,Method ganeti.masterd.iallocator.IARequestBase.__init__()=ganeti.masterd.iallocator.IARequestBase-class.html#__init__,Method ganeti.masterd.iallocator.IAllocator.__init__()=ganeti.masterd.iallocator.IAllocator-class.html#__init__,Method ganeti.masterd.instance.DiskExport.__init__()=ganeti.masterd.instance.DiskExport-class.html#__init__,Method ganeti.masterd.instance.DiskImport.__init__()=ganeti.masterd.instance.DiskImport-class.html#__init__,Method ganeti.masterd.instance.DiskTransfer.__init__()=ganeti.masterd.instance.DiskTransfer-class.html#__init__,Method ganeti.masterd.instance.ExportInstanceHelper.__init__()=ganeti.masterd.instance.ExportInstanceHelper-class.html#__init__,Method ganeti.masterd.instance.ImportExportLoop.__init__()=ganeti.masterd.instance.ImportExportLoop-class.html#__init__,Method ganeti.masterd.instance.ImportExportTimeouts.__init__()=ganeti.masterd.instance.ImportExportTimeouts-class.html#__init__,Method ganeti.masterd.instance._DiskImportExportBase.__init__()=ganeti.masterd.instance._DiskImportExportBase-class.html#__init__,Method ganeti.masterd.instance._DiskTransferPrivate.__init__()=ganeti.masterd.instance._DiskTransferPrivate-class.html#__init__,Method ganeti.masterd.instance._RemoteExportCb.__init__()=ganeti.masterd.instance._RemoteExportCb-class.html#__init__,Method ganeti.masterd.instance._RemoteImportCb.__init__()=ganeti.masterd.instance._RemoteImportCb-class.html#__init__,Method ganeti.masterd.instance._TransferInstCbBase.__init__()=ganeti.masterd.instance._TransferInstCbBase-class.html#__init__,Method ganeti.mcpu.LockAttemptTimeoutStrategy.__init__()=ganeti.mcpu.LockAttemptTimeoutStrategy-class.html#__init__,Method ganeti.mcpu.Processor.__init__()=ganeti.mcpu.Processor-class.html#__init__,Method ganeti.metad.Client.__init__()=ganeti.metad.Client-class.html#__init__,Method ganeti.netutils.Hostname.__init__()=ganeti.netutils.Hostname-class.html#__init__,Method ganeti.netutils.IP4Address.__init__()=ganeti.netutils.IP4Address-class.html#__init__,Method ganeti.netutils.IP6Address.__init__()=ganeti.netutils.IP6Address-class.html#__init__,Method ganeti.network.AddressPool.__init__()=ganeti.network.AddressPool-class.html#__init__,Method ganeti.opcodes_base.BaseOpCode.__init__()=ganeti.opcodes_base.BaseOpCode-class.html#__init__,Method ganeti.outils.ValidatedSlots.__init__()=ganeti.outils.ValidatedSlots-class.html#__init__,Method ganeti.ovf.Converter.__init__()=ganeti.ovf.Converter-class.html#__init__,Method ganeti.ovf.OVFReader.__init__()=ganeti.ovf.OVFReader-class.html#__init__,Method ganeti.ovf.OVFWriter.__init__()=ganeti.ovf.OVFWriter-class.html#__init__,Method ganeti.query.ClusterQueryData.__init__()=ganeti.query.ClusterQueryData-class.html#__init__,Method ganeti.query.GroupQueryData.__init__()=ganeti.query.GroupQueryData-class.html#__init__,Method ganeti.query.InstanceQueryData.__init__()=ganeti.query.InstanceQueryData-class.html#__init__,Method ganeti.query.LockQueryData.__init__()=ganeti.query.LockQueryData-class.html#__init__,Method ganeti.query.NetworkQueryData.__init__()=ganeti.query.NetworkQueryData-class.html#__init__,Method ganeti.query.NodeQueryData.__init__()=ganeti.query.NodeQueryData-class.html#__init__,Method ganeti.query.Query.__init__()=ganeti.query.Query-class.html#__init__,Method ganeti.query._FilterCompilerHelper.__init__()=ganeti.query._FilterCompilerHelper-class.html#__init__,Method ganeti.query._FilterHints.__init__()=ganeti.query._FilterHints-class.html#__init__,Method ganeti.rapi.baserlib.OpcodeAttributes.__init__()=ganeti.rapi.baserlib.OpcodeAttributes-class.html#__init__,Method ganeti.rapi.baserlib.ResourceBase.__init__()=ganeti.rapi.baserlib.ResourceBase-class.html#__init__,Method ganeti.rapi.client.GanetiApiError.__init__()=ganeti.rapi.client.GanetiApiError-class.html#__init__,Method ganeti.rapi.client.GanetiRapiClient.__init__()=ganeti.rapi.client.GanetiRapiClient-class.html#__init__,Method ganeti.rapi.client_utils.RapiJobPollCb.__init__()=ganeti.rapi.client_utils.RapiJobPollCb-class.html#__init__,Method ganeti.rapi.connector.Mapper.__init__()=ganeti.rapi.connector.Mapper-class.html#__init__,Method ganeti.rapi.connector.UriPattern.__init__()=ganeti.rapi.connector.UriPattern-class.html#__init__,Method ganeti.rapi.rlib2._R_Tags.__init__()=ganeti.rapi.rlib2._R_Tags-class.html#__init__,Method ganeti.rapi.testutils.FakeCurl.__init__()=ganeti.rapi.testutils.FakeCurl-class.html#__init__,Method ganeti.rapi.testutils.InputTestClient.__init__()=ganeti.rapi.testutils.InputTestClient-class.html#__init__,Method ganeti.rapi.testutils._LuxiCallRecorder.__init__()=ganeti.rapi.testutils._LuxiCallRecorder-class.html#__init__,Method ganeti.rapi.testutils._RapiMock.__init__()=ganeti.rapi.testutils._RapiMock-class.html#__init__,Method ganeti.rapi.testutils._TestLuxiTransport.__init__()=ganeti.rapi.testutils._TestLuxiTransport-class.html#__init__,Method ganeti.rpc.client.AbstractClient.__init__()=ganeti.rpc.client.AbstractClient-class.html#__init__,Method ganeti.rpc.client.AbstractStubClient.__init__()=ganeti.rpc.client.AbstractStubClient-class.html#__init__,Method ganeti.rpc.node.BootstrapRunner.__init__()=ganeti.rpc.node.BootstrapRunner-class.html#__init__,Method ganeti.rpc.node.ConfigRunner.__init__()=ganeti.rpc.node.ConfigRunner-class.html#__init__,Method ganeti.rpc.node.DnsOnlyRunner.__init__()=ganeti.rpc.node.DnsOnlyRunner-class.html#__init__,Method ganeti.rpc.node.JobQueueRunner.__init__()=ganeti.rpc.node.JobQueueRunner-class.html#__init__,Method ganeti.rpc.node.RpcResult.__init__()=ganeti.rpc.node.RpcResult-class.html#__init__,Method ganeti.rpc.node.RpcRunner.__init__()=ganeti.rpc.node.RpcRunner-class.html#__init__,Method ganeti.rpc.node._RpcClientBase.__init__()=ganeti.rpc.node._RpcClientBase-class.html#__init__,Method ganeti.rpc.node._RpcProcessor.__init__()=ganeti.rpc.node._RpcProcessor-class.html#__init__,Method ganeti.rpc.node._StaticResolver.__init__()=ganeti.rpc.node._StaticResolver-class.html#__init__,Method ganeti.rpc.transport.FdTransport.__init__()=ganeti.rpc.transport.FdTransport-class.html#__init__,Method ganeti.rpc.transport.Transport.__init__()=ganeti.rpc.transport.Transport-class.html#__init__,Method ganeti.runtime.GetentResolver.__init__()=ganeti.runtime.GetentResolver-class.html#__init__,Method ganeti.serializer.Private.__init__()=ganeti.serializer.Private-class.html#__init__,Method ganeti.serializer.PrivateDict.__init__()=ganeti.serializer.PrivateDict-class.html#__init__,Method ganeti.server.masterd.GanetiContext.__init__()=ganeti.server.masterd.GanetiContext-class.html#__init__,Method ganeti.server.noded.MlockallRequestExecutor.__init__()=ganeti.server.noded.MlockallRequestExecutor-class.html#__init__,Method ganeti.server.noded.NodeRequestHandler.__init__()=ganeti.server.noded.NodeRequestHandler-class.html#__init__,Method ganeti.server.rapi.FileEventHandler.__init__()=ganeti.server.rapi.FileEventHandler-class.html#__init__,Method ganeti.server.rapi.RapiUsers.__init__()=ganeti.server.rapi.RapiUsers-class.html#__init__,Method ganeti.server.rapi.RemoteApiHandler.__init__()=ganeti.server.rapi.RemoteApiHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiRequestContext.__init__()=ganeti.server.rapi.RemoteApiRequestContext-class.html#__init__,Method ganeti.ssconf.SimpleStore.__init__()=ganeti.ssconf.SimpleStore-class.html#__init__,Method ganeti.ssh.SshRunner.__init__()=ganeti.ssh.SshRunner-class.html#__init__,Method ganeti.storage.base.BlockDev.__init__()=ganeti.storage.base.BlockDev-class.html#__init__,Method ganeti.storage.bdev.LogicalVolume.__init__()=ganeti.storage.bdev.LogicalVolume-class.html#__init__,Method ganeti.storage.bdev.PersistentBlockDevice.__init__()=ganeti.storage.bdev.PersistentBlockDevice-class.html#__init__,Method ganeti.storage.bdev.RADOSBlockDevice.__init__()=ganeti.storage.bdev.RADOSBlockDevice-class.html#__init__,Method ganeti.storage.container.FileStorage.__init__()=ganeti.storage.container.FileStorage-class.html#__init__,Method ganeti.storage.drbd.DRBD8Dev.__init__()=ganeti.storage.drbd.DRBD8Dev-class.html#__init__,Method ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Info.__init__()=ganeti.storage.drbd_info.DRBD8Info-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Status.__init__()=ganeti.storage.drbd_info.DRBD8Status-class.html#__init__,Method ganeti.storage.extstorage.ExtStorageDevice.__init__()=ganeti.storage.extstorage.ExtStorageDevice-class.html#__init__,Method ganeti.storage.filestorage.FileDeviceHelper.__init__()=ganeti.storage.filestorage.FileDeviceHelper-class.html#__init__,Method ganeti.storage.filestorage.FileStorage.__init__()=ganeti.storage.filestorage.FileStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterStorage.__init__()=ganeti.storage.gluster.GlusterStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterVolume.__init__()=ganeti.storage.gluster.GlusterVolume-class.html#__init__,Method ganeti.tools.burnin.Burner.__init__()=ganeti.tools.burnin.Burner-class.html#__init__,Method ganeti.tools.burnin.JobHandler.__init__()=ganeti.tools.burnin.JobHandler-class.html#__init__,Method ganeti.tools.cfgupgrade.CfgUpgrade.__init__()=ganeti.tools.cfgupgrade.CfgUpgrade-class.html#__init__,Method ganeti.uidpool.LockedUid.__init__()=ganeti.uidpool.LockedUid-class.html#__init__,Method ganeti.utils.FdConditionWaiterHelper.__init__()=ganeti.utils.FdConditionWaiterHelper-class.html#__init__,Method ganeti.utils.FieldSet.__init__()=ganeti.utils.FieldSet-class.html#__init__,Method ganeti.utils.SignalHandler.__init__()=ganeti.utils.SignalHandler-class.html#__init__,Method ganeti.utils.SignalWakeupFd.__init__()=ganeti.utils.SignalWakeupFd-class.html#__init__,Method ganeti.utils.algo.RunningTimeout.__init__()=ganeti.utils.algo.RunningTimeout-class.html#__init__,Method ganeti.utils.filelock.FileLock.__init__()=ganeti.utils.filelock.FileLock-class.html#__init__,Method ganeti.utils.io.FileStatHelper.__init__()=ganeti.utils.io.FileStatHelper-class.html#__init__,Method ganeti.utils.io.TemporaryFileManager.__init__()=ganeti.utils.io.TemporaryFileManager-class.html#__init__,Method ganeti.utils.livelock.LiveLock.__init__()=ganeti.utils.livelock.LiveLock-class.html#__init__,Method ganeti.utils.livelock.LiveLockName.__init__()=ganeti.utils.livelock.LiveLockName-class.html#__init__,Method ganeti.utils.log._ReopenableLogHandler.__init__()=ganeti.utils.log._ReopenableLogHandler-class.html#__init__,Method ganeti.utils.process.RunResult.__init__()=ganeti.utils.process.RunResult-class.html#__init__,Method ganeti.utils.retry._RetryDelayCalculator.__init__()=ganeti.utils.retry._RetryDelayCalculator-class.html#__init__,Method ganeti.utils.text.LineSplitter.__init__()=ganeti.utils.text.LineSplitter-class.html#__init__,Method ganeti.utils.text.ShellWriter.__init__()=ganeti.utils.text.ShellWriter-class.html#__init__,Method ganeti.watcher.Instance.__init__()=ganeti.watcher.Instance-class.html#__init__,Method ganeti.watcher.Node.__init__()=ganeti.watcher.Node-class.html#__init__,Method ganeti.watcher.nodemaint.NodeMaintenance.__init__()=ganeti.watcher.nodemaint.NodeMaintenance-class.html#__init__,Method ganeti.watcher.state.WatcherState.__init__()=ganeti.watcher.state.WatcherState-class.html#__init__,Method ganeti.wconfd.Client.__init__()=ganeti.wconfd.Client-class.html#__init__,Method ganeti.workerpool.BaseWorker.__init__()=ganeti.workerpool.BaseWorker-class.html#__init__,Method ganeti.workerpool.DeferTask.__init__()=ganeti.workerpool.DeferTask-class.html#__init__,Method ganeti.workerpool.WorkerPool.__init__()=ganeti.workerpool.WorkerPool-class.html#__init__,Method script-build_bash_completion.CompletionWriter.__init__()=script-build_bash_completion.CompletionWriter-class.html#__init__,Method script-cfgshell.ConfigShell.__init__()=script-cfgshell.ConfigShell-class.html#__init__,Method script-cluster_merge.Merger.__init__()=script-cluster_merge.Merger-class.html#__init__,Method script-cluster_merge.MergerData.__init__()=script-cluster_merge.MergerData-class.html#__init__,Method script-confd_client.TestClient.__init__()=script-confd_client.TestClient-class.html#__init__,Method script-import_export.ChildProcess.__init__()=script-import_export.ChildProcess-class.html#__init__,Method script-import_export.StatusFile.__init__()=script-import_export.StatusFile-class.html#__init__,Method script-move_instance.InstanceMove.__init__()=script-move_instance.InstanceMove-class.html#__init__,Method script-move_instance.MoveDestExecutor.__init__()=script-move_instance.MoveDestExecutor-class.html#__init__,Method script-move_instance.MoveJobPollReportCb.__init__()=script-move_instance.MoveJobPollReportCb-class.html#__init__,Method script-move_instance.MoveRuntime.__init__()=script-move_instance.MoveRuntime-class.html#__init__,Method script-move_instance.MoveSourceExecutor.__init__()=script-move_instance.MoveSourceExecutor-class.html#__init__,Method script-move_instance.RapiClientFactory.__init__()=script-move_instance.RapiClientFactory-class.html#__init__,Method script-query_config.QueryClient.__init__()=script-query_config.QueryClient-class.html#__init__"><a title="ganeti.asyncnotifier.AsyncNotifier.__init__
+ganeti.asyncnotifier.FileEventHandlerBase.__init__
+ganeti.asyncnotifier.SingleFileEventHandler.__init__
+ganeti.backend.HooksRunner.__init__
+ganeti.build.sphinx_ext._ManPageXRefRole.__init__
+ganeti.cli.ArgSuggest.__init__
+ganeti.cli.FeedbackFnJobPollReportCb.__init__
+ganeti.cli.JobExecutor.__init__
+ganeti.cli.JobPollCbBase.__init__
+ganeti.cli.JobPollReportCbBase.__init__
+ganeti.cli.StdioJobPollReportCb.__init__
+ganeti.cli.TableColumn.__init__
+ganeti.cli._Argument.__init__
+ganeti.cli._LuxiJobPollCb.__init__
+ganeti.cli._QueryColumnFormatter.__init__
+ganeti.cli._RunWhileDaemonsStoppedHelper.__init__
+ganeti.cli._ShowUsage.__init__
+ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__
+ganeti.client.gnt_debug._JobQueueTestReporter.__init__
+ganeti.client.gnt_node.ReplyStatus.__init__
+ganeti.cmdlib.base.LUWConfdClient.__init__
+ganeti.cmdlib.base.LogicalUnit.__init__
+ganeti.cmdlib.base.QueryBase.__init__
+ganeti.cmdlib.base.ResultWithJobs.__init__
+ganeti.cmdlib.base.Tasklet.__init__
+ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__
+ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__
+ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__
+ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__
+ganeti.cmdlib.instance_storage.TemporaryDisk.__init__
+ganeti.cmdlib.test.TestSocketWrapper.__init__
+ganeti.confd.client.ConfdAsyncUDPClient.__init__
+ganeti.confd.client.ConfdClient.__init__
+ganeti.confd.client.ConfdClientRequest.__init__
+ganeti.confd.client.ConfdCountingCallback.__init__
+ganeti.confd.client.ConfdFilterCallback.__init__
+ganeti.confd.client.StoreResultCallback.__init__
+ganeti.confd.client._Request.__init__
+ganeti.config.ConfigWriter.__init__
+ganeti.config.DetachedConfig.__init__
+ganeti.config.temporary_reservations.TemporaryReservationManager.__init__
+ganeti.config.utils.ConfigManager.__init__
+ganeti.daemon.AsyncAwaker.__init__
+ganeti.daemon.AsyncTerminatedMessageStream.__init__
+ganeti.daemon.AsyncUDPSocket.__init__
+ganeti.daemon.AsyncoreScheduler.__init__
+ganeti.daemon.Mainloop.__init__
+ganeti.daemon._ShutdownCheck.__init__
+ganeti.errors.DeviceCreationError.__init__
+ganeti.hooksmaster.HooksMaster.__init__
+ganeti.ht._WrapperBase.__init__
+ganeti.http.HttpBase.__init__
+ganeti.http.HttpClientToServerStartLine.__init__
+ganeti.http.HttpException.__init__
+ganeti.http.HttpMessage.__init__
+ganeti.http.HttpMessageReader.__init__
+ganeti.http.HttpMessageWriter.__init__
+ganeti.http.HttpServerToClientStartLine.__init__
+ganeti.http.HttpSslParams.__init__
+ganeti.http.auth.PasswordFileUser.__init__
+ganeti.http.client.HttpClientRequest.__init__
+ganeti.http.client._PendingRequest.__init__
+ganeti.http.client._PendingRequestMonitor.__init__
+ganeti.http.server.HttpResponder.__init__
+ganeti.http.server.HttpServer.__init__
+ganeti.http.server.HttpServerRequestExecutor.__init__
+ganeti.http.server._HttpServerRequest.__init__
+ganeti.http.server._HttpServerToClientMessageWriter.__init__
+ganeti.hypervisor.hv_chroot.ChrootManager.__init__
+ganeti.hypervisor.hv_fake.FakeHypervisor.__init__
+ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__
+ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__
+ganeti.hypervisor.hv_xen.XenHypervisor.__init__
+ganeti.impexpd.ChildIOProcessor.__init__
+ganeti.impexpd.CommandBuilder.__init__
+ganeti.jqueue.JobQueue.__init__
+ganeti.jqueue._JobDependencyManager.__init__
+ganeti.jqueue._JobProcessor.__init__
+ganeti.jqueue._OpExecCallbacks.__init__
+ganeti.jqueue._OpExecContext.__init__
+ganeti.jqueue._QueuedJob.__init__
+ganeti.jqueue._QueuedOpCode.__init__
+ganeti.jqueue._TimeoutStrategyWrapper.__init__
+ganeti.locking.PipeCondition.__init__
+ganeti.locking.SharedLock.__init__
+ganeti.locking.SingleNotifyPipeCondition.__init__
+ganeti.locking._BaseCondition.__init__
+ganeti.locking._PipeConditionWithMode.__init__
+ganeti.locking._SingleNotifyPipeConditionWaiter.__init__
+ganeti.luxi.Client.__init__
+ganeti.masterd.iallocator.IARequestBase.__init__
+ganeti.masterd.iallocator.IAllocator.__init__
+ganeti.masterd.instance.DiskExport.__init__
+ganeti.masterd.instance.DiskImport.__init__
+ganeti.masterd.instance.DiskTransfer.__init__
+ganeti.masterd.instance.ExportInstanceHelper.__init__
+ganeti.masterd.instance.ImportExportLoop.__init__
+ganeti.masterd.instance.ImportExportTimeouts.__init__
+ganeti.masterd.instance._DiskImportExportBase.__init__
+ganeti.masterd.instance._DiskTransferPrivate.__init__
+ganeti.masterd.instance._RemoteExportCb.__init__
+ganeti.masterd.instance._RemoteImportCb.__init__
+ganeti.masterd.instance._TransferInstCbBase.__init__
+ganeti.mcpu.LockAttemptTimeoutStrategy.__init__
+ganeti.mcpu.Processor.__init__
+ganeti.metad.Client.__init__
+ganeti.netutils.Hostname.__init__
+ganeti.netutils.IP4Address.__init__
+ganeti.netutils.IP6Address.__init__
+ganeti.network.AddressPool.__init__
+ganeti.opcodes_base.BaseOpCode.__init__
+ganeti.outils.ValidatedSlots.__init__
+ganeti.ovf.Converter.__init__
+ganeti.ovf.OVFReader.__init__
+ganeti.ovf.OVFWriter.__init__
+ganeti.query.ClusterQueryData.__init__
+ganeti.query.GroupQueryData.__init__
+ganeti.query.InstanceQueryData.__init__
+ganeti.query.LockQueryData.__init__
+ganeti.query.NetworkQueryData.__init__
+ganeti.query.NodeQueryData.__init__
+ganeti.query.Query.__init__
+ganeti.query._FilterCompilerHelper.__init__
+ganeti.query._FilterHints.__init__
+ganeti.rapi.baserlib.OpcodeAttributes.__init__
+ganeti.rapi.baserlib.ResourceBase.__init__
+ganeti.rapi.client.GanetiApiError.__init__
+ganeti.rapi.client.GanetiRapiClient.__init__
+ganeti.rapi.client_utils.RapiJobPollCb.__init__
+ganeti.rapi.connector.Mapper.__init__
+ganeti.rapi.connector.UriPattern.__init__
+ganeti.rapi.rlib2._R_Tags.__init__
+ganeti.rapi.testutils.FakeCurl.__init__
+ganeti.rapi.testutils.InputTestClient.__init__
+ganeti.rapi.testutils._LuxiCallRecorder.__init__
+ganeti.rapi.testutils._RapiMock.__init__
+ganeti.rapi.testutils._TestLuxiTransport.__init__
+ganeti.rpc.client.AbstractClient.__init__
+ganeti.rpc.client.AbstractStubClient.__init__
+ganeti.rpc.node.BootstrapRunner.__init__
+ganeti.rpc.node.ConfigRunner.__init__
+ganeti.rpc.node.DnsOnlyRunner.__init__
+ganeti.rpc.node.JobQueueRunner.__init__
+ganeti.rpc.node.RpcResult.__init__
+ganeti.rpc.node.RpcRunner.__init__
+ganeti.rpc.node._RpcClientBase.__init__
+ganeti.rpc.node._RpcProcessor.__init__
+ganeti.rpc.node._StaticResolver.__init__
+ganeti.rpc.transport.FdTransport.__init__
+ganeti.rpc.transport.Transport.__init__
+ganeti.runtime.GetentResolver.__init__
+ganeti.serializer.Private.__init__
+ganeti.serializer.PrivateDict.__init__
+ganeti.server.masterd.GanetiContext.__init__
+ganeti.server.noded.MlockallRequestExecutor.__init__
+ganeti.server.noded.NodeRequestHandler.__init__
+ganeti.server.rapi.FileEventHandler.__init__
+ganeti.server.rapi.RapiUsers.__init__
+ganeti.server.rapi.RemoteApiHandler.__init__
+ganeti.server.rapi.RemoteApiRequestContext.__init__
+ganeti.ssconf.SimpleStore.__init__
+ganeti.ssh.SshRunner.__init__
+ganeti.storage.base.BlockDev.__init__
+ganeti.storage.bdev.LogicalVolume.__init__
+ganeti.storage.bdev.PersistentBlockDevice.__init__
+ganeti.storage.bdev.RADOSBlockDevice.__init__
+ganeti.storage.container.FileStorage.__init__
+ganeti.storage.drbd.DRBD8Dev.__init__
+ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__
+ganeti.storage.drbd_info.DRBD8Info.__init__
+ganeti.storage.drbd_info.DRBD8Status.__init__
+ganeti.storage.extstorage.ExtStorageDevice.__init__
+ganeti.storage.filestorage.FileDeviceHelper.__init__
+ganeti.storage.filestorage.FileStorage.__init__
+ganeti.storage.gluster.GlusterStorage.__init__
+ganeti.storage.gluster.GlusterVolume.__init__
+ganeti.tools.burnin.Burner.__init__
+ganeti.tools.burnin.JobHandler.__init__
+ganeti.tools.cfgupgrade.CfgUpgrade.__init__
+ganeti.uidpool.LockedUid.__init__
+ganeti.utils.FdConditionWaiterHelper.__init__
+ganeti.utils.FieldSet.__init__
+ganeti.utils.SignalHandler.__init__
+ganeti.utils.SignalWakeupFd.__init__
+ganeti.utils.algo.RunningTimeout.__init__
+ganeti.utils.filelock.FileLock.__init__
+ganeti.utils.io.FileStatHelper.__init__
+ganeti.utils.io.TemporaryFileManager.__init__
+ganeti.utils.livelock.LiveLock.__init__
+ganeti.utils.livelock.LiveLockName.__init__
+ganeti.utils.log._ReopenableLogHandler.__init__
+ganeti.utils.process.RunResult.__init__
+ganeti.utils.retry._RetryDelayCalculator.__init__
+ganeti.utils.text.LineSplitter.__init__
+ganeti.utils.text.ShellWriter.__init__
+ganeti.watcher.Instance.__init__
+ganeti.watcher.Node.__init__
+ganeti.watcher.nodemaint.NodeMaintenance.__init__
+ganeti.watcher.state.WatcherState.__init__
+ganeti.wconfd.Client.__init__
+ganeti.workerpool.BaseWorker.__init__
+ganeti.workerpool.DeferTask.__init__
+ganeti.workerpool.WorkerPool.__init__
+script-build_bash_completion.CompletionWriter.__init__
+script-cfgshell.ConfigShell.__init__
+script-cluster_merge.Merger.__init__
+script-cluster_merge.MergerData.__init__
+script-confd_client.TestClient.__init__
+script-import_export.ChildProcess.__init__
+script-import_export.StatusFile.__init__
+script-move_instance.InstanceMove.__init__
+script-move_instance.MoveDestExecutor.__init__
+script-move_instance.MoveJobPollReportCb.__init__
+script-move_instance.MoveRuntime.__init__
+script-move_instance.MoveSourceExecutor.__init__
+script-move_instance.RapiClientFactory.__init__
+script-query_config.QueryClient.__init__" class="py-name" href="#" onclick="return doclink('link-23', '__init__', 'link-23');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">timeouts</tt><tt class="py-op">,</tt> <tt id="link-24" class="py-name"><a title="ganeti.rpc.transport" class="py-name" href="#" onclick="return doclink('link-24', 'transport', 'link-9');">transport</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line">      <tt id="link-25" class="py-name"><a title="ganeti.rpc.stub" class="py-name" href="#" onclick="return doclink('link-25', 'stub', 'link-18');">stub</a></tt><tt class="py-op">.</tt><tt id="link-26" class="py-name" targets="Class ganeti.rpc.stub.metad.ClientRpcStub=ganeti.rpc.stub.metad.ClientRpcStub-class.html,Class ganeti.rpc.stub.wconfd.ClientRpcStub=ganeti.rpc.stub.wconfd.ClientRpcStub-class.html"><a title="ganeti.rpc.stub.metad.ClientRpcStub
+ganeti.rpc.stub.wconfd.ClientRpcStub" class="py-name" href="#" onclick="return doclink('link-26', 'ClientRpcStub', 'link-26');">ClientRpcStub</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="ganeti.asyncnotifier.AsyncNotifier.__init__
+ganeti.asyncnotifier.FileEventHandlerBase.__init__
+ganeti.asyncnotifier.SingleFileEventHandler.__init__
+ganeti.backend.HooksRunner.__init__
+ganeti.build.sphinx_ext._ManPageXRefRole.__init__
+ganeti.cli.ArgSuggest.__init__
+ganeti.cli.FeedbackFnJobPollReportCb.__init__
+ganeti.cli.JobExecutor.__init__
+ganeti.cli.JobPollCbBase.__init__
+ganeti.cli.JobPollReportCbBase.__init__
+ganeti.cli.StdioJobPollReportCb.__init__
+ganeti.cli.TableColumn.__init__
+ganeti.cli._Argument.__init__
+ganeti.cli._LuxiJobPollCb.__init__
+ganeti.cli._QueryColumnFormatter.__init__
+ganeti.cli._RunWhileDaemonsStoppedHelper.__init__
+ganeti.cli._ShowUsage.__init__
+ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__
+ganeti.client.gnt_debug._JobQueueTestReporter.__init__
+ganeti.client.gnt_node.ReplyStatus.__init__
+ganeti.cmdlib.base.LUWConfdClient.__init__
+ganeti.cmdlib.base.LogicalUnit.__init__
+ganeti.cmdlib.base.QueryBase.__init__
+ganeti.cmdlib.base.ResultWithJobs.__init__
+ganeti.cmdlib.base.Tasklet.__init__
+ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__
+ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__
+ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__
+ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__
+ganeti.cmdlib.instance_storage.TemporaryDisk.__init__
+ganeti.cmdlib.test.TestSocketWrapper.__init__
+ganeti.confd.client.ConfdAsyncUDPClient.__init__
+ganeti.confd.client.ConfdClient.__init__
+ganeti.confd.client.ConfdClientRequest.__init__
+ganeti.confd.client.ConfdCountingCallback.__init__
+ganeti.confd.client.ConfdFilterCallback.__init__
+ganeti.confd.client.StoreResultCallback.__init__
+ganeti.confd.client._Request.__init__
+ganeti.config.ConfigWriter.__init__
+ganeti.config.DetachedConfig.__init__
+ganeti.config.temporary_reservations.TemporaryReservationManager.__init__
+ganeti.config.utils.ConfigManager.__init__
+ganeti.daemon.AsyncAwaker.__init__
+ganeti.daemon.AsyncTerminatedMessageStream.__init__
+ganeti.daemon.AsyncUDPSocket.__init__
+ganeti.daemon.AsyncoreScheduler.__init__
+ganeti.daemon.Mainloop.__init__
+ganeti.daemon._ShutdownCheck.__init__
+ganeti.errors.DeviceCreationError.__init__
+ganeti.hooksmaster.HooksMaster.__init__
+ganeti.ht._WrapperBase.__init__
+ganeti.http.HttpBase.__init__
+ganeti.http.HttpClientToServerStartLine.__init__
+ganeti.http.HttpException.__init__
+ganeti.http.HttpMessage.__init__
+ganeti.http.HttpMessageReader.__init__
+ganeti.http.HttpMessageWriter.__init__
+ganeti.http.HttpServerToClientStartLine.__init__
+ganeti.http.HttpSslParams.__init__
+ganeti.http.auth.PasswordFileUser.__init__
+ganeti.http.client.HttpClientRequest.__init__
+ganeti.http.client._PendingRequest.__init__
+ganeti.http.client._PendingRequestMonitor.__init__
+ganeti.http.server.HttpResponder.__init__
+ganeti.http.server.HttpServer.__init__
+ganeti.http.server.HttpServerRequestExecutor.__init__
+ganeti.http.server._HttpServerRequest.__init__
+ganeti.http.server._HttpServerToClientMessageWriter.__init__
+ganeti.hypervisor.hv_chroot.ChrootManager.__init__
+ganeti.hypervisor.hv_fake.FakeHypervisor.__init__
+ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__
+ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__
+ganeti.hypervisor.hv_xen.XenHypervisor.__init__
+ganeti.impexpd.ChildIOProcessor.__init__
+ganeti.impexpd.CommandBuilder.__init__
+ganeti.jqueue.JobQueue.__init__
+ganeti.jqueue._JobDependencyManager.__init__
+ganeti.jqueue._JobProcessor.__init__
+ganeti.jqueue._OpExecCallbacks.__init__
+ganeti.jqueue._OpExecContext.__init__
+ganeti.jqueue._QueuedJob.__init__
+ganeti.jqueue._QueuedOpCode.__init__
+ganeti.jqueue._TimeoutStrategyWrapper.__init__
+ganeti.locking.PipeCondition.__init__
+ganeti.locking.SharedLock.__init__
+ganeti.locking.SingleNotifyPipeCondition.__init__
+ganeti.locking._BaseCondition.__init__
+ganeti.locking._PipeConditionWithMode.__init__
+ganeti.locking._SingleNotifyPipeConditionWaiter.__init__
+ganeti.luxi.Client.__init__
+ganeti.masterd.iallocator.IARequestBase.__init__
+ganeti.masterd.iallocator.IAllocator.__init__
+ganeti.masterd.instance.DiskExport.__init__
+ganeti.masterd.instance.DiskImport.__init__
+ganeti.masterd.instance.DiskTransfer.__init__
+ganeti.masterd.instance.ExportInstanceHelper.__init__
+ganeti.masterd.instance.ImportExportLoop.__init__
+ganeti.masterd.instance.ImportExportTimeouts.__init__
+ganeti.masterd.instance._DiskImportExportBase.__init__
+ganeti.masterd.instance._DiskTransferPrivate.__init__
+ganeti.masterd.instance._RemoteExportCb.__init__
+ganeti.masterd.instance._RemoteImportCb.__init__
+ganeti.masterd.instance._TransferInstCbBase.__init__
+ganeti.mcpu.LockAttemptTimeoutStrategy.__init__
+ganeti.mcpu.Processor.__init__
+ganeti.metad.Client.__init__
+ganeti.netutils.Hostname.__init__
+ganeti.netutils.IP4Address.__init__
+ganeti.netutils.IP6Address.__init__
+ganeti.network.AddressPool.__init__
+ganeti.opcodes_base.BaseOpCode.__init__
+ganeti.outils.ValidatedSlots.__init__
+ganeti.ovf.Converter.__init__
+ganeti.ovf.OVFReader.__init__
+ganeti.ovf.OVFWriter.__init__
+ganeti.query.ClusterQueryData.__init__
+ganeti.query.GroupQueryData.__init__
+ganeti.query.InstanceQueryData.__init__
+ganeti.query.LockQueryData.__init__
+ganeti.query.NetworkQueryData.__init__
+ganeti.query.NodeQueryData.__init__
+ganeti.query.Query.__init__
+ganeti.query._FilterCompilerHelper.__init__
+ganeti.query._FilterHints.__init__
+ganeti.rapi.baserlib.OpcodeAttributes.__init__
+ganeti.rapi.baserlib.ResourceBase.__init__
+ganeti.rapi.client.GanetiApiError.__init__
+ganeti.rapi.client.GanetiRapiClient.__init__
+ganeti.rapi.client_utils.RapiJobPollCb.__init__
+ganeti.rapi.connector.Mapper.__init__
+ganeti.rapi.connector.UriPattern.__init__
+ganeti.rapi.rlib2._R_Tags.__init__
+ganeti.rapi.testutils.FakeCurl.__init__
+ganeti.rapi.testutils.InputTestClient.__init__
+ganeti.rapi.testutils._LuxiCallRecorder.__init__
+ganeti.rapi.testutils._RapiMock.__init__
+ganeti.rapi.testutils._TestLuxiTransport.__init__
+ganeti.rpc.client.AbstractClient.__init__
+ganeti.rpc.client.AbstractStubClient.__init__
+ganeti.rpc.node.BootstrapRunner.__init__
+ganeti.rpc.node.ConfigRunner.__init__
+ganeti.rpc.node.DnsOnlyRunner.__init__
+ganeti.rpc.node.JobQueueRunner.__init__
+ganeti.rpc.node.RpcResult.__init__
+ganeti.rpc.node.RpcRunner.__init__
+ganeti.rpc.node._RpcClientBase.__init__
+ganeti.rpc.node._RpcProcessor.__init__
+ganeti.rpc.node._StaticResolver.__init__
+ganeti.rpc.transport.FdTransport.__init__
+ganeti.rpc.transport.Transport.__init__
+ganeti.runtime.GetentResolver.__init__
+ganeti.serializer.Private.__init__
+ganeti.serializer.PrivateDict.__init__
+ganeti.server.masterd.GanetiContext.__init__
+ganeti.server.noded.MlockallRequestExecutor.__init__
+ganeti.server.noded.NodeRequestHandler.__init__
+ganeti.server.rapi.FileEventHandler.__init__
+ganeti.server.rapi.RapiUsers.__init__
+ganeti.server.rapi.RemoteApiHandler.__init__
+ganeti.server.rapi.RemoteApiRequestContext.__init__
+ganeti.ssconf.SimpleStore.__init__
+ganeti.ssh.SshRunner.__init__
+ganeti.storage.base.BlockDev.__init__
+ganeti.storage.bdev.LogicalVolume.__init__
+ganeti.storage.bdev.PersistentBlockDevice.__init__
+ganeti.storage.bdev.RADOSBlockDevice.__init__
+ganeti.storage.container.FileStorage.__init__
+ganeti.storage.drbd.DRBD8Dev.__init__
+ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__
+ganeti.storage.drbd_info.DRBD8Info.__init__
+ganeti.storage.drbd_info.DRBD8Status.__init__
+ganeti.storage.extstorage.ExtStorageDevice.__init__
+ganeti.storage.filestorage.FileDeviceHelper.__init__
+ganeti.storage.filestorage.FileStorage.__init__
+ganeti.storage.gluster.GlusterStorage.__init__
+ganeti.storage.gluster.GlusterVolume.__init__
+ganeti.tools.burnin.Burner.__init__
+ganeti.tools.burnin.JobHandler.__init__
+ganeti.tools.cfgupgrade.CfgUpgrade.__init__
+ganeti.uidpool.LockedUid.__init__
+ganeti.utils.FdConditionWaiterHelper.__init__
+ganeti.utils.FieldSet.__init__
+ganeti.utils.SignalHandler.__init__
+ganeti.utils.SignalWakeupFd.__init__
+ganeti.utils.algo.RunningTimeout.__init__
+ganeti.utils.filelock.FileLock.__init__
+ganeti.utils.io.FileStatHelper.__init__
+ganeti.utils.io.TemporaryFileManager.__init__
+ganeti.utils.livelock.LiveLock.__init__
+ganeti.utils.livelock.LiveLockName.__init__
+ganeti.utils.log._ReopenableLogHandler.__init__
+ganeti.utils.process.RunResult.__init__
+ganeti.utils.retry._RetryDelayCalculator.__init__
+ganeti.utils.text.LineSplitter.__init__
+ganeti.utils.text.ShellWriter.__init__
+ganeti.watcher.Instance.__init__
+ganeti.watcher.Node.__init__
+ganeti.watcher.nodemaint.NodeMaintenance.__init__
+ganeti.watcher.state.WatcherState.__init__
+ganeti.wconfd.Client.__init__
+ganeti.workerpool.BaseWorker.__init__
+ganeti.workerpool.DeferTask.__init__
+ganeti.workerpool.WorkerPool.__init__
+script-build_bash_completion.CompletionWriter.__init__
+script-cfgshell.ConfigShell.__init__
+script-cluster_merge.Merger.__init__
+script-cluster_merge.MergerData.__init__
+script-confd_client.TestClient.__init__
+script-import_export.ChildProcess.__init__
+script-import_export.StatusFile.__init__
+script-move_instance.InstanceMove.__init__
+script-move_instance.MoveDestExecutor.__init__
+script-move_instance.MoveJobPollReportCb.__init__
+script-move_instance.MoveRuntime.__init__
+script-move_instance.MoveSourceExecutor.__init__
+script-move_instance.RapiClientFactory.__init__
+script-query_config.QueryClient.__init__" class="py-name" href="#" onclick="return doclink('link-27', '__init__', 'link-23');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">      <tt class="py-name">retries</tt> <tt class="py-op">=</tt> <tt class="py-number">12</tt> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line">      <tt class="py-keyword">for</tt> <tt class="py-name">try_no</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-name">retries</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line">          <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name" targets="Method ganeti.rpc.client.AbstractClient._InitTransport()=ganeti.rpc.client.AbstractClient-class.html#_InitTransport"><a title="ganeti.rpc.client.AbstractClient._InitTransport" class="py-name" href="#" onclick="return doclink('link-28', '_InitTransport', 'link-28');">_InitTransport</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">          <tt class="py-keyword">return</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt id="link-29" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-29', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-30" class="py-name" targets="Class ganeti.rpc.errors.TimeoutError=ganeti.rpc.errors.TimeoutError-class.html"><a title="ganeti.rpc.errors.TimeoutError" class="py-name" href="#" onclick="return doclink('link-30', 'TimeoutError', 'link-30');">TimeoutError</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line">          <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Timout trying to connect to MetaD"</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line">          <tt class="py-keyword">if</tt> <tt class="py-name">try_no</tt> <tt class="py-op">==</tt> <tt class="py-name">retries</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">:</tt> </tt>
+<a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">          <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Will retry"</tt><tt class="py-op">)</tt> </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line">          <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">sleep</tt><tt class="py-op">(</tt><tt class="py-name">try_no</tt> <tt class="py-op">*</tt> <tt class="py-number">10</tt> <tt class="py-op">+</tt> <tt class="py-number">10</tt> <tt class="py-op">*</tt> <tt class="py-name">random</tt><tt class="py-op">.</tt><tt class="py-name">random</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line"> </tt>
+<a name="Client._InitTransport"></a><div id="Client._InitTransport-def"><a name="L80"></a><tt class="py-lineno">80</tt> <a class="py-toggle" href="#" id="Client._InitTransport-toggle" onclick="return toggle('Client._InitTransport');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.metad.Client-class.html#_InitTransport">_InitTransport</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Client._InitTransport-collapsed" style="display:none;" pad="++" indent="++++++++++"></div><div id="Client._InitTransport-expanded"><a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line">      <tt class="py-docstring">"""(Re)initialize the transport if needed.</tt> </tt>
+<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line"><tt class="py-docstring">      """</tt> </tt>
+<a name="L84"></a><tt class="py-lineno">84</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-31" class="py-name"><a title="ganeti.rpc.transport" class="py-name" href="#" onclick="return doclink('link-31', 'transport', 'link-9');">transport</a></tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L85"></a><tt class="py-lineno">85</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="ganeti.rpc.transport" class="py-name" href="#" onclick="return doclink('link-32', 'transport', 'link-9');">transport</a></tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">transport_class</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name" targets="Method ganeti.luxi.Client._GetAddress()=ganeti.luxi.Client-class.html#_GetAddress,Method ganeti.rpc.client.AbstractClient._GetAddress()=ganeti.rpc.client.AbstractClient-class.html#_GetAddress,Method ganeti.rpc.client.AbstractStubClient._GetAddress()=ganeti.rpc.client.AbstractStubClient-class.html#_GetAddress"><a title="ganeti.luxi.Client._GetAddress
+ganeti.rpc.client.AbstractClient._GetAddress
+ganeti.rpc.client.AbstractStubClient._GetAddress" class="py-name" href="#" onclick="return doclink('link-33', '_GetAddress', 'link-33');">_GetAddress</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L86"></a><tt class="py-lineno">86</tt>  <tt class="py-line">                                              <tt class="py-name">timeouts</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">timeouts</tt><tt class="py-op">,</tt> </tt>
+<a name="L87"></a><tt class="py-lineno">87</tt>  <tt class="py-line">                                              <tt class="py-name">allow_non_master</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L88"></a><tt class="py-lineno">88</tt>  <tt class="py-line"> </tt>
+<a name="L89"></a><tt class="py-lineno">89</tt>  <tt class="py-line"><tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="Client"></a><div id="Client-def"><a name="L90"></a><tt class="py-lineno">90</tt> <a class="py-toggle" href="#" id="Client-toggle" onclick="return toggle('Client');">-</a><tt class="py-line">  <tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.metad.Client-class.html">Client</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Client-collapsed" style="display:none;" pad="++" indent="++++++"></div><div id="Client-expanded"><a name="L91"></a><tt class="py-lineno">91</tt>  <tt class="py-line">    <tt class="py-docstring">"""An empty client representation that just throws an exception.</tt> </tt>
+<a name="L92"></a><tt class="py-lineno">92</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L93"></a><tt class="py-lineno">93</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="Client.__init__"></a><div id="Client.__init__-def"><a name="L94"></a><tt class="py-lineno">94</tt> <a class="py-toggle" href="#" id="Client.__init__-toggle" onclick="return toggle('Client.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.metad.Client-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">_timeouts</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">_transport</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Client.__init__-collapsed" style="display:none;" pad="++" indent="++++++++++"></div><div id="Client.__init__-expanded"><a name="L95"></a><tt class="py-lineno">95</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-34" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-34', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Class ganeti.errors.ProgrammerError=ganeti.errors.ProgrammerError-class.html"><a title="ganeti.errors.ProgrammerError" class="py-name" href="#" onclick="return doclink('link-35', 'ProgrammerError', 'link-35');">ProgrammerError</a></tt><tt class="py-op">(</tt><tt class="py-string">"The metadata deamon is disabled, yet"</tt> </tt>
+<a name="L96"></a><tt class="py-lineno">96</tt>  <tt class="py-line">                                   <tt class="py-string">" the client has been called"</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L97"></a><tt class="py-lineno">97</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Apr  4 13:44:20 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HTools support for multiple storage units per node &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="N+1 redundancy for shared storage" href="design-shared-storage-redundancy.html" />
+    <link rel="prev" title="Removal of the Config Lock Overhead" href="design-configlock.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-shared-storage-redundancy.html" title="N+1 redundancy for shared storage"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-configlock.html" title="Removal of the Config Lock Overhead"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="htools-support-for-multiple-storage-units-per-node">
+<h1><a class="toc-backref" href="#id1">HTools support for multiple storage units per node</a><a class="headerlink" href="#htools-support-for-multiple-storage-units-per-node" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#htools-support-for-multiple-storage-units-per-node" id="id1">HTools support for multiple storage units per node</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definitions" id="id4">Definitions</a></li>
+<li><a class="reference internal" href="#luxi-and-iallocator-protocol-extension" id="id5">LUXI and IAllocator protocol extension</a></li>
+<li><a class="reference internal" href="#text-protocol-extension" id="id6">Text protocol extension</a></li>
+<li><a class="reference internal" href="#interpretation" id="id7">Interpretation</a></li>
+<li><a class="reference internal" href="#balancing" id="id8">Balancing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This design document describes changes to hbal and related components (first
+and foremost LUXI), that will allow it to handle nodes that can&#8217;t be considered
+monolithic in regard to disk layout, for example because they have multiple
+different storage units available.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently the htools assume that there is one storage unit per node and that it can
+be arbitrarily split among instances. This leads to problems in clusters
+where multiple storage units are present: There might be 10GB DRBD and 10GB
+plain storage available on a node, for a total of 20GB. If an instance that
+uses 15GB of a single type of storage is requested, it can&#8217;t actually fit on
+the node, but the current implementation of hail doesn&#8217;t notice this.</p>
+<p>This behaviour is clearly wrong, but the problem doesn&#8217;t arise often in current
+setup, due to the fact that instances currently only have a single
+storage type and that users typically use node groups to differentiate between
+different node storage layouts.</p>
+<p>For the node show action, RAPI only returns</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">dfree</span></tt>: The total amount of free disk space</li>
+<li><tt class="docutils literal"><span class="pre">dtotal</span></tt>: The total amount of disk space</li>
+</ul>
+<p>which is insufficient for the same reasons.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="definitions">
+<h3><a class="toc-backref" href="#id4">Definitions</a><a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>All disks have exactly one <em>desired storage unit</em>, which determines where and
+how the disk can be stored. If the disk is transfered, the desired storage
+unit remains unchanged. The desired storage unit includes specifics like the
+volume group in the case of LVM based storage.</li>
+<li>A <em>storage unit</em> is a specific storage location on a specific node. Storage
+units have exactly one desired storage unit they can contain. A storage unit
+further has an identifier (containing the storage type, a key and possibly
+parameters), a total capacity, and a free capacity. A node cannot
+contain multiple storage units of the same desired storage unit.</li>
+<li>For the purposes of this document a <em>disk</em> has a desired storage unit and a size.</li>
+<li>A <em>disk can be moved</em> to a node, if there is at least one storage unit on
+that node which can contain the desired storage unit of the disk and if the
+free capacity is at least the size of the disk.</li>
+<li>An <em>instance can be moved</em> to a node, if all its disks can be moved there
+one-by-one.</li>
+</ul>
+</div>
+<div class="section" id="luxi-and-iallocator-protocol-extension">
+<h3><a class="toc-backref" href="#id5">LUXI and IAllocator protocol extension</a><a class="headerlink" href="#luxi-and-iallocator-protocol-extension" title="Permalink to this headline">¶</a></h3>
+<p>The LUXI and IAllocator protocols are extended to include in the <tt class="docutils literal"><span class="pre">node</span></tt>:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">storage</span></tt>: a list of objects (storage units) with
+#. Storage unit, containing in order:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>storage type</li>
+<li>storage key (e.g. volume group name)</li>
+<li>extra parameters (e.g. flag for exclusive storage) as a list.</li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple">
+<li>Amount free in MiB</li>
+<li>Amount total in MiB</li>
+</ol>
+</li>
+</ul>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s2">&quot;storage&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="s2">&quot;sunit&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;drbd8&quot;</span><span class="p">,</span> <span class="s2">&quot;xenvg&quot;</span><span class="p">,</span> <span class="p">[]]</span>
+    <span class="p">,</span> <span class="s2">&quot;free&quot;</span><span class="o">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="o">:</span> <span class="mi">4000</span>
+    <span class="p">},</span>
+    <span class="p">{</span> <span class="s2">&quot;sunit&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;/path/to/storage1&quot;</span><span class="p">,</span> <span class="p">[]]</span>
+    <span class="p">,</span> <span class="s2">&quot;free&quot;</span><span class="o">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="o">:</span> <span class="mi">10000</span>
+    <span class="p">},</span>
+    <span class="p">{</span> <span class="s2">&quot;sunit&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;/path/to/storage2&quot;</span><span class="p">,</span> <span class="p">[]]</span>
+    <span class="p">,</span> <span class="s2">&quot;free&quot;</span><span class="o">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="o">:</span> <span class="mi">20000</span>
+    <span class="p">},</span>
+    <span class="p">{</span> <span class="s2">&quot;sunit&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;lvm-vg&quot;</span><span class="p">,</span> <span class="s2">&quot;xenssdvg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">false</span><span class="p">]]</span>
+    <span class="p">,</span> <span class="s2">&quot;free&quot;</span><span class="o">:</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="o">:</span> <span class="mi">1024</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>is a node with an LVM volume group mirrored over DRBD, two file storage
+directories, one half full, one mostly full, and a non-mirrored volume group.</p>
+<p>The storage type <tt class="docutils literal"><span class="pre">drbd8</span></tt> needs to be added in order to differentiate between
+mirrored storage and non-mirrored storage.
+The storage key signals the volume group used and the storage unit takes no
+additional parameters.</p>
+</div>
+<div class="section" id="text-protocol-extension">
+<h3><a class="toc-backref" href="#id6">Text protocol extension</a><a class="headerlink" href="#text-protocol-extension" title="Permalink to this headline">¶</a></h3>
+<p>The same field is optionally present in the HTools text protocol:</p>
+<ul>
+<li><p class="first">a new &#8220;storage&#8221; column is added to the node section, which is a semicolon
+separated list of comma separated fields in the order
+#. <tt class="docutils literal"><span class="pre">free</span></tt>
+#. <tt class="docutils literal"><span class="pre">total</span></tt>
+#. <tt class="docutils literal"><span class="pre">sunit</span></tt>, which in itself contains</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>the storage type</li>
+<li>the storage key</li>
+<li>extra arguments</li>
+</ol>
+</div></blockquote>
+</li>
+</ul>
+<p>For example:</p>
+<blockquote>
+<div>2000,4000,drbd,xenvg;5000,10000,file,/path/to/storage1;1000,20000;
+[...]</div></blockquote>
+</div>
+<div class="section" id="interpretation">
+<h3><a class="toc-backref" href="#id7">Interpretation</a><a class="headerlink" href="#interpretation" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">hbal</span></tt> and <tt class="docutils literal"><span class="pre">hail</span></tt> will use this information only if available, if the data
+file doesn&#8217;t contain the <tt class="docutils literal"><span class="pre">storage</span></tt> field the old algorithm is used.</p>
+<p>If the node information contains the <tt class="docutils literal"><span class="pre">storage</span></tt> field, hbal and hail will
+assume that only the space compatible with the disk&#8217;s requirements is
+available. For an instance to fit a node, all it&#8217;s disks need to fit there
+separately. For a disk to fit a node, a storage unit of the type of
+the disk needs to have enough free space to contain it. The total free storage
+is not taken into consideration.</p>
+<p>Ignoring the old information will in theory introduce a backwards
+incompatibility: If the total free storage is smaller than to the sum of the
+free storage reported in the <tt class="docutils literal"><span class="pre">storage</span></tt> field a previously illegal move will
+become legal.</p>
+</div>
+<div class="section" id="balancing">
+<h3><a class="toc-backref" href="#id8">Balancing</a><a class="headerlink" href="#balancing" title="Permalink to this headline">¶</a></h3>
+<p>In order to determine a storage location for an instance, we collect analogous
+metrics to the current total node free space metric &#8211; namely the standard deviation
+statistic of the free space per storage unit.</p>
+<p>The <em>standard deviation metric</em> of a desired storage unit is the sample standard
+deviation of the percentage of free space of storage units compatible.</p>
+<p>The <em>full storage metric</em> is a average of the standard deviation metrics of the
+desired storage units.</p>
+<p>This is backwards compatible in-so-far as that</p>
+<ol class="arabic simple">
+<li>For a single storage unit per node it will have the same value.</li>
+<li>The weight of the storage versus the other metrics remains unchanged.</li>
+</ol>
+<p>Further this retains the property that scarce resources with low total will
+tend to have bigger impact on the metric than those with large totals, because
+in latter case the relative differences will not make for a large standard
+deviation.</p>
+<p>Ignoring nodes that do not contain the desired storage unit additionally
+boosts the importance of the scarce desired storage units, because having more
+storage units of a desired storage unit will tend to make the standard
+deviation metric smaller.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HTools support for multiple storage units per node</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definitions">Definitions</a></li>
+<li><a class="reference internal" href="#luxi-and-iallocator-protocol-extension">LUXI and IAllocator protocol extension</a></li>
+<li><a class="reference internal" href="#text-protocol-extension">Text protocol extension</a></li>
+<li><a class="reference internal" href="#interpretation">Interpretation</a></li>
+<li><a class="reference internal" href="#balancing">Balancing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-configlock.html"
+                        title="previous chapter">Removal of the Config Lock Overhead</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-shared-storage-redundancy.html"
+                        title="next chapter">N+1 redundancy for shared storage</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-multi-storage-htools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-shared-storage-redundancy.html" title="N+1 redundancy for shared storage"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-configlock.html" title="Removal of the Config Lock Overhead"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

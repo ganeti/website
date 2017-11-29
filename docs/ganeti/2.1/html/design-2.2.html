@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti 2.2 design &mdash; Ganeti v2.1.0~rc5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.1.0~rc5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.1.0~rc5 documentation" href="index.html" />
+    <link rel="next" title="Ganeti Cluster Merger" href="design-cluster-merger.html" />
+    <link rel="prev" title="Ganeti 2.1 design" href="design-2.1.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cluster-merger.html" title="Ganeti Cluster Merger"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-2.1.html" title="Ganeti 2.1 design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.0~rc5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-2-2-design">
+<h1><a class="toc-backref" href="#id5">Ganeti 2.2 design</a><a class="headerlink" href="#ganeti-2-2-design" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the major changes in Ganeti 2.2 compared to
+the 2.1 version.</p>
+<p>The 2.2 version will be a relatively small release. Its main aim is to
+avoid changing too much of the core code, while addressing issues and
+adding new features and improvements over 2.1, in a timely fashion.</p>
+<div class="contents topic">
+<p class="topic-title first"><a id="contents" name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#ganeti-2-2-design" id="id5" name="id5">Ganeti 2.2 design</a><ul>
+<li><a class="reference" href="#objective" id="id6" name="id6">Objective</a></li>
+<li><a class="reference" href="#background" id="id7" name="id7">Background</a></li>
+<li><a class="reference" href="#overview" id="id8" name="id8">Overview</a></li>
+<li><a class="reference" href="#detailed-design" id="id9" name="id9">Detailed design</a><ul>
+<li><a class="reference" href="#core-changes" id="id10" name="id10">Core changes</a><ul>
+<li><a class="reference" href="#remote-procedure-call-timeouts" id="id11" name="id11">Remote procedure call timeouts</a></li>
+<li><a class="reference" href="#inter-cluster-instance-moves" id="id12" name="id12">Inter-cluster instance moves</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#feature-changes" id="id13" name="id13">Feature changes</a><ul>
+<li><a class="reference" href="#kvm-security" id="id14" name="id14">KVM Security</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#external-interface-changes" id="id15" name="id15">External interface changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="objective">
+<h2><a class="toc-backref" href="#id6">Objective</a><a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id7">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id8">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="detailed-design">
+<h2><a class="toc-backref" href="#id9">Detailed design</a><a class="headerlink" href="#detailed-design" title="Permalink to this headline">¶</a></h2>
+<p>As for 2.1 we divide the 2.2 design into three areas:</p>
+<ul class="simple">
+<li>core changes, which affect the master daemon/job queue/locking or
+all/most logical units</li>
+<li>logical unit/feature changes</li>
+<li>external interface changes (eg. command line, os api, hooks, ...)</li>
+</ul>
+<div class="section" id="core-changes">
+<h3><a class="toc-backref" href="#id10">Core changes</a><a class="headerlink" href="#core-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="remote-procedure-call-timeouts">
+<h4><a class="toc-backref" href="#id11">Remote procedure call timeouts</a><a class="headerlink" href="#remote-procedure-call-timeouts" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="current-state-and-shortcomings">
+<h5>Current state and shortcomings<a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h5>
+<p>The current RPC protocol used by Ganeti is based on HTTP. Every request
+consists of an HTTP PUT request (e.g. <tt class="docutils literal"><span class="pre">PUT</span> <span class="pre">/hooks_runner</span> <span class="pre">HTTP/1.0</span></tt>)
+and doesn&#8217;t return until the function called has returned. Parameters
+and return values are encoded using JSON.</p>
+<p>On the server side, <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> handles every incoming connection
+in a separate process by forking just after accepting the connection.
+This process exits after sending the response.</p>
+<p>There is one major problem with this design: Timeouts can not be used on
+a per-request basis. Neither client or server know how long it will
+take. Even if we might be able to group requests into different
+categories (e.g. fast and slow), this is not reliable.</p>
+<p>If a node has an issue or the network connection fails while a request
+is being handled, the master daemon can wait for a long time for the
+connection to time out (e.g. due to the operating system&#8217;s underlying
+TCP keep-alive packets or timeouts). While the settings for keep-alive
+packets can be changed using Linux-specific socket options, we prefer to
+use application-level timeouts because these cover both machine down and
+unresponsive node daemon cases.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h5>Proposed changes<a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="rpc-glossary">
+<h6>RPC glossary<a class="headerlink" href="#rpc-glossary" title="Permalink to this headline">¶</a></h6>
+<dl class="docutils">
+<dt>Function call ID</dt>
+<dd>Unique identifier returned by <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> after invoking a
+function.</dd>
+<dt>Function process</dt>
+<dd>Process started by <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> to call actual (backend) function.</dd>
+</dl>
+</div>
+<div class="section" id="protocol">
+<h6>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h6>
+<p>Initially we chose HTTP as our RPC protocol because there were existing
+libraries, which, unfortunately, turned out to miss important features
+(such as SSL certificate authentication) and we had to write our own.</p>
+<p>This proposal can easily be implemented using HTTP, though it would
+likely be more efficient and less complicated to use the LUXI protocol
+already used to communicate between client tools and the Ganeti master
+daemon. Switching to another protocol can occur at a later point. This
+proposal should be implemented using HTTP as its underlying protocol.</p>
+<p>The LUXI protocol currently contains two functions, <tt class="docutils literal"><span class="pre">WaitForJobChange</span></tt>
+and <tt class="docutils literal"><span class="pre">AutoArchiveJobs</span></tt>, which can take a longer time. They both support
+a parameter to specify the timeout. This timeout is usually chosen as
+roughly half of the socket timeout, guaranteeing a response before the
+socket times out. After the specified amount of time,
+<tt class="docutils literal"><span class="pre">AutoArchiveJobs</span></tt> returns and reports the number of archived jobs.
+<tt class="docutils literal"><span class="pre">WaitForJobChange</span></tt> returns and reports a timeout. In both cases, the
+functions can be called again.</p>
+<p>A similar model can be used for the inter-node RPC protocol. In some
+sense, the node daemon will implement a light variant of <em>&#8220;node daemon
+jobs&#8221;</em>. When the function call is sent, it specifies an initial timeout.
+If the function didn&#8217;t finish within this timeout, a response is sent
+with a unique identifier, the function call ID. The client can then
+choose to wait for the function to finish again with a timeout.
+Inter-node RPC calls would no longer be blocking indefinitely and there
+would be an implicit ping-mechanism.</p>
+</div>
+<div class="section" id="request-handling">
+<h6>Request handling<a class="headerlink" href="#request-handling" title="Permalink to this headline">¶</a></h6>
+<p>To support the protocol changes described above, the way the node daemon
+handles request will have to change. Instead of forking and handling
+every connection in a separate process, there should be one child
+process per function call and the master process will handle the
+communication with clients and the function processes using asynchronous
+I/O.</p>
+<p>Function processes communicate with the parent process via stdio and
+possibly their exit status. Every function process has a unique
+identifier, though it shouldn&#8217;t be the process ID only (PIDs can be
+recycled and are prone to race conditions for this use case). The
+proposed format is <tt class="docutils literal"><span class="pre">${ppid}:${cpid}:${time}:${random}</span></tt>, where <tt class="docutils literal"><span class="pre">ppid</span></tt>
+is the <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> PID, <tt class="docutils literal"><span class="pre">cpid</span></tt> the child&#8217;s PID, <tt class="docutils literal"><span class="pre">time</span></tt> the
+current Unix timestamp with decimal places and <tt class="docutils literal"><span class="pre">random</span></tt> at least 16
+random bits.</p>
+<p>The following operations will be supported:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">StartFunction(fn_name,</span> <span class="pre">fn_args,</span> <span class="pre">timeout)</span></tt></dt>
+<dd>Starts a function specified by <tt class="docutils literal"><span class="pre">fn_name</span></tt> with arguments in
+<tt class="docutils literal"><span class="pre">fn_args</span></tt> and waits up to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds for the function
+to finish. Fire-and-forget calls can be made by specifying a timeout
+of 0 seconds (e.g. for powercycling the node). Returns three values:
+function call ID (if not finished), whether function finished (or
+timeout) and the function&#8217;s return value.</dd>
+<dt><tt class="docutils literal"><span class="pre">WaitForFunction(fnc_id,</span> <span class="pre">timeout)</span></tt></dt>
+<dd>Waits up to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds for function call to finish. Return
+value same as <tt class="docutils literal"><span class="pre">StartFunction</span></tt>.</dd>
+</dl>
+<p>In the future, <tt class="docutils literal"><span class="pre">StartFunction</span></tt> could support an additional parameter
+to specify after how long the function process should be aborted.</p>
+<p>Simplified timing diagram:</p>
+<div class="highlight-python"><pre>Master daemon        Node daemon                      Function process
+ |
+Call function
+(timeout 10s) -----&gt; Parse request and fork for ----&gt; Start function
+                     calling actual function, then     |
+                     wait up to 10s for function to    |
+                     finish                            |
+                      |                                |
+                     ...                              ...
+                      |                                |
+Examine return &lt;----  |                                |
+value and wait                                         |
+again -------------&gt; Wait another 10s for function     |
+                      |                                |
+                     ...                              ...
+                      |                                |
+Examine return &lt;----  |                                |
+value and wait                                         |
+again -------------&gt; Wait another 10s for function     |
+                      |                                |
+                     ...                              ...
+                      |                                |
+                      |                               Function ends,
+                     Get return value and forward &lt;-- process exits
+Process return &lt;---- it to caller
+value and continue
+ |</pre>
+</div>
+<p>On process termination (e.g. after having been sent a <tt class="docutils literal"><span class="pre">SIGTERM</span></tt> or
+<tt class="docutils literal"><span class="pre">SIGINT</span></tt> signal), <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> should send <tt class="docutils literal"><span class="pre">SIGTERM</span></tt> to all
+function processes and wait for all of them to terminate.</p>
+</div>
+</div>
+</div>
+<div class="section" id="inter-cluster-instance-moves">
+<h4><a class="toc-backref" href="#id12">Inter-cluster instance moves</a><a class="headerlink" href="#inter-cluster-instance-moves" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id1">
+<h5>Current state and shortcomings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h5>
+<p>With the current design of Ganeti, moving whole instances between
+different clusters involves a lot of manual work. There are several ways
+to move instances, one of them being to export the instance, manually
+copying all data to the new cluster before importing it again. Manual
+changes to the instances configuration, such as the IP address, may be
+necessary in the new environment. The goal is to improve and automate
+this process in Ganeti 2.2.</p>
+</div>
+<div class="section" id="id2">
+<h5>Proposed changes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="authorization-authentication-and-security">
+<h6>Authorization, Authentication and Security<a class="headerlink" href="#authorization-authentication-and-security" title="Permalink to this headline">¶</a></h6>
+<p>Until now, each Ganeti cluster was a self-contained entity and wouldn&#8217;t
+talk to other Ganeti clusters. Nodes within clusters only had to trust
+the other nodes in the same cluster and the network used for replication
+was trusted, too (hence the ability the use a separate, local network
+for replication).</p>
+<p>For inter-cluster instance transfers this model must be weakened. Nodes
+in one cluster will have to talk to nodes in other clusters, sometimes
+in other locations and, very important, via untrusted network
+connections.</p>
+<p>Various option have been considered for securing and authenticating the
+data transfer from one machine to another. To reduce the risk of
+accidentally overwriting data due to software bugs, authenticating the
+arriving data was considered critical. Eventually we decided to use
+socat&#8217;s OpenSSL options (<tt class="docutils literal"><span class="pre">OPENSSL:</span></tt>, <tt class="docutils literal"><span class="pre">OPENSSL-LISTEN:</span></tt> et al), which
+provide us with encryption, authentication and authorization when used
+with separate keys and certificates.</p>
+<p>Combinations of OpenSSH, GnuPG and Netcat were deemed too complex to set
+up from within Ganeti. Any solution involving OpenSSH would require a
+dedicated user with a home directory and likely automated modifications
+to the user&#8217;s <tt class="docutils literal"><span class="pre">$HOME/.ssh/authorized_keys</span></tt> file. When using Netcat,
+GnuPG or another encryption method would be necessary to transfer the
+data over an untrusted network. socat combines both in one program and
+is already a dependency.</p>
+<p>Each of the two clusters will have to generate an RSA key. The public
+parts are exchanged between the clusters by a third party, such as an
+administrator or a system interacting with Ganeti via the remote API
+(&#8220;third party&#8221; from here on). After receiving each other&#8217;s public key,
+the clusters can start talking to each other.</p>
+<p>All encrypted connections must be verified on both sides. Neither side
+may accept unverified certificates. The generated certificate should
+only be valid for the time necessary to move the instance.</p>
+<p>For additional protection of the instance data, the two clusters can
+verify the certificates exchanged via the third party by signing them
+using HMAC with a key shared among the involved clusters. If the third
+party does not know this secret, it can&#8217;t forge the certificates and
+redirect the data. Unless disabled by a new cluster parameter, verifying
+the HMAC must be mandatory. The HMAC will be prepended to the
+certificate and only covers the certificate (from <tt class="docutils literal"><span class="pre">-----BEGIN</span>
+<span class="pre">CERTIFICATE-----</span></tt> to <tt class="docutils literal"><span class="pre">-----END</span> <span class="pre">CERTIFICATE-----</span></tt>).</p>
+<p>On the web, the destination cluster would be equivalent to an HTTPS
+server requiring verifiable client certificates. The browser would be
+equivalent to the source cluster and must verify the server&#8217;s
+certificate while providing a client certificate to the server.</p>
+</div>
+<div class="section" id="copying-data">
+<h6>Copying data<a class="headerlink" href="#copying-data" title="Permalink to this headline">¶</a></h6>
+<p>To simplify the implementation, we decided to operate at a block-device
+level only, allowing us to easily support non-DRBD instance moves.</p>
+<p>Intra-cluster instance moves will re-use the existing export and import
+scripts supplied by instance OS definitions. Unlike simply copying the
+raw data, this allows to use filesystem-specific utilities to dump only
+used parts of the disk and to exclude certain disks from the move.
+Compression should be used to further reduce the amount of data
+transferred.</p>
+<p>The export scripts writes all data to stdout and the import script reads
+it from stdin again. To avoid copying data and reduce disk space
+consumption, everything is read from the disk and sent over the network
+directly, where it&#8217;ll be written to the new block device directly again.</p>
+</div>
+<div class="section" id="workflow">
+<h6>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h6>
+<ol class="arabic simple">
+<li>Third party tells source cluster to shut down instance, asks for the
+instance specification and for the public part of an encryption key</li>
+<li>Third party tells destination cluster to create an instance with the
+same specifications as on source cluster and to prepare for an
+instance move with the key received from the source cluster and
+receives the public part of the destination&#8217;s encryption key</li>
+<li>Third party hands public part of the destination&#8217;s encryption key
+together with all necessary information to source cluster and tells
+it to start the move</li>
+<li>Source cluster connects to destination cluster for each disk and
+transfers its data using the instance OS definition&#8217;s export and
+import scripts</li>
+<li>Due to the asynchronous nature of the whole process, the destination
+cluster checks whether all disks have been transferred every time
+after transfering a single disk; if so, it destroys the encryption
+key</li>
+<li>After sending all disks, the source cluster destroys its key</li>
+<li>Destination cluster runs OS definition&#8217;s rename script to adjust
+instance settings if needed (e.g. IP address)</li>
+<li>Destination cluster starts the instance if requested at the beginning
+by the third party</li>
+<li>Source cluster removes the instance if requested</li>
+</ol>
+</div>
+<div class="section" id="miscellaneous-notes">
+<h6>Miscellaneous notes<a class="headerlink" href="#miscellaneous-notes" title="Permalink to this headline">¶</a></h6>
+<ul class="simple">
+<li>A very similar system could also be used for instance exports within
+the same cluster. Currently OpenSSH is being used, but could be
+replaced by socat and SSL/TLS.</li>
+<li>During the design of intra-cluster instance moves we also discussed
+encrypting instance exports using GnuPG.</li>
+<li>While most instances should have exactly the same configuration as
+on the source cluster, setting them up with a different disk layout
+might be helpful in some use-cases.</li>
+<li>A cleanup operation, similar to the one available for failed instance
+migrations, should be provided.</li>
+<li><tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> should remove instances pending a move from another
+cluster after a certain amount of time. This takes care of failures
+somewhere in the process.</li>
+<li>RSA keys can be generated using the existing
+<tt class="docutils literal"><span class="pre">bootstrap.GenerateSelfSignedSslCert</span></tt> function, though it might be
+useful to not write both parts into a single file, requiring small
+changes to the function. The public part always starts with
+<tt class="docutils literal"><span class="pre">-----BEGIN</span> <span class="pre">CERTIFICATE-----</span></tt> and ends with <tt class="docutils literal"><span class="pre">-----END</span>
+<span class="pre">CERTIFICATE-----</span></tt>.</li>
+<li>The source and destination cluster might be different when it comes
+to available hypervisors, kernels, etc. The destination cluster should
+refuse to accept an instance move if it can&#8217;t fulfill an instance&#8217;s
+requirements.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="feature-changes">
+<h3><a class="toc-backref" href="#id13">Feature changes</a><a class="headerlink" href="#feature-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="kvm-security">
+<h4><a class="toc-backref" href="#id14">KVM Security</a><a class="headerlink" href="#kvm-security" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id3">
+<h5>Current state and shortcomings<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h5>
+<p>Currently all kvm processes run as root. Taking ownership of the
+hypervisor process, from inside a virtual machine, would mean a full
+compromise of the whole Ganeti cluster, knowledge of all Ganeti
+authentication secrets, full access to all running instances, and the
+option of subverting other basic services on the cluster (eg: ssh).</p>
+</div>
+<div class="section" id="id4">
+<h5>Proposed changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h5>
+<p>We would like to decrease the surface of attack available if an
+hypervisor is compromised. We can do so adding different features to
+Ganeti, which will allow restricting the broken hypervisor
+possibilities, in the absence of a local privilege escalation attack, to
+subvert the node.</p>
+<div class="section" id="dropping-privileges-in-kvm-to-a-single-user-easy">
+<h6>Dropping privileges in kvm to a single user (easy)<a class="headerlink" href="#dropping-privileges-in-kvm-to-a-single-user-easy" title="Permalink to this headline">¶</a></h6>
+<p>By passing the <tt class="docutils literal"><span class="pre">-runas</span></tt> option to kvm, we can make it drop privileges.
+The user can be chosen by an hypervisor parameter, so that each instance
+can have its own user, but by default they will all run under the same
+one. It should be very easy to implement, and can easily be backported
+to 2.1.X.</p>
+<p>This mode protects the Ganeti cluster from a subverted hypervisor, but
+doesn&#8217;t protect the instances between each other, unless care is taken
+to specify a different user for each. This would prevent the worst
+attacks, including:</p>
+<ul class="simple">
+<li>logging in to other nodes</li>
+<li>administering the Ganeti cluster</li>
+<li>subverting other services</li>
+</ul>
+<p>But the following would remain an option:</p>
+<ul class="simple">
+<li>terminate other VMs (but not start them again, as that requires root
+privileges to set up networking) (unless different users are used)</li>
+<li>trace other VMs, and probably subvert them and access their data
+(unless different users are used)</li>
+<li>send network traffic from the node</li>
+<li>read unprotected data on the node filesystem</li>
+</ul>
+</div>
+<div class="section" id="running-kvm-in-a-chroot-slightly-harder">
+<h6>Running kvm in a chroot (slightly harder)<a class="headerlink" href="#running-kvm-in-a-chroot-slightly-harder" title="Permalink to this headline">¶</a></h6>
+<p>By passing the <tt class="docutils literal"><span class="pre">-chroot</span></tt> option to kvm, we can restrict the kvm
+process in its own (possibly empty) root directory. We need to set this
+area up so that the instance disks and control sockets are accessible,
+so it would require slightly more work at the Ganeti level.</p>
+<p>Breaking out in a chroot would mean:</p>
+<ul class="simple">
+<li>a lot less options to find a local privilege escalation vector</li>
+<li>the impossibility to write local data, if the chroot is set up
+correctly</li>
+<li>the impossibility to read filesystem data on the host</li>
+</ul>
+<p>It would still be possible though to:</p>
+<ul class="simple">
+<li>terminate other VMs</li>
+<li>trace other VMs, and possibly subvert them (if a tracer can be
+installed in the chroot)</li>
+<li>send network traffic from the node</li>
+</ul>
+</div>
+<div class="section" id="running-kvm-with-a-pool-of-users-slightly-harder">
+<h6>Running kvm with a pool of users (slightly harder)<a class="headerlink" href="#running-kvm-with-a-pool-of-users-slightly-harder" title="Permalink to this headline">¶</a></h6>
+<p>If rather than passing a single user as an hypervisor parameter, we have
+a pool of useable ones, we can dynamically choose a free one to use and
+thus guarantee that each machine will be separate from the others,
+without putting the burden of this on the cluster administrator.</p>
+<p>This would mean interfering between machines would be impossible, and
+can still be combined with the chroot benefits.</p>
+</div>
+<div class="section" id="running-iptables-rules-to-limit-network-interaction-easy">
+<h6>Running iptables rules to limit network interaction (easy)<a class="headerlink" href="#running-iptables-rules-to-limit-network-interaction-easy" title="Permalink to this headline">¶</a></h6>
+<p>These don&#8217;t need to be handled by Ganeti, but we can ship examples. If
+the users used to run VMs would be blocked from sending some or all
+network traffic, it would become impossible for a broken into hypervisor
+to send arbitrary data on the node network, which is especially useful
+when the instance and the node network are separated (using ganeti-nbma
+or a separate set of network interfaces), or when a separate replication
+network is maintained. We need to experiment to see how much restriction
+we can properly apply, without limiting the instance legitimate traffic.</p>
+</div>
+<div class="section" id="running-kvm-inside-a-container-even-harder">
+<h6>Running kvm inside a container (even harder)<a class="headerlink" href="#running-kvm-inside-a-container-even-harder" title="Permalink to this headline">¶</a></h6>
+<p>Recent linux kernels support different process namespaces through
+control groups. PIDs, users, filesystems and even network interfaces can
+be separated. If we can set up ganeti to run kvm in a separate container
+we could insulate all the host process from being even visible if the
+hypervisor gets broken into. Most probably separating the network
+namespace would require one extra hop in the host, through a veth
+interface, thus reducing performance, so we may want to avoid that, and
+just rely on iptables.</p>
+</div>
+</div>
+<div class="section" id="implementation-plan">
+<h5>Implementation plan<a class="headerlink" href="#implementation-plan" title="Permalink to this headline">¶</a></h5>
+<p>We will first implement dropping privileges for kvm processes as a
+single user, and most probably backport it to 2.1. Then we&#8217;ll ship
+example iptables rules to show how the user can be limited in its
+network activities.  After that we&#8217;ll implement chroot restriction for
+kvm processes, and extend the user limitation to use a user pool.</p>
+<p>Finally we&#8217;ll look into namespaces and containers, although that might
+slip after the 2.2 release.</p>
+</div>
+</div>
+</div>
+<div class="section" id="external-interface-changes">
+<h3><a class="toc-backref" href="#id15">External interface changes</a><a class="headerlink" href="#external-interface-changes" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Ganeti 2.2 design</a><ul>
+<li><a class="reference" href="#objective">Objective</a></li>
+<li><a class="reference" href="#background">Background</a></li>
+<li><a class="reference" href="#overview">Overview</a></li>
+<li><a class="reference" href="#detailed-design">Detailed design</a><ul>
+<li><a class="reference" href="#core-changes">Core changes</a><ul>
+<li><a class="reference" href="#remote-procedure-call-timeouts">Remote procedure call timeouts</a><ul>
+<li><a class="reference" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference" href="#rpc-glossary">RPC glossary</a></li>
+<li><a class="reference" href="#protocol">Protocol</a></li>
+<li><a class="reference" href="#request-handling">Request handling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#inter-cluster-instance-moves">Inter-cluster instance moves</a><ul>
+<li><a class="reference" href="#id1">Current state and shortcomings</a></li>
+<li><a class="reference" href="#id2">Proposed changes</a><ul>
+<li><a class="reference" href="#authorization-authentication-and-security">Authorization, Authentication and Security</a></li>
+<li><a class="reference" href="#copying-data">Copying data</a></li>
+<li><a class="reference" href="#workflow">Workflow</a></li>
+<li><a class="reference" href="#miscellaneous-notes">Miscellaneous notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#feature-changes">Feature changes</a><ul>
+<li><a class="reference" href="#kvm-security">KVM Security</a><ul>
+<li><a class="reference" href="#id3">Current state and shortcomings</a></li>
+<li><a class="reference" href="#id4">Proposed changes</a><ul>
+<li><a class="reference" href="#dropping-privileges-in-kvm-to-a-single-user-easy">Dropping privileges in kvm to a single user (easy)</a></li>
+<li><a class="reference" href="#running-kvm-in-a-chroot-slightly-harder">Running kvm in a chroot (slightly harder)</a></li>
+<li><a class="reference" href="#running-kvm-with-a-pool-of-users-slightly-harder">Running kvm with a pool of users (slightly harder)</a></li>
+<li><a class="reference" href="#running-iptables-rules-to-limit-network-interaction-easy">Running iptables rules to limit network interaction (easy)</a></li>
+<li><a class="reference" href="#running-kvm-inside-a-container-even-harder">Running kvm inside a container (even harder)</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#implementation-plan">Implementation plan</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#external-interface-changes">External interface changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="design-2.1.html"
+                                  title="previous chapter">Ganeti 2.1 design</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="design-cluster-merger.html"
+                                  title="next chapter">Ganeti Cluster Merger</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/design-2.2.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cluster-merger.html" title="Ganeti Cluster Merger"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-2.1.html" title="Ganeti 2.1 design"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.0~rc5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

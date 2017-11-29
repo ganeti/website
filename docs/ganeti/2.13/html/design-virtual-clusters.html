@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design for virtual clusters support &mdash; Ganeti 2.13.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.13.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.13.3 documentation" href="index.html" />
+    <link rel="next" title="Developer notes" href="devnotes.html" />
+    <link rel="prev" title="Automatized Upgrade Procedure for Ganeti" href="design-upgrade.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devnotes.html" title="Developer notes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-upgrade.html" title="Automatized Upgrade Procedure for Ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-for-virtual-clusters-support">
+<h1>Design for virtual clusters support<a class="headerlink" href="#design-for-virtual-clusters-support" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Currently there are two ways to test the Ganeti (including HTools) code
+base:</p>
+<ul class="simple">
+<li>unittests, which run using mocks as normal user and test small bits of
+the code</li>
+<li>QA/burnin/live-test, which require actual hardware (either physical or
+virtual) and will build an actual cluster, with one machine to one
+node correspondence</li>
+</ul>
+<p>The difference in time between these two is significant:</p>
+<ul class="simple">
+<li>the unittests run in about 1-2 minutes</li>
+<li>a so-called ‘quick’ QA (without burnin) runs in about an hour, and a
+full QA could be double that time</li>
+</ul>
+<p>On one hand, the unittests have a clear advantage: quick to run, not
+requiring many machines, but on the other hand QA is actually able to
+run end-to-end tests (including HTools, for example).</p>
+<p>Ideally, we would have an intermediate step between these two extremes:
+be able to test most, if not all, of Ganeti&#8217;s functionality but without
+requiring actual hardware, full machine ownership or root access.</p>
+</div>
+<div class="section" id="current-situation">
+<h2>Current situation<a class="headerlink" href="#current-situation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ganeti">
+<h3>Ganeti<a class="headerlink" href="#ganeti" title="Permalink to this headline">¶</a></h3>
+<p>It is possible, given a manually built <tt class="docutils literal"><span class="pre">config.data</span></tt> and
+<tt class="docutils literal"><span class="pre">_autoconf.py</span></tt>, to run the masterd under the current user as a
+single-node cluster master. However, the node daemon and related
+functionality (cluster initialisation, master failover, etc.) are not
+directly runnable in this model.</p>
+<p>Also, masterd only works as a master of a single node cluster, due to
+our current “hostname” method of identifying nodes, which results in a
+limit of maximum one node daemon per machine, unless we use multiple
+name and IP aliases.</p>
+</div>
+<div class="section" id="htools">
+<h3>HTools<a class="headerlink" href="#htools" title="Permalink to this headline">¶</a></h3>
+<p>In HTools the situation is better, since it doesn&#8217;t have to deal with
+actual machine management: all tools can use a custom LUXI path, and can
+even load RAPI data from the filesystem (so the RAPI backend can be
+tested), and both the ‘text’ backend for hbal/hspace and the input files
+for hail are text-based, loaded from the file-system.</p>
+</div>
+</div>
+<div class="section" id="proposed-changes">
+<h2>Proposed changes<a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The end-goal is to have full support for “virtual clusters”, i.e. be
+able to run a “big” (hundreds of virtual nodes and towards thousands of
+virtual instances) on a reasonably powerful, but single machine, under a
+single user account and without any special privileges.</p>
+<p>This would have significant advantages:</p>
+<ul class="simple">
+<li>being able to test end-to-end certain changes, without requiring a
+complicated setup</li>
+<li>better able to estimate Ganeti&#8217;s behaviour and performance as the
+cluster size grows; this is something that we haven&#8217;t been able to
+test reliably yet, and as such we still have not yet diagnosed
+scaling problems</li>
+<li>easier integration with external tools (and even with HTools)</li>
+</ul>
+<div class="section" id="masterd">
+<h3><tt class="docutils literal"><span class="pre">masterd</span></tt><a class="headerlink" href="#masterd" title="Permalink to this headline">¶</a></h3>
+<p>As described above, <tt class="docutils literal"><span class="pre">masterd</span></tt> already works reasonably well in a
+virtual setup, as it won&#8217;t execute external programs and it shouldn&#8217;t
+directly read files from the local filesystem (or at least not
+virtualisation-related, as the master node can be a non-vm_capable
+node).</p>
+</div>
+<div class="section" id="noded">
+<h3><tt class="docutils literal"><span class="pre">noded</span></tt><a class="headerlink" href="#noded" title="Permalink to this headline">¶</a></h3>
+<p>The node daemon executes many privileged operations, but they can be
+split in a few general categories:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="31%" />
+<col width="49%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Category</th>
+<th class="head">Description</th>
+<th class="head">Solution</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>disk operations</td>
+<td>Disk creation and
+removal</td>
+<td>Use only diskless or file-based
+instances</td>
+</tr>
+<tr class="row-odd"><td>disk query</td>
+<td>Node disk total/free,
+used in node listing
+and htools</td>
+<td>Not supported currently, could use
+file-based</td>
+</tr>
+<tr class="row-even"><td>hypervisor
+operations</td>
+<td>Instance start, stop
+and query</td>
+<td>Use the <em>fake</em> hypervisor</td>
+</tr>
+<tr class="row-odd"><td>instance
+networking</td>
+<td>Bridge existence query</td>
+<td>Unprivileged operation, can be used
+with an existing bridge at system
+level or use NIC-less instances</td>
+</tr>
+<tr class="row-even"><td>instance OS
+operations</td>
+<td>OS add, OS rename,
+export and import</td>
+<td>Only used with non-diskless
+instances; could work with custom OS
+scripts that just <tt class="docutils literal"><span class="pre">dd</span></tt> without
+mounting filesystems</td>
+</tr>
+<tr class="row-odd"><td>node networking</td>
+<td>IP address management
+(master ip), IP query,
+etc.</td>
+<td>Not supported; Ganeti will need to
+work without a master IP; for the IP
+query operations the test machine
+would need externally-configured IPs</td>
+</tr>
+<tr class="row-even"><td>node add</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>SSH command must be adjusted</td>
+</tr>
+<tr class="row-odd"><td>node setup</td>
+<td>ssh, /etc/hosts, so on</td>
+<td>Can already be disabled from the
+cluster config</td>
+</tr>
+<tr class="row-even"><td>master failover</td>
+<td>start/stop the master
+daemon</td>
+<td>Doable (as long as we use a single
+user), might get tricky w.r.t. paths
+to executables</td>
+</tr>
+<tr class="row-odd"><td>file upload</td>
+<td>Uploading of system
+files, job queue files
+and ganeti config</td>
+<td>The only issue could be with system
+files, which are not owned by the
+current user; internal ganeti files
+should be working fine</td>
+</tr>
+<tr class="row-even"><td>node oob</td>
+<td>Out-of-band commands</td>
+<td>Since these are user-defined, we can
+mock them easily</td>
+</tr>
+<tr class="row-odd"><td>node OS
+discovery</td>
+<td>List the existing OSes
+and their properties</td>
+<td>No special privileges needed, so
+works fine as-is</td>
+</tr>
+<tr class="row-even"><td>hooks</td>
+<td>Running hooks for given
+operations</td>
+<td>No special privileges needed</td>
+</tr>
+<tr class="row-odd"><td>iallocator</td>
+<td>Calling an iallocator
+script</td>
+<td>No special privileges needed</td>
+</tr>
+<tr class="row-even"><td>export/import</td>
+<td>Exporting and importing
+instances</td>
+<td>When exporting/importing file-based
+instances, this should work, as the
+listening ports are dynamically
+chosen</td>
+</tr>
+<tr class="row-odd"><td>hypervisor
+validation</td>
+<td>The validation of
+hypervisor parameters</td>
+<td>As long as the hypervisors don&#8217;t
+call to privileged commands, it
+should work</td>
+</tr>
+<tr class="row-even"><td>node powercycle</td>
+<td>The ability to power
+cycle a node remotely</td>
+<td>Privileged, so not supported, but
+anyway not very interesting for
+testing</td>
+</tr>
+</tbody>
+</table>
+<p>It seems that much of the functionality works as is, or could work with
+small adjustments, even in a non-privileged setup. The bigger problem is
+the actual use of multiple node daemons per machine.</p>
+<div class="section" id="multiple-noded-per-machine">
+<h4>Multiple <tt class="docutils literal"><span class="pre">noded</span></tt> per machine<a class="headerlink" href="#multiple-noded-per-machine" title="Permalink to this headline">¶</a></h4>
+<p>Currently Ganeti identifies node simply by their hostname. Since
+changing this method would imply significant changes to tracking the
+nodes, the proposal is to simply have as many IPs per the (single)
+machine that is used for tests as nodes, and have each IP correspond to
+a different name, and thus no changes are needed to the core RPC
+library. Unfortunately this has the downside of requiring root rights
+for setting up the extra IPs and hostnames.</p>
+<p>An alternative option is to implement per-node IP/port support in Ganeti
+(especially in the RPC layer), which would eliminate the root rights. We
+expect that this will get implemented as a second step of this design,
+but as the port is currently static will require changes in many places.</p>
+<p>The only remaining problem is with sharing the <tt class="docutils literal"><span class="pre">localstatedir</span></tt>
+structure (lib, run, log) amongst the daemons, for which we propose to
+introduce an environment variable (<tt class="docutils literal"><span class="pre">GANETI_ROOTDIR</span></tt>) acting as a
+prefix for essentially all paths. An environment variable is easier to
+transport through several levels of programs (shell scripts, Python,
+etc.) than a command line parameter. In Python code this prefix will be
+applied to all paths in <tt class="docutils literal"><span class="pre">constants.py</span></tt>. Every virtual node will get
+its own root directory. The rationale for this is two-fold:</p>
+<ul class="simple">
+<li>having two or more node daemons writing to the same directory might
+introduce artificial scenarios not existent in real life; currently
+noded either owns the entire <tt class="docutils literal"><span class="pre">/var/lib/ganeti</span></tt> directory or shares
+it with masterd, but never with another noded</li>
+<li>having separate directories allows cluster verify to check correctly
+consistency of file upload operations; otherwise, as long as one node
+daemon wrote a file successfully, the results from all others are
+“lost”</li>
+</ul>
+<p>In case the use of an environment variable turns out to be too difficult
+a compile-time prefix path could be used. This would then require one
+Ganeti installation per virtual node, but it might be good enough.</p>
+</div>
+</div>
+<div class="section" id="rapi">
+<h3><tt class="docutils literal"><span class="pre">rapi</span></tt><a class="headerlink" href="#rapi" title="Permalink to this headline">¶</a></h3>
+<p>The RAPI daemon is not privileged and furthermore we only need one per
+cluster, so it presents no issues.</p>
+</div>
+<div class="section" id="confd">
+<h3><tt class="docutils literal"><span class="pre">confd</span></tt><a class="headerlink" href="#confd" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">confd</span></tt> has somewhat the same issues as the node daemon regarding
+multiple daemons per machine, but the per-address binding still works.</p>
+</div>
+<div class="section" id="ganeti-watcher">
+<h3><tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt><a class="headerlink" href="#ganeti-watcher" title="Permalink to this headline">¶</a></h3>
+<p>Since the startup of daemons will be customised with per-IP binds, the
+watcher either has to be modified to not activate the daemons, or the
+start-stop tool has to take this into account. Due to watcher&#8217;s use of
+the hostname, it&#8217;s recommended that the master node is set to the
+machine hostname (also a requirement for the master daemon).</p>
+</div>
+<div class="section" id="cli-scripts">
+<h3>CLI scripts<a class="headerlink" href="#cli-scripts" title="Permalink to this headline">¶</a></h3>
+<p>As long as the master node is set to the machine hostname, these should
+work fine.</p>
+</div>
+<div class="section" id="cluster-initialisation">
+<h3>Cluster initialisation<a class="headerlink" href="#cluster-initialisation" title="Permalink to this headline">¶</a></h3>
+<p>It could be possible that the cluster initialisation procedure is a bit
+more involved (this was not tried yet). A script will be used to set up
+all necessary IP addresses and hostnames, as well as creating the
+initial directory structure. Building <tt class="docutils literal"><span class="pre">config.data</span></tt> manually should
+not be necessary.</p>
+</div>
+</div>
+<div class="section" id="needed-tools">
+<h2>Needed tools<a class="headerlink" href="#needed-tools" title="Permalink to this headline">¶</a></h2>
+<p>With the above investigation results in mind, the only thing we need
+are:</p>
+<ul class="simple">
+<li>a tool to setup per-virtual node tree structure of <tt class="docutils literal"><span class="pre">localstatedir</span></tt>
+(with the help of <tt class="docutils literal"><span class="pre">ensure-dirs</span></tt>) and setup correctly the extra
+IP/hostnames</li>
+<li>changes to the startup daemon tools to launch correctly the daemons
+per virtual node</li>
+<li>changes to <tt class="docutils literal"><span class="pre">constants.py</span></tt> to override the <tt class="docutils literal"><span class="pre">localstatedir</span></tt> path</li>
+<li>documentation for running such a virtual cluster</li>
+<li>and eventual small fixes to the node daemon backend functionality, to
+better separate privileged and non-privileged code</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design for virtual clusters support</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#current-situation">Current situation</a><ul>
+<li><a class="reference internal" href="#ganeti">Ganeti</a></li>
+<li><a class="reference internal" href="#htools">HTools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#masterd"><tt class="docutils literal"><span class="pre">masterd</span></tt></a></li>
+<li><a class="reference internal" href="#noded"><tt class="docutils literal"><span class="pre">noded</span></tt></a><ul>
+<li><a class="reference internal" href="#multiple-noded-per-machine">Multiple <tt class="docutils literal"><span class="pre">noded</span></tt> per machine</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rapi"><tt class="docutils literal"><span class="pre">rapi</span></tt></a></li>
+<li><a class="reference internal" href="#confd"><tt class="docutils literal"><span class="pre">confd</span></tt></a></li>
+<li><a class="reference internal" href="#ganeti-watcher"><tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt></a></li>
+<li><a class="reference internal" href="#cli-scripts">CLI scripts</a></li>
+<li><a class="reference internal" href="#cluster-initialisation">Cluster initialisation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#needed-tools">Needed tools</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-upgrade.html"
+                        title="previous chapter">Automatized Upgrade Procedure for Ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="devnotes.html"
+                        title="next chapter">Developer notes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-virtual-clusters.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="devnotes.html" title="Developer notes"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-upgrade.html" title="Automatized Upgrade Procedure for Ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

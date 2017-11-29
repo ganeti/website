@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Automatized Upgrade Procedure for Ganeti &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="next" title="Design for virtual clusters support" href="design-virtual-clusters.html" />
+    <link rel="prev" title="Systemd integration" href="design-systemd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-virtual-clusters.html" title="Design for virtual clusters support"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-systemd.html" title="Systemd integration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="automatized-upgrade-procedure-for-ganeti">
+<h1><a class="toc-backref" href="#id1">Automatized Upgrade Procedure for Ganeti</a><a class="headerlink" href="#automatized-upgrade-procedure-for-ganeti" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#automatized-upgrade-procedure-for-ganeti" id="id1">Automatized Upgrade Procedure for Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#path-changes-to-allow-multiple-versions-installed" id="id4">Path changes to allow multiple versions installed</a></li>
+<li><a class="reference internal" href="#gnt-cluster-upgrade" id="id5">gnt-cluster upgrade</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#considerations-on-unintended-reboots-of-the-master-node" id="id6">Considerations on unintended reboots of the master node</a></li>
+<li><a class="reference internal" href="#caveats" id="id7">Caveats</a></li>
+<li><a class="reference internal" href="#requirement-of-job-queue-update" id="id8">Requirement of job queue update</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the proposed changes to the
+upgrade process, in order to allow it to be more automatic.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti requires to run the same version of Ganeti to be run on all
+nodes of a cluster and this requirement is unlikely to go away in the
+foreseeable future. Also, the configuration may change between minor
+versions (and in the past has proven to do so). This requires a quite
+involved manual upgrade process of draining the queue, stopping
+ganeti, changing the binaries, upgrading the configuration, starting
+ganeti, distributing the configuration, and undraining the queue.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>While we will not remove the requirement of the same Ganeti
+version running on all nodes, the transition from one version
+to the other will be made more automatic. It will be possible
+to install new binaries ahead of time, and the actual switch
+between versions will be a single command.</p>
+<p>While changing the file layout anyway, we install the python
+code, which is architecture independent, under <tt class="docutils literal"><span class="pre">${prefix}/share</span></tt>,
+in a way that properly separates the Ganeti libraries of the
+various versions.</p>
+<div class="section" id="path-changes-to-allow-multiple-versions-installed">
+<h3><a class="toc-backref" href="#id4">Path changes to allow multiple versions installed</a><a class="headerlink" href="#path-changes-to-allow-multiple-versions-installed" title="Permalink to this headline">¶</a></h3>
+<p>Currently, Ganeti installs to <tt class="docutils literal"><span class="pre">${PREFIX}/bin</span></tt>, <tt class="docutils literal"><span class="pre">${PREFIX}/sbin</span></tt>,
+and so on, as well as to <tt class="docutils literal"><span class="pre">${pythondir}/ganeti</span></tt>.</p>
+<p>These paths will be changed in the following way.</p>
+<ul class="simple">
+<li>The python package will be installed to
+<tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/${VERSION}/ganeti</span></tt>.
+Here ${VERSION} is, depending on configure options, either the full qualified
+version number, consisting of major, minor, revision, and suffix, or it is
+just a major.minor pair. All python executables will be installed under
+<tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/${VERSION}</span></tt> so that they see their respective
+Ganeti library. <tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/default</span></tt> is a symbolic link to
+<tt class="docutils literal"><span class="pre">${sysconfdir}/ganeti/share</span></tt> which, in turn, is a symbolic link to
+<tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/${VERSION}</span></tt>. For all python executatables (like
+<tt class="docutils literal"><span class="pre">gnt-cluster</span></tt>, <tt class="docutils literal"><span class="pre">gnt-node</span></tt>, etc) symbolic links going through
+<tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/default</span></tt> are added under <tt class="docutils literal"><span class="pre">${PREFIX}/sbin</span></tt>.</li>
+<li>All other files will be installed to the corresponding path under
+<tt class="docutils literal"><span class="pre">${libdir}/ganeti/${VERSION}</span></tt> instead of under <tt class="docutils literal"><span class="pre">${PREFIX}</span></tt>
+directly, where <tt class="docutils literal"><span class="pre">${libdir}</span></tt> defaults to <tt class="docutils literal"><span class="pre">${PREFIX}/lib</span></tt>.
+<tt class="docutils literal"><span class="pre">${libdir}/ganeti/default</span></tt> will be a symlink to <tt class="docutils literal"><span class="pre">${sysconfdir}/ganeti/lib</span></tt>
+which, in turn, is a symlink to <tt class="docutils literal"><span class="pre">${libdir}/ganeti/${VERSION}</span></tt>.
+Symbolic links to the files installed under <tt class="docutils literal"><span class="pre">${libdir}/ganeti/${VERSION}</span></tt>
+will be added under <tt class="docutils literal"><span class="pre">${PREFIX}/bin</span></tt>, <tt class="docutils literal"><span class="pre">${PREFIX}/sbin</span></tt>, and so on. These
+symbolic links will go through <tt class="docutils literal"><span class="pre">${libdir}/ganeti/default</span></tt> so that the
+version can easily be changed by updating the symbolic link in
+<tt class="docutils literal"><span class="pre">${sysconfdir}</span></tt>.</li>
+</ul>
+<p>The set of links for ganeti binaries might change between the versions.
+However, as the file structure under <tt class="docutils literal"><span class="pre">${libdir}/ganeti/${VERSION}</span></tt> reflects
+that of <tt class="docutils literal"><span class="pre">/</span></tt>, two links of differnt versions will never conflict. Similarly,
+the symbolic links for the python executables will never conflict, as they
+always point to a file with the same basename directly under
+<tt class="docutils literal"><span class="pre">${PREFIX}/share/ganeti/default</span></tt>. Therefore, each version will make sure that
+enough symbolic links are present in <tt class="docutils literal"><span class="pre">${PREFIX}/bin</span></tt>, <tt class="docutils literal"><span class="pre">${PREFIX}/sbin</span></tt> and
+so on, even though some might be dangling, if a differnt version of ganeti is
+currently active.</p>
+<p>The extra indirection through <tt class="docutils literal"><span class="pre">${sysconfdir}</span></tt> allows installations that choose
+to have <tt class="docutils literal"><span class="pre">${sysconfdir}</span></tt> and <tt class="docutils literal"><span class="pre">${localstatedir}</span></tt> outside <tt class="docutils literal"><span class="pre">${PREFIX}</span></tt> to
+mount <tt class="docutils literal"><span class="pre">${PREFIX}</span></tt> read-only. The latter is important for systems that choose
+<tt class="docutils literal"><span class="pre">/usr</span></tt> as <tt class="docutils literal"><span class="pre">${PREFIX}</span></tt> and are following the Filesystem Hierarchy Standard.
+For example, choosing <tt class="docutils literal"><span class="pre">/usr</span></tt> as <tt class="docutils literal"><span class="pre">${PREFIX}</span></tt> and <tt class="docutils literal"><span class="pre">/etc</span></tt> as <tt class="docutils literal"><span class="pre">${sysconfdir}</span></tt>,
+the layout for version 2.10 will look as follows.</p>
+<div class="highlight-python"><pre>/
+|
++-- etc
+|   |
+|   +-- ganeti
+|         |
+|         +-- lib -&gt; /usr/lib/ganeti/2.10
+|         |
+|         +-- share  -&gt; /usr/share/ganeti/2.10
++-- usr
+     |
+     +-- bin
+     |   |
+     |   +-- harep -&gt; /usr/lib/ganeti/default/usr/bin/harep
+     |   |
+     |   ...
+     |
+     +-- sbin
+     |   |
+     |   +-- gnt-cluster -&gt; /usr/share/ganeti/default/gnt-cluster
+     |   |
+     |   ...
+     |
+     +-- ...
+     |
+     +-- lib
+     |   |
+     |   +-- ganeti
+     |       |
+     |       +-- default -&gt; /etc/ganeti/lib
+     |       |
+     |       +-- 2.10
+     |           |
+     |           +-- usr
+     |               |
+     |               +-- bin
+     |               |    |
+     |               |    +-- htools
+     |               |    |
+     |               |    +-- harep -&gt; htools
+     |               |    |
+     |               |    ...
+     |               ...
+     |
+     +-- share
+          |
+          +-- ganeti
+              |
+              +-- default -&gt; /etc/ganeti/share
+              |
+              +-- 2.10
+                  |
+                  + -- gnt-cluster
+                  |
+                  + -- gnt-node
+                  |
+                  + -- ...
+                  |
+                  + -- ganeti
+                       |
+                       +-- backend.py
+                       |
+                       +-- ...
+                       |
+                       +-- cmdlib
+                       |   |
+                       |   ...
+                       ...</pre>
+</div>
+</div>
+<div class="section" id="gnt-cluster-upgrade">
+<h3><a class="toc-backref" href="#id5">gnt-cluster upgrade</a><a class="headerlink" href="#gnt-cluster-upgrade" title="Permalink to this headline">¶</a></h3>
+<p>The actual upgrade process will be done by a new command <tt class="docutils literal"><span class="pre">upgrade</span></tt> to
+<tt class="docutils literal"><span class="pre">gnt-cluster</span></tt>. If called with the option <tt class="docutils literal"><span class="pre">--to</span></tt> which take precisely
+one argument, the version to
+upgrade (or downgrade) to, given as full string with major, minor, revision,
+and suffix. To be compatible with current configuration upgrade and downgrade
+procedures, the new version must be of the same major version and
+either an equal or higher minor version, or precisely the previous
+minor version.</p>
+<p>When executed, <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span> <span class="pre">--to=&lt;version&gt;</span></tt> will perform the
+following actions.</p>
+<ul class="simple">
+<li>It verifies that the version to change to is installed on all nodes
+of the cluster that are not marked as offline. If this is not the
+case it aborts with an error. This initial testing is an
+optimization to allow for early feedback.</li>
+<li>An intent-to-upgrade file is created that contains the current
+version of ganeti, the version to change to, and the process ID of
+the <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> process. The latter is not used automatically,
+but allows manual detection if the upgrade process died
+unintentionally. The intend-to-upgrade file is persisted to disk
+before continuing.</li>
+<li>The Ganeti job queue is drained, and the executable waits till there
+are no more jobs in the queue. Once <a class="reference internal" href="design-optables.html"><em>Filtering of jobs for the Ganeti job queue</em></a> is
+implemented, for upgrades, and only for upgrades, all jobs are paused
+instead (in the sense that the currently running opcode continues,
+but the next opcode is not started) and it is continued once all
+jobs are fully paused.</li>
+<li>All ganeti daemons on the master node are stopped.</li>
+<li>It is verified again that all nodes at this moment not marked as
+offline have the new version installed. If this is not the case,
+then all changes so far (stopping ganeti daemons and draining the
+queue) are undone and failure is reported. This second verification
+is necessary, as the set of online nodes might have changed during
+the draining period.</li>
+<li>All ganeti daemons on all remaining (non-offline) nodes are stopped.</li>
+<li>A backup of all Ganeti-related status information is created for
+manual rollbacks. While the normal way of rolling back after an
+upgrade should be calling <tt class="docutils literal"><span class="pre">gnt-clsuter</span> <span class="pre">upgrade</span></tt> from the newer version
+with the older version as argument, a full backup provides an
+additional safety net, especially for jump-upgrades (skipping
+intermediate minor versions).</li>
+<li>If the action is a downgrade to the previous minor version, the
+configuration is downgraded now, using <tt class="docutils literal"><span class="pre">cfgupgrade</span> <span class="pre">--downgrade</span></tt>.</li>
+<li>If the action is downgrade, any version-specific additional downgrade
+actions are carried out.</li>
+<li>The <tt class="docutils literal"><span class="pre">${sysconfdir}/ganeti/lib</span></tt> and <tt class="docutils literal"><span class="pre">${sysconfdir}/ganeti/share</span></tt>
+symbolic links are updated.</li>
+<li>If the action is an upgrade to a higher minor version, the configuration
+is upgraded now, using <tt class="docutils literal"><span class="pre">cfgupgrade</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">ensure-dirs</span> <span class="pre">--full-run</span></tt> is run on all nodes.</li>
+<li>All daemons are started on all nodes.</li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">redist-conf</span></tt> is run on the master node.</li>
+<li>All daemons are restarted on all nodes.</li>
+<li>The Ganeti job queue is undrained.</li>
+<li>The intent-to-upgrade file is removed.</li>
+<li><tt class="docutils literal"><span class="pre">post-upgrade</span></tt> is run with the original version as argument.</li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> is run and the result reported.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="considerations-on-unintended-reboots-of-the-master-node">
+<h2><a class="toc-backref" href="#id6">Considerations on unintended reboots of the master node</a><a class="headerlink" href="#considerations-on-unintended-reboots-of-the-master-node" title="Permalink to this headline">¶</a></h2>
+<p>During the upgrade procedure, the only ganeti process still running is
+the one instance of <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt>. This process is also responsible
+for eventually removing the queue drain. Therefore, we have to provide
+means to resume this process, if it dies unintentionally. The process
+itself will handle SIGTERM gracefully by either undoing all changes
+done so far, or by ignoring the signal all together and continuing to
+the end; the choice between these behaviors depends on whether change
+of the configuration has already started (in which case it goes
+through to the end), or not (in which case the actions done so far are
+rolled back).</p>
+<p>To achieve this, <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> will support a <tt class="docutils literal"><span class="pre">--resume</span></tt>
+option. It is recommended
+to have <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span> <span class="pre">--resume</span></tt> as an at-reboot task in the crontab.
+The <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span> <span class="pre">--resume</span></tt> comand first verifies that
+it is running on the master node, using the same requirement as for
+starting the master daemon, i.e., confirmed by a majority of all
+nodes. If it is not the master node, it will remove any possibly
+existing intend-to-upgrade file and exit. If it is running on the
+master node, it will check for the existence of an intend-to-upgrade
+file. If no such file is found, it will simply exit. If found, it will
+resume at the appropriate stage.</p>
+<ul class="simple">
+<li>If the configuration file still is at the initial version,
+<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> is resumed at the step immediately following the
+writing of the intend-to-upgrade file. It should be noted that
+all steps before changing the configuration are idempotent, so
+redoing them does not do any harm.</li>
+<li>If the configuration is already at the new version, all daemons on
+all nodes are stopped (as they might have been started again due
+to a reboot) and then it is resumed at the step immediately
+following the configuration change. All actions following the
+configuration change can be repeated without bringing the cluster
+into a worse state.</li>
+</ul>
+</div>
+<div class="section" id="caveats">
+<h2><a class="toc-backref" href="#id7">Caveats</a><a class="headerlink" href="#caveats" title="Permalink to this headline">¶</a></h2>
+<p>Since <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> drains the queue and undrains it later, so any
+information about a previous drain gets lost. This problem will
+disappear, once <a class="reference internal" href="design-optables.html"><em>Filtering of jobs for the Ganeti job queue</em></a> is implemented, as then the
+undrain will then be restricted to filters by gnt-upgrade.</p>
+</div>
+<div class="section" id="requirement-of-job-queue-update">
+<h2><a class="toc-backref" href="#id8">Requirement of job queue update</a><a class="headerlink" href="#requirement-of-job-queue-update" title="Permalink to this headline">¶</a></h2>
+<p>Since for upgrades we only pause jobs and do not fully drain the
+queue, we need to be able to transform the job queue into a queue for
+the new version. The preferred way to obtain this is to keep the
+serialization format backwards compatible, i.e., only adding new
+opcodes and new optional fields.</p>
+<p>However, even with soft drain, no job is running at the moment <cite>cfgupgrade</cite>
+is running. So, if we change the queue representation, including the
+representation of individual opcodes in any way, <cite>cfgupgrade</cite> will also
+modify the queue accordingly. In a jobs-as-processes world, pausing a job
+will be implemented in such a way that the corresponding process stops after
+finishing the current opcode, and a new process is created if and when the
+job is unpaused again.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Automatized Upgrade Procedure for Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#path-changes-to-allow-multiple-versions-installed">Path changes to allow multiple versions installed</a></li>
+<li><a class="reference internal" href="#gnt-cluster-upgrade">gnt-cluster upgrade</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#considerations-on-unintended-reboots-of-the-master-node">Considerations on unintended reboots of the master node</a></li>
+<li><a class="reference internal" href="#caveats">Caveats</a></li>
+<li><a class="reference internal" href="#requirement-of-job-queue-update">Requirement of job queue update</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-systemd.html"
+                        title="previous chapter">Systemd integration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-virtual-clusters.html"
+                        title="next chapter">Design for virtual clusters support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-upgrade.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-virtual-clusters.html" title="Design for virtual clusters support"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-systemd.html" title="Systemd integration"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

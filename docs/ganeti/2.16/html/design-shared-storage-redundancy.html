@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>N+1 redundancy for shared storage &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Design for supporting custom SSH ports for nodes" href="design-ssh-ports.html" />
+    <link rel="prev" title="Ganeti shared storage support" href="design-shared-storage.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-shared-storage.html" title="Ganeti shared storage support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="n-1-redundancy-for-shared-storage">
+<h1><a class="toc-backref" href="#id1">N+1 redundancy for shared storage</a><a class="headerlink" href="#n-1-redundancy-for-shared-storage" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#n-1-redundancy-for-shared-storage" id="id1">N+1 redundancy for shared storage</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definition-on-n-1-redundancy-in-the-presence-of-shared-storage" id="id4">Definition on N+1 redundancy in the presence of shared storage</a></li>
+<li><a class="reference internal" href="#basic-considerations" id="id5">Basic Considerations</a></li>
+<li><a class="reference internal" href="#modifications-to-existing-tools" id="id6">Modifications to existing tools</a></li>
+<li><a class="reference internal" href="#other-modifications-related-to-opportunistic-locking" id="id7">Other modifications related to opportunistic locking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This document describes how N+1 redundancy is achieved
+for instanes using shared storage.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>For instances with DRBD as disk template, in case of failures
+of their primary node, there is only one node where the instance
+can be restarted immediately. Therefore, <tt class="docutils literal"><span class="pre">htools</span></tt> reserve enough
+memory on that node to cope with failure of a single node.
+For instances using shared storage, however, they can be restarted
+on any node&#8212;implying that on no particular node memory has to
+be reserved. This, however, motivated the current state where no
+memory is reserved at all. And even a large cluster can run out
+of capacity.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="definition-on-n-1-redundancy-in-the-presence-of-shared-storage">
+<h3><a class="toc-backref" href="#id4">Definition on N+1 redundancy in the presence of shared storage</a><a class="headerlink" href="#definition-on-n-1-redundancy-in-the-presence-of-shared-storage" title="Permalink to this headline">¶</a></h3>
+<p>A cluster is considered N+1 redundant, if, for every node, all
+DRBD instances can be migrated out and then all shared-storage
+instances can be relocated to a different node without moving
+instances on other nodes. This is precisely the operation done
+after a node breaking. Obviously, simulating failure and evacuation
+for every single node is an expensive operation.</p>
+</div>
+<div class="section" id="basic-considerations">
+<h3><a class="toc-backref" href="#id5">Basic Considerations</a><a class="headerlink" href="#basic-considerations" title="Permalink to this headline">¶</a></h3>
+<p>For DRBD, keeping N+1 redundancy is affected by moving instances and
+balancing the cluster. Moreover, taking is into account for balancing
+can help <a class="reference internal" href="design-allocation-efficiency.html"><em>Improving allocation efficiency by considering the total reserved memory</em></a>. Hence, N+1 redundancy
+for DRBD is to be taken into account for all choices affecting instance
+location, including instance allocation and balancing.</p>
+<p>For shared-storage instances, they can move everywhere within the
+node group. So, in practise, this is mainly a question of capacity
+planing, especially is most instances have the same size. Nevertheless,
+offcuts if instances don&#8217;t fill a node entirely may not be ignored.</p>
+</div>
+<div class="section" id="modifications-to-existing-tools">
+<h3><a class="toc-backref" href="#id6">Modifications to existing tools</a><a class="headerlink" href="#modifications-to-existing-tools" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">hail</span></tt> will compute and rank possible allocations as usual. However,
+before returing a choice it will filter out allocations that are
+not N+1 redundant.</li>
+<li>Normal <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> will not be changed; in particular,
+it will still check for DRBD N+1 redundancy, but not for shared
+storage N+1 redundancy. However, <tt class="docutils literal"><span class="pre">hcheck</span></tt> will verify shared storage
+N+1 redundancy and report it that fails.</li>
+<li><tt class="docutils literal"><span class="pre">hbal</span></tt> will consider and rank moves as usual. However, before deciding
+on the next move, it will filter out those moves that lead from a
+shared storage N+1 redundant configuration into one that isn&#8217;t.</li>
+<li><tt class="docutils literal"><span class="pre">hspace</span></tt> computing the capacity for DRBD instances will be unchanged;
+In particular, the options <tt class="docutils literal"><span class="pre">--accept-exisiting</span></tt> and <tt class="docutils literal"><span class="pre">--independent-groups</span></tt>
+will continue to work. For shared storage instances, however, will strictly
+iterate over the same allocation step as hail does.</li>
+</ul>
+</div>
+<div class="section" id="other-modifications-related-to-opportunistic-locking">
+<h3><a class="toc-backref" href="#id7">Other modifications related to opportunistic locking</a><a class="headerlink" href="#other-modifications-related-to-opportunistic-locking" title="Permalink to this headline">¶</a></h3>
+<p>To allow parallel instance creation, instance creation jobs can be instructed
+to run with just whatever node locks currently available. In this case, an
+allocation has to be chosen from that restricted set of nodes. Currently, this
+is achieved by sending <tt class="docutils literal"><span class="pre">hail</span></tt> a cluster description where all other nodes
+are marked offline; that works as long as only local properties are considered.
+With global properties, however, the capacity of the cluster is materially
+underestimated, causing spurious global N+1 failures.</p>
+<p>Therefore, we conservatively extend the request format of <tt class="docutils literal"><span class="pre">hail</span></tt> by an
+optional parameter <tt class="docutils literal"><span class="pre">restrict-to-nodes</span></tt>. If that parameter is given, only
+allocations on those nodes will be considered. This will be an additional
+restriction to ones currently considered (e.g., node must be online, a
+particular group might have been requested). If opportunistic locking is
+enabled, calls to the IAllocator will use this extension to signal which
+nodes to restrict to, instead of marking other nodes offline.</p>
+<p>It should be noted that this change brings a race. Two concurrent allocations
+might bring the cluster over the global N+1 capacity limit. As, however, the
+reason for opportunistic locking is an urgent need for instances, this seems
+acceptable; Ganeti generally follows the guideline that current problems are
+more important than future ones. Also, even with that change allocation is
+more careful than the current approach of completely ignoring N+1 redundancy
+for shared storage.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">N+1 redundancy for shared storage</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#definition-on-n-1-redundancy-in-the-presence-of-shared-storage">Definition on N+1 redundancy in the presence of shared storage</a></li>
+<li><a class="reference internal" href="#basic-considerations">Basic Considerations</a></li>
+<li><a class="reference internal" href="#modifications-to-existing-tools">Modifications to existing tools</a></li>
+<li><a class="reference internal" href="#other-modifications-related-to-opportunistic-locking">Other modifications related to opportunistic locking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-shared-storage.html"
+                        title="previous chapter">Ganeti shared storage support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-ssh-ports.html"
+                        title="next chapter">Design for supporting custom SSH ports for nodes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-shared-storage-redundancy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-shared-storage.html" title="Ganeti shared storage support"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

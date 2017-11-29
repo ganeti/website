@@ -1,0 +1,619 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Upgrade notes &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Virtual cluster support" href="virtual-cluster.html" />
+    <link rel="prev" title="Security in Ganeti" href="security.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="virtual-cluster.html" title="Virtual cluster support"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="security.html" title="Security in Ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="upgrade-notes">
+<h1>Upgrade notes<a class="headerlink" href="#upgrade-notes" title="Permalink to this headline">¶</a></h1>
+<p>This document details the steps needed to upgrade a cluster to newer versions
+of Ganeti.</p>
+<p>As a general rule the node daemons need to be restarted after each software
+upgrade; if using the provided example init.d script, this means running the
+following command on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">restart</span>
+</pre></div>
+</div>
+<div class="section" id="and-above">
+<h2>2.11 and above<a class="headerlink" href="#and-above" title="Permalink to this headline">¶</a></h2>
+<p>Starting from 2.10 onwards, Ganeti has support for parallely installed versions
+and automated upgrades. The default configuration for 2.11 and higher already is
+to install as a parallel version without changing the running version. If both
+versions, the installed one and the one to upgrade to, are 2.10 or higher, the
+actual switch of the live version can be carried out by the following command
+on the master node.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">upgrade</span> <span class="gs">--to</span> <span class="gs">2.11</span>
+</pre></div>
+</div>
+<p>This will carry out the steps described below in the section on upgrades from
+2.1 and above. Downgrades to the previous minor version can be done in the same
+way, specifiying the smaller version on the <tt class="docutils literal"><span class="pre">--to</span></tt> argument.</p>
+<p>Note that <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> only manages the actual switch between
+versions as described below on upgrades from 2.1 and above. It does not install
+or remove any binaries. Having the new binaries installed is a prerequisite of
+calling <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> (and the command will abort if the prerequisite
+is not met). The old binaries can be used to downgrade back to the previous
+version; once the system administrator decides that going back to the old
+version is not needed any more, they can be removed. Addition and removal of
+the Ganeti binaries should happen in the same way as for all other binaries on
+your system.</p>
+</div>
+<div class="section" id="id1">
+<h2>2.13<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>When upgrading to 2.13, first apply the instructions of <tt class="docutils literal"><span class="pre">2.11</span> <span class="pre">and</span>
+<span class="pre">above</span></tt>. 2.13 comes with the new feature of enhanced SSH security
+through individual SSH keys. This features needs to be enabled
+after the upgrade by:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">renew-crypto</span> <span class="gs">--new-ssh-keys</span> <span class="gs">--no-ssh-key-check</span>
+</pre></div>
+</div>
+<p>Note that new SSH keys are generated automatically without warning when
+upgrading with <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt>.</p>
+<p>If you instructed Ganeti to not touch the SSH setup (by using the
+<tt class="docutils literal"><span class="pre">--no-ssh-init</span></tt> option of <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt>, the changes in the
+handling of SSH keys will not affect your cluster.</p>
+<p>If you want to be prompted for each newly created SSH key, leave out
+the <tt class="docutils literal"><span class="pre">--no-ssh-key-check</span></tt> option in the command listed above.</p>
+<p>Note that after a downgrade from 2.13 to 2.12, the individual SSH keys
+will not get removed automatically. This can lead to reachability
+errors under very specific circumstances (Issue 1008). In case you plan
+on keeping 2.12 for a while and not upgrade to 2.13 again soon, we recommend
+to replace all SSH key pairs of non-master nodes&#8217; with the master node&#8217;s SSH
+key pair.</p>
+</div>
+<div class="section" id="id2">
+<h2>2.12<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Due to issue #1094 in Ganeti 2.11 and 2.12 up to version 2.12.4, we
+advise to rerun &#8216;gnt-cluster renew-crypto &#8211;new-node-certificates&#8217;
+after an upgrade to 2.12.5 or higher.</p>
+</div>
+<div class="section" id="id3">
+<h2>2.11<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>When upgrading to 2.11, first apply the instructions of <tt class="docutils literal"><span class="pre">2.11</span> <span class="pre">and</span>
+<span class="pre">above</span></tt>. 2.11 comes with the new feature of enhanced RPC security
+through client certificates. This features needs to be enabled after the
+upgrade by:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">renew-crypto</span> <span class="gs">--new-node-certificates</span>
+</pre></div>
+</div>
+<p>Note that new node certificates are generated automatically without
+warning when upgrading with <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt>.</p>
+</div>
+<div class="section" id="id4">
+<h2>2.1 and above<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>Starting with Ganeti 2.0, upgrades between revisions (e.g. 2.1.0 to 2.1.1)
+should not need manual intervention. As a safety measure, minor releases (e.g.
+2.1.3 to 2.2.0) require the <tt class="docutils literal"><span class="pre">cfgupgrade</span></tt> command for changing the
+configuration version. Below you find the steps necessary to upgrade between
+minor releases.</p>
+<p>To run commands on all nodes, the <a class="reference external" href="http://www.netfort.gr.jp/~dancer/software/dsh.html.en">distributed shell (dsh)</a> can be used, e.g.
+<tt class="docutils literal"><span class="pre">dsh</span> <span class="pre">-M</span> <span class="pre">-F</span> <span class="pre">8</span> <span class="pre">-f</span> <span class="pre">/var/lib/ganeti/ssconf_online_nodes</span> <span class="pre">gnt-cluster</span> <span class="pre">--version</span></tt>.</p>
+<ol class="arabic">
+<li><p class="first">Ensure no jobs are running (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-job</span> <span class="gs">list</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Pause the watcher for an hour (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">watcher</span> <span class="gs">pause</span> <span class="gs">1h</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Stop all daemons on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">stop</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Backup old configuration (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">tar</span> <span class="gs">czf</span> <span class="gs">/var/lib/ganeti-$(date</span> <span class="gs">+</span>%<span class="gs">FT</span>%<span class="gs">T).tar.gz</span> <span class="gs">-C</span> <span class="gs">/var/lib</span> <span class="gs">ganeti</span>
+
+(``/var/lib/ganeti`` can also contain exported instances, so make sure to
+backup only files you are interested in. Use ``--exclude export`` for
+example)
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install new Ganeti version on all nodes</p>
+</li>
+<li><p class="first">Run cfgupgrade on the master node:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade</span> <span class="gs">--verbose</span> <span class="gs">--dry-run</span>
+$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade</span> <span class="gs">--verbose</span>
+</pre></div>
+</div>
+<p>(<tt class="docutils literal"><span class="pre">cfgupgrade</span></tt> supports a number of parameters, run it with
+<tt class="docutils literal"><span class="pre">--help</span></tt> for more information)</p>
+</li>
+<li><p class="first">Upgrade the directory permissions on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/lib/ganeti/ensure-dirs</span> <span class="gs">--full-run</span>
+</pre></div>
+</div>
+<p>Note that ensure-dirs does not create the directories for file
+and shared-file storage. This is due to security reasons. They need
+to be created manually. For details see <tt class="docutils literal"><span class="pre">man</span> <span class="pre">gnt-cluster</span></tt>.</p>
+</li>
+<li><p class="first">Create the (missing) required users and make users part of the required
+groups on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/lib/ganeti/tools/users-setup</span>
+</pre></div>
+</div>
+<p>This will ask for confirmation. To execute directly, add the <tt class="docutils literal"><span class="pre">--yes-do-it</span></tt>
+option.</p>
+</li>
+<li><p class="first">Restart daemons on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">restart</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Re-distribute configuration (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">redist-conf</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">If you use file storage, check that the <tt class="docutils literal"><span class="pre">/etc/ganeti/file-storage-paths</span></tt>
+is correct on all nodes. For security reasons it&#8217;s not copied
+automatically, but it can be copied manually via:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">copyfile</span> <span class="gs">/etc/ganeti/file-storage-paths</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart daemons again on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">restart</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Enable the watcher again (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">watcher</span> <span class="gs">continue</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Verify cluster (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">verify</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="section" id="reverting-an-upgrade">
+<h3>Reverting an upgrade<a class="headerlink" href="#reverting-an-upgrade" title="Permalink to this headline">¶</a></h3>
+<p>For going back between revisions (e.g. 2.1.1 to 2.1.0) no manual
+intervention is required, as for upgrades.</p>
+<p>Starting from version 2.8, <tt class="docutils literal"><span class="pre">cfgupgrade</span></tt> supports <tt class="docutils literal"><span class="pre">--downgrade</span></tt>
+option to bring the configuration back to the previous stable version.
+This is useful if you upgrade Ganeti and after some time you run into
+problems with the new version. You can downgrade the configuration
+without losing the changes made since the upgrade. Any feature not
+supported by the old version will be removed from the configuration, of
+course, but you get a warning about it. If there is any new feature and
+you haven&#8217;t changed from its default value, you don&#8217;t have to worry
+about it, as it will get the same value whenever you&#8217;ll upgrade again.</p>
+<div class="section" id="automatic-downgrades">
+<h4>Automatic downgrades<a class="headerlink" href="#automatic-downgrades" title="Permalink to this headline">¶</a></h4>
+<p>From version 2.11 onwards, downgrades can be done by using the
+<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">upgrade</span></tt> command.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>gnt-cluster upgrade --to 2.10
+</pre></div>
+</div>
+</div>
+<div class="section" id="manual-downgrades">
+<h4>Manual downgrades<a class="headerlink" href="#manual-downgrades" title="Permalink to this headline">¶</a></h4>
+<p>The procedure is similar to upgrading, but please notice that you have to
+revert the configuration <strong>before</strong> installing the old version.</p>
+<ol class="arabic">
+<li><p class="first">Ensure no jobs are running (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-job</span> <span class="gs">list</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Pause the watcher for an hour (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">watcher</span> <span class="gs">pause</span> <span class="gs">1h</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Stop all daemons on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">stop</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Backup old configuration (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">tar</span> <span class="gs">czf</span> <span class="gs">/var/lib/ganeti-$(date</span> <span class="gs">+</span>%<span class="gs">FT</span>%<span class="gs">T).tar.gz</span> <span class="gs">-C</span> <span class="gs">/var/lib</span> <span class="gs">ganeti</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Run cfgupgrade on the master node:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade</span> <span class="gs">--verbose</span> <span class="gs">--downgrade</span> <span class="gs">--dry-run</span>
+$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade</span> <span class="gs">--verbose</span> <span class="gs">--downgrade</span>
+</pre></div>
+</div>
+<p>You may want to copy all the messages about features that have been
+removed during the downgrade, in case you want to restore them when
+upgrading again.</p>
+</li>
+<li><p class="first">Install the old Ganeti version on all nodes</p>
+<p>NB: in Ganeti 2.8, the <tt class="docutils literal"><span class="pre">cmdlib.py</span></tt> file was split into a series of files
+contained in the <tt class="docutils literal"><span class="pre">cmdlib</span></tt> directory. If Ganeti is installed from sources
+and not from a package, while downgrading Ganeti to a pre-2.8
+version it is important to remember to remove the <tt class="docutils literal"><span class="pre">cmdlib</span></tt> directory
+from the directory containing the Ganeti python files (which usually is
+<tt class="docutils literal"><span class="pre">${PREFIX}/lib/python${VERSION}/dist-packages/ganeti</span></tt>).
+A simpler upgrade/downgrade procedure will be made available in future
+versions of Ganeti.</p>
+</li>
+<li><p class="first">Restart daemons on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">restart</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Re-distribute configuration (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">redist-conf</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart daemons again on all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/etc/init.d/ganeti</span> <span class="gs">restart</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Enable the watcher again (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">watcher</span> <span class="gs">continue</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Verify cluster (master node only):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">verify</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="section" id="specific-tasks-for-2-11-to-2-10-downgrade">
+<h5>Specific tasks for 2.11 to 2.10 downgrade<a class="headerlink" href="#specific-tasks-for-2-11-to-2-10-downgrade" title="Permalink to this headline">¶</a></h5>
+<p>After running <tt class="docutils literal"><span class="pre">cfgupgrade</span></tt>, the <tt class="docutils literal"><span class="pre">client.pem</span></tt> and
+<tt class="docutils literal"><span class="pre">ssconf_master_candidates_certs</span></tt> files need to be removed
+from Ganeti&#8217;s data directory on all nodes. While this step is
+not necessary for 2.10 to run cleanly, leaving them will cause
+problems when upgrading again after the downgrade.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="releases">
+<h2>2.0 releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="to-2-0-4">
+<h3>2.0.3 to 2.0.4<a class="headerlink" href="#to-2-0-4" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed except restarting the daemon; but rollback to 2.0.3 might
+require configuration editing.</p>
+<p>If you&#8217;re using Xen-HVM instances, please double-check the network
+configuration (<tt class="docutils literal"><span class="pre">nic_type</span></tt> parameter) as the defaults might have changed:
+2.0.4 adds any missing configuration items and depending on the version of the
+software the cluster has been installed with, some new keys might have been
+added.</p>
+</div>
+<div class="section" id="to-2-0-2-2-0-3">
+<h3>2.0.1 to 2.0.2/2.0.3<a class="headerlink" href="#to-2-0-2-2-0-3" title="Permalink to this headline">¶</a></h3>
+<p>Between 2.0.1 and 2.0.2 there have been some changes in the handling of block
+devices, which can cause some issues. 2.0.3 was then released which adds two
+new options/commands to fix this issue.</p>
+<p>If you use DRBD-type instances and see problems in instance start or
+activate-disks with messages from DRBD about &#8220;lower device too small&#8221; or
+similar, it is recoomended to:</p>
+<ol class="arabic simple">
+<li>Run <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">activate-disks</span> <span class="pre">--ignore-size</span> <span class="pre">$instance</span></tt> for each
+of the affected instances</li>
+<li>Then run <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">repair-disk-sizes</span></tt> which will check that
+instances have the correct disk sizes</li>
+</ol>
+</div>
+</div>
+<div class="section" id="to-2-0">
+<h2>1.2 to 2.0<a class="headerlink" href="#to-2-0" title="Permalink to this headline">¶</a></h2>
+<p>Prerequisites:</p>
+<ul class="simple">
+<li>Ganeti 1.2.7 is currently installed</li>
+<li>All instances have been migrated from DRBD 0.7 to DRBD 8.x (i.e. no
+<tt class="docutils literal"><span class="pre">remote_raid1</span></tt> disk template)</li>
+<li>Upgrade to Ganeti 2.0.0~rc2 or later (~rc1 and earlier don&#8217;t have the needed
+upgrade tool)</li>
+</ul>
+<p>In the below steps, replace <tt class="file docutils literal"><span class="pre">/var/lib</span></tt> with <tt class="docutils literal"><span class="pre">$libdir</span></tt> if Ganeti was not
+installed with this prefix (e.g. <tt class="file docutils literal"><span class="pre">/usr/local/var</span></tt>). Same for
+<tt class="file docutils literal"><span class="pre">/usr/lib</span></tt>.</p>
+<p>Execution (all steps are required in the order given):</p>
+<ol class="arabic">
+<li><p class="first">Make a backup of the current configuration, for safety:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">cp</span> <span class="gs">-a</span> <span class="gs">/var/lib/ganeti</span> <span class="gs">/var/lib/ganeti-1.2.backup</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Stop all instances:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-instance</span> <span class="gs">stop</span> <span class="gs">--all</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make sure no DRBD device are in use, the following command should show no
+active minors:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">command</span> <span class="gs">grep</span> <span class="gs">cs:</span> <span class="gs">/proc/drbd</span> <span class="gs">|</span> <span class="gs">grep</span> <span class="gs">-v</span> <span class="gs">cs:Unconf</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Stop the node daemons and rapi daemon on all nodes (note: should be logged
+in not via the cluster name, but the master node name, as the command below
+will remove the cluster ip from the master node):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">command</span> <span class="gs">/etc/init.d/ganeti</span> <span class="gs">stop</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install the new software on all nodes, either from packaging (if available)
+or from sources; the master daemon will not start but give error messages
+about wrong configuration file, which is normal</p>
+</li>
+<li><p class="first">Upgrade the configuration file:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade12</span> <span class="gs">-v</span> <span class="gs">--dry-run</span>
+$ <span class="gs">/usr/lib/ganeti/tools/cfgupgrade12</span> <span class="gs">-v</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make sure <tt class="docutils literal"><span class="pre">ganeti-noded</span></tt> is running on all nodes (and start it if
+not)</p>
+</li>
+<li><p class="first">Start the master daemon:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">ganeti-masterd</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Check that a simple node-list works:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-node</span> <span class="gs">list</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Redistribute updated configuration to all nodes:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">redist-conf</span>
+$ <span class="gs">gnt-cluster</span> <span class="gs">copyfile</span> <span class="gs">/var/lib/ganeti/known_hosts</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Optional: if needed, install RAPI-specific certificates under
+<tt class="file docutils literal"><span class="pre">/var/lib/ganeti/rapi.pem</span></tt> and run:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">copyfile</span> <span class="gs">/var/lib/ganeti/rapi.pem</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Run a cluster verify, this should show no problems:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">verify</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Remove some obsolete files:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">command</span> <span class="gs">rm</span> <span class="gs">/var/lib/ganeti/ssconf_node_pass</span>
+$ <span class="gs">gnt-cluster</span> <span class="gs">command</span> <span class="gs">rm</span> <span class="gs">/var/lib/ganeti/ssconf_hypervisor</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Update the xen pvm (if this was a pvm cluster) setting for 1.2
+compatibility:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">modify</span> <span class="gs">-H</span> <span class="gs">xen-pvm:root_path=/dev/sda</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Depending on your setup, you might also want to reset the initrd parameter:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">modify</span> <span class="gs">-H</span> <span class="gs">xen-pvm:initrd_path=/boot/initrd-2.6-xenU</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Reset the instance autobalance setting to default:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">for</span> <span class="gs">i</span> <span class="gs">in</span> <span class="gs">$(gnt-instance</span> <span class="gs">list</span> <span class="gs">-o</span> <span class="gs">name</span> <span class="gs">--no-headers);</span> <span class="gs">do</span> <span class="gs">\</span>
+   <span class="gs">gnt-instance</span> <span class="gs">modify</span> <span class="gs">-B</span> <span class="gs">auto_balance=default</span> <span class="gs">$i;</span> <span class="gs">\</span>
+  <span class="gs">done</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Optional: start the RAPI demon:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">ganeti-rapi</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart instances:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-instance</span> <span class="gs">start</span> <span class="gs">--force-multiple</span> <span class="gs">--all</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>At this point, <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> should show no errors and the migration
+is complete.</p>
+</div>
+<div class="section" id="id5">
+<h2>1.2 releases<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="to-any-other-higher-1-2-version">
+<h3>1.2.4 to any other higher 1.2 version<a class="headerlink" href="#to-any-other-higher-1-2-version" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed. Rollback will usually require manual edit of the
+configuration file.</p>
+</div>
+<div class="section" id="to-1-2-4">
+<h3>1.2.3 to 1.2.4<a class="headerlink" href="#to-1-2-4" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed. Note that going back from 1.2.4 to 1.2.3 will require manual
+edit of the configuration file (since we added some HVM-related new
+attributes).</p>
+</div>
+<div class="section" id="to-1-2-3">
+<h3>1.2.2 to 1.2.3<a class="headerlink" href="#to-1-2-3" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed. Note that the drbd7-to-8 upgrade tool does a disk format
+change for the DRBD metadata, so in theory this might be <strong>risky</strong>. It is
+advised to have (good) backups before doing the upgrade.</p>
+</div>
+<div class="section" id="to-1-2-2">
+<h3>1.2.1 to 1.2.2<a class="headerlink" href="#to-1-2-2" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed.</p>
+</div>
+<div class="section" id="to-1-2-1">
+<h3>1.2.0 to 1.2.1<a class="headerlink" href="#to-1-2-1" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed. Only some bugfixes and new additions that don&#8217;t affect
+existing clusters.</p>
+</div>
+<div class="section" id="beta-3-to-1-2-0">
+<h3>1.2.0 beta 3 to 1.2.0<a class="headerlink" href="#beta-3-to-1-2-0" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed.</p>
+</div>
+<div class="section" id="beta-2-to-beta-3">
+<h3>1.2.0 beta 2 to beta 3<a class="headerlink" href="#beta-2-to-beta-3" title="Permalink to this headline">¶</a></h3>
+<p>No changes needed. A new version of the debian-etch-instance OS (0.3) has been
+released, but upgrading it is not required.</p>
+</div>
+<div class="section" id="beta-1-to-beta-2">
+<h3>1.2.0 beta 1 to beta 2<a class="headerlink" href="#beta-1-to-beta-2" title="Permalink to this headline">¶</a></h3>
+<p>Beta 2 switched the config file format to JSON. Steps to upgrade:</p>
+<ol class="arabic">
+<li><p class="first">Stop the daemons (<tt class="docutils literal"><span class="pre">/etc/init.d/ganeti</span> <span class="pre">stop</span></tt>) on all nodes</p>
+</li>
+<li><p class="first">Disable the cron job (default is <tt class="file docutils literal"><span class="pre">/etc/cron.d/ganeti</span></tt>)</p>
+</li>
+<li><p class="first">Install the new version</p>
+</li>
+<li><p class="first">Make a backup copy of the config file</p>
+</li>
+<li><p class="first">Upgrade the config file using the following command:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">/usr/share/ganeti/cfgupgrade</span> <span class="gs">--verbose</span> <span class="gs">/var/lib/ganeti/config.data</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Start the daemons and run <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">info</span></tt>, <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt> and
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">list</span></tt> to check if the upgrade process finished successfully</p>
+</li>
+</ol>
+<p>The OS definition also need to be upgraded. There is a new version of the
+debian-etch-instance OS (0.2) that goes along with beta 2.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Upgrade notes</a><ul>
+<li><a class="reference internal" href="#and-above">2.11 and above</a></li>
+<li><a class="reference internal" href="#id1">2.13</a></li>
+<li><a class="reference internal" href="#id2">2.12</a></li>
+<li><a class="reference internal" href="#id3">2.11</a></li>
+<li><a class="reference internal" href="#id4">2.1 and above</a><ul>
+<li><a class="reference internal" href="#reverting-an-upgrade">Reverting an upgrade</a><ul>
+<li><a class="reference internal" href="#automatic-downgrades">Automatic downgrades</a></li>
+<li><a class="reference internal" href="#manual-downgrades">Manual downgrades</a><ul>
+<li><a class="reference internal" href="#specific-tasks-for-2-11-to-2-10-downgrade">Specific tasks for 2.11 to 2.10 downgrade</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#releases">2.0 releases</a><ul>
+<li><a class="reference internal" href="#to-2-0-4">2.0.3 to 2.0.4</a></li>
+<li><a class="reference internal" href="#to-2-0-2-2-0-3">2.0.1 to 2.0.2/2.0.3</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#to-2-0">1.2 to 2.0</a></li>
+<li><a class="reference internal" href="#id5">1.2 releases</a><ul>
+<li><a class="reference internal" href="#to-any-other-higher-1-2-version">1.2.4 to any other higher 1.2 version</a></li>
+<li><a class="reference internal" href="#to-1-2-4">1.2.3 to 1.2.4</a></li>
+<li><a class="reference internal" href="#to-1-2-3">1.2.2 to 1.2.3</a></li>
+<li><a class="reference internal" href="#to-1-2-2">1.2.1 to 1.2.2</a></li>
+<li><a class="reference internal" href="#to-1-2-1">1.2.0 to 1.2.1</a></li>
+<li><a class="reference internal" href="#beta-3-to-1-2-0">1.2.0 beta 3 to 1.2.0</a></li>
+<li><a class="reference internal" href="#beta-2-to-beta-3">1.2.0 beta 2 to beta 3</a></li>
+<li><a class="reference internal" href="#beta-1-to-beta-2">1.2.0 beta 1 to beta 2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="security.html"
+                        title="previous chapter">Security in Ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="virtual-cluster.html"
+                        title="next chapter">Virtual cluster support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/upgrade.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="virtual-cluster.html" title="Virtual cluster support"
+             >next</a></li>
+        <li class="right" >
+          <a href="security.html" title="Security in Ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

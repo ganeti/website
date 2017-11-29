@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>htools &mdash; Ganeti 2.9.7 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.9.7',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.9.7 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="mon-collector" href="man-mon-collector.html" />
+    <link rel="prev" title="hspace" href="man-hspace.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-mon-collector.html" title="mon-collector"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-hspace.html" title="hspace"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.9.7 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="htools">
+<h1>htools<a class="headerlink" href="#htools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>htools - Cluster allocation and placement tools for Ganeti</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>hbal</strong></dt>
+<dd>cluster balancer</dd>
+<dt><strong>hcheck</strong></dt>
+<dd>cluster checker</dd>
+<dt><strong>hspace</strong></dt>
+<dd>cluster capacity computation</dd>
+<dt><strong>hail</strong></dt>
+<dd>IAllocator plugin</dd>
+<dt><strong>hscan</strong></dt>
+<dd>saves cluster state for later reuse</dd>
+<dt><strong>hinfo</strong></dt>
+<dd>cluster information printer</dd>
+<dt><strong>hroller</strong></dt>
+<dd>cluster rolling maintenance scheduler</dd>
+</dl>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">htools</span></tt> is a suite of tools designed to help with allocation/movement
+of instances and balancing of Ganeti clusters. <tt class="docutils literal"><span class="pre">htools</span></tt> is also the
+generic binary that must be symlinked or hardlinked under each tool&#8217;s
+name in order to perform the different functions. Alternatively, the
+environment variable HTOOLS can be used to set the desired role.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hbal</span></tt>, it computes and optionally executes a suite of
+instance moves in order to balance the cluster.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hcheck</span></tt>, it preforms cluster checks and optionally
+simulates rebalancing with all the <tt class="docutils literal"><span class="pre">hbal</span></tt> options available.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hspace</span></tt>, it computes how many additional instances can
+be fit on a cluster, while maintaining N+1 status. It can run on models
+of existing clusters or of simulated clusters.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hail</span></tt>, it acts as an IAllocator plugin, i.e. it is used
+by Ganeti to compute new instance allocations and instance moves.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hscan</span></tt>, it scans the local or remote cluster state and
+saves it to files which can later be reused by the other roles.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hinfo</span></tt>, it prints information about the current cluster
+state.</p>
+<p>Installed as <tt class="docutils literal"><span class="pre">hroller</span></tt>, it helps scheduling maintenances that require
+node reboots on a cluster.</p>
+</div>
+<div class="section" id="common-options">
+<h2>COMMON OPTIONS<a class="headerlink" href="#common-options" title="Permalink to this headline">¶</a></h2>
+<p>Options behave the same in all program modes, but not all program modes
+support all options. Some common options are:</p>
+<dl class="docutils">
+<dt>-p, &#8211;print-nodes</dt>
+<dd><p class="first">Prints the node status, in a format designed to allow the user to
+understand the node&#8217;s most important parameters. If the command in
+question makes a cluster transition (e.g. balancing or allocation),
+then usually both the initial and final node status is printed.</p>
+<p>It is possible to customise the listed information by passing a
+comma-separated list of field names to this option (the field list
+is currently undocumented), or to extend the default field list by
+prefixing the additional field list with a plus sign. By default,
+the node list will contain the following information:</p>
+<dl class="last docutils">
+<dt>F</dt>
+<dd>a character denoting the status of the node, with &#8216;-&#8216; meaning an
+offline node, &#8216;*&#8217; meaning N+1 failure and blank meaning a good
+node</dd>
+<dt>Name</dt>
+<dd>the node name</dd>
+<dt>t_mem</dt>
+<dd>the total node memory</dd>
+<dt>n_mem</dt>
+<dd>the memory used by the node itself</dd>
+<dt>i_mem</dt>
+<dd>the memory used by instances</dd>
+<dt>x_mem</dt>
+<dd>amount memory which seems to be in use but cannot be determined
+why or by which instance; usually this means that the hypervisor
+has some overhead or that there are other reporting errors</dd>
+<dt>f_mem</dt>
+<dd>the free node memory</dd>
+<dt>r_mem</dt>
+<dd>the reserved node memory, which is the amount of free memory
+needed for N+1 compliance</dd>
+<dt>t_dsk</dt>
+<dd>total disk</dd>
+<dt>f_dsk</dt>
+<dd>free disk</dd>
+<dt>pcpu</dt>
+<dd>the number of physical cpus on the node</dd>
+<dt>vcpu</dt>
+<dd>the number of virtual cpus allocated to primary instances</dd>
+<dt>pcnt</dt>
+<dd>number of primary instances</dd>
+<dt>scnt</dt>
+<dd>number of secondary instances</dd>
+<dt>p_fmem</dt>
+<dd>percent of free memory</dd>
+<dt>p_fdsk</dt>
+<dd>percent of free disk</dd>
+<dt>r_cpu</dt>
+<dd>ratio of virtual to physical cpus</dd>
+<dt>lCpu</dt>
+<dd>the dynamic CPU load (if the information is available)</dd>
+<dt>lMem</dt>
+<dd>the dynamic memory load (if the information is available)</dd>
+<dt>lDsk</dt>
+<dd>the dynamic disk load (if the information is available)</dd>
+<dt>lNet</dt>
+<dd>the dynamic net load (if the information is available)</dd>
+</dl>
+</dd>
+<dt>-t <em>datafile</em>, &#8211;text-data=*datafile*</dt>
+<dd><p class="first">Backend specification: the name of the file holding node and instance
+information (if not collecting via RAPI or LUXI). This or one of the
+other backends must be selected. The option is described in the man
+page <strong>htools</strong>(1).</p>
+<p>The file should contain text data, line-based, with single empty lines
+separating sections. The lines themselves are column-based, with the
+pipe symbol (<tt class="docutils literal"><span class="pre">|</span></tt>) acting as separator.</p>
+<p>The first section contains group data, with the following columns:</p>
+<ul class="simple">
+<li>group name</li>
+<li>group uuid</li>
+<li>allocation policy</li>
+<li>tags (separated by comma)</li>
+<li>networks (UUID&#8217;s, separated by comma)</li>
+</ul>
+<p>The second sections contains node data, with the following columns:</p>
+<ul class="simple">
+<li>node name</li>
+<li>node total memory</li>
+<li>memory used by the node</li>
+<li>node free memory</li>
+<li>node total disk</li>
+<li>node free disk</li>
+<li>node physical cores</li>
+<li>offline/role field (<tt class="docutils literal"><span class="pre">Y</span></tt> for offline nodes, <tt class="docutils literal"><span class="pre">N</span></tt> for online non-master
+nodes, and <tt class="docutils literal"><span class="pre">M</span></tt> for the master node which is always online)</li>
+<li>group UUID</li>
+<li>node spindle count</li>
+<li>node tags</li>
+<li>exclusive storage value (<tt class="docutils literal"><span class="pre">Y</span></tt> if active, <tt class="docutils literal"><span class="pre">N</span></tt> otherwise)</li>
+<li>node free spindles</li>
+<li>virtual CPUs used by the node OS</li>
+</ul>
+<p>The third section contains instance data, with the fields:</p>
+<ul class="simple">
+<li>instance name</li>
+<li>instance memory</li>
+<li>instance disk size</li>
+<li>instance vcpus</li>
+<li>instance status (in Ganeti&#8217;s format, e.g. <tt class="docutils literal"><span class="pre">running</span></tt> or <tt class="docutils literal"><span class="pre">ERROR_down</span></tt>)</li>
+<li>instance <tt class="docutils literal"><span class="pre">auto_balance</span></tt> flag (see man page <strong>gnt-instance</strong>(8))</li>
+<li>instance primary node</li>
+<li>instance secondary node(s), if any</li>
+<li>instance disk type (e.g. <tt class="docutils literal"><span class="pre">plain</span></tt> or <tt class="docutils literal"><span class="pre">drbd</span></tt>)</li>
+<li>instance tags</li>
+<li>spindle use back-end parameter</li>
+<li>actual disk spindles used by the instance (it can be <tt class="docutils literal"><span class="pre">-</span></tt> when
+exclusive storage is not active)</li>
+</ul>
+<p>The fourth section contains the cluster tags, with one tag per line
+(no columns/no column processing).</p>
+<p>The fifth section contains the ipolicies of the cluster and the node
+groups, in the following format (separated by <tt class="docutils literal"><span class="pre">|</span></tt>):</p>
+<ul class="last simple">
+<li>owner (empty if cluster, group name otherwise)</li>
+<li>standard, min, max instance specs; min and max instance specs are
+separated between them by a semicolon, and can be specified multiple
+times (min;max;min;max...); each of the specs contains the following
+values separated by commas:
+- memory size
+- cpu count
+- disk size
+- disk count
+- NIC count</li>
+<li>disk templates</li>
+<li>vcpu ratio</li>
+<li>spindle ratio</li>
+</ul>
+</dd>
+<dt>-m <em>cluster</em></dt>
+<dd>Backend specification: collect data directly from the <em>cluster</em> given
+as an argument via RAPI. If the argument doesn&#8217;t contain a colon (:),
+then it is converted into a fully-built URL via prepending
+<tt class="docutils literal"><span class="pre">https://</span></tt> and appending the default RAPI port, otherwise it is
+considered a fully-specified URL and used as-is.</dd>
+<dt>-L [<em>path</em>]</dt>
+<dd>Backend specification: collect data directly from the master daemon,
+which is to be contacted via LUXI (an internal Ganeti protocol). An
+optional <em>path</em> argument is interpreted as the path to the unix socket
+on which the master daemon listens; otherwise, the default path used
+by Ganeti (configured at build time) is used.</dd>
+<dt>-I|&#8211;ialloc-src <em>path</em></dt>
+<dd>Backend specification: load data directly from an iallocator request
+(as produced by Ganeti when doing an iallocator call).  The iallocator
+request is read from specified path.</dd>
+<dt>&#8211;simulate <em>description</em></dt>
+<dd><p class="first">Backend specification: instead of using actual data, build an empty
+cluster given a node description. The <em>description</em> parameter must be
+a comma-separated list of five elements, describing in order:</p>
+<ul class="simple">
+<li>the allocation policy for this node group (<em>preferred</em>, <em>allocable</em>
+or <em>unallocable</em>, or alternatively the short forms <em>p</em>, <em>a</em> or <em>u</em>)</li>
+<li>the number of nodes in the cluster</li>
+<li>the disk size of the nodes (default in mebibytes, units can be used)</li>
+<li>the memory size of the nodes (default in mebibytes, units can be used)</li>
+<li>the cpu core count for the nodes</li>
+<li>the spindle count for the nodes</li>
+</ul>
+<p>An example description would be <strong>preferred,20,100G,16g,4,2</strong>
+describing a 20-node cluster where each node has 100GB of disk space,
+16GiB of memory, 4 CPU cores and 2 disk spindles. Note that all nodes
+must have the same specs currently.</p>
+<p class="last">This option can be given multiple times, and each new use defines a
+new node group. Hence different node groups can have different
+allocation policies and node count/specifications.</p>
+</dd>
+<dt>-v, &#8211;verbose</dt>
+<dd>Increase the output verbosity. Each usage of this option will
+increase the verbosity (currently more than 2 doesn&#8217;t make sense)
+from the default of one.</dd>
+<dt>-q, &#8211;quiet</dt>
+<dd>Decrease the output verbosity. Each usage of this option will
+decrease the verbosity (less than zero doesn&#8217;t make sense) from the
+default of one.</dd>
+<dt>-V, &#8211;version</dt>
+<dd>Just show the program version and exit.</dd>
+</dl>
+<div class="section" id="units">
+<h3>UNITS<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h3>
+<p>Some options accept not simply numerical values, but numerical values
+together with a unit. By default, such unit-accepting options use
+mebibytes. Using the lower-case letters of <em>m</em>, <em>g</em> and <em>t</em> (or their
+longer equivalents of <em>mib</em>, <em>gib</em>, <em>tib</em>, for which case doesn&#8217;t
+matter) explicit binary units can be selected. Units in the SI system
+can be selected using the upper-case letters of <em>M</em>, <em>G</em> and <em>T</em> (or
+their longer equivalents of <em>MB</em>, <em>GB</em>, <em>TB</em>, for which case doesn&#8217;t
+matter).</p>
+<p>More details about the difference between the SI and binary systems can
+be read in the <strong>units</strong>(7) man page.</p>
+</div>
+</div>
+<div class="section" id="environment">
+<h2>ENVIRONMENT<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<p>The environment variable <tt class="docutils literal"><span class="pre">HTOOLS</span></tt> can be used instead of
+renaming/symlinking the programs; simply set it to the desired role and
+then the name of the program is no longer used.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">htools</a><ul>
+<li><a class="reference internal" href="#name">NAME</a></li>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#common-options">COMMON OPTIONS</a><ul>
+<li><a class="reference internal" href="#units">UNITS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#environment">ENVIRONMENT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-hspace.html"
+                        title="previous chapter">hspace</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-mon-collector.html"
+                        title="next chapter">mon-collector</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-htools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-mon-collector.html" title="mon-collector"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-hspace.html" title="hspace"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.9.7 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

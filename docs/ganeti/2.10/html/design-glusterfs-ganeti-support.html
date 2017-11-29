@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GlusterFS Ganeti support &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Huge Pages Support for Ganeti" href="design-hugepages-support.html" />
+    <link rel="prev" title="Detection of user-initiated shutdown from inside an instance" href="design-internal-shutdown.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-internal-shutdown.html" title="Detection of user-initiated shutdown from inside an instance"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="glusterfs-ganeti-support">
+<h1><a class="toc-backref" href="#id1">GlusterFS Ganeti support</a><a class="headerlink" href="#glusterfs-ganeti-support" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the plan for adding GlusterFS support inside Ganeti.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#glusterfs-ganeti-support" id="id1">GlusterFS Ganeti support</a><ul>
+<li><a class="reference internal" href="#objective" id="id2">Objective</a></li>
+<li><a class="reference internal" href="#background" id="id3">Background</a></li>
+<li><a class="reference internal" href="#implementation-plan" id="id4">Implementation Plan</a><ul>
+<li><a class="reference internal" href="#ganeti-side" id="id5">Ganeti Side</a></li>
+<li><a class="reference internal" href="#glusterfs-side" id="id6">GlusterFS side</a></li>
+<li><a class="reference internal" href="#proposed-implementation" id="id7">Proposed implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="objective">
+<h2><a class="toc-backref" href="#id2">Objective</a><a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>The aim is to let Ganeti support GlusterFS as one of its backend storage.
+This includes three aspects to finish:</p>
+<ul class="simple">
+<li>Add Gluster as a storage backend.</li>
+<li>Make sure Ganeti VMs can use GlusterFS backends in userspace mode (for
+newer QEMU/KVM which has this support) and otherwise, if possible, through
+some kernel exported block device.</li>
+<li>Make sure Ganeti can configure GlusterFS by itself, by just joining
+storage space on new nodes to a GlusterFS nodes pool. Note that this
+may need another design document that explains how it interacts with
+storage pools, and that the node might or might not host VMs as well.</li>
+</ul>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id3">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>There are two possible ways to implement &#8220;GlusterFS Ganeti Support&#8221;. One is
+GlusterFS as one of external backend storage, the other one is realizing
+GlusterFS inside Ganeti, that is, as a new disk type for Ganeti. The benefit
+of the latter one is that it would not be opaque but fully supported and
+integrated in Ganeti, which would not need to add infrastructures for
+testing/QAing and such. Having it internal we can also provide a monitoring
+agent for it and more visibility into what&#8217;s going on. For these reasons,
+GlusterFS support will be added directly inside Ganeti.</p>
+</div>
+<div class="section" id="implementation-plan">
+<h2><a class="toc-backref" href="#id4">Implementation Plan</a><a class="headerlink" href="#implementation-plan" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ganeti-side">
+<h3><a class="toc-backref" href="#id5">Ganeti Side</a><a class="headerlink" href="#ganeti-side" title="Permalink to this headline">¶</a></h3>
+<p>To realize an internal storage backend for Ganeti, one should realize
+BlockDev class in <cite>ganeti/lib/storage/base.py</cite> that is a specific
+class including create, remove and such. These functions should be
+realized in <cite>ganeti/lib/storage/bdev.py</cite>. Actually, the differences
+between implementing inside and outside (external) Ganeti are how to
+finish these functions in BlockDev class and how to combine with Ganeti
+itself. The internal implementation is not based on external scripts
+and combines with Ganeti in a more compact way. RBD patches may be a
+good reference here. Adding a backend storage steps are as follows:</p>
+<ul class="simple">
+<li>Implement the BlockDev interface in bdev.py.</li>
+<li>Add the logic in cmdlib (eg, migration, verify).</li>
+<li>Add the new storage type name to constants.</li>
+<li>Modify objects.Disk to support GlusterFS storage type.</li>
+<li>The implementation will be performed similarly to the RBD one (see
+commit 7181fba).</li>
+</ul>
+</div>
+<div class="section" id="glusterfs-side">
+<h3><a class="toc-backref" href="#id6">GlusterFS side</a><a class="headerlink" href="#glusterfs-side" title="Permalink to this headline">¶</a></h3>
+<p>GlusterFS is a distributed file system implemented in user space.
+The way to access GlusterFS namespace is via FUSE based Gluster native
+client except NFS and CIFS. The efficiency of this way is lower because
+the data would be pass the kernel space and then come to user space.
+Now, there are two specific enhancements:</p>
+<ul class="simple">
+<li>A new library called libgfapi is now available as part of GlusterFS
+that provides POSIX-like C APIs for accessing Gluster volumes.
+libgfapi support will be available from GlusterFS-3.4 release.</li>
+<li>QEMU/KVM (starting from QEMU-1.3) will have GlusterFS block driver that
+uses libgfapi and hence there is no FUSE overhead any longer when QEMU/KVM
+works with VM images on Gluster volumes.</li>
+</ul>
+</div>
+<div class="section" id="proposed-implementation">
+<h3><a class="toc-backref" href="#id7">Proposed implementation</a><a class="headerlink" href="#proposed-implementation" title="Permalink to this headline">¶</a></h3>
+<p>QEMU/KVM includes support for GlusterFS and Ganeti could support GlusterFS
+through QEMU/KVM. However, this way could just let VMs of QEMU/KVM use GlusterFS
+backend storage but not other VMs like XEN and such. There are two parts that need
+to be implemented for supporting GlusterFS inside Ganeti so that it can not only
+support QEMU/KVM VMs, but also XEN and other VMs. One part is GlusterFS for XEN VM,
+which is similar to sharedfile disk template. The other part is GlusterFS for
+QEMU/KVM VM, which is supported by the GlusterFS driver for QEMU/KVM. After
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">add</span> <span class="pre">-t</span> <span class="pre">gluster</span> <span class="pre">instance.example.com</span></tt> command is executed, the added
+instance should be checked. If the instance is a XEN VM, it would run the GlusterFS
+sharedfile way. However, if the instance is a QEMU/KVM VM, it would run the
+QEMU/KVM + GlusterFS way. For the first part (GlusterFS for XEN VMs), sharedfile
+disk template would be a good reference. For the second part (GlusterFS for QEMU/KVM
+VMs), RBD disk template would be a good reference. The first part would be finished
+at first and then the second part would be completed, which is based on the first
+part.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GlusterFS Ganeti support</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#implementation-plan">Implementation Plan</a><ul>
+<li><a class="reference internal" href="#ganeti-side">Ganeti Side</a></li>
+<li><a class="reference internal" href="#glusterfs-side">GlusterFS side</a></li>
+<li><a class="reference internal" href="#proposed-implementation">Proposed implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-internal-shutdown.html"
+                        title="previous chapter">Detection of user-initiated shutdown from inside an instance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-hugepages-support.html"
+                        title="next chapter">Huge Pages Support for Ganeti</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-glusterfs-ganeti-support.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-internal-shutdown.html" title="Detection of user-initiated shutdown from inside an instance"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

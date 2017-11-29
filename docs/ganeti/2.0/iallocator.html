@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<title>Ganeti automatic instance allocation</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="ganeti-automatic-instance-allocation">
+<h1 class="title">Ganeti automatic instance allocation</h1>
+
+<p>Documents Ganeti version 2.0</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#introduction" id="id3">Introduction</a><ul>
+<li><a class="reference internal" href="#user-visible-changes" id="id4">User-visible changes</a></li>
+<li><a class="reference internal" href="#cluster-configuration" id="id5">Cluster configuration</a></li>
+<li><a class="reference internal" href="#command-line-interface-changes" id="id6">Command line interface changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iallocator-api" id="id7">IAllocator API</a><ul>
+<li><a class="reference internal" href="#input-message" id="id8">Input message</a></li>
+<li><a class="reference internal" href="#response-message" id="id9">Response message</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id10">Examples</a><ul>
+<li><a class="reference internal" href="#input-messages-to-scripts" id="id11">Input messages to scripts</a></li>
+<li><a class="reference internal" href="#response-messages" id="id12">Response messages</a></li>
+<li><a class="reference internal" href="#command-line-messages" id="id13">Command line messages</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h1><a class="toc-backref" href="#id3">Introduction</a></h1>
+<p>Currently in Ganeti the admin has to specify the exact locations for
+an instance's node(s). This prevents a completely automatic node
+evacuation, and is in general a nuisance.</p>
+<p>The <em>iallocator</em> framework will enable automatic placement via
+external scripts, which allows customization of the cluster layout per
+the site's requirements.</p>
+<div class="section" id="user-visible-changes">
+<h2><a class="toc-backref" href="#id4">User-visible changes</a></h2>
+<p>There are two parts of the ganeti operation that are impacted by the
+auto-allocation: how the cluster knows what the allocator algorithms
+are and how the admin uses these in creating instances.</p>
+<p>An allocation algorithm is just the filename of a program installed in
+a defined list of directories.</p>
+</div>
+<div class="section" id="cluster-configuration">
+<h2><a class="toc-backref" href="#id5">Cluster configuration</a></h2>
+<p>At configure time, the list of the directories can be selected via the
+<tt class="docutils literal"><span class="pre">--with-iallocator-search-path=LIST</span></tt> option, where <em>LIST</em> is a
+comma-separated list of directories. If not given, this defaults to
+<tt class="docutils literal">$libdir/ganeti/iallocators</tt>, i.e. for an installation under
+<tt class="docutils literal">/usr</tt>, this will be <tt class="docutils literal">/usr/lib/ganeti/iallocators</tt>.</p>
+<p>Ganeti will then search for allocator script in the configured list,
+using the first one whose filename matches the one given by the user.</p>
+</div>
+<div class="section" id="command-line-interface-changes">
+<h2><a class="toc-backref" href="#id6">Command line interface changes</a></h2>
+<p>The node selection options in instanece add and instance replace disks
+can be replace by the new <tt class="docutils literal"><span class="pre">--iallocator=NAME</span></tt> option (shortened to
+<tt class="docutils literal"><span class="pre">-I</span></tt>), which will cause the auto-assignement of nodes with the
+passed iallocator. The selected node(s) will be show as part of the
+command output.</p>
+</div>
+</div>
+<div class="section" id="iallocator-api">
+<h1><a class="toc-backref" href="#id7">IAllocator API</a></h1>
+<p>The protocol for communication between Ganeti and an allocator script
+will be the following:</p>
+<ol class="arabic simple">
+<li>ganeti launches the program with a single argument, a filename that
+contains a JSON-encoded structure (the input message)</li>
+<li>if the script finishes with exit code different from zero, it is
+considered a general failure and the full output will be reported to
+the users; this can be the case when the allocator can't parse the
+input message</li>
+<li>if the allocator finishes with exit code zero, it is expected to
+output (on its stdout) a JSON-encoded structure (the response)</li>
+</ol>
+<div class="section" id="input-message">
+<h2><a class="toc-backref" href="#id8">Input message</a></h2>
+<p>The input message will be the JSON encoding of a dictionary containing
+the following:</p>
+<dl class="docutils">
+<dt>version</dt>
+<dd>the version of the protocol; this document
+specifies version 2</dd>
+<dt>cluster_name</dt>
+<dd>the cluster name</dd>
+<dt>cluster_tags</dt>
+<dd>the list of cluster tags</dd>
+<dt>enabled_hypervisors</dt>
+<dd>the list of enabled hypervisors</dd>
+<dt>request</dt>
+<dd><p class="first">a dictionary containing the request data:</p>
+<dl class="docutils">
+<dt>type</dt>
+<dd>the request type; this can be either <tt class="docutils literal">allocate</tt> or <tt class="docutils literal">relocate</tt>;
+the <tt class="docutils literal">allocate</tt> request is used when a new instance needs to be
+placed on the cluster, while the <tt class="docutils literal">relocate</tt> request is used when
+an existing instance needs to be moved within the cluster</dd>
+<dt>name</dt>
+<dd>the name of the instance; if the request is a realocation, then
+this name will be found in the list of instances (see below),
+otherwise is the FQDN of the new instance</dd>
+<dt>required_nodes</dt>
+<dd>how many nodes should the algorithm return; while this information
+can be deduced from the instace's disk template, it's better if
+this computation is left to Ganeti as then allocator scripts are
+less sensitive to changes to the disk templates</dd>
+<dt>disk_space_total</dt>
+<dd>the total disk space that will be used by this instance on the
+(new) nodes; again, this information can be computed from the list
+of instance disks and its template type, but Ganeti is better
+suited to compute it</dd>
+</dl>
+<p>If the request is an allocation, then there are extra fields in the
+request dictionary:</p>
+<dl class="docutils">
+<dt>disks</dt>
+<dd><p class="first">list of dictionaries holding the disk definitions for this
+instance (in the order they are exported to the hypervisor):</p>
+<dl class="last docutils">
+<dt>mode</dt>
+<dd>either <tt class="docutils literal">r</tt> or <tt class="docutils literal">w</tt> denoting if the disk is read-only or
+writable</dd>
+<dt>size</dt>
+<dd>the size of this disk in mebibytes</dd>
+</dl>
+</dd>
+<dt>nics</dt>
+<dd><p class="first">a list of dictionaries holding the network interfaces for this
+instance, containing:</p>
+<dl class="last docutils">
+<dt>ip</dt>
+<dd>the IP address that Ganeti know for this instance, or null</dd>
+<dt>mac</dt>
+<dd>the MAC address for this interface</dd>
+<dt>bridge</dt>
+<dd>the bridge to which this interface will be connected</dd>
+</dl>
+</dd>
+<dt>vcpus</dt>
+<dd>the number of VCPUs for the instance</dd>
+<dt>disk_template</dt>
+<dd>the disk template for the instance</dd>
+<dt>memory</dt>
+<dd>the memory size for the instance</dd>
+<dt>os</dt>
+<dd>the OS type for the instance</dd>
+<dt>tags</dt>
+<dd>the list of the instance's tags</dd>
+<dt>hypervisor</dt>
+<dd>the hypervisor of this instance</dd>
+</dl>
+<p class="last">If the request is of type relocate, then there is one more entry in
+the request dictionary, named <tt class="docutils literal">relocate_from</tt>, and it contains a
+list of nodes to move the instance away from; note that with Ganeti
+2.0, this list will always contain a single node, the current
+secondary of the instance.</p>
+</dd>
+<dt>instances</dt>
+<dd><p class="first">a dictionary with the data for the current existing instance on the
+cluster, indexed by instance name; the contents are similar to the
+instance definitions for the allocate mode, with the addition of:</p>
+<dl class="last docutils">
+<dt>admin_up</dt>
+<dd>if this instance is set to run (but not the actual status of the
+instance)</dd>
+<dt>nodes</dt>
+<dd>list of nodes on which this instance is placed; the primary node
+of the instance is always the first one</dd>
+</dl>
+</dd>
+<dt>nodes</dt>
+<dd><p class="first">dictionary with the data for the nodes in the cluster, indexed by
+the node name; the dict contains <a class="footnote-reference" href="#id2" id="id1">[*]</a> :</p>
+<dl class="docutils">
+<dt>total_disk</dt>
+<dd>the total disk size of this node (mebibytes)</dd>
+<dt>free_disk</dt>
+<dd>the free disk space on the node</dd>
+<dt>total_memory</dt>
+<dd>the total memory size</dd>
+<dt>free_memory</dt>
+<dd>free memory on the node; note that currently this does not take
+into account the instances which are down on the node</dd>
+<dt>total_cpus</dt>
+<dd>the physical number of CPUs present on the machine; depending on
+the hypervisor, this might or might not be equal to how many CPUs
+the node operating system sees;</dd>
+<dt>primary_ip</dt>
+<dd>the primary IP address of the node</dd>
+<dt>secondary_ip</dt>
+<dd>the secondary IP address of the node (the one used for the DRBD
+replication); note that this can be the same as the primary one</dd>
+<dt>tags</dt>
+<dd>list with the tags of the node</dd>
+<dt>master_candidate:</dt>
+<dd>a boolean flag denoting whether this node is a master candidate</dd>
+<dt>drained:</dt>
+<dd>a boolean flag denoting whether this node is being drained</dd>
+<dt>offline:</dt>
+<dd>a boolean flag denoting whether this node is offline</dd>
+<dt>i_pri_memory:</dt>
+<dd>total memory required by primary instances</dd>
+<dt>i_pri_up_memory:</dt>
+<dd>total memory required by running primary instances</dd>
+</dl>
+<p class="last">No allocations should be made on nodes having either the <tt class="docutils literal">drained</tt>
+or <tt class="docutils literal">offline</tt> flags set. More details about these of node status
+flags is available in the manpage <em>ganeti(7)</em>.</p>
+</dd>
+</dl>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>Note that no run-time data is present for offline or drained nodes;
+this means the tags total_memory, reserved_memory, free_memory, total_disk,
+free_disk, total_cpus, i_pri_memory and i_pri_up memory will be absent</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="response-message">
+<h2><a class="toc-backref" href="#id9">Response message</a></h2>
+<p>The response message is much more simple than the input one. It is
+also a dict having three keys:</p>
+<dl class="docutils">
+<dt>success</dt>
+<dd>a boolean value denoting if the allocation was successful or not</dd>
+<dt>info</dt>
+<dd>a string with information from the scripts; if the allocation fails,
+this will be shown to the user</dd>
+<dt>nodes</dt>
+<dd>the list of nodes computed by the algorithm; even if the algorithm
+failed (i.e. success is false), this must be returned as an empty
+list; also note that the length of this list must equal the
+<tt class="docutils literal">requested_nodes</tt> entry in the input message, otherwise Ganeti
+will consider the result as failed</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="examples">
+<h1><a class="toc-backref" href="#id10">Examples</a></h1>
+<div class="section" id="input-messages-to-scripts">
+<h2><a class="toc-backref" href="#id11">Input messages to scripts</a></h2>
+<p>Input message, new instance allocation:</p>
+<pre class="literal-block">
+{
+  &quot;cluster_tags&quot;: [],
+  &quot;request&quot;: {
+    &quot;required_nodes&quot;: 2,
+    &quot;name&quot;: &quot;instance3.example.com&quot;,
+    &quot;tags&quot;: [
+      &quot;type:test&quot;,
+      &quot;owner:foo&quot;
+    ],
+    &quot;type&quot;: &quot;allocate&quot;,
+    &quot;disks&quot;: [
+      {
+        &quot;mode&quot;: &quot;w&quot;,
+        &quot;size&quot;: 1024
+      },
+      {
+        &quot;mode&quot;: &quot;w&quot;,
+        &quot;size&quot;: 2048
+      }
+    ],
+    &quot;nics&quot;: [
+      {
+        &quot;ip&quot;: null,
+        &quot;mac&quot;: &quot;00:11:22:33:44:55&quot;,
+        &quot;bridge&quot;: null
+      }
+    ],
+    &quot;vcpus&quot;: 1,
+    &quot;disk_template&quot;: &quot;drbd&quot;,
+    &quot;memory&quot;: 2048,
+    &quot;disk_space_total&quot;: 3328,
+    &quot;os&quot;: &quot;etch-image&quot;
+  },
+  &quot;cluster_name&quot;: &quot;cluster1.example.com&quot;,
+  &quot;instances&quot;: {
+    &quot;instance1.example.com&quot;: {
+      &quot;tags&quot;: [],
+      &quot;should_run&quot;: false,
+      &quot;disks&quot;: [
+        {
+          &quot;mode&quot;: &quot;w&quot;,
+          &quot;size&quot;: 64
+        },
+        {
+          &quot;mode&quot;: &quot;w&quot;,
+          &quot;size&quot;: 512
+        }
+      ],
+      &quot;nics&quot;: [
+        {
+          &quot;ip&quot;: null,
+          &quot;mac&quot;: &quot;aa:00:00:00:60:bf&quot;,
+          &quot;bridge&quot;: &quot;xen-br0&quot;
+        }
+      ],
+      &quot;vcpus&quot;: 1,
+      &quot;disk_template&quot;: &quot;plain&quot;,
+      &quot;memory&quot;: 128,
+      &quot;nodes&quot;: [
+        &quot;nodee1.com&quot;
+      ],
+      &quot;os&quot;: &quot;etch-image&quot;
+    },
+    &quot;instance2.example.com&quot;: {
+      &quot;tags&quot;: [],
+      &quot;should_run&quot;: false,
+      &quot;disks&quot;: [
+        {
+          &quot;mode&quot;: &quot;w&quot;,
+          &quot;size&quot;: 512
+        },
+        {
+          &quot;mode&quot;: &quot;w&quot;,
+          &quot;size&quot;: 256
+        }
+      ],
+      &quot;nics&quot;: [
+        {
+          &quot;ip&quot;: null,
+          &quot;mac&quot;: &quot;aa:00:00:55:f8:38&quot;,
+          &quot;bridge&quot;: &quot;xen-br0&quot;
+        }
+      ],
+      &quot;vcpus&quot;: 1,
+      &quot;disk_template&quot;: &quot;drbd&quot;,
+      &quot;memory&quot;: 512,
+      &quot;nodes&quot;: [
+        &quot;node2.example.com&quot;,
+        &quot;node3.example.com&quot;
+      ],
+      &quot;os&quot;: &quot;etch-image&quot;
+    }
+  },
+  &quot;version&quot;: 1,
+  &quot;nodes&quot;: {
+    &quot;node1.example.com&quot;: {
+      &quot;total_disk&quot;: 858276,
+      &quot;primary_ip&quot;: &quot;192.168.1.1&quot;,
+      &quot;secondary_ip&quot;: &quot;192.168.2.1&quot;,
+      &quot;tags&quot;: [],
+      &quot;free_memory&quot;: 3505,
+      &quot;free_disk&quot;: 856740,
+      &quot;total_memory&quot;: 4095
+    },
+    &quot;node2.example.com&quot;: {
+      &quot;total_disk&quot;: 858240,
+      &quot;primary_ip&quot;: &quot;192.168.1.3&quot;,
+      &quot;secondary_ip&quot;: &quot;192.168.2.3&quot;,
+      &quot;tags&quot;: [&quot;test&quot;],
+      &quot;free_memory&quot;: 3505,
+      &quot;free_disk&quot;: 848320,
+      &quot;total_memory&quot;: 4095
+    },
+    &quot;node3.example.com.com&quot;: {
+      &quot;total_disk&quot;: 572184,
+      &quot;primary_ip&quot;: &quot;192.168.1.3&quot;,
+      &quot;secondary_ip&quot;: &quot;192.168.2.3&quot;,
+      &quot;tags&quot;: [],
+      &quot;free_memory&quot;: 3505,
+      &quot;free_disk&quot;: 570648,
+      &quot;total_memory&quot;: 4095
+    }
+  }
+}
+</pre>
+<p>Input message, reallocation. Since only the request entry in the input
+message is changed, we show only this changed entry:</p>
+<pre class="literal-block">
+&quot;request&quot;: {
+  &quot;relocate_from&quot;: [
+    &quot;node3.example.com&quot;
+  ],
+  &quot;required_nodes&quot;: 1,
+  &quot;type&quot;: &quot;relocate&quot;,
+  &quot;name&quot;: &quot;instance2.example.com&quot;,
+  &quot;disk_space_total&quot;: 832
+},
+</pre>
+</div>
+<div class="section" id="response-messages">
+<h2><a class="toc-backref" href="#id12">Response messages</a></h2>
+<p>Successful response message:</p>
+<pre class="literal-block">
+{
+  &quot;info&quot;: &quot;Allocation successful&quot;,
+  &quot;nodes&quot;: [
+    &quot;node2.example.com&quot;,
+    &quot;node1.example.com&quot;
+  ],
+  &quot;success&quot;: true
+}
+</pre>
+<p>Failed response message:</p>
+<pre class="literal-block">
+{
+  &quot;info&quot;: &quot;Can't find a suitable node for position 2 (already selected: node2.example.com)&quot;,
+  &quot;nodes&quot;: [],
+  &quot;success&quot;: false
+}
+</pre>
+</div>
+<div class="section" id="command-line-messages">
+<h2><a class="toc-backref" href="#id13">Command line messages</a></h2>
+<pre class="literal-block">
+# gnt-instance add -t plain -m 2g --os-size 1g --swap-size 512m --iallocator dumb-allocator -o etch-image instance3
+Selected nodes for the instance: node1.example.com
+* creating instance disks...
+[...]
+
+# gnt-instance add -t plain -m 3400m --os-size 1g --swap-size 512m --iallocator dumb-allocator -o etch-image instance4
+Failure: prerequisites not met for this operation:
+Can't compute nodes using iallocator 'dumb-allocator': Can't find a suitable node for position 1 (already selected: )
+
+# gnt-instance add -t drbd -m 1400m --os-size 1g --swap-size 512m --iallocator dumb-allocator -o etch-image instance5
+Failure: prerequisites not met for this operation:
+Can't compute nodes using iallocator 'dumb-allocator': Can't find a suitable node for position 2 (already selected: node1.example.com)
+</pre>
+</div>
+</div>
+</div>
+</body>
+</html>

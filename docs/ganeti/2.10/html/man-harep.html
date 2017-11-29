@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>harep &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="hbal" href="man-hbal.html" />
+    <link rel="prev" title="hail" href="man-hail.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-hbal.html" title="hbal"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-hail.html" title="hail"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="harep">
+<h1>harep<a class="headerlink" href="#harep" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>harep - Ganeti auto-repair tool</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>harep</strong> [ [<strong>-L</strong> | <strong>&#8211;luxi</strong> ] = <em>socket</em> ] [ &#8211;job-delay = <em>seconds</em> ]</p>
+<p><strong>harep</strong> &#8211;version</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Harep is the Ganeti auto-repair tool. It is able to detect that an instance is
+broken and to generate a sequence of jobs that will fix it, in accordance to the
+policies set by the administrator.</p>
+<p>Harep is able to recognize what state an instance is in (healthy, suspended,
+needs repair, repair disallowed, pending repair, repair disallowed, repair
+failed) and to lead it through a sequence of steps that will bring the instance
+back to the healthy state. Therefore, harep is mainly meant to be run regularly
+and frequently using a cron job, so that is can actually follow the instance
+along all the process. At every run, harep will update the tags it adds to
+instances that describe its repair status, and will submit jobs that actually
+perform the required repair operations.</p>
+<p>By default, harep only reports on the health status of instances, but doesn&#8217;t
+perform any action, as they might be potentially dangerous. Therefore, harep
+will only touch instances that it has been explicitly authorized to work on.</p>
+<p>The tags enabling harep, can be associated to single instances, or to a
+nodegroup or to the whole cluster, therefore affecting all the instances they
+contain. The possible tags share the common structure:</p>
+<div class="highlight-python"><pre>ganeti:watcher:autorepair:&lt;type&gt;</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">&lt;type&gt;</span></tt> can have the following values:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">fix-storage</span></tt>: allow disk replacement or fix the backend without affecting the instance
+itself (broken DRBD secondary)</li>
+<li><tt class="docutils literal"><span class="pre">migrate</span></tt>: allow instance migration</li>
+<li><tt class="docutils literal"><span class="pre">failover</span></tt>: allow instance reboot on the secondary</li>
+<li><tt class="docutils literal"><span class="pre">reinstall</span></tt>: allow disks to be recreated and the instance to be reinstalled</li>
+</ul>
+<p>Each element in the list of tags, includes all the authorizations of the
+previous one, with <tt class="docutils literal"><span class="pre">fix-storage</span></tt> being the least powerful and <tt class="docutils literal"><span class="pre">reinstall</span></tt>
+being the most powerful.</p>
+<p>In case multiple autorepair tags act on the same instance, only one can actually
+be active. The conflict is solved according to the following rules:</p>
+<ol class="arabic simple">
+<li>if multiple tags are in the same object, the least destructive takes
+precedence.</li>
+<li>if the tags are across objects, the nearest tag wins.</li>
+</ol>
+<p>Example:
+A cluster has instances I1 and I2, where I1 has the <tt class="docutils literal"><span class="pre">failover</span></tt> tag, and
+the cluster has both <tt class="docutils literal"><span class="pre">fix-storage</span></tt> and <tt class="docutils literal"><span class="pre">reinstall</span></tt>.
+The I1 instance will be allowed to <tt class="docutils literal"><span class="pre">failover</span></tt>, the I2 instance only to
+<tt class="docutils literal"><span class="pre">fix-storage</span></tt>.</p>
+</div>
+<div class="section" id="limitations">
+<h2>LIMITATIONS<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<p>Harep doesn&#8217;t do any hardware failure detection on its own, it relies on
+nodes being marked as offline by the administrator.</p>
+<p>Also harep currently works only for instances with the <tt class="docutils literal"><span class="pre">drbd</span></tt> and
+<tt class="docutils literal"><span class="pre">plain</span></tt> disk templates.</p>
+<p>Both these issues will be addressed by a new maintenance daemon in
+future Ganeti versions, which will supersede harep.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p>The options that can be passed to the program are as follows:</p>
+<dl class="docutils">
+<dt>-L <em>socket</em>, &#8211;luxi=*socket*</dt>
+<dd>collect data via Luxi, optionally using the given <em>socket</em> path.</dd>
+<dt>&#8211;job-delay=*seconds*</dt>
+<dd>insert this much delay before the execution of repair jobs to allow the tool
+to continue processing instances.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">harep</a><ul>
+<li><a class="reference internal" href="#name">NAME</a></li>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#limitations">LIMITATIONS</a></li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-hail.html"
+                        title="previous chapter">hail</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-hbal.html"
+                        title="next chapter">hbal</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-harep.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-hbal.html" title="hbal"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-hail.html" title="hail"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

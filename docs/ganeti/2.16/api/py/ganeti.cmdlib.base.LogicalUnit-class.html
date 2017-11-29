@@ -1,0 +1,1122 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.cmdlib.base.LogicalUnit</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.cmdlib-module.html">Package&nbsp;cmdlib</a> ::
+        <a href="ganeti.cmdlib.base-module.html">Module&nbsp;base</a> ::
+        Class&nbsp;LogicalUnit
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.cmdlib.base.LogicalUnit-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class LogicalUnit</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_ganeti_c_36" name="uml_class_diagram_for_ganeti_c_36">
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#HPATH" title="hash(x)" alt="" coords="17,31,455,49"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#HTYPE" title="hash(x)" alt="" coords="17,49,455,68"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#REQ_BGL" title="ganeti.cmdlib.base.LogicalUnit.REQ_BGL" alt="" coords="17,68,455,87"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#dry_run_result" title="the value (if any) that will be returned to the caller in dry&#45;run mode &#160;(signalled by opcode dry_run parameter)" alt="" coords="17,87,455,105"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#__init__" title="Constructor for LogicalUnit." alt="" coords="17,108,455,127"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#WConfdClient" title="ganeti.cmdlib.base.LogicalUnit.WConfdClient" alt="" coords="17,127,455,145"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#owned_locks" title="Return the list of locks owned by the LU at a given level." alt="" coords="17,145,455,164"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#release_request" title="Return a request to release the specified locks of the given level." alt="" coords="17,164,455,183"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#CheckArguments" title="Check syntactic validity for the opcode arguments." alt="" coords="17,183,455,201"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#ExpandNames" title="Expand names for this LU." alt="" coords="17,201,455,220"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#DeclareLocks" title="Declare LU locking needs for a level" alt="" coords="17,220,455,239"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#CheckPrereq" title="Check prerequisites for this LU." alt="" coords="17,239,455,257"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#Exec" title="Execute the LU." alt="" coords="17,257,455,276"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#PrepareRetry" title="Prepare the LU to run again." alt="" coords="17,276,455,295"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#BuildHooksEnv" title="Build hooks environment for this LU." alt="" coords="17,295,455,313"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#BuildHooksNodes" title="Build list of nodes to run LU&#39;s hooks." alt="" coords="17,313,455,332"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#PreparePostHookNodes" title="Extend list of nodes to run the post LU hook." alt="" coords="17,332,455,351"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#HooksCallBack" title="Notify the LU about the results of its hooks." alt="" coords="17,351,455,369"/>
+<area shape="rect" id="node116" href="ganeti.cmdlib.base.LogicalUnit-class.html#AssertReleasedLocks" title="Raise AssertionError if the LU holds some locks of the given level." alt="" coords="17,369,455,388"/>
+<area shape="rect" id="node1" href="ganeti.cmdlib.base.LogicalUnit-class.html" title="Logical Unit base class." alt="" coords="5,6,467,394"/>
+</map>
+  <img src="uml_class_diagram_for_ganeti_c_36.gif" alt='' usemap="#uml_class_diagram_for_ganeti_c_36" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Logical Unit base class.</p>
+  <p>Subclasses must follow these rules:</p>
+  <ul>
+    <li>
+      implement ExpandNames
+    </li>
+    <li>
+      implement CheckPrereq (except when tasklets are used)
+    </li>
+    <li>
+      implement Exec (except when tasklets are used)
+    </li>
+    <li>
+      implement BuildHooksEnv
+    </li>
+    <li>
+      implement BuildHooksNodes
+    </li>
+    <li>
+      redefine HPATH and HTYPE
+    </li>
+    <li>
+      optionally redefine their run requirements: REQ_BGL: the LU needs to 
+      hold the Big Ganeti Lock exclusively
+    </li>
+  </ul>
+  <p>Note that all commands require root permissions.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">processor</span>,
+        <span class="summary-sig-arg">op</span>,
+        <span class="summary-sig-arg">cfg</span>,
+        <span class="summary-sig-arg">rpc_runner</span>,
+        <span class="summary-sig-arg">wconfdcontext</span>,
+        <span class="summary-sig-arg">wconfd</span>)</span><br />
+      Constructor for LogicalUnit.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="WConfdClient"></a><span class="summary-sig-name">WConfdClient</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.WConfdClient">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#owned_locks" class="summary-sig-name">owned_locks</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">level</span>)</span><br />
+      Return the list of locks owned by the LU at a given level.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.owned_locks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#release_request" class="summary-sig-name">release_request</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">level</span>,
+        <span class="summary-sig-arg">names</span>)</span><br />
+      Return a request to release the specified locks of the given level.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.release_request">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#CheckArguments" class="summary-sig-name">CheckArguments</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Check syntactic validity for the opcode arguments.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.CheckArguments">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#ExpandNames" class="summary-sig-name">ExpandNames</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Expand names for this LU.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.ExpandNames">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#DeclareLocks" class="summary-sig-name">DeclareLocks</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">level</span>)</span><br />
+      Declare LU locking needs for a level</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.DeclareLocks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#CheckPrereq" class="summary-sig-name">CheckPrereq</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Check prerequisites for this LU.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.CheckPrereq">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#Exec" class="summary-sig-name">Exec</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">feedback_fn</span>)</span><br />
+      Execute the LU.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.Exec">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#PrepareRetry" class="summary-sig-name">PrepareRetry</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">_feedback_fn</span>)</span><br />
+      Prepare the LU to run again.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.PrepareRetry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">dict</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#BuildHooksEnv" class="summary-sig-name">BuildHooksEnv</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Build hooks environment for this LU.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.BuildHooksEnv">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">tuple; (list, list)</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#BuildHooksNodes" class="summary-sig-name">BuildHooksNodes</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Build list of nodes to run LU's hooks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.BuildHooksNodes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#PreparePostHookNodes" class="summary-sig-name">PreparePostHookNodes</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">post_hook_node_uuids</span>)</span><br />
+      Extend list of nodes to run the post LU hook.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.PreparePostHookNodes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#HooksCallBack" class="summary-sig-name">HooksCallBack</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">phase</span>,
+        <span class="summary-sig-arg">hook_results</span>,
+        <span class="summary-sig-arg">feedback_fn</span>,
+        <span class="summary-sig-arg">lu_result</span>)</span><br />
+      Notify the LU about the results of its hooks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.HooksCallBack">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#_ExpandAndLockInstance" class="summary-sig-name" onclick="show_private();">_ExpandAndLockInstance</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">allow_forthcoming</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Helper function to expand and lock an instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit._ExpandAndLockInstance">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.base.LogicalUnit-class.html#_LockInstancesNodes" class="summary-sig-name" onclick="show_private();">_LockInstancesNodes</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">primary_only</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">level</span>=<span class="summary-sig-default">locking.LEVEL_NODE</span>)</span><br />
+      Helper function to declare instances' nodes for locking.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit._LockInstancesNodes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="AssertReleasedLocks"></a><span class="summary-sig-name">AssertReleasedLocks</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">level</span>)</span><br />
+      Raise AssertionError if the LU holds some locks of the given level.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.AssertReleasedLocks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="HPATH"></a><span class="summary-name">HPATH</span> = <code title="None">None</code><br />
+      hash(x)
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="HTYPE"></a><span class="summary-name">HTYPE</span> = <code title="None">None</code><br />
+      hash(x)
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="REQ_BGL"></a><span class="summary-name">REQ_BGL</span> = <code title="True">True</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== INSTANCE VARIABLES ==================== -->
+<a name="section-InstanceVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="dry_run_result"></a><span class="summary-name">dry_run_result</span><br />
+      the value (if any) that will be returned to the caller in dry-run 
+      mode (signalled by opcode dry_run parameter)
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">processor</span>,
+        <span class="sig-arg">op</span>,
+        <span class="sig-arg">cfg</span>,
+        <span class="sig-arg">rpc_runner</span>,
+        <span class="sig-arg">wconfdcontext</span>,
+        <span class="sig-arg">wconfd</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Constructor for LogicalUnit.</p>
+  <p>This needs to be overridden in derived classes in order to check op 
+  validity.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>wconfdcontext</code></strong> ((int, string)) - the identity of the logical unit to represent itself to wconfd 
+          when asking for resources; it is given as job id and livelock 
+          file.</li>
+        <li><strong class="pname"><code>wconfd</code></strong> - the wconfd class to use; dependency injection to allow 
+          testability.</li>
+    </ul></dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="owned_locks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">owned_locks</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">level</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.owned_locks">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return the list of locks owned by the LU at a given level.</p>
+  <p>This method assumes that is field wconfdlocks is set correctly by 
+  mcpu.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="release_request"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">release_request</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">level</span>,
+        <span class="sig-arg">names</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.release_request">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return a request to release the specified locks of the given 
+  level.</p>
+  <p>Correctly break up the group lock to do so.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckArguments"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckArguments</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.CheckArguments">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check syntactic validity for the opcode arguments.</p>
+  <p>This method is for doing a simple syntactic check and ensure validity 
+  of opcode parameters, without any cluster-related checks. While the same 
+  can be accomplished in ExpandNames and/or CheckPrereq, doing these 
+  separate is better because:</p>
+  <ul>
+    <li>
+      ExpandNames is left as as purely a lock-related function
+    </li>
+    <li>
+      CheckPrereq is run after we have acquired locks (and possible waited 
+      for them)
+    </li>
+  </ul>
+  <p>The function is allowed to change the self.op attribute so that later 
+  methods can no longer worry about missing parameters.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="ExpandNames"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ExpandNames</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.ExpandNames">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Expand names for this LU.</p>
+  <p>This method is called before starting to execute the opcode, and it 
+  should update all the parameters of the opcode to their canonical form 
+  (e.g. a short node name must be fully expanded after this method has 
+  successfully completed). This way locking, hooks, logging, etc. can work 
+  correctly.</p>
+  <p>LUs which implement this method must also populate the 
+  self.needed_locks member, as a dict with lock levels as keys, and a list 
+  of needed lock names as values. Rules:</p>
+  <ul>
+    <li>
+      use an empty dict if you don't need any lock
+    </li>
+    <li>
+      if you don't need any lock at a particular level omit that level 
+      (note that in this case <code>DeclareLocks</code> won't be called at 
+      all for that level)
+    </li>
+    <li>
+      if you need locks at a level, but you can't calculate it in this 
+      function, initialise that level with an empty list and do further 
+      processing in <a 
+      href="ganeti.cmdlib.base.LogicalUnit-class.html#DeclareLocks" 
+      class="link">LogicalUnit.DeclareLocks</a> (see that function's 
+      docstring)
+    </li>
+    <li>
+      don't put anything for the BGL level
+    </li>
+    <li>
+      if you want all locks at a level use <a 
+      href="ganeti.locking-module.html#ALL_SET" 
+      class="link">locking.ALL_SET</a> as a value
+    </li>
+  </ul>
+  <p>If you need to share locks (rather than acquire them exclusively) at 
+  one level you can modify self.share_locks, setting a true value (usually 
+  1) for that level. By default locks are not shared.</p>
+  <p>This function can also define a list of tasklets, which then will be 
+  executed in order instead of the usual LU-level CheckPrereq and Exec 
+  functions, if those are not defined by the LU.</p>
+  <p>Examples:</p>
+<pre class="literalblock">
+ # Acquire all nodes and one instance
+ self.needed_locks = {
+   locking.LEVEL_NODE: locking.ALL_SET,
+   locking.LEVEL_INSTANCE: ['instance1.example.com'],
+ }
+ # Acquire just two nodes
+ self.needed_locks = {
+   locking.LEVEL_NODE: ['node1-uuid', 'node2-uuid'],
+ }
+ # Acquire no locks
+ self.needed_locks = {} # No, you can't leave it to the default value None
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="DeclareLocks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">DeclareLocks</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">level</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.DeclareLocks">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Declare LU locking needs for a level</p>
+  <p>While most LUs can just declare their locking needs at ExpandNames 
+  time, sometimes there's the need to calculate some locks after having 
+  acquired the ones before. This function is called just before acquiring 
+  locks at a particular level, but after acquiring the ones at lower 
+  levels, and permits such calculations. It can be used to modify 
+  self.needed_locks, and by default it does nothing.</p>
+  <p>This function is only called if you have something already set in 
+  self.needed_locks for the level.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>level</code></strong> (member of <a href="ganeti.locking-module.html#LEVELS" 
+          class="link">ganeti.locking.LEVELS</a>) - Locking level which is going to be locked</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckPrereq"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckPrereq</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.CheckPrereq">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check prerequisites for this LU.</p>
+  <p>This method should check that the prerequisites for the execution of 
+  this LU are fulfilled. It can do internode communication, but it should 
+  be idempotent - no cluster or system changes are allowed.</p>
+  <p>The method should raise errors.OpPrereqError in case something is not 
+  fulfilled. Its return value is ignored.</p>
+  <p>This method should also update all the parameters of the opcode to 
+  their canonical form if it hasn't been done by ExpandNames before.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Exec"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Exec</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">feedback_fn</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.Exec">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Execute the LU.</p>
+  <p>This method should implement the actual work. It should raise 
+  errors.OpExecError for failures that are somewhat dealt with in code, or 
+  expected.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="PrepareRetry"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">PrepareRetry</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">_feedback_fn</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.PrepareRetry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Prepare the LU to run again.</p>
+  <p>This method is called if the Exec failed for temporarily lacking 
+  resources. It is expected to change the state of the LU so that it can be
+  tried again, and also change its locking policy to acquire more resources
+  to have a better chance of suceeding in the retry.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="BuildHooksEnv"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">BuildHooksEnv</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.BuildHooksEnv">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build hooks environment for this LU.</p>
+  <dl class="fields">
+    <dt>Returns: dict</dt>
+        <dd>Dictionary containing the environment that will be used for 
+          running the hooks for this LU. The keys of the dict must not be 
+          prefixed with &quot;GANETI_&quot;--that'll be added by the hooks 
+          runner. The hooks runner will extend the environment with 
+          additional variables. If no environment should be defined, an 
+          empty dictionary should be returned (not <code>None</code>).</dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        If the <code>HPATH</code> attribute of the LU class is 
+        <code>None</code>, this function will not be called.
+      </p>
+</div></td></tr></table>
+</div>
+<a name="BuildHooksNodes"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">BuildHooksNodes</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.BuildHooksNodes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build list of nodes to run LU's hooks.</p>
+  <dl class="fields">
+    <dt>Returns: tuple; (list, list)</dt>
+        <dd>Tuple containing a list of node UUIDs on which the hook should 
+          run before the execution and a list of node UUIDs on which the 
+          hook should run after the execution. No nodes should be returned 
+          as an empty list (and not None).</dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        If the <code>HPATH</code> attribute of the LU class is 
+        <code>None</code>, this function will not be called.
+      </p>
+</div></td></tr></table>
+</div>
+<a name="PreparePostHookNodes"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">PreparePostHookNodes</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">post_hook_node_uuids</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.PreparePostHookNodes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Extend list of nodes to run the post LU hook.</p>
+  <p>This method allows LUs to change the list of node UUIDs on which the 
+  post hook should run after the LU has been executed but before the post 
+  hook is run.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>post_hook_node_uuids</code></strong> (list) - The initial list of node UUIDs to run the post hook on, as 
+          returned by <a 
+          href="ganeti.cmdlib.base.LogicalUnit-class.html#BuildHooksNodes" 
+          class="link">BuildHooksNodes</a>.</li>
+    </ul></dd>
+    <dt>Returns: list</dt>
+        <dd>list of node UUIDs on which the post hook should run. The default
+          implementation returns the passed in 
+          <code>post_hook_node_uuids</code>, but custom implementations can
+          choose to alter the list.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="HooksCallBack"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">HooksCallBack</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">phase</span>,
+        <span class="sig-arg">hook_results</span>,
+        <span class="sig-arg">feedback_fn</span>,
+        <span class="sig-arg">lu_result</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit.HooksCallBack">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Notify the LU about the results of its hooks.</p>
+  <p>This method is called every time a hooks phase is executed, and 
+  notifies the Logical Unit about the hooks' result. The LU can then use it
+  to alter its result based on the hooks.  By default the method does 
+  nothing and the previous result is passed back unchanged but any LU can 
+  define it if it wants to use the local cluster hook-scripts somehow.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>phase</code></strong> - one of constants.HOOKS_PHASE_POST or constants.HOOKS_PHASE_PRE; 
+          it denotes the hooks phase</li>
+        <li><strong class="pname"><code>hook_results</code></strong> - the results of the multi-node hooks rpc call</li>
+        <li><strong class="pname"><code>feedback_fn</code></strong> - function used send feedback back to the caller</li>
+        <li><strong class="pname"><code>lu_result</code></strong> - the previous Exec result this LU had, or None in the PRE phase</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>the new Exec result, based on the previous result and hook 
+          results</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_ExpandAndLockInstance"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ExpandAndLockInstance</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">allow_forthcoming</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit._ExpandAndLockInstance">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper function to expand and lock an instance.</p>
+  <p>Many LUs that work on an instance take its name in 
+  self.op.instance_name and need to expand it and then declare the expanded
+  name for locking. This function does it, and then updates 
+  self.op.instance_name to the expanded name. It also initializes 
+  needed_locks as a dict, if this hasn't been done before.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>allow_forthcoming</code></strong> - if True, do not insist that the intsance be real; the default 
+          behaviour is to raise a prerequisite error if the specified 
+          instance is forthcoming.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_LockInstancesNodes"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_LockInstancesNodes</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">primary_only</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">level</span>=<span class="sig-default">locking.LEVEL_NODE</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.base-pysrc.html#LogicalUnit._LockInstancesNodes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper function to declare instances' nodes for locking.</p>
+  <p>This function should be called after locking one or more instances to 
+  lock their nodes. Its effect is populating 
+  self.needed_locks[locking.LEVEL_NODE] with all primary or secondary nodes
+  for instances already locked and present in 
+  self.needed_locks[locking.LEVEL_INSTANCE].</p>
+  <p>It should be called from DeclareLocks, and for safety only works if 
+  self.recalculate_locks[locking.LEVEL_NODE] is set.</p>
+  <p>In the future it may grow parameters to just lock some instance's 
+  nodes, or to just lock primaries or secondary nodes, if needed.</p>
+  <p>If should be called in DeclareLocks in a way similar to:</p>
+<pre class="literalblock">
+ if level == locking.LEVEL_NODE:
+   self._LockInstancesNodes()
+</pre>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>primary_only</code></strong> (boolean) - only lock primary nodes of locked instances</li>
+        <li><strong class="pname"><code>level</code></strong> - Which lock level to use for locking nodes</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Apr 12 13:38:37 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

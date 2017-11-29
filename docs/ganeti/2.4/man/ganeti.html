@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>ganeti(7) Ganeti | Version 2.4.5</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">ganeti(7) Ganeti | Version 2.4.5</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >ganeti - cluster-based virtualization management</p
+  ></div
+><div id="synopsis"
+><h1
+  >Synopsis</h1
+  ><pre
+  ><code
+    ># gnt-cluster init cluster1.example.com
+# gnt-node add node2.example.com
+# gnt-instance add -n node2.example.com \
+&gt; -o debootstrap --disk 0:size=30g \
+&gt; -t plain instance1.example.com
+</code
+    ></pre
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The Ganeti software manages physical nodes and virtual instances of a cluster based on a virtualization software. The current version (2.3) supports Xen 3.x and KVM (72 or above) as hypervisors, and LXC as an experimental hypervisor.</p
+  ></div
+><div id="quick-start"
+><h1
+  >Quick start</h1
+  ><p
+  >First you must install the software on all the cluster nodes, either from sources or (if available) from a package. The next step is to create the initial cluster configuration, using <strong
+    >gnt-cluster init</strong
+    >.</p
+  ><p
+  >Then you can add other nodes, or start creating instances.</p
+  ></div
+><div id="cluster-architecture"
+><h1
+  >Cluster architecture</h1
+  ><p
+  >In Ganeti 2.0, the architecture of the cluster is a little more complicated than in 1.2. The cluster is coordinated by a master daemon (<strong
+    >ganeti-masterd</strong
+    >(8)), running on the master node. Each node runs (as before) a node daemon, and the master has the RAPI daemon running too.</p
+  ><div id="node-roles"
+  ><h2
+    >Node roles</h2
+    ><p
+    >Each node can be in one of the following states:</p
+    ><dl
+    ><dt
+      >master</dt
+      ><dd
+      ><p
+	>Only one node per cluster can be in this role, and this node is the one holding the authoritative copy of the cluster configuration and the one that can actually execute commands on the cluster and modify the cluster state. See more details under <em
+	  >Cluster configuration</em
+	  >.</p
+	></dd
+      ><dt
+      >master_candidate</dt
+      ><dd
+      ><p
+	>The node receives the full cluster configuration (configuration file and jobs) and can become a master via the <strong
+	  >gnt-cluster master-failover</strong
+	  > command. Nodes that are not in this state cannot transition into the master role due to missing state.</p
+	></dd
+      ><dt
+      >regular</dt
+      ><dd
+      ><p
+	>This the normal state of a node.</p
+	></dd
+      ><dt
+      >drained</dt
+      ><dd
+      ><p
+	>Nodes in this state are functioning normally but cannot receive new instances, because the intention is to set them to <em
+	  >offline</em
+	  > or remove them from the cluster.</p
+	></dd
+      ><dt
+      >offline</dt
+      ><dd
+      ><p
+	>These nodes are still recorded in the Ganeti configuration, but except for the master daemon startup voting procedure, they are not actually contacted by the master. This state was added in order to allow broken machines (that are being repaired) to remain in the cluster but without creating problems.</p
+	></dd
+      ></dl
+    ></div
+  ><div id="node-flags"
+  ><h2
+    >Node flags</h2
+    ><p
+    >Nodes have two flags which govern which roles they can take:</p
+    ><dl
+    ><dt
+      >master_capable</dt
+      ><dd
+      ><p
+	>The node can become a master candidate, and furthermore the master node. When this flag is disabled, the node cannot become a candidate; this can be useful for special networking cases, or less reliable hardware.</p
+	></dd
+      ><dt
+      >vm_capable</dt
+      ><dd
+      ><p
+	>The node can host instances. When enabled (the default state), the node will participate in instance allocation, capacity calculation, etc. When disabled, the node will be skipped in many cluster checks and operations.</p
+	></dd
+      ></dl
+    ></div
+  ><div id="node-parameters"
+  ><h2
+    >Node Parameters</h2
+    ><p
+    >These parameters are node specific and can be preseeded on node-group and cluster level.</p
+    ><p
+    >Currently we support the following node parameters:</p
+    ><dl
+    ><dt
+      >oob_program</dt
+      ><dd
+      ><p
+	>Path to an executable used as the out-of-band helper as described in the <a href="design-oob.rst"
+	  >Ganeti Node OOB Management Framework</a
+	  > design document.</p
+	></dd
+      ></dl
+    ></div
+  ><div id="cluster-configuration"
+  ><h2
+    >Cluster configuration</h2
+    ><p
+    >The master node keeps and is responsible for the cluster configuration. On the filesystem, this is stored under the <code
+      >/usr/local/var/ganeti/lib</code
+      > directory, and if the master daemon is stopped it can be backed up normally.</p
+    ><p
+    >The master daemon will replicate the configuration database called <code
+      >config.data</code
+      > and the job files to all the nodes in the master candidate role. It will also distribute a copy of some configuration values via the <em
+      >ssconf</em
+      > files, which are stored in the same directory and start with a <code
+      >ssconf_</code
+      > prefix, to all nodes.</p
+    ></div
+  ><div id="jobs"
+  ><h2
+    >Jobs</h2
+    ><p
+    >All cluster modification are done via jobs. A job consists of one or more opcodes, and the list of opcodes is processed serially. If an opcode fails, the entire job is failed and later opcodes are no longer processed. A job can be in one of the following states:</p
+    ><dl
+    ><dt
+      >queued</dt
+      ><dd
+      ><p
+	>The job has been submitted but not yet processed by the master daemon.</p
+	></dd
+      ><dt
+      >waiting</dt
+      ><dd
+      ><p
+	>The job is waiting for for locks before the first of its opcodes.</p
+	></dd
+      ><dt
+      >canceling</dt
+      ><dd
+      ><p
+	>The job is waiting for locks, but is has been marked for cancellation. It will not transition to <em
+	  >running</em
+	  >, but to <em
+	  >canceled</em
+	  >.</p
+	></dd
+      ><dt
+      >running</dt
+      ><dd
+      ><p
+	>The job is currently being executed.</p
+	></dd
+      ><dt
+      >canceled</dt
+      ><dd
+      ><p
+	>The job has been canceled before starting execution.</p
+	></dd
+      ><dt
+      >success</dt
+      ><dd
+      ><p
+	>The job has finished successfully.</p
+	></dd
+      ><dt
+      >error</dt
+      ><dd
+      ><p
+	>The job has failed during runtime, or the master daemon has been stopped during the job execution.</p
+	></dd
+      ></dl
+    ></div
+  ></div
+><div id="common-command-line-features"
+><h1
+  >Common command line features</h1
+  ><div id="options"
+  ><h2
+    >Options</h2
+    ><p
+    >Many Ganeti commands provide the following options. The availability for a certain command can be checked by calling the command using the <code
+      >--help</code
+      > option.</p
+    ><p
+    ><strong
+      >gnt-...</strong
+      > <em
+      >command</em
+      > [--dry-run] [--priority {low | normal | high}]</p
+    ><p
+    >The <code
+      >--dry-run</code
+      > option can be used to check whether an operation would succeed.</p
+    ><p
+    >The option <code
+      >--priority</code
+      > sets the priority for opcodes submitted by the command.</p
+    ></div
+  ></div
+><div id="field-formatting"
+><h1
+  >Field formatting</h1
+  ><p
+  >Multiple ganeti commands use the same framework for tabular listing of resources (e.g. <strong
+    >gnt-instance list</strong
+    >, <strong
+    >gnt-node list</strong
+    >, <strong
+    >gnt-group list</strong
+    >, <strong
+    >gnt-debug locks</strong
+    >, etc.). For these commands, special states are denoted via a special symbol (in terse mode) or a string (in verbose mode):</p
+  ><dl
+  ><dt
+    >*, (offline)</dt
+    ><dd
+    ><p
+      >The node in question is marked offline, and thus it cannot be queried for data. This result is persistent until the node is de-offlined.</p
+      ></dd
+    ><dt
+    >?, (nodata)</dt
+    ><dd
+    ><p
+      >Ganeti expected to receive an answer from this entity, but the cluster RPC call failed and/or we didn't receive a valid answer; usually more information is available in the node daemon log (if the node is alive) or the master daemon log. This result is transient, and re-running command might return a different result.</p
+      ></dd
+    ><dt
+    >-, (unavail)</dt
+    ><dd
+    ><p
+      >The respective field doesn't make sense for this entity; e.g. querying a down instance for its current memory 'live' usage, or querying a non-vm_capable node for disk/memory data. This result is persistent, and until the entity state is changed via ganeti commands, the result won't change.</p
+      ></dd
+    ><dt
+    >??, (unknown)</dt
+    ><dd
+    ><p
+      >This field is not known (note that this is different from entity being unknown). Either you have mis-typed the field name, or you are using a field that the running Ganeti master daemon doesn't know. This result is persistent, re-running the command won't change it.</p
+      ></dd
+    ></dl
+  ><div id="key-value-parameters"
+  ><h2
+    >Key-value parameters</h2
+    ><p
+    >Multiple options take parameters that are of the form <code
+      >key=value,key=value,...</code
+      > or <code
+      >category:key=value,...</code
+      >. Examples are the hypervisor parameters, backend parameters, etc. For these, it's possible to use values that contain commas by escaping with via a backslash (which needs two if not single-quoted, due to shell behaviour):</p
+    ><pre
+    ><code
+      ># gnt-instance modify -H kernel_path=an\\,example instance1
+# gnt-instance modify -H kernel_path='an\,example' instance1
+</code
+      ></pre
+    ></div
+  ></div
+><div id="common-daemon-functionality"
+><h1
+  >Common daemon functionality</h1
+  ><p
+  >All Ganeti daemons re-open the log file(s) when sent a SIGHUP signal. <strong
+    >logrotate</strong
+    >(8) can be used to rotate Ganeti's log files.</p
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

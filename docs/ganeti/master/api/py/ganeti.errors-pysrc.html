@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.errors</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        Module&nbsp;errors
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.errors-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.errors-module.html">Module ganeti.errors</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""Ganeti exception handling.</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt id="link-2" class="py-name" targets="Variable ganeti.errors.ECODE_RESOLVER=ganeti.errors-module.html#ECODE_RESOLVER,Variable ganeti.rapi.client.ECODE_RESOLVER=ganeti.rapi.client-module.html#ECODE_RESOLVER"><a title="ganeti.errors.ECODE_RESOLVER
+ganeti.rapi.client.ECODE_RESOLVER" class="py-name" href="#" onclick="return doclink('link-2', 'ECODE_RESOLVER', 'link-2');">ECODE_RESOLVER</a></tt> <tt class="py-op">=</tt> <tt id="link-3" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-3', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-4" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_RESOLVER=ganeti._constants-module.html#ERRORS_ECODE_RESOLVER"><a title="ganeti._constants.ERRORS_ECODE_RESOLVER" class="py-name" href="#" onclick="return doclink('link-4', 'ERRORS_ECODE_RESOLVER', 'link-4');">ERRORS_ECODE_RESOLVER</a></tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt id="link-5" class="py-name" targets="Variable ganeti.errors.ECODE_NORES=ganeti.errors-module.html#ECODE_NORES,Variable ganeti.rapi.client.ECODE_NORES=ganeti.rapi.client-module.html#ECODE_NORES"><a title="ganeti.errors.ECODE_NORES
+ganeti.rapi.client.ECODE_NORES" class="py-name" href="#" onclick="return doclink('link-5', 'ECODE_NORES', 'link-5');">ECODE_NORES</a></tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-6', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-7" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_NORES=ganeti._constants-module.html#ERRORS_ECODE_NORES"><a title="ganeti._constants.ERRORS_ECODE_NORES" class="py-name" href="#" onclick="return doclink('link-7', 'ERRORS_ECODE_NORES', 'link-7');">ERRORS_ECODE_NORES</a></tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt id="link-8" class="py-name" targets="Variable ganeti.errors.ECODE_TEMP_NORES=ganeti.errors-module.html#ECODE_TEMP_NORES,Variable ganeti.rapi.client.ECODE_TEMP_NORES=ganeti.rapi.client-module.html#ECODE_TEMP_NORES"><a title="ganeti.errors.ECODE_TEMP_NORES
+ganeti.rapi.client.ECODE_TEMP_NORES" class="py-name" href="#" onclick="return doclink('link-8', 'ECODE_TEMP_NORES', 'link-8');">ECODE_TEMP_NORES</a></tt> <tt class="py-op">=</tt> <tt id="link-9" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-9', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_TEMP_NORES=ganeti._constants-module.html#ERRORS_ECODE_TEMP_NORES"><a title="ganeti._constants.ERRORS_ECODE_TEMP_NORES" class="py-name" href="#" onclick="return doclink('link-10', 'ERRORS_ECODE_TEMP_NORES', 'link-10');">ERRORS_ECODE_TEMP_NORES</a></tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt id="link-11" class="py-name" targets="Variable ganeti.errors.ECODE_INVAL=ganeti.errors-module.html#ECODE_INVAL,Variable ganeti.rapi.client.ECODE_INVAL=ganeti.rapi.client-module.html#ECODE_INVAL"><a title="ganeti.errors.ECODE_INVAL
+ganeti.rapi.client.ECODE_INVAL" class="py-name" href="#" onclick="return doclink('link-11', 'ECODE_INVAL', 'link-11');">ECODE_INVAL</a></tt> <tt class="py-op">=</tt> <tt id="link-12" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-12', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_INVAL=ganeti._constants-module.html#ERRORS_ECODE_INVAL"><a title="ganeti._constants.ERRORS_ECODE_INVAL" class="py-name" href="#" onclick="return doclink('link-13', 'ERRORS_ECODE_INVAL', 'link-13');">ERRORS_ECODE_INVAL</a></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt id="link-14" class="py-name" targets="Variable ganeti.errors.ECODE_STATE=ganeti.errors-module.html#ECODE_STATE,Variable ganeti.rapi.client.ECODE_STATE=ganeti.rapi.client-module.html#ECODE_STATE"><a title="ganeti.errors.ECODE_STATE
+ganeti.rapi.client.ECODE_STATE" class="py-name" href="#" onclick="return doclink('link-14', 'ECODE_STATE', 'link-14');">ECODE_STATE</a></tt> <tt class="py-op">=</tt> <tt id="link-15" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-15', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_STATE=ganeti._constants-module.html#ERRORS_ECODE_STATE"><a title="ganeti._constants.ERRORS_ECODE_STATE" class="py-name" href="#" onclick="return doclink('link-16', 'ERRORS_ECODE_STATE', 'link-16');">ERRORS_ECODE_STATE</a></tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt id="link-17" class="py-name" targets="Variable ganeti.errors.ECODE_NOENT=ganeti.errors-module.html#ECODE_NOENT,Variable ganeti.rapi.client.ECODE_NOENT=ganeti.rapi.client-module.html#ECODE_NOENT"><a title="ganeti.errors.ECODE_NOENT
+ganeti.rapi.client.ECODE_NOENT" class="py-name" href="#" onclick="return doclink('link-17', 'ECODE_NOENT', 'link-17');">ECODE_NOENT</a></tt> <tt class="py-op">=</tt> <tt id="link-18" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-18', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_NOENT=ganeti._constants-module.html#ERRORS_ECODE_NOENT"><a title="ganeti._constants.ERRORS_ECODE_NOENT" class="py-name" href="#" onclick="return doclink('link-19', 'ERRORS_ECODE_NOENT', 'link-19');">ERRORS_ECODE_NOENT</a></tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt id="link-20" class="py-name" targets="Variable ganeti.errors.ECODE_EXISTS=ganeti.errors-module.html#ECODE_EXISTS,Variable ganeti.rapi.client.ECODE_EXISTS=ganeti.rapi.client-module.html#ECODE_EXISTS"><a title="ganeti.errors.ECODE_EXISTS
+ganeti.rapi.client.ECODE_EXISTS" class="py-name" href="#" onclick="return doclink('link-20', 'ECODE_EXISTS', 'link-20');">ECODE_EXISTS</a></tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-21', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_EXISTS=ganeti._constants-module.html#ERRORS_ECODE_EXISTS"><a title="ganeti._constants.ERRORS_ECODE_EXISTS" class="py-name" href="#" onclick="return doclink('link-22', 'ERRORS_ECODE_EXISTS', 'link-22');">ERRORS_ECODE_EXISTS</a></tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt id="link-23" class="py-name" targets="Variable ganeti.errors.ECODE_NOTUNIQUE=ganeti.errors-module.html#ECODE_NOTUNIQUE,Variable ganeti.rapi.client.ECODE_NOTUNIQUE=ganeti.rapi.client-module.html#ECODE_NOTUNIQUE"><a title="ganeti.errors.ECODE_NOTUNIQUE
+ganeti.rapi.client.ECODE_NOTUNIQUE" class="py-name" href="#" onclick="return doclink('link-23', 'ECODE_NOTUNIQUE', 'link-23');">ECODE_NOTUNIQUE</a></tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-24', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-25" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_NOTUNIQUE=ganeti._constants-module.html#ERRORS_ECODE_NOTUNIQUE"><a title="ganeti._constants.ERRORS_ECODE_NOTUNIQUE" class="py-name" href="#" onclick="return doclink('link-25', 'ERRORS_ECODE_NOTUNIQUE', 'link-25');">ERRORS_ECODE_NOTUNIQUE</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt id="link-26" class="py-name" targets="Variable ganeti.errors.ECODE_FAULT=ganeti.errors-module.html#ECODE_FAULT,Variable ganeti.rapi.client.ECODE_FAULT=ganeti.rapi.client-module.html#ECODE_FAULT"><a title="ganeti.errors.ECODE_FAULT
+ganeti.rapi.client.ECODE_FAULT" class="py-name" href="#" onclick="return doclink('link-26', 'ECODE_FAULT', 'link-26');">ECODE_FAULT</a></tt> <tt class="py-op">=</tt> <tt id="link-27" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-27', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-28" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_FAULT=ganeti._constants-module.html#ERRORS_ECODE_FAULT"><a title="ganeti._constants.ERRORS_ECODE_FAULT" class="py-name" href="#" onclick="return doclink('link-28', 'ERRORS_ECODE_FAULT', 'link-28');">ERRORS_ECODE_FAULT</a></tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt id="link-29" class="py-name" targets="Variable ganeti.errors.ECODE_ENVIRON=ganeti.errors-module.html#ECODE_ENVIRON,Variable ganeti.rapi.client.ECODE_ENVIRON=ganeti.rapi.client-module.html#ECODE_ENVIRON"><a title="ganeti.errors.ECODE_ENVIRON
+ganeti.rapi.client.ECODE_ENVIRON" class="py-name" href="#" onclick="return doclink('link-29', 'ECODE_ENVIRON', 'link-29');">ECODE_ENVIRON</a></tt> <tt class="py-op">=</tt> <tt id="link-30" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-30', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_ENVIRON=ganeti._constants-module.html#ERRORS_ECODE_ENVIRON"><a title="ganeti._constants.ERRORS_ECODE_ENVIRON" class="py-name" href="#" onclick="return doclink('link-31', 'ERRORS_ECODE_ENVIRON', 'link-31');">ERRORS_ECODE_ENVIRON</a></tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"><tt id="link-32" class="py-name" targets="Variable ganeti.errors.ECODE_ALL=ganeti.errors-module.html#ECODE_ALL,Variable ganeti.rapi.client.ECODE_ALL=ganeti.rapi.client-module.html#ECODE_ALL"><a title="ganeti.errors.ECODE_ALL
+ganeti.rapi.client.ECODE_ALL" class="py-name" href="#" onclick="return doclink('link-32', 'ECODE_ALL', 'link-32');">ECODE_ALL</a></tt> <tt class="py-op">=</tt> <tt id="link-33" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-33', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-34" class="py-name" targets="Variable ganeti._constants.ERRORS_ECODE_ALL=ganeti._constants-module.html#ERRORS_ECODE_ALL"><a title="ganeti._constants.ERRORS_ECODE_ALL" class="py-name" href="#" onclick="return doclink('link-34', 'ERRORS_ECODE_ALL', 'link-34');">ERRORS_ECODE_ALL</a></tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="GenericError"></a><div id="GenericError-def"><a name="L51"></a><tt class="py-lineno"> 51</tt> <a class="py-toggle" href="#" id="GenericError-toggle" onclick="return toggle('GenericError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.GenericError-class.html">GenericError</a><tt class="py-op">(</tt><tt class="py-base-class">Exception</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GenericError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GenericError-expanded"><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">  <tt class="py-docstring">"""Base exception for Ganeti.</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="LockError"></a><div id="LockError-def"><a name="L57"></a><tt class="py-lineno"> 57</tt> <a class="py-toggle" href="#" id="LockError-toggle" onclick="return toggle('LockError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.LockError-class.html">LockError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LockError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LockError-expanded"><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">  <tt class="py-docstring">"""Lock error exception.</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">  This signifies problems in the locking subsystem.</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"> </tt>
+<a name="PidFileLockError"></a><div id="PidFileLockError-def"><a name="L65"></a><tt class="py-lineno"> 65</tt> <a class="py-toggle" href="#" id="PidFileLockError-toggle" onclick="return toggle('PidFileLockError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.PidFileLockError-class.html">PidFileLockError</a><tt class="py-op">(</tt><tt class="py-base-class">LockError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PidFileLockError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PidFileLockError-expanded"><a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">  <tt class="py-docstring">"""PID file is already locked by another process.</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"> </tt>
+<a name="HypervisorError"></a><div id="HypervisorError-def"><a name="L71"></a><tt class="py-lineno"> 71</tt> <a class="py-toggle" href="#" id="HypervisorError-toggle" onclick="return toggle('HypervisorError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.HypervisorError-class.html">HypervisorError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HypervisorError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HypervisorError-expanded"><a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">  <tt class="py-docstring">"""Hypervisor-related exception.</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised in case we can't communicate with the hypervisor</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">  properly.</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"> </tt>
+<a name="HotplugError"></a><div id="HotplugError-def"><a name="L80"></a><tt class="py-lineno"> 80</tt> <a class="py-toggle" href="#" id="HotplugError-toggle" onclick="return toggle('HotplugError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.HotplugError-class.html">HotplugError</a><tt class="py-op">(</tt><tt class="py-base-class">HypervisorError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HotplugError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HotplugError-expanded"><a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">  <tt class="py-docstring">"""Hotplug-related exception.</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised in case a hotplug action fails or is not supported.</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">  It is currently used only by KVM hypervisor.</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"> </tt>
+<a name="ProgrammerError"></a><div id="ProgrammerError-def"><a name="L89"></a><tt class="py-lineno"> 89</tt> <a class="py-toggle" href="#" id="ProgrammerError-toggle" onclick="return toggle('ProgrammerError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ProgrammerError-class.html">ProgrammerError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ProgrammerError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ProgrammerError-expanded"><a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">  <tt class="py-docstring">"""Programming-related error.</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised in cases we determine that the calling conventions</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">  have been violated, meaning we got some desynchronisation between</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">  parts of our code. It signifies a real programming bug.</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"> </tt>
+<a name="BlockDeviceError"></a><div id="BlockDeviceError-def"><a name="L99"></a><tt class="py-lineno"> 99</tt> <a class="py-toggle" href="#" id="BlockDeviceError-toggle" onclick="return toggle('BlockDeviceError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.BlockDeviceError-class.html">BlockDeviceError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDeviceError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BlockDeviceError-expanded"><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">  <tt class="py-docstring">"""Block-device related exception.</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised in case we can't setup the instance's block devices</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">  properly.</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="ConfigurationError"></a><div id="ConfigurationError-def"><a name="L108"></a><tt class="py-lineno">108</tt> <a class="py-toggle" href="#" id="ConfigurationError-toggle" onclick="return toggle('ConfigurationError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ConfigurationError-class.html">ConfigurationError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigurationError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfigurationError-expanded"><a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">  <tt class="py-docstring">"""Configuration related exception.</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"><tt class="py-docstring">  Things like having an instance with a primary node that doesn't</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"><tt class="py-docstring">  exist in the config or such raise this exception.</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="ConfigVersionMismatch"></a><div id="ConfigVersionMismatch-def"><a name="L117"></a><tt class="py-lineno">117</tt> <a class="py-toggle" href="#" id="ConfigVersionMismatch-toggle" onclick="return toggle('ConfigVersionMismatch');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ConfigVersionMismatch-class.html">ConfigVersionMismatch</a><tt class="py-op">(</tt><tt class="py-base-class">ConfigurationError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigVersionMismatch-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfigVersionMismatch-expanded"><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">  <tt class="py-docstring">"""Version mismatch in the configuration file.</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">  The error has two arguments: the expected and the actual found</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">  version.</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt>
+<a name="ConfigVerifyError"></a><div id="ConfigVerifyError-def"><a name="L126"></a><tt class="py-lineno">126</tt> <a class="py-toggle" href="#" id="ConfigVerifyError-toggle" onclick="return toggle('ConfigVerifyError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ConfigVerifyError-class.html">ConfigVerifyError</a><tt class="py-op">(</tt><tt class="py-base-class">ConfigurationError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfigVerifyError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfigVerifyError-expanded"><a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error reported by configuration verification</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">  The error has two arguments: the main error message and a list of errors</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">  found.</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"> </tt>
+<a name="AddressPoolError"></a><div id="AddressPoolError-def"><a name="L135"></a><tt class="py-lineno">135</tt> <a class="py-toggle" href="#" id="AddressPoolError-toggle" onclick="return toggle('AddressPoolError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.AddressPoolError-class.html">AddressPoolError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="AddressPoolError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="AddressPoolError-expanded"><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">  <tt class="py-docstring">"""Errors related to IP address pools.</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"> </tt>
+<a name="ReservationError"></a><div id="ReservationError-def"><a name="L141"></a><tt class="py-lineno">141</tt> <a class="py-toggle" href="#" id="ReservationError-toggle" onclick="return toggle('ReservationError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ReservationError-class.html">ReservationError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ReservationError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ReservationError-expanded"><a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">  <tt class="py-docstring">"""Errors reserving a resource.</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"> </tt>
+<a name="RemoteError"></a><div id="RemoteError-def"><a name="L147"></a><tt class="py-lineno">147</tt> <a class="py-toggle" href="#" id="RemoteError-toggle" onclick="return toggle('RemoteError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.RemoteError-class.html">RemoteError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="RemoteError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="RemoteError-expanded"><a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">  <tt class="py-docstring">"""Programming-related error on remote call.</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised when an unhandled error occurs in a call to a</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">  remote node.  It usually signifies a real programming bug.</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="SignatureError"></a><div id="SignatureError-def"><a name="L156"></a><tt class="py-lineno">156</tt> <a class="py-toggle" href="#" id="SignatureError-toggle" onclick="return toggle('SignatureError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.SignatureError-class.html">SignatureError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="SignatureError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="SignatureError-expanded"><a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error authenticating a remote message.</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised when the hmac signature on a message doesn't verify correctly</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring">  to the message itself. It can happen because of network unreliability or</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"><tt class="py-docstring">  because of spurious traffic.</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"> </tt>
+<a name="ParameterError"></a><div id="ParameterError-def"><a name="L166"></a><tt class="py-lineno">166</tt> <a class="py-toggle" href="#" id="ParameterError-toggle" onclick="return toggle('ParameterError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ParameterError-class.html">ParameterError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ParameterError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ParameterError-expanded"><a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">  <tt class="py-docstring">"""A passed parameter to a command is invalid.</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised when the parameter passed to a request function is</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"><tt class="py-docstring">  invalid. Correct code should have verified this before passing the</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring">  request structure.</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-docstring">  The argument to this exception should be the parameter name.</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line"> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"> </tt>
+<a name="ResultValidationError"></a><div id="ResultValidationError-def"><a name="L178"></a><tt class="py-lineno">178</tt> <a class="py-toggle" href="#" id="ResultValidationError-toggle" onclick="return toggle('ResultValidationError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ResultValidationError-class.html">ResultValidationError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ResultValidationError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ResultValidationError-expanded"><a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">  <tt class="py-docstring">"""The iallocation results fails validation.</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"> </tt>
+<a name="OpPrereqError"></a><div id="OpPrereqError-def"><a name="L184"></a><tt class="py-lineno">184</tt> <a class="py-toggle" href="#" id="OpPrereqError-toggle" onclick="return toggle('OpPrereqError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.OpPrereqError-class.html">OpPrereqError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="OpPrereqError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="OpPrereqError-expanded"><a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line">  <tt class="py-docstring">"""Prerequisites for the OpCode are not fulfilled.</tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"><tt class="py-docstring">  This exception has two arguments: an error message, and one of the</tt> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"><tt class="py-docstring">  ECODE_* codes.</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"> </tt>
+<a name="OpExecError"></a><div id="OpExecError-def"><a name="L193"></a><tt class="py-lineno">193</tt> <a class="py-toggle" href="#" id="OpExecError-toggle" onclick="return toggle('OpExecError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.OpExecError-class.html">OpExecError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="OpExecError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="OpExecError-expanded"><a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error during OpCode execution.</tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"> </tt>
+<a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"> </tt>
+<a name="OpResultError"></a><div id="OpResultError-def"><a name="L199"></a><tt class="py-lineno">199</tt> <a class="py-toggle" href="#" id="OpResultError-toggle" onclick="return toggle('OpResultError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.OpResultError-class.html">OpResultError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="OpResultError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="OpResultError-expanded"><a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line">  <tt class="py-docstring">"""Issue with OpCode result.</tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"> </tt>
+<a name="OpRetryNotSupportedError"></a><div id="OpRetryNotSupportedError-def"><a name="L205"></a><tt class="py-lineno">205</tt> <a class="py-toggle" href="#" id="OpRetryNotSupportedError-toggle" onclick="return toggle('OpRetryNotSupportedError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.OpRetryNotSupportedError-class.html">OpRetryNotSupportedError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="OpRetryNotSupportedError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="OpRetryNotSupportedError-expanded"><a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">  <tt class="py-docstring">"""This opcode does not support retries</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line"> </tt>
+<a name="DeviceCreationError"></a><div id="DeviceCreationError-def"><a name="L211"></a><tt class="py-lineno">211</tt> <a class="py-toggle" href="#" id="DeviceCreationError-toggle" onclick="return toggle('DeviceCreationError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.DeviceCreationError-class.html">DeviceCreationError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="DeviceCreationError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="DeviceCreationError-expanded"><a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error during the creation of a device.</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line"><tt class="py-docstring">  This exception should contain the list of the devices actually created</tt> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line"><tt class="py-docstring">  up to now, in the form of pairs (node, device)</tt> </tt>
+<a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="DeviceCreationError.__init__"></a><div id="DeviceCreationError.__init__-def"><a name="L218"></a><tt class="py-lineno">218</tt> <a class="py-toggle" href="#" id="DeviceCreationError.__init__-toggle" onclick="return toggle('DeviceCreationError.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors.DeviceCreationError-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">message</tt><tt class="py-op">,</tt> <tt class="py-param">created_devices</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="DeviceCreationError.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="DeviceCreationError.__init__-expanded"><a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line">    <tt id="link-35" class="py-name" targets="Class ganeti.errors.GenericError=ganeti.errors.GenericError-class.html"><a title="ganeti.errors.GenericError" class="py-name" href="#" onclick="return doclink('link-35', 'GenericError', 'link-35');">GenericError</a></tt><tt class="py-op">.</tt><tt id="link-36" class="py-name" targets="Method ganeti.asyncnotifier.AsyncNotifier.__init__()=ganeti.asyncnotifier.AsyncNotifier-class.html#__init__,Method ganeti.asyncnotifier.FileEventHandlerBase.__init__()=ganeti.asyncnotifier.FileEventHandlerBase-class.html#__init__,Method ganeti.asyncnotifier.SingleFileEventHandler.__init__()=ganeti.asyncnotifier.SingleFileEventHandler-class.html#__init__,Method ganeti.backend.HooksRunner.__init__()=ganeti.backend.HooksRunner-class.html#__init__,Method ganeti.build.sphinx_ext._ManPageXRefRole.__init__()=ganeti.build.sphinx_ext._ManPageXRefRole-class.html#__init__,Method ganeti.cli.ArgSuggest.__init__()=ganeti.cli.ArgSuggest-class.html#__init__,Method ganeti.cli.FeedbackFnJobPollReportCb.__init__()=ganeti.cli.FeedbackFnJobPollReportCb-class.html#__init__,Method ganeti.cli.JobExecutor.__init__()=ganeti.cli.JobExecutor-class.html#__init__,Method ganeti.cli.JobPollCbBase.__init__()=ganeti.cli.JobPollCbBase-class.html#__init__,Method ganeti.cli.JobPollReportCbBase.__init__()=ganeti.cli.JobPollReportCbBase-class.html#__init__,Method ganeti.cli.StdioJobPollReportCb.__init__()=ganeti.cli.StdioJobPollReportCb-class.html#__init__,Method ganeti.cli.TableColumn.__init__()=ganeti.cli.TableColumn-class.html#__init__,Method ganeti.cli._Argument.__init__()=ganeti.cli._Argument-class.html#__init__,Method ganeti.cli._LuxiJobPollCb.__init__()=ganeti.cli._LuxiJobPollCb-class.html#__init__,Method ganeti.cli._QueryColumnFormatter.__init__()=ganeti.cli._QueryColumnFormatter-class.html#__init__,Method ganeti.cli._RunWhileDaemonsStoppedHelper.__init__()=ganeti.cli._RunWhileDaemonsStoppedHelper-class.html#__init__,Method ganeti.cli._ShowUsage.__init__()=ganeti.cli._ShowUsage-class.html#__init__,Method ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__()=ganeti.client.gnt_cluster._RunWhenNodesReachableHelper-class.html#__init__,Method ganeti.client.gnt_debug._JobQueueTestReporter.__init__()=ganeti.client.gnt_debug._JobQueueTestReporter-class.html#__init__,Method ganeti.client.gnt_node.ReplyStatus.__init__()=ganeti.client.gnt_node.ReplyStatus-class.html#__init__,Method ganeti.cmdlib.base.LUWConfdClient.__init__()=ganeti.cmdlib.base.LUWConfdClient-class.html#__init__,Method ganeti.cmdlib.base.LogicalUnit.__init__()=ganeti.cmdlib.base.LogicalUnit-class.html#__init__,Method ganeti.cmdlib.base.QueryBase.__init__()=ganeti.cmdlib.base.QueryBase-class.html#__init__,Method ganeti.cmdlib.base.ResultWithJobs.__init__()=ganeti.cmdlib.base.ResultWithJobs-class.html#__init__,Method ganeti.cmdlib.base.Tasklet.__init__()=ganeti.cmdlib.base.Tasklet-class.html#__init__,Method ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__()=ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage-class.html#__init__,Method ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__()=ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__,Method ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__()=ganeti.cmdlib.instance_set_params.InstNicModPrivate-class.html#__init__,Method ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__()=ganeti.cmdlib.instance_storage.TLReplaceDisks-class.html#__init__,Method ganeti.cmdlib.instance_storage.TemporaryDisk.__init__()=ganeti.cmdlib.instance_storage.TemporaryDisk-class.html#__init__,Method ganeti.cmdlib.test.TestSocketWrapper.__init__()=ganeti.cmdlib.test.TestSocketWrapper-class.html#__init__,Method ganeti.confd.client.ConfdAsyncUDPClient.__init__()=ganeti.confd.client.ConfdAsyncUDPClient-class.html#__init__,Method ganeti.confd.client.ConfdClient.__init__()=ganeti.confd.client.ConfdClient-class.html#__init__,Method ganeti.confd.client.ConfdClientRequest.__init__()=ganeti.confd.client.ConfdClientRequest-class.html#__init__,Method ganeti.confd.client.ConfdCountingCallback.__init__()=ganeti.confd.client.ConfdCountingCallback-class.html#__init__,Method ganeti.confd.client.ConfdFilterCallback.__init__()=ganeti.confd.client.ConfdFilterCallback-class.html#__init__,Method ganeti.confd.client.StoreResultCallback.__init__()=ganeti.confd.client.StoreResultCallback-class.html#__init__,Method ganeti.confd.client._Request.__init__()=ganeti.confd.client._Request-class.html#__init__,Method ganeti.config.ConfigWriter.__init__()=ganeti.config.ConfigWriter-class.html#__init__,Method ganeti.config.DetachedConfig.__init__()=ganeti.config.DetachedConfig-class.html#__init__,Method ganeti.config.temporary_reservations.TemporaryReservationManager.__init__()=ganeti.config.temporary_reservations.TemporaryReservationManager-class.html#__init__,Method ganeti.config.utils.ConfigManager.__init__()=ganeti.config.utils.ConfigManager-class.html#__init__,Method ganeti.daemon.AsyncAwaker.__init__()=ganeti.daemon.AsyncAwaker-class.html#__init__,Method ganeti.daemon.AsyncTerminatedMessageStream.__init__()=ganeti.daemon.AsyncTerminatedMessageStream-class.html#__init__,Method ganeti.daemon.AsyncUDPSocket.__init__()=ganeti.daemon.AsyncUDPSocket-class.html#__init__,Method ganeti.daemon.AsyncoreScheduler.__init__()=ganeti.daemon.AsyncoreScheduler-class.html#__init__,Method ganeti.daemon.Mainloop.__init__()=ganeti.daemon.Mainloop-class.html#__init__,Method ganeti.daemon._ShutdownCheck.__init__()=ganeti.daemon._ShutdownCheck-class.html#__init__,Method ganeti.errors.DeviceCreationError.__init__()=ganeti.errors.DeviceCreationError-class.html#__init__,Method ganeti.hooksmaster.HooksMaster.__init__()=ganeti.hooksmaster.HooksMaster-class.html#__init__,Method ganeti.ht._WrapperBase.__init__()=ganeti.ht._WrapperBase-class.html#__init__,Method ganeti.http.HttpBase.__init__()=ganeti.http.HttpBase-class.html#__init__,Method ganeti.http.HttpClientToServerStartLine.__init__()=ganeti.http.HttpClientToServerStartLine-class.html#__init__,Method ganeti.http.HttpException.__init__()=ganeti.http.HttpException-class.html#__init__,Method ganeti.http.HttpMessage.__init__()=ganeti.http.HttpMessage-class.html#__init__,Method ganeti.http.HttpMessageReader.__init__()=ganeti.http.HttpMessageReader-class.html#__init__,Method ganeti.http.HttpMessageWriter.__init__()=ganeti.http.HttpMessageWriter-class.html#__init__,Method ganeti.http.HttpServerToClientStartLine.__init__()=ganeti.http.HttpServerToClientStartLine-class.html#__init__,Method ganeti.http.HttpSslParams.__init__()=ganeti.http.HttpSslParams-class.html#__init__,Method ganeti.http.client.HttpClientRequest.__init__()=ganeti.http.client.HttpClientRequest-class.html#__init__,Method ganeti.http.client._PendingRequest.__init__()=ganeti.http.client._PendingRequest-class.html#__init__,Method ganeti.http.client._PendingRequestMonitor.__init__()=ganeti.http.client._PendingRequestMonitor-class.html#__init__,Method ganeti.http.server.HttpResponder.__init__()=ganeti.http.server.HttpResponder-class.html#__init__,Method ganeti.http.server.HttpServer.__init__()=ganeti.http.server.HttpServer-class.html#__init__,Method ganeti.http.server.HttpServerRequestExecutor.__init__()=ganeti.http.server.HttpServerRequestExecutor-class.html#__init__,Method ganeti.http.server._HttpServerRequest.__init__()=ganeti.http.server._HttpServerRequest-class.html#__init__,Method ganeti.http.server._HttpServerToClientMessageWriter.__init__()=ganeti.http.server._HttpServerToClientMessageWriter-class.html#__init__,Method ganeti.hypervisor.hv_chroot.ChrootManager.__init__()=ganeti.hypervisor.hv_chroot.ChrootManager-class.html#__init__,Method ganeti.hypervisor.hv_fake.FakeHypervisor.__init__()=ganeti.hypervisor.hv_fake.FakeHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__()=ganeti.hypervisor.hv_kvm.KVMHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__()=ganeti.hypervisor.hv_kvm.monitor.MonitorSocket-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpConnection-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpMessage-class.html#__init__,Method ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__()=ganeti.hypervisor.hv_lxc.LXCHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_xen.XenHypervisor.__init__()=ganeti.hypervisor.hv_xen.XenHypervisor-class.html#__init__,Method ganeti.impexpd.ChildIOProcessor.__init__()=ganeti.impexpd.ChildIOProcessor-class.html#__init__,Method ganeti.impexpd.CommandBuilder.__init__()=ganeti.impexpd.CommandBuilder-class.html#__init__,Method ganeti.jqueue.JobQueue.__init__()=ganeti.jqueue.JobQueue-class.html#__init__,Method ganeti.jqueue._JobDependencyManager.__init__()=ganeti.jqueue._JobDependencyManager-class.html#__init__,Method ganeti.jqueue._JobProcessor.__init__()=ganeti.jqueue._JobProcessor-class.html#__init__,Method ganeti.jqueue._OpExecCallbacks.__init__()=ganeti.jqueue._OpExecCallbacks-class.html#__init__,Method ganeti.jqueue._OpExecContext.__init__()=ganeti.jqueue._OpExecContext-class.html#__init__,Method ganeti.jqueue._QueuedJob.__init__()=ganeti.jqueue._QueuedJob-class.html#__init__,Method ganeti.jqueue._QueuedOpCode.__init__()=ganeti.jqueue._QueuedOpCode-class.html#__init__,Method ganeti.jqueue._TimeoutStrategyWrapper.__init__()=ganeti.jqueue._TimeoutStrategyWrapper-class.html#__init__,Method ganeti.locking.PipeCondition.__init__()=ganeti.locking.PipeCondition-class.html#__init__,Method ganeti.locking.SharedLock.__init__()=ganeti.locking.SharedLock-class.html#__init__,Method ganeti.locking.SingleNotifyPipeCondition.__init__()=ganeti.locking.SingleNotifyPipeCondition-class.html#__init__,Method ganeti.locking._BaseCondition.__init__()=ganeti.locking._BaseCondition-class.html#__init__,Method ganeti.locking._PipeConditionWithMode.__init__()=ganeti.locking._PipeConditionWithMode-class.html#__init__,Method ganeti.locking._SingleNotifyPipeConditionWaiter.__init__()=ganeti.locking._SingleNotifyPipeConditionWaiter-class.html#__init__,Method ganeti.luxi.Client.__init__()=ganeti.luxi.Client-class.html#__init__,Method ganeti.masterd.iallocator.IARequestBase.__init__()=ganeti.masterd.iallocator.IARequestBase-class.html#__init__,Method ganeti.masterd.iallocator.IAllocator.__init__()=ganeti.masterd.iallocator.IAllocator-class.html#__init__,Method ganeti.masterd.instance.DiskExport.__init__()=ganeti.masterd.instance.DiskExport-class.html#__init__,Method ganeti.masterd.instance.DiskImport.__init__()=ganeti.masterd.instance.DiskImport-class.html#__init__,Method ganeti.masterd.instance.DiskTransfer.__init__()=ganeti.masterd.instance.DiskTransfer-class.html#__init__,Method ganeti.masterd.instance.ExportInstanceHelper.__init__()=ganeti.masterd.instance.ExportInstanceHelper-class.html#__init__,Method ganeti.masterd.instance.ImportExportLoop.__init__()=ganeti.masterd.instance.ImportExportLoop-class.html#__init__,Method ganeti.masterd.instance.ImportExportTimeouts.__init__()=ganeti.masterd.instance.ImportExportTimeouts-class.html#__init__,Method ganeti.masterd.instance._DiskImportExportBase.__init__()=ganeti.masterd.instance._DiskImportExportBase-class.html#__init__,Method ganeti.masterd.instance._DiskTransferPrivate.__init__()=ganeti.masterd.instance._DiskTransferPrivate-class.html#__init__,Method ganeti.masterd.instance._RemoteExportCb.__init__()=ganeti.masterd.instance._RemoteExportCb-class.html#__init__,Method ganeti.masterd.instance._RemoteImportCb.__init__()=ganeti.masterd.instance._RemoteImportCb-class.html#__init__,Method ganeti.masterd.instance._TransferInstCbBase.__init__()=ganeti.masterd.instance._TransferInstCbBase-class.html#__init__,Method ganeti.mcpu.LockAttemptTimeoutStrategy.__init__()=ganeti.mcpu.LockAttemptTimeoutStrategy-class.html#__init__,Method ganeti.mcpu.Processor.__init__()=ganeti.mcpu.Processor-class.html#__init__,Method ganeti.metad.Client.__init__()=ganeti.metad.Client-class.html#__init__,Method ganeti.netutils.Hostname.__init__()=ganeti.netutils.Hostname-class.html#__init__,Method ganeti.netutils.IP4Address.__init__()=ganeti.netutils.IP4Address-class.html#__init__,Method ganeti.netutils.IP6Address.__init__()=ganeti.netutils.IP6Address-class.html#__init__,Method ganeti.network.AddressPool.__init__()=ganeti.network.AddressPool-class.html#__init__,Method ganeti.opcodes_base.BaseOpCode.__init__()=ganeti.opcodes_base.BaseOpCode-class.html#__init__,Method ganeti.outils.ValidatedSlots.__init__()=ganeti.outils.ValidatedSlots-class.html#__init__,Method ganeti.ovf.Converter.__init__()=ganeti.ovf.Converter-class.html#__init__,Method ganeti.ovf.OVFReader.__init__()=ganeti.ovf.OVFReader-class.html#__init__,Method ganeti.ovf.OVFWriter.__init__()=ganeti.ovf.OVFWriter-class.html#__init__,Method ganeti.query.ClusterQueryData.__init__()=ganeti.query.ClusterQueryData-class.html#__init__,Method ganeti.query.GroupQueryData.__init__()=ganeti.query.GroupQueryData-class.html#__init__,Method ganeti.query.InstanceQueryData.__init__()=ganeti.query.InstanceQueryData-class.html#__init__,Method ganeti.query.LockQueryData.__init__()=ganeti.query.LockQueryData-class.html#__init__,Method ganeti.query.NetworkQueryData.__init__()=ganeti.query.NetworkQueryData-class.html#__init__,Method ganeti.query.NodeQueryData.__init__()=ganeti.query.NodeQueryData-class.html#__init__,Method ganeti.query.Query.__init__()=ganeti.query.Query-class.html#__init__,Method ganeti.query._FilterCompilerHelper.__init__()=ganeti.query._FilterCompilerHelper-class.html#__init__,Method ganeti.query._FilterHints.__init__()=ganeti.query._FilterHints-class.html#__init__,Method ganeti.rapi.auth.basic_auth.BasicAuthenticator.__init__()=ganeti.rapi.auth.basic_auth.BasicAuthenticator-class.html#__init__,Method ganeti.rapi.auth.basic_auth.FileEventHandler.__init__()=ganeti.rapi.auth.basic_auth.FileEventHandler-class.html#__init__,Method ganeti.rapi.auth.pam.CFunctions.__init__()=ganeti.rapi.auth.pam.CFunctions-class.html#__init__,Method ganeti.rapi.auth.pam.PamAuthenticator.__init__()=ganeti.rapi.auth.pam.PamAuthenticator-class.html#__init__,Method ganeti.rapi.auth.pam.PamHandleT.__init__()=ganeti.rapi.auth.pam.PamHandleT-class.html#__init__,Method ganeti.rapi.auth.users_file.PasswordFileUser.__init__()=ganeti.rapi.auth.users_file.PasswordFileUser-class.html#__init__,Method ganeti.rapi.auth.users_file.RapiUsers.__init__()=ganeti.rapi.auth.users_file.RapiUsers-class.html#__init__,Method ganeti.rapi.baserlib.OpcodeAttributes.__init__()=ganeti.rapi.baserlib.OpcodeAttributes-class.html#__init__,Method ganeti.rapi.baserlib.ResourceBase.__init__()=ganeti.rapi.baserlib.ResourceBase-class.html#__init__,Method ganeti.rapi.client.GanetiApiError.__init__()=ganeti.rapi.client.GanetiApiError-class.html#__init__,Method ganeti.rapi.client.GanetiRapiClient.__init__()=ganeti.rapi.client.GanetiRapiClient-class.html#__init__,Method ganeti.rapi.client_utils.RapiJobPollCb.__init__()=ganeti.rapi.client_utils.RapiJobPollCb-class.html#__init__,Method ganeti.rapi.connector.Mapper.__init__()=ganeti.rapi.connector.Mapper-class.html#__init__,Method ganeti.rapi.connector.UriPattern.__init__()=ganeti.rapi.connector.UriPattern-class.html#__init__,Method ganeti.rapi.rlib2._R_Tags.__init__()=ganeti.rapi.rlib2._R_Tags-class.html#__init__,Method ganeti.rapi.testutils.FakeCurl.__init__()=ganeti.rapi.testutils.FakeCurl-class.html#__init__,Method ganeti.rapi.testutils.InputTestClient.__init__()=ganeti.rapi.testutils.InputTestClient-class.html#__init__,Method ganeti.rapi.testutils._LuxiCallRecorder.__init__()=ganeti.rapi.testutils._LuxiCallRecorder-class.html#__init__,Method ganeti.rapi.testutils._RapiMock.__init__()=ganeti.rapi.testutils._RapiMock-class.html#__init__,Method ganeti.rapi.testutils._TestLuxiTransport.__init__()=ganeti.rapi.testutils._TestLuxiTransport-class.html#__init__,Method ganeti.rpc.client.AbstractClient.__init__()=ganeti.rpc.client.AbstractClient-class.html#__init__,Method ganeti.rpc.client.AbstractStubClient.__init__()=ganeti.rpc.client.AbstractStubClient-class.html#__init__,Method ganeti.rpc.node.BootstrapRunner.__init__()=ganeti.rpc.node.BootstrapRunner-class.html#__init__,Method ganeti.rpc.node.ConfigRunner.__init__()=ganeti.rpc.node.ConfigRunner-class.html#__init__,Method ganeti.rpc.node.DnsOnlyRunner.__init__()=ganeti.rpc.node.DnsOnlyRunner-class.html#__init__,Method ganeti.rpc.node.JobQueueRunner.__init__()=ganeti.rpc.node.JobQueueRunner-class.html#__init__,Method ganeti.rpc.node.RpcResult.__init__()=ganeti.rpc.node.RpcResult-class.html#__init__,Method ganeti.rpc.node.RpcRunner.__init__()=ganeti.rpc.node.RpcRunner-class.html#__init__,Method ganeti.rpc.node._RpcClientBase.__init__()=ganeti.rpc.node._RpcClientBase-class.html#__init__,Method ganeti.rpc.node._RpcProcessor.__init__()=ganeti.rpc.node._RpcProcessor-class.html#__init__,Method ganeti.rpc.node._StaticResolver.__init__()=ganeti.rpc.node._StaticResolver-class.html#__init__,Method ganeti.rpc.transport.FdTransport.__init__()=ganeti.rpc.transport.FdTransport-class.html#__init__,Method ganeti.rpc.transport.Transport.__init__()=ganeti.rpc.transport.Transport-class.html#__init__,Method ganeti.runtime.GetentResolver.__init__()=ganeti.runtime.GetentResolver-class.html#__init__,Method ganeti.serializer.Private.__init__()=ganeti.serializer.Private-class.html#__init__,Method ganeti.serializer.PrivateDict.__init__()=ganeti.serializer.PrivateDict-class.html#__init__,Method ganeti.server.masterd.GanetiContext.__init__()=ganeti.server.masterd.GanetiContext-class.html#__init__,Method ganeti.server.noded.MlockallRequestExecutor.__init__()=ganeti.server.noded.MlockallRequestExecutor-class.html#__init__,Method ganeti.server.noded.NodeRequestHandler.__init__()=ganeti.server.noded.NodeRequestHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiHandler.__init__()=ganeti.server.rapi.RemoteApiHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiRequestContext.__init__()=ganeti.server.rapi.RemoteApiRequestContext-class.html#__init__,Method ganeti.ssconf.SimpleStore.__init__()=ganeti.ssconf.SimpleStore-class.html#__init__,Method ganeti.ssh.SshRunner.__init__()=ganeti.ssh.SshRunner-class.html#__init__,Method ganeti.storage.base.BlockDev.__init__()=ganeti.storage.base.BlockDev-class.html#__init__,Method ganeti.storage.bdev.LogicalVolume.__init__()=ganeti.storage.bdev.LogicalVolume-class.html#__init__,Method ganeti.storage.bdev.PersistentBlockDevice.__init__()=ganeti.storage.bdev.PersistentBlockDevice-class.html#__init__,Method ganeti.storage.bdev.RADOSBlockDevice.__init__()=ganeti.storage.bdev.RADOSBlockDevice-class.html#__init__,Method ganeti.storage.container.FileStorage.__init__()=ganeti.storage.container.FileStorage-class.html#__init__,Method ganeti.storage.drbd.DRBD8Dev.__init__()=ganeti.storage.drbd.DRBD8Dev-class.html#__init__,Method ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Info.__init__()=ganeti.storage.drbd_info.DRBD8Info-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Status.__init__()=ganeti.storage.drbd_info.DRBD8Status-class.html#__init__,Method ganeti.storage.extstorage.ExtStorageDevice.__init__()=ganeti.storage.extstorage.ExtStorageDevice-class.html#__init__,Method ganeti.storage.filestorage.FileDeviceHelper.__init__()=ganeti.storage.filestorage.FileDeviceHelper-class.html#__init__,Method ganeti.storage.filestorage.FileStorage.__init__()=ganeti.storage.filestorage.FileStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterStorage.__init__()=ganeti.storage.gluster.GlusterStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterVolume.__init__()=ganeti.storage.gluster.GlusterVolume-class.html#__init__,Method ganeti.tools.burnin.Burner.__init__()=ganeti.tools.burnin.Burner-class.html#__init__,Method ganeti.tools.burnin.JobHandler.__init__()=ganeti.tools.burnin.JobHandler-class.html#__init__,Method ganeti.tools.cfgupgrade.CfgUpgrade.__init__()=ganeti.tools.cfgupgrade.CfgUpgrade-class.html#__init__,Method ganeti.uidpool.LockedUid.__init__()=ganeti.uidpool.LockedUid-class.html#__init__,Method ganeti.utils.FdConditionWaiterHelper.__init__()=ganeti.utils.FdConditionWaiterHelper-class.html#__init__,Method ganeti.utils.FieldSet.__init__()=ganeti.utils.FieldSet-class.html#__init__,Method ganeti.utils.SignalHandler.__init__()=ganeti.utils.SignalHandler-class.html#__init__,Method ganeti.utils.SignalWakeupFd.__init__()=ganeti.utils.SignalWakeupFd-class.html#__init__,Method ganeti.utils.algo.RunningTimeout.__init__()=ganeti.utils.algo.RunningTimeout-class.html#__init__,Method ganeti.utils.filelock.FileLock.__init__()=ganeti.utils.filelock.FileLock-class.html#__init__,Method ganeti.utils.io.FileStatHelper.__init__()=ganeti.utils.io.FileStatHelper-class.html#__init__,Method ganeti.utils.io.TemporaryFileManager.__init__()=ganeti.utils.io.TemporaryFileManager-class.html#__init__,Method ganeti.utils.livelock.LiveLock.__init__()=ganeti.utils.livelock.LiveLock-class.html#__init__,Method ganeti.utils.livelock.LiveLockName.__init__()=ganeti.utils.livelock.LiveLockName-class.html#__init__,Method ganeti.utils.log._ReopenableLogHandler.__init__()=ganeti.utils.log._ReopenableLogHandler-class.html#__init__,Method ganeti.utils.process.RunResult.__init__()=ganeti.utils.process.RunResult-class.html#__init__,Method ganeti.utils.retry._RetryDelayCalculator.__init__()=ganeti.utils.retry._RetryDelayCalculator-class.html#__init__,Method ganeti.utils.text.LineSplitter.__init__()=ganeti.utils.text.LineSplitter-class.html#__init__,Method ganeti.utils.text.ShellWriter.__init__()=ganeti.utils.text.ShellWriter-class.html#__init__,Method ganeti.watcher.Instance.__init__()=ganeti.watcher.Instance-class.html#__init__,Method ganeti.watcher.Node.__init__()=ganeti.watcher.Node-class.html#__init__,Method ganeti.watcher.nodemaint.NodeMaintenance.__init__()=ganeti.watcher.nodemaint.NodeMaintenance-class.html#__init__,Method ganeti.watcher.state.WatcherState.__init__()=ganeti.watcher.state.WatcherState-class.html#__init__,Method ganeti.wconfd.Client.__init__()=ganeti.wconfd.Client-class.html#__init__,Method ganeti.workerpool.BaseWorker.__init__()=ganeti.workerpool.BaseWorker-class.html#__init__,Method ganeti.workerpool.DeferTask.__init__()=ganeti.workerpool.DeferTask-class.html#__init__,Method ganeti.workerpool.WorkerPool.__init__()=ganeti.workerpool.WorkerPool-class.html#__init__,Method script-build_bash_completion.CompletionWriter.__init__()=script-build_bash_completion.CompletionWriter-class.html#__init__,Method script-cfgshell.ConfigShell.__init__()=script-cfgshell.ConfigShell-class.html#__init__,Method script-cluster_merge.Merger.__init__()=script-cluster_merge.Merger-class.html#__init__,Method script-cluster_merge.MergerData.__init__()=script-cluster_merge.MergerData-class.html#__init__,Method script-confd_client.TestClient.__init__()=script-confd_client.TestClient-class.html#__init__,Method script-import_export.ChildProcess.__init__()=script-import_export.ChildProcess-class.html#__init__,Method script-import_export.StatusFile.__init__()=script-import_export.StatusFile-class.html#__init__,Method script-move_instance.InstanceMove.__init__()=script-move_instance.InstanceMove-class.html#__init__,Method script-move_instance.MoveDestExecutor.__init__()=script-move_instance.MoveDestExecutor-class.html#__init__,Method script-move_instance.MoveJobPollReportCb.__init__()=script-move_instance.MoveJobPollReportCb-class.html#__init__,Method script-move_instance.MoveRuntime.__init__()=script-move_instance.MoveRuntime-class.html#__init__,Method script-move_instance.MoveSourceExecutor.__init__()=script-move_instance.MoveSourceExecutor-class.html#__init__,Method script-move_instance.RapiClientFactory.__init__()=script-move_instance.RapiClientFactory-class.html#__init__,Method script-query_config.QueryClient.__init__()=script-query_config.QueryClient-class.html#__init__"><a title="ganeti.asyncnotifier.AsyncNotifier.__init__
+ganeti.asyncnotifier.FileEventHandlerBase.__init__
+ganeti.asyncnotifier.SingleFileEventHandler.__init__
+ganeti.backend.HooksRunner.__init__
+ganeti.build.sphinx_ext._ManPageXRefRole.__init__
+ganeti.cli.ArgSuggest.__init__
+ganeti.cli.FeedbackFnJobPollReportCb.__init__
+ganeti.cli.JobExecutor.__init__
+ganeti.cli.JobPollCbBase.__init__
+ganeti.cli.JobPollReportCbBase.__init__
+ganeti.cli.StdioJobPollReportCb.__init__
+ganeti.cli.TableColumn.__init__
+ganeti.cli._Argument.__init__
+ganeti.cli._LuxiJobPollCb.__init__
+ganeti.cli._QueryColumnFormatter.__init__
+ganeti.cli._RunWhileDaemonsStoppedHelper.__init__
+ganeti.cli._ShowUsage.__init__
+ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__
+ganeti.client.gnt_debug._JobQueueTestReporter.__init__
+ganeti.client.gnt_node.ReplyStatus.__init__
+ganeti.cmdlib.base.LUWConfdClient.__init__
+ganeti.cmdlib.base.LogicalUnit.__init__
+ganeti.cmdlib.base.QueryBase.__init__
+ganeti.cmdlib.base.ResultWithJobs.__init__
+ganeti.cmdlib.base.Tasklet.__init__
+ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__
+ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__
+ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__
+ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__
+ganeti.cmdlib.instance_storage.TemporaryDisk.__init__
+ganeti.cmdlib.test.TestSocketWrapper.__init__
+ganeti.confd.client.ConfdAsyncUDPClient.__init__
+ganeti.confd.client.ConfdClient.__init__
+ganeti.confd.client.ConfdClientRequest.__init__
+ganeti.confd.client.ConfdCountingCallback.__init__
+ganeti.confd.client.ConfdFilterCallback.__init__
+ganeti.confd.client.StoreResultCallback.__init__
+ganeti.confd.client._Request.__init__
+ganeti.config.ConfigWriter.__init__
+ganeti.config.DetachedConfig.__init__
+ganeti.config.temporary_reservations.TemporaryReservationManager.__init__
+ganeti.config.utils.ConfigManager.__init__
+ganeti.daemon.AsyncAwaker.__init__
+ganeti.daemon.AsyncTerminatedMessageStream.__init__
+ganeti.daemon.AsyncUDPSocket.__init__
+ganeti.daemon.AsyncoreScheduler.__init__
+ganeti.daemon.Mainloop.__init__
+ganeti.daemon._ShutdownCheck.__init__
+ganeti.errors.DeviceCreationError.__init__
+ganeti.hooksmaster.HooksMaster.__init__
+ganeti.ht._WrapperBase.__init__
+ganeti.http.HttpBase.__init__
+ganeti.http.HttpClientToServerStartLine.__init__
+ganeti.http.HttpException.__init__
+ganeti.http.HttpMessage.__init__
+ganeti.http.HttpMessageReader.__init__
+ganeti.http.HttpMessageWriter.__init__
+ganeti.http.HttpServerToClientStartLine.__init__
+ganeti.http.HttpSslParams.__init__
+ganeti.http.client.HttpClientRequest.__init__
+ganeti.http.client._PendingRequest.__init__
+ganeti.http.client._PendingRequestMonitor.__init__
+ganeti.http.server.HttpResponder.__init__
+ganeti.http.server.HttpServer.__init__
+ganeti.http.server.HttpServerRequestExecutor.__init__
+ganeti.http.server._HttpServerRequest.__init__
+ganeti.http.server._HttpServerToClientMessageWriter.__init__
+ganeti.hypervisor.hv_chroot.ChrootManager.__init__
+ganeti.hypervisor.hv_fake.FakeHypervisor.__init__
+ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__
+ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__
+ganeti.hypervisor.hv_xen.XenHypervisor.__init__
+ganeti.impexpd.ChildIOProcessor.__init__
+ganeti.impexpd.CommandBuilder.__init__
+ganeti.jqueue.JobQueue.__init__
+ganeti.jqueue._JobDependencyManager.__init__
+ganeti.jqueue._JobProcessor.__init__
+ganeti.jqueue._OpExecCallbacks.__init__
+ganeti.jqueue._OpExecContext.__init__
+ganeti.jqueue._QueuedJob.__init__
+ganeti.jqueue._QueuedOpCode.__init__
+ganeti.jqueue._TimeoutStrategyWrapper.__init__
+ganeti.locking.PipeCondition.__init__
+ganeti.locking.SharedLock.__init__
+ganeti.locking.SingleNotifyPipeCondition.__init__
+ganeti.locking._BaseCondition.__init__
+ganeti.locking._PipeConditionWithMode.__init__
+ganeti.locking._SingleNotifyPipeConditionWaiter.__init__
+ganeti.luxi.Client.__init__
+ganeti.masterd.iallocator.IARequestBase.__init__
+ganeti.masterd.iallocator.IAllocator.__init__
+ganeti.masterd.instance.DiskExport.__init__
+ganeti.masterd.instance.DiskImport.__init__
+ganeti.masterd.instance.DiskTransfer.__init__
+ganeti.masterd.instance.ExportInstanceHelper.__init__
+ganeti.masterd.instance.ImportExportLoop.__init__
+ganeti.masterd.instance.ImportExportTimeouts.__init__
+ganeti.masterd.instance._DiskImportExportBase.__init__
+ganeti.masterd.instance._DiskTransferPrivate.__init__
+ganeti.masterd.instance._RemoteExportCb.__init__
+ganeti.masterd.instance._RemoteImportCb.__init__
+ganeti.masterd.instance._TransferInstCbBase.__init__
+ganeti.mcpu.LockAttemptTimeoutStrategy.__init__
+ganeti.mcpu.Processor.__init__
+ganeti.metad.Client.__init__
+ganeti.netutils.Hostname.__init__
+ganeti.netutils.IP4Address.__init__
+ganeti.netutils.IP6Address.__init__
+ganeti.network.AddressPool.__init__
+ganeti.opcodes_base.BaseOpCode.__init__
+ganeti.outils.ValidatedSlots.__init__
+ganeti.ovf.Converter.__init__
+ganeti.ovf.OVFReader.__init__
+ganeti.ovf.OVFWriter.__init__
+ganeti.query.ClusterQueryData.__init__
+ganeti.query.GroupQueryData.__init__
+ganeti.query.InstanceQueryData.__init__
+ganeti.query.LockQueryData.__init__
+ganeti.query.NetworkQueryData.__init__
+ganeti.query.NodeQueryData.__init__
+ganeti.query.Query.__init__
+ganeti.query._FilterCompilerHelper.__init__
+ganeti.query._FilterHints.__init__
+ganeti.rapi.auth.basic_auth.BasicAuthenticator.__init__
+ganeti.rapi.auth.basic_auth.FileEventHandler.__init__
+ganeti.rapi.auth.pam.CFunctions.__init__
+ganeti.rapi.auth.pam.PamAuthenticator.__init__
+ganeti.rapi.auth.pam.PamHandleT.__init__
+ganeti.rapi.auth.users_file.PasswordFileUser.__init__
+ganeti.rapi.auth.users_file.RapiUsers.__init__
+ganeti.rapi.baserlib.OpcodeAttributes.__init__
+ganeti.rapi.baserlib.ResourceBase.__init__
+ganeti.rapi.client.GanetiApiError.__init__
+ganeti.rapi.client.GanetiRapiClient.__init__
+ganeti.rapi.client_utils.RapiJobPollCb.__init__
+ganeti.rapi.connector.Mapper.__init__
+ganeti.rapi.connector.UriPattern.__init__
+ganeti.rapi.rlib2._R_Tags.__init__
+ganeti.rapi.testutils.FakeCurl.__init__
+ganeti.rapi.testutils.InputTestClient.__init__
+ganeti.rapi.testutils._LuxiCallRecorder.__init__
+ganeti.rapi.testutils._RapiMock.__init__
+ganeti.rapi.testutils._TestLuxiTransport.__init__
+ganeti.rpc.client.AbstractClient.__init__
+ganeti.rpc.client.AbstractStubClient.__init__
+ganeti.rpc.node.BootstrapRunner.__init__
+ganeti.rpc.node.ConfigRunner.__init__
+ganeti.rpc.node.DnsOnlyRunner.__init__
+ganeti.rpc.node.JobQueueRunner.__init__
+ganeti.rpc.node.RpcResult.__init__
+ganeti.rpc.node.RpcRunner.__init__
+ganeti.rpc.node._RpcClientBase.__init__
+ganeti.rpc.node._RpcProcessor.__init__
+ganeti.rpc.node._StaticResolver.__init__
+ganeti.rpc.transport.FdTransport.__init__
+ganeti.rpc.transport.Transport.__init__
+ganeti.runtime.GetentResolver.__init__
+ganeti.serializer.Private.__init__
+ganeti.serializer.PrivateDict.__init__
+ganeti.server.masterd.GanetiContext.__init__
+ganeti.server.noded.MlockallRequestExecutor.__init__
+ganeti.server.noded.NodeRequestHandler.__init__
+ganeti.server.rapi.RemoteApiHandler.__init__
+ganeti.server.rapi.RemoteApiRequestContext.__init__
+ganeti.ssconf.SimpleStore.__init__
+ganeti.ssh.SshRunner.__init__
+ganeti.storage.base.BlockDev.__init__
+ganeti.storage.bdev.LogicalVolume.__init__
+ganeti.storage.bdev.PersistentBlockDevice.__init__
+ganeti.storage.bdev.RADOSBlockDevice.__init__
+ganeti.storage.container.FileStorage.__init__
+ganeti.storage.drbd.DRBD8Dev.__init__
+ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__
+ganeti.storage.drbd_info.DRBD8Info.__init__
+ganeti.storage.drbd_info.DRBD8Status.__init__
+ganeti.storage.extstorage.ExtStorageDevice.__init__
+ganeti.storage.filestorage.FileDeviceHelper.__init__
+ganeti.storage.filestorage.FileStorage.__init__
+ganeti.storage.gluster.GlusterStorage.__init__
+ganeti.storage.gluster.GlusterVolume.__init__
+ganeti.tools.burnin.Burner.__init__
+ganeti.tools.burnin.JobHandler.__init__
+ganeti.tools.cfgupgrade.CfgUpgrade.__init__
+ganeti.uidpool.LockedUid.__init__
+ganeti.utils.FdConditionWaiterHelper.__init__
+ganeti.utils.FieldSet.__init__
+ganeti.utils.SignalHandler.__init__
+ganeti.utils.SignalWakeupFd.__init__
+ganeti.utils.algo.RunningTimeout.__init__
+ganeti.utils.filelock.FileLock.__init__
+ganeti.utils.io.FileStatHelper.__init__
+ganeti.utils.io.TemporaryFileManager.__init__
+ganeti.utils.livelock.LiveLock.__init__
+ganeti.utils.livelock.LiveLockName.__init__
+ganeti.utils.log._ReopenableLogHandler.__init__
+ganeti.utils.process.RunResult.__init__
+ganeti.utils.retry._RetryDelayCalculator.__init__
+ganeti.utils.text.LineSplitter.__init__
+ganeti.utils.text.ShellWriter.__init__
+ganeti.watcher.Instance.__init__
+ganeti.watcher.Node.__init__
+ganeti.watcher.nodemaint.NodeMaintenance.__init__
+ganeti.watcher.state.WatcherState.__init__
+ganeti.wconfd.Client.__init__
+ganeti.workerpool.BaseWorker.__init__
+ganeti.workerpool.DeferTask.__init__
+ganeti.workerpool.WorkerPool.__init__
+script-build_bash_completion.CompletionWriter.__init__
+script-cfgshell.ConfigShell.__init__
+script-cluster_merge.Merger.__init__
+script-cluster_merge.MergerData.__init__
+script-confd_client.TestClient.__init__
+script-import_export.ChildProcess.__init__
+script-import_export.StatusFile.__init__
+script-move_instance.InstanceMove.__init__
+script-move_instance.MoveDestExecutor.__init__
+script-move_instance.MoveJobPollReportCb.__init__
+script-move_instance.MoveRuntime.__init__
+script-move_instance.MoveSourceExecutor.__init__
+script-move_instance.RapiClientFactory.__init__
+script-query_config.QueryClient.__init__" class="py-name" href="#" onclick="return doclink('link-36', '__init__', 'link-36');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-37" class="py-name" targets="Variable ganeti.http.HttpException.message=ganeti.http.HttpException-class.html#message"><a title="ganeti.http.HttpException.message" class="py-name" href="#" onclick="return doclink('link-37', 'message', 'link-37');">message</a></tt> <tt class="py-op">=</tt> <tt id="link-38" class="py-name"><a title="ganeti.http.HttpException.message" class="py-name" href="#" onclick="return doclink('link-38', 'message', 'link-37');">message</a></tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">created_devices</tt> <tt class="py-op">=</tt> <tt class="py-name">created_devices</tt> </tt>
+</div><a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"> </tt>
+<a name="DeviceCreationError.__str__"></a><div id="DeviceCreationError.__str__-def"><a name="L223"></a><tt class="py-lineno">223</tt> <a class="py-toggle" href="#" id="DeviceCreationError.__str__-toggle" onclick="return toggle('DeviceCreationError.__str__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors.DeviceCreationError-class.html#__str__">__str__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="DeviceCreationError.__str__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="DeviceCreationError.__str__-expanded"><a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-39" class="py-name"><a title="ganeti.http.HttpException.message" class="py-name" href="#" onclick="return doclink('link-39', 'message', 'link-37');">message</a></tt> </tt>
+</div></div><a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line"> </tt>
+<a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line"> </tt>
+<a name="OpCodeUnknown"></a><div id="OpCodeUnknown-def"><a name="L227"></a><tt class="py-lineno">227</tt> <a class="py-toggle" href="#" id="OpCodeUnknown-toggle" onclick="return toggle('OpCodeUnknown');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.OpCodeUnknown-class.html">OpCodeUnknown</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="OpCodeUnknown-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="OpCodeUnknown-expanded"><a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line">  <tt class="py-docstring">"""Unknown opcode submitted.</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line"><tt class="py-docstring">  This signifies a mismatch between the definitions on the client and</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line"><tt class="py-docstring">  server side.</tt> </tt>
+<a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"> </tt>
+<a name="JobLost"></a><div id="JobLost-def"><a name="L236"></a><tt class="py-lineno">236</tt> <a class="py-toggle" href="#" id="JobLost-toggle" onclick="return toggle('JobLost');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.JobLost-class.html">JobLost</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="JobLost-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="JobLost-expanded"><a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line">  <tt class="py-docstring">"""Submitted job lost.</tt> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line"><tt class="py-docstring">  The job was submitted but it cannot be found in the current job</tt> </tt>
+<a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line"><tt class="py-docstring">  list.</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line"> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line"> </tt>
+<a name="JobFileCorrupted"></a><div id="JobFileCorrupted-def"><a name="L245"></a><tt class="py-lineno">245</tt> <a class="py-toggle" href="#" id="JobFileCorrupted-toggle" onclick="return toggle('JobFileCorrupted');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.JobFileCorrupted-class.html">JobFileCorrupted</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="JobFileCorrupted-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="JobFileCorrupted-expanded"><a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line">  <tt class="py-docstring">"""Job file could not be properly decoded/restored.</tt> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line"> </tt>
+<a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line"> </tt>
+<a name="ResolverError"></a><div id="ResolverError-def"><a name="L251"></a><tt class="py-lineno">251</tt> <a class="py-toggle" href="#" id="ResolverError-toggle" onclick="return toggle('ResolverError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ResolverError-class.html">ResolverError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ResolverError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ResolverError-expanded"><a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line">  <tt class="py-docstring">"""Host name cannot be resolved.</tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line"><tt class="py-docstring">  This is not a normal situation for Ganeti, as we rely on having a</tt> </tt>
+<a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line"><tt class="py-docstring">  working resolver.</tt> </tt>
+<a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line"><tt class="py-docstring">  The non-resolvable hostname is available as the first element of the</tt> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line"><tt class="py-docstring">  args tuple; the other two elements of the tuple are the first two</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line"><tt class="py-docstring">  args of the socket.gaierror exception (error code and description).</tt> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line"> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line"> </tt>
+<a name="HooksFailure"></a><div id="HooksFailure-def"><a name="L264"></a><tt class="py-lineno">264</tt> <a class="py-toggle" href="#" id="HooksFailure-toggle" onclick="return toggle('HooksFailure');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.HooksFailure-class.html">HooksFailure</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HooksFailure-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HooksFailure-expanded"><a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">  <tt class="py-docstring">"""A generic hook failure.</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line"><tt class="py-docstring">  This signifies usually a setup misconfiguration.</tt> </tt>
+<a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line"> </tt>
+<a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line"> </tt>
+<a name="HooksAbort"></a><div id="HooksAbort-def"><a name="L272"></a><tt class="py-lineno">272</tt> <a class="py-toggle" href="#" id="HooksAbort-toggle" onclick="return toggle('HooksAbort');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.HooksAbort-class.html">HooksAbort</a><tt class="py-op">(</tt><tt class="py-base-class">HooksFailure</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HooksAbort-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HooksAbort-expanded"><a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line">  <tt class="py-docstring">"""A required hook has failed.</tt> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line"><tt class="py-docstring">  This caused an abort of the operation in the initial phase. This</tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line"><tt class="py-docstring">  exception always has an attribute args which is a list of tuples of:</tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line"><tt class="py-docstring">    - node: the source node on which this hooks has failed</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line"><tt class="py-docstring">    - script: the name of the script which aborted the run</tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line"> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line"> </tt>
+<a name="UnitParseError"></a><div id="UnitParseError-def"><a name="L283"></a><tt class="py-lineno">283</tt> <a class="py-toggle" href="#" id="UnitParseError-toggle" onclick="return toggle('UnitParseError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.UnitParseError-class.html">UnitParseError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="UnitParseError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="UnitParseError-expanded"><a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">  <tt class="py-docstring">"""Unable to parse size unit.</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line"> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line"> </tt>
+<a name="ParseError"></a><div id="ParseError-def"><a name="L289"></a><tt class="py-lineno">289</tt> <a class="py-toggle" href="#" id="ParseError-toggle" onclick="return toggle('ParseError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ParseError-class.html">ParseError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ParseError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ParseError-expanded"><a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line">  <tt class="py-docstring">"""Generic parse error.</tt> </tt>
+<a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line"><tt class="py-docstring">  Raised when unable to parse user input.</tt> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line"> </tt>
+<a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line"> </tt>
+<a name="TypeEnforcementError"></a><div id="TypeEnforcementError-def"><a name="L297"></a><tt class="py-lineno">297</tt> <a class="py-toggle" href="#" id="TypeEnforcementError-toggle" onclick="return toggle('TypeEnforcementError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.TypeEnforcementError-class.html">TypeEnforcementError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TypeEnforcementError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="TypeEnforcementError-expanded"><a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line">  <tt class="py-docstring">"""Unable to enforce data type.</tt> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line"> </tt>
+<a name="L302"></a><tt class="py-lineno">302</tt>  <tt class="py-line"> </tt>
+<a name="X509CertError"></a><div id="X509CertError-def"><a name="L303"></a><tt class="py-lineno">303</tt> <a class="py-toggle" href="#" id="X509CertError-toggle" onclick="return toggle('X509CertError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.X509CertError-class.html">X509CertError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="X509CertError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="X509CertError-expanded"><a name="L304"></a><tt class="py-lineno">304</tt>  <tt class="py-line">  <tt class="py-docstring">"""Invalid X509 certificate.</tt> </tt>
+<a name="L305"></a><tt class="py-lineno">305</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L306"></a><tt class="py-lineno">306</tt>  <tt class="py-line"><tt class="py-docstring">  This error has two arguments: the certificate filename and the error cause.</tt> </tt>
+<a name="L307"></a><tt class="py-lineno">307</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L308"></a><tt class="py-lineno">308</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L309"></a><tt class="py-lineno">309</tt>  <tt class="py-line"> </tt>
+<a name="L310"></a><tt class="py-lineno">310</tt>  <tt class="py-line"> </tt>
+<a name="TagError"></a><div id="TagError-def"><a name="L311"></a><tt class="py-lineno">311</tt> <a class="py-toggle" href="#" id="TagError-toggle" onclick="return toggle('TagError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.TagError-class.html">TagError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="TagError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="TagError-expanded"><a name="L312"></a><tt class="py-lineno">312</tt>  <tt class="py-line">  <tt class="py-docstring">"""Generic tag error.</tt> </tt>
+<a name="L313"></a><tt class="py-lineno">313</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L314"></a><tt class="py-lineno">314</tt>  <tt class="py-line"><tt class="py-docstring">  The argument to this exception will show the exact error.</tt> </tt>
+<a name="L315"></a><tt class="py-lineno">315</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L316"></a><tt class="py-lineno">316</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L317"></a><tt class="py-lineno">317</tt>  <tt class="py-line"> </tt>
+<a name="L318"></a><tt class="py-lineno">318</tt>  <tt class="py-line"> </tt>
+<a name="CommandError"></a><div id="CommandError-def"><a name="L319"></a><tt class="py-lineno">319</tt> <a class="py-toggle" href="#" id="CommandError-toggle" onclick="return toggle('CommandError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.CommandError-class.html">CommandError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CommandError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="CommandError-expanded"><a name="L320"></a><tt class="py-lineno">320</tt>  <tt class="py-line">  <tt class="py-docstring">"""External command error.</tt> </tt>
+<a name="L321"></a><tt class="py-lineno">321</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L322"></a><tt class="py-lineno">322</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L323"></a><tt class="py-lineno">323</tt>  <tt class="py-line"> </tt>
+<a name="L324"></a><tt class="py-lineno">324</tt>  <tt class="py-line"> </tt>
+<a name="StorageError"></a><div id="StorageError-def"><a name="L325"></a><tt class="py-lineno">325</tt> <a class="py-toggle" href="#" id="StorageError-toggle" onclick="return toggle('StorageError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.StorageError-class.html">StorageError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="StorageError-expanded"><a name="L326"></a><tt class="py-lineno">326</tt>  <tt class="py-line">  <tt class="py-docstring">"""Storage-related exception.</tt> </tt>
+<a name="L327"></a><tt class="py-lineno">327</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L328"></a><tt class="py-lineno">328</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L329"></a><tt class="py-lineno">329</tt>  <tt class="py-line"> </tt>
+<a name="L330"></a><tt class="py-lineno">330</tt>  <tt class="py-line"> </tt>
+<a name="InotifyError"></a><div id="InotifyError-def"><a name="L331"></a><tt class="py-lineno">331</tt> <a class="py-toggle" href="#" id="InotifyError-toggle" onclick="return toggle('InotifyError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.InotifyError-class.html">InotifyError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="InotifyError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="InotifyError-expanded"><a name="L332"></a><tt class="py-lineno">332</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error raised when there is a failure setting up an inotify watcher.</tt> </tt>
+<a name="L333"></a><tt class="py-lineno">333</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L334"></a><tt class="py-lineno">334</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L335"></a><tt class="py-lineno">335</tt>  <tt class="py-line"> </tt>
+<a name="L336"></a><tt class="py-lineno">336</tt>  <tt class="py-line"> </tt>
+<a name="QuitGanetiException"></a><div id="QuitGanetiException-def"><a name="L337"></a><tt class="py-lineno">337</tt> <a class="py-toggle" href="#" id="QuitGanetiException-toggle" onclick="return toggle('QuitGanetiException');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.QuitGanetiException-class.html">QuitGanetiException</a><tt class="py-op">(</tt><tt class="py-base-class">Exception</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="QuitGanetiException-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="QuitGanetiException-expanded"><a name="L338"></a><tt class="py-lineno">338</tt>  <tt class="py-line">  <tt class="py-docstring">"""Signal Ganeti that it must quit.</tt> </tt>
+<a name="L339"></a><tt class="py-lineno">339</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L340"></a><tt class="py-lineno">340</tt>  <tt class="py-line"><tt class="py-docstring">  This is not necessarily an error (and thus not a subclass of</tt> </tt>
+<a name="L341"></a><tt class="py-lineno">341</tt>  <tt class="py-line"><tt class="py-docstring">  GenericError), but it's an exceptional circumstance and it is thus</tt> </tt>
+<a name="L342"></a><tt class="py-lineno">342</tt>  <tt class="py-line"><tt class="py-docstring">  treated. This exception should be instantiated with two values. The</tt> </tt>
+<a name="L343"></a><tt class="py-lineno">343</tt>  <tt class="py-line"><tt class="py-docstring">  first one will specify the return code to the caller, and the second</tt> </tt>
+<a name="L344"></a><tt class="py-lineno">344</tt>  <tt class="py-line"><tt class="py-docstring">  one will be the returned result (either as an error or as a normal</tt> </tt>
+<a name="L345"></a><tt class="py-lineno">345</tt>  <tt class="py-line"><tt class="py-docstring">  result). Usually only the leave cluster rpc call should return</tt> </tt>
+<a name="L346"></a><tt class="py-lineno">346</tt>  <tt class="py-line"><tt class="py-docstring">  status True (as there it's expected we quit), every other call will</tt> </tt>
+<a name="L347"></a><tt class="py-lineno">347</tt>  <tt class="py-line"><tt class="py-docstring">  return status False (as a critical error was encountered).</tt> </tt>
+<a name="L348"></a><tt class="py-lineno">348</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L349"></a><tt class="py-lineno">349</tt>  <tt class="py-line"><tt class="py-docstring">  Examples::</tt> </tt>
+<a name="L350"></a><tt class="py-lineno">350</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L351"></a><tt class="py-lineno">351</tt>  <tt class="py-line"><tt class="py-docstring">    # Return a result of "True" to the caller, but quit ganeti afterwards</tt> </tt>
+<a name="L352"></a><tt class="py-lineno">352</tt>  <tt class="py-line"><tt class="py-docstring">    raise QuitGanetiException(True, None)</tt> </tt>
+<a name="L353"></a><tt class="py-lineno">353</tt>  <tt class="py-line"><tt class="py-docstring">    # Send an error to the caller, and quit ganeti</tt> </tt>
+<a name="L354"></a><tt class="py-lineno">354</tt>  <tt class="py-line"><tt class="py-docstring">    raise QuitGanetiException(False, "Fatal safety violation, shutting down")</tt> </tt>
+<a name="L355"></a><tt class="py-lineno">355</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L356"></a><tt class="py-lineno">356</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L357"></a><tt class="py-lineno">357</tt>  <tt class="py-line"> </tt>
+<a name="L358"></a><tt class="py-lineno">358</tt>  <tt class="py-line"> </tt>
+<a name="JobQueueError"></a><div id="JobQueueError-def"><a name="L359"></a><tt class="py-lineno">359</tt> <a class="py-toggle" href="#" id="JobQueueError-toggle" onclick="return toggle('JobQueueError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.JobQueueError-class.html">JobQueueError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="JobQueueError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="JobQueueError-expanded"><a name="L360"></a><tt class="py-lineno">360</tt>  <tt class="py-line">  <tt class="py-docstring">"""Job queue error.</tt> </tt>
+<a name="L361"></a><tt class="py-lineno">361</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L362"></a><tt class="py-lineno">362</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L363"></a><tt class="py-lineno">363</tt>  <tt class="py-line"> </tt>
+<a name="L364"></a><tt class="py-lineno">364</tt>  <tt class="py-line"> </tt>
+<a name="JobQueueDrainError"></a><div id="JobQueueDrainError-def"><a name="L365"></a><tt class="py-lineno">365</tt> <a class="py-toggle" href="#" id="JobQueueDrainError-toggle" onclick="return toggle('JobQueueDrainError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.JobQueueDrainError-class.html">JobQueueDrainError</a><tt class="py-op">(</tt><tt class="py-base-class">JobQueueError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="JobQueueDrainError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="JobQueueDrainError-expanded"><a name="L366"></a><tt class="py-lineno">366</tt>  <tt class="py-line">  <tt class="py-docstring">"""Job queue is marked for drain error.</tt> </tt>
+<a name="L367"></a><tt class="py-lineno">367</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L368"></a><tt class="py-lineno">368</tt>  <tt class="py-line"><tt class="py-docstring">  This is raised when a job submission attempt is made but the queue</tt> </tt>
+<a name="L369"></a><tt class="py-lineno">369</tt>  <tt class="py-line"><tt class="py-docstring">  is marked for drain.</tt> </tt>
+<a name="L370"></a><tt class="py-lineno">370</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L371"></a><tt class="py-lineno">371</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L372"></a><tt class="py-lineno">372</tt>  <tt class="py-line"> </tt>
+<a name="L373"></a><tt class="py-lineno">373</tt>  <tt class="py-line"> </tt>
+<a name="JobQueueFull"></a><div id="JobQueueFull-def"><a name="L374"></a><tt class="py-lineno">374</tt> <a class="py-toggle" href="#" id="JobQueueFull-toggle" onclick="return toggle('JobQueueFull');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.JobQueueFull-class.html">JobQueueFull</a><tt class="py-op">(</tt><tt class="py-base-class">JobQueueError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="JobQueueFull-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="JobQueueFull-expanded"><a name="L375"></a><tt class="py-lineno">375</tt>  <tt class="py-line">  <tt class="py-docstring">"""Job queue full error.</tt> </tt>
+<a name="L376"></a><tt class="py-lineno">376</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L377"></a><tt class="py-lineno">377</tt>  <tt class="py-line"><tt class="py-docstring">  Raised when job queue size reached its hard limit.</tt> </tt>
+<a name="L378"></a><tt class="py-lineno">378</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L379"></a><tt class="py-lineno">379</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L380"></a><tt class="py-lineno">380</tt>  <tt class="py-line"> </tt>
+<a name="L381"></a><tt class="py-lineno">381</tt>  <tt class="py-line"> </tt>
+<a name="ConfdMagicError"></a><div id="ConfdMagicError-def"><a name="L382"></a><tt class="py-lineno">382</tt> <a class="py-toggle" href="#" id="ConfdMagicError-toggle" onclick="return toggle('ConfdMagicError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ConfdMagicError-class.html">ConfdMagicError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfdMagicError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfdMagicError-expanded"><a name="L383"></a><tt class="py-lineno">383</tt>  <tt class="py-line">  <tt class="py-docstring">"""A magic fourcc error in Ganeti confd.</tt> </tt>
+<a name="L384"></a><tt class="py-lineno">384</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L385"></a><tt class="py-lineno">385</tt>  <tt class="py-line"><tt class="py-docstring">  Errors processing the fourcc in ganeti confd datagrams.</tt> </tt>
+<a name="L386"></a><tt class="py-lineno">386</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L387"></a><tt class="py-lineno">387</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L388"></a><tt class="py-lineno">388</tt>  <tt class="py-line"> </tt>
+<a name="L389"></a><tt class="py-lineno">389</tt>  <tt class="py-line"> </tt>
+<a name="ConfdClientError"></a><div id="ConfdClientError-def"><a name="L390"></a><tt class="py-lineno">390</tt> <a class="py-toggle" href="#" id="ConfdClientError-toggle" onclick="return toggle('ConfdClientError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.ConfdClientError-class.html">ConfdClientError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ConfdClientError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ConfdClientError-expanded"><a name="L391"></a><tt class="py-lineno">391</tt>  <tt class="py-line">  <tt class="py-docstring">"""A magic fourcc error in Ganeti confd.</tt> </tt>
+<a name="L392"></a><tt class="py-lineno">392</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L393"></a><tt class="py-lineno">393</tt>  <tt class="py-line"><tt class="py-docstring">  Errors in the confd client library.</tt> </tt>
+<a name="L394"></a><tt class="py-lineno">394</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L395"></a><tt class="py-lineno">395</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L396"></a><tt class="py-lineno">396</tt>  <tt class="py-line"> </tt>
+<a name="L397"></a><tt class="py-lineno">397</tt>  <tt class="py-line"> </tt>
+<a name="UdpDataSizeError"></a><div id="UdpDataSizeError-def"><a name="L398"></a><tt class="py-lineno">398</tt> <a class="py-toggle" href="#" id="UdpDataSizeError-toggle" onclick="return toggle('UdpDataSizeError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.UdpDataSizeError-class.html">UdpDataSizeError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="UdpDataSizeError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="UdpDataSizeError-expanded"><a name="L399"></a><tt class="py-lineno">399</tt>  <tt class="py-line">  <tt class="py-docstring">"""UDP payload too big.</tt> </tt>
+<a name="L400"></a><tt class="py-lineno">400</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L401"></a><tt class="py-lineno">401</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L402"></a><tt class="py-lineno">402</tt>  <tt class="py-line"> </tt>
+<a name="L403"></a><tt class="py-lineno">403</tt>  <tt class="py-line"> </tt>
+<a name="NoCtypesError"></a><div id="NoCtypesError-def"><a name="L404"></a><tt class="py-lineno">404</tt> <a class="py-toggle" href="#" id="NoCtypesError-toggle" onclick="return toggle('NoCtypesError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.NoCtypesError-class.html">NoCtypesError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="NoCtypesError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="NoCtypesError-expanded"><a name="L405"></a><tt class="py-lineno">405</tt>  <tt class="py-line">  <tt class="py-docstring">"""python ctypes module is not found in the system.</tt> </tt>
+<a name="L406"></a><tt class="py-lineno">406</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L407"></a><tt class="py-lineno">407</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L408"></a><tt class="py-lineno">408</tt>  <tt class="py-line"> </tt>
+<a name="L409"></a><tt class="py-lineno">409</tt>  <tt class="py-line"> </tt>
+<a name="IPAddressError"></a><div id="IPAddressError-def"><a name="L410"></a><tt class="py-lineno">410</tt> <a class="py-toggle" href="#" id="IPAddressError-toggle" onclick="return toggle('IPAddressError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.IPAddressError-class.html">IPAddressError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IPAddressError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IPAddressError-expanded"><a name="L411"></a><tt class="py-lineno">411</tt>  <tt class="py-line">  <tt class="py-docstring">"""Generic IP address error.</tt> </tt>
+<a name="L412"></a><tt class="py-lineno">412</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L413"></a><tt class="py-lineno">413</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L414"></a><tt class="py-lineno">414</tt>  <tt class="py-line"> </tt>
+<a name="L415"></a><tt class="py-lineno">415</tt>  <tt class="py-line"> </tt>
+<a name="LuxiError"></a><div id="LuxiError-def"><a name="L416"></a><tt class="py-lineno">416</tt> <a class="py-toggle" href="#" id="LuxiError-toggle" onclick="return toggle('LuxiError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.LuxiError-class.html">LuxiError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LuxiError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LuxiError-expanded"><a name="L417"></a><tt class="py-lineno">417</tt>  <tt class="py-line">  <tt class="py-docstring">"""LUXI error.</tt> </tt>
+<a name="L418"></a><tt class="py-lineno">418</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L419"></a><tt class="py-lineno">419</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L420"></a><tt class="py-lineno">420</tt>  <tt class="py-line"> </tt>
+<a name="L421"></a><tt class="py-lineno">421</tt>  <tt class="py-line"> </tt>
+<a name="QueryFilterParseError"></a><div id="QueryFilterParseError-def"><a name="L422"></a><tt class="py-lineno">422</tt> <a class="py-toggle" href="#" id="QueryFilterParseError-toggle" onclick="return toggle('QueryFilterParseError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.QueryFilterParseError-class.html">QueryFilterParseError</a><tt class="py-op">(</tt><tt class="py-base-class">ParseError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="QueryFilterParseError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="QueryFilterParseError-expanded"><a name="L423"></a><tt class="py-lineno">423</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error while parsing query filter.</tt> </tt>
+<a name="L424"></a><tt class="py-lineno">424</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L425"></a><tt class="py-lineno">425</tt>  <tt class="py-line"><tt class="py-docstring">  This exception must be instantiated with two values. The first one is a</tt> </tt>
+<a name="L426"></a><tt class="py-lineno">426</tt>  <tt class="py-line"><tt class="py-docstring">  string with an error description, the second one is an instance of a subclass</tt> </tt>
+<a name="L427"></a><tt class="py-lineno">427</tt>  <tt class="py-line"><tt class="py-docstring">  of C{pyparsing.ParseBaseException} (used to display the exact error</tt> </tt>
+<a name="L428"></a><tt class="py-lineno">428</tt>  <tt class="py-line"><tt class="py-docstring">  location).</tt> </tt>
+<a name="L429"></a><tt class="py-lineno">429</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L430"></a><tt class="py-lineno">430</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="QueryFilterParseError.GetDetails"></a><div id="QueryFilterParseError.GetDetails-def"><a name="L431"></a><tt class="py-lineno">431</tt> <a class="py-toggle" href="#" id="QueryFilterParseError.GetDetails-toggle" onclick="return toggle('QueryFilterParseError.GetDetails');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors.QueryFilterParseError-class.html#GetDetails">GetDetails</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="QueryFilterParseError.GetDetails-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="QueryFilterParseError.GetDetails-expanded"><a name="L432"></a><tt class="py-lineno">432</tt>  <tt class="py-line">    <tt class="py-docstring">"""Returns a list of strings with details about the error.</tt> </tt>
+<a name="L433"></a><tt class="py-lineno">433</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L434"></a><tt class="py-lineno">434</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L435"></a><tt class="py-lineno">435</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L436"></a><tt class="py-lineno">436</tt>  <tt class="py-line">      <tt class="py-op">(</tt><tt class="py-name">_</tt><tt class="py-op">,</tt> <tt class="py-name">inner</tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Variable script-cfgupgrade12.args=script-cfgupgrade12-module.html#args"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-40', 'args', 'link-40');">args</a></tt> </tt>
+<a name="L437"></a><tt class="py-lineno">437</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">IndexError</tt><tt class="py-op">:</tt> </tt>
+<a name="L438"></a><tt class="py-lineno">438</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+<a name="L439"></a><tt class="py-lineno">439</tt>  <tt class="py-line"> </tt>
+<a name="L440"></a><tt class="py-lineno">440</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">[</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">inner</tt><tt class="py-op">.</tt><tt class="py-name">line</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L441"></a><tt class="py-lineno">441</tt>  <tt class="py-line">            <tt class="py-op">(</tt><tt class="py-string">" "</tt> <tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">inner</tt><tt class="py-op">.</tt><tt class="py-name">column</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">"^"</tt><tt class="py-op">,</tt> </tt>
+<a name="L442"></a><tt class="py-lineno">442</tt>  <tt class="py-line">            <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">inner</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+</div></div><a name="L443"></a><tt class="py-lineno">443</tt>  <tt class="py-line"> </tt>
+<a name="L444"></a><tt class="py-lineno">444</tt>  <tt class="py-line"> </tt>
+<a name="RapiTestResult"></a><div id="RapiTestResult-def"><a name="L445"></a><tt class="py-lineno">445</tt> <a class="py-toggle" href="#" id="RapiTestResult-toggle" onclick="return toggle('RapiTestResult');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.RapiTestResult-class.html">RapiTestResult</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="RapiTestResult-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="RapiTestResult-expanded"><a name="L446"></a><tt class="py-lineno">446</tt>  <tt class="py-line">  <tt class="py-docstring">"""Exception containing results from RAPI test utilities.</tt> </tt>
+<a name="L447"></a><tt class="py-lineno">447</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L448"></a><tt class="py-lineno">448</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L449"></a><tt class="py-lineno">449</tt>  <tt class="py-line"> </tt>
+<a name="L450"></a><tt class="py-lineno">450</tt>  <tt class="py-line"> </tt>
+<a name="FileStoragePathError"></a><div id="FileStoragePathError-def"><a name="L451"></a><tt class="py-lineno">451</tt> <a class="py-toggle" href="#" id="FileStoragePathError-toggle" onclick="return toggle('FileStoragePathError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.FileStoragePathError-class.html">FileStoragePathError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStoragePathError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FileStoragePathError-expanded"><a name="L452"></a><tt class="py-lineno">452</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error from file storage path validation.</tt> </tt>
+<a name="L453"></a><tt class="py-lineno">453</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L454"></a><tt class="py-lineno">454</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L455"></a><tt class="py-lineno">455</tt>  <tt class="py-line"> </tt>
+<a name="L456"></a><tt class="py-lineno">456</tt>  <tt class="py-line"> </tt>
+<a name="SshUpdateError"></a><div id="SshUpdateError-def"><a name="L457"></a><tt class="py-lineno">457</tt> <a class="py-toggle" href="#" id="SshUpdateError-toggle" onclick="return toggle('SshUpdateError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.SshUpdateError-class.html">SshUpdateError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="SshUpdateError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="SshUpdateError-expanded"><a name="L458"></a><tt class="py-lineno">458</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error from updating the SSH setup.</tt> </tt>
+<a name="L459"></a><tt class="py-lineno">459</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L460"></a><tt class="py-lineno">460</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L461"></a><tt class="py-lineno">461</tt>  <tt class="py-line"> </tt>
+<a name="L462"></a><tt class="py-lineno">462</tt>  <tt class="py-line"> </tt>
+<a name="PamRapiAuthError"></a><div id="PamRapiAuthError-def"><a name="L463"></a><tt class="py-lineno">463</tt> <a class="py-toggle" href="#" id="PamRapiAuthError-toggle" onclick="return toggle('PamRapiAuthError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.errors.PamRapiAuthError-class.html">PamRapiAuthError</a><tt class="py-op">(</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PamRapiAuthError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PamRapiAuthError-expanded"><a name="L464"></a><tt class="py-lineno">464</tt>  <tt class="py-line">  <tt class="py-docstring">"""Error in PAM remote API authenticator initialization.</tt> </tt>
+<a name="L465"></a><tt class="py-lineno">465</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L466"></a><tt class="py-lineno">466</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L467"></a><tt class="py-lineno">467</tt>  <tt class="py-line"> </tt>
+<a name="L468"></a><tt class="py-lineno">468</tt>  <tt class="py-line"> </tt>
+<a name="L469"></a><tt class="py-lineno">469</tt>  <tt class="py-line"><tt class="py-comment"># errors should be added above</tt> </tt>
+<a name="L470"></a><tt class="py-lineno">470</tt>  <tt class="py-line"> </tt>
+<a name="L471"></a><tt class="py-lineno">471</tt>  <tt class="py-line"> </tt>
+<a name="GetErrorClass"></a><div id="GetErrorClass-def"><a name="L472"></a><tt class="py-lineno">472</tt> <a class="py-toggle" href="#" id="GetErrorClass-toggle" onclick="return toggle('GetErrorClass');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors-module.html#GetErrorClass">GetErrorClass</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetErrorClass-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetErrorClass-expanded"><a name="L473"></a><tt class="py-lineno">473</tt>  <tt class="py-line">  <tt class="py-docstring">"""Return the class of an exception.</tt> </tt>
+<a name="L474"></a><tt class="py-lineno">474</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L475"></a><tt class="py-lineno">475</tt>  <tt class="py-line"><tt class="py-docstring">  Given the class name, return the class itself.</tt> </tt>
+<a name="L476"></a><tt class="py-lineno">476</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L477"></a><tt class="py-lineno">477</tt>  <tt class="py-line"><tt class="py-docstring">  @type name: str</tt> </tt>
+<a name="L478"></a><tt class="py-lineno">478</tt>  <tt class="py-line"><tt class="py-docstring">  @param name: the exception name</tt> </tt>
+<a name="L479"></a><tt class="py-lineno">479</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: class</tt> </tt>
+<a name="L480"></a><tt class="py-lineno">480</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the actual class, or None if not found</tt> </tt>
+<a name="L481"></a><tt class="py-lineno">481</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L482"></a><tt class="py-lineno">482</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L483"></a><tt class="py-lineno">483</tt>  <tt class="py-line">  <tt class="py-name">item</tt> <tt class="py-op">=</tt> <tt class="py-name">globals</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-41" class="py-name" targets="Method ganeti.objects.SerializableConfigParser.get()=ganeti.objects.SerializableConfigParser-class.html#get,Method ganeti.ovf.ConfigParserWithDefaults.get()=ganeti.ovf.ConfigParserWithDefaults-class.html#get"><a title="ganeti.objects.SerializableConfigParser.get
+ganeti.ovf.ConfigParserWithDefaults.get" class="py-name" href="#" onclick="return doclink('link-41', 'get', 'link-41');">get</a></tt><tt class="py-op">(</tt><tt id="link-42" class="py-name" targets="Variable ganeti.build.shell_example_lexer.ShellExampleLexer.name=ganeti.build.shell_example_lexer.ShellExampleLexer-class.html#name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-42', 'name', 'link-42');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L484"></a><tt class="py-lineno">484</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">item</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L485"></a><tt class="py-lineno">485</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-op">(</tt><tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">item</tt><tt class="py-op">,</tt> <tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">Exception</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> </tt>
+<a name="L486"></a><tt class="py-lineno">486</tt>  <tt class="py-line">            <tt class="py-name">issubclass</tt><tt class="py-op">(</tt><tt class="py-name">item</tt><tt class="py-op">,</tt> <tt id="link-43" class="py-name"><a title="ganeti.errors.GenericError" class="py-name" href="#" onclick="return doclink('link-43', 'GenericError', 'link-35');">GenericError</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L487"></a><tt class="py-lineno">487</tt>  <tt class="py-line">      <tt class="py-name">item</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L488"></a><tt class="py-lineno">488</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">item</tt> </tt>
+</div><a name="L489"></a><tt class="py-lineno">489</tt>  <tt class="py-line"> </tt>
+<a name="L490"></a><tt class="py-lineno">490</tt>  <tt class="py-line"> </tt>
+<a name="EncodeException"></a><div id="EncodeException-def"><a name="L491"></a><tt class="py-lineno">491</tt> <a class="py-toggle" href="#" id="EncodeException-toggle" onclick="return toggle('EncodeException');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors-module.html#EncodeException">EncodeException</a><tt class="py-op">(</tt><tt class="py-param">err</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="EncodeException-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="EncodeException-expanded"><a name="L492"></a><tt class="py-lineno">492</tt>  <tt class="py-line">  <tt class="py-docstring">"""Encodes an exception into a format that L{MaybeRaise} will recognise.</tt> </tt>
+<a name="L493"></a><tt class="py-lineno">493</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L494"></a><tt class="py-lineno">494</tt>  <tt class="py-line"><tt class="py-docstring">  The passed L{err} argument will be formatted as a tuple (exception</tt> </tt>
+<a name="L495"></a><tt class="py-lineno">495</tt>  <tt class="py-line"><tt class="py-docstring">  name, arguments) that the MaybeRaise function will recognise.</tt> </tt>
+<a name="L496"></a><tt class="py-lineno">496</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L497"></a><tt class="py-lineno">497</tt>  <tt class="py-line"><tt class="py-docstring">  @type err: GenericError child</tt> </tt>
+<a name="L498"></a><tt class="py-lineno">498</tt>  <tt class="py-line"><tt class="py-docstring">  @param err: usually a child of GenericError (but any exception</tt> </tt>
+<a name="L499"></a><tt class="py-lineno">499</tt>  <tt class="py-line"><tt class="py-docstring">      will be accepted)</tt> </tt>
+<a name="L500"></a><tt class="py-lineno">500</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: tuple</tt> </tt>
+<a name="L501"></a><tt class="py-lineno">501</tt>  <tt class="py-line"><tt class="py-docstring">  @return: tuple of (exception name, exception arguments)</tt> </tt>
+<a name="L502"></a><tt class="py-lineno">502</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L503"></a><tt class="py-lineno">503</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L504"></a><tt class="py-lineno">504</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">.</tt><tt id="link-44" class="py-name"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-44', 'args', 'link-40');">args</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L505"></a><tt class="py-lineno">505</tt>  <tt class="py-line"> </tt>
+<a name="L506"></a><tt class="py-lineno">506</tt>  <tt class="py-line"> </tt>
+<a name="GetEncodedError"></a><div id="GetEncodedError-def"><a name="L507"></a><tt class="py-lineno">507</tt> <a class="py-toggle" href="#" id="GetEncodedError-toggle" onclick="return toggle('GetEncodedError');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors-module.html#GetEncodedError">GetEncodedError</a><tt class="py-op">(</tt><tt class="py-param">result</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetEncodedError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetEncodedError-expanded"><a name="L508"></a><tt class="py-lineno">508</tt>  <tt class="py-line">  <tt class="py-docstring">"""If this looks like an encoded Ganeti exception, return it.</tt> </tt>
+<a name="L509"></a><tt class="py-lineno">509</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L510"></a><tt class="py-lineno">510</tt>  <tt class="py-line"><tt class="py-docstring">  This function tries to parse the passed argument and if it looks</tt> </tt>
+<a name="L511"></a><tt class="py-lineno">511</tt>  <tt class="py-line"><tt class="py-docstring">  like an encoding done by EncodeException, it will return the class</tt> </tt>
+<a name="L512"></a><tt class="py-lineno">512</tt>  <tt class="py-line"><tt class="py-docstring">  object and arguments.</tt> </tt>
+<a name="L513"></a><tt class="py-lineno">513</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L514"></a><tt class="py-lineno">514</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L515"></a><tt class="py-lineno">515</tt>  <tt class="py-line">  <tt class="py-name">tlt</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">tuple</tt><tt class="py-op">,</tt> <tt class="py-name">list</tt><tt class="py-op">)</tt> </tt>
+<a name="L516"></a><tt class="py-lineno">516</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">,</tt> <tt class="py-name">tlt</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-number">2</tt> <tt class="py-keyword">and</tt> </tt>
+<a name="L517"></a><tt class="py-lineno">517</tt>  <tt class="py-line">      <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">tlt</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L518"></a><tt class="py-lineno">518</tt>  <tt class="py-line">    <tt class="py-comment"># custom ganeti errors</tt> </tt>
+<a name="L519"></a><tt class="py-lineno">519</tt>  <tt class="py-line">    <tt class="py-name">errcls</tt> <tt class="py-op">=</tt> <tt id="link-45" class="py-name" targets="Function ganeti.errors.GetErrorClass()=ganeti.errors-module.html#GetErrorClass"><a title="ganeti.errors.GetErrorClass" class="py-name" href="#" onclick="return doclink('link-45', 'GetErrorClass', 'link-45');">GetErrorClass</a></tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L520"></a><tt class="py-lineno">520</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">errcls</tt><tt class="py-op">:</tt> </tt>
+<a name="L521"></a><tt class="py-lineno">521</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">errcls</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L522"></a><tt class="py-lineno">522</tt>  <tt class="py-line"> </tt>
+<a name="L523"></a><tt class="py-lineno">523</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="L524"></a><tt class="py-lineno">524</tt>  <tt class="py-line"> </tt>
+<a name="L525"></a><tt class="py-lineno">525</tt>  <tt class="py-line"> </tt>
+<a name="MaybeRaise"></a><div id="MaybeRaise-def"><a name="L526"></a><tt class="py-lineno">526</tt> <a class="py-toggle" href="#" id="MaybeRaise-toggle" onclick="return toggle('MaybeRaise');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.errors-module.html#MaybeRaise">MaybeRaise</a><tt class="py-op">(</tt><tt class="py-param">result</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MaybeRaise-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="MaybeRaise-expanded"><a name="L527"></a><tt class="py-lineno">527</tt>  <tt class="py-line">  <tt class="py-docstring">"""If this looks like an encoded Ganeti exception, raise it.</tt> </tt>
+<a name="L528"></a><tt class="py-lineno">528</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L529"></a><tt class="py-lineno">529</tt>  <tt class="py-line"><tt class="py-docstring">  This function tries to parse the passed argument and if it looks</tt> </tt>
+<a name="L530"></a><tt class="py-lineno">530</tt>  <tt class="py-line"><tt class="py-docstring">  like an encoding done by EncodeException, it will re-raise it.</tt> </tt>
+<a name="L531"></a><tt class="py-lineno">531</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L532"></a><tt class="py-lineno">532</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L533"></a><tt class="py-lineno">533</tt>  <tt class="py-line">  <tt class="py-name">error</tt> <tt class="py-op">=</tt> <tt id="link-46" class="py-name" targets="Function ganeti.errors.GetEncodedError()=ganeti.errors-module.html#GetEncodedError"><a title="ganeti.errors.GetEncodedError" class="py-name" href="#" onclick="return doclink('link-46', 'GetEncodedError', 'link-46');">GetEncodedError</a></tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">)</tt> </tt>
+<a name="L534"></a><tt class="py-lineno">534</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">error</tt><tt class="py-op">:</tt> </tt>
+<a name="L535"></a><tt class="py-lineno">535</tt>  <tt class="py-line">    <tt class="py-op">(</tt><tt class="py-name">errcls</tt><tt class="py-op">,</tt> <tt id="link-47" class="py-name"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-47', 'args', 'link-40');">args</a></tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt class="py-name">error</tt> </tt>
+<a name="L536"></a><tt class="py-lineno">536</tt>  <tt class="py-line">    <tt class="py-comment"># pylint: disable=W0142</tt> </tt>
+<a name="L537"></a><tt class="py-lineno">537</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">errcls</tt><tt class="py-op">(</tt><tt class="py-op">*</tt><tt id="link-48" class="py-name"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-48', 'args', 'link-40');">args</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L538"></a><tt class="py-lineno">538</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Mar 11 11:24:01 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

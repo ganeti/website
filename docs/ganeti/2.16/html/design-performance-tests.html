@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Performance tests for QA &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Redundancy for the plain disk template" href="design-plain-redundancy.html" />
+    <link rel="prev" title="Partitioned Ganeti" href="design-partitioned.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-plain-redundancy.html" title="Redundancy for the plain disk template"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="performance-tests-for-qa">
+<h1><a class="toc-backref" href="#id1">Performance tests for QA</a><a class="headerlink" href="#performance-tests-for-qa" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#performance-tests-for-qa" id="id1">Performance tests for QA</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#job-queue-performance" id="id4">Job queue performance</a></li>
+<li><a class="reference internal" href="#parallel-job-execution-performance" id="id5">Parallel job execution performance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id6">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This design document describes performance tests to be added to QA in
+order to measure performance changes over time.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, only functional QA tests are performed. Those tests verify
+the correct behaviour of Ganeti in various configurations, but are not
+designed to continuously monitor the performance of Ganeti.</p>
+<p>The current QA tests don&#8217;t execute multiple tasks/jobs in parallel.
+Therefore, the locking part of Ganeti does not really receive any
+testing, neither functional nor performance wise.</p>
+<p>On the plus side, Ganeti&#8217;s QA code does already measure the runtime of
+individual tests, which is leveraged in this design.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The tests to be added in the context of this design document focus on
+two areas:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Job queue performance. How does Ganeti handle a lot of submitted
+jobs?</li>
+<li>Parallel job execution performance. How well does Ganeti
+parallelize jobs?</li>
+</ul>
+</div></blockquote>
+<p>Jobs are submitted to the job queue in sequential order, but the
+execution of the jobs runs in parallel. All job submissions must
+complete within a reasonable timeout.</p>
+<p>In order to make it easier to recognize performance related tests, all
+tests added in the context of this design get a description with a
+&#8220;PERFORMANCE: &#8221; prefix.</p>
+<div class="section" id="job-queue-performance">
+<h3><a class="toc-backref" href="#id4">Job queue performance</a><a class="headerlink" href="#job-queue-performance" title="Permalink to this headline">¶</a></h3>
+<p>Tests targeting the job queue should eliminate external factors (like
+network/disk performance or hypervisor delays) as much as possible, so
+they are designed to run in a vcluster QA environment.</p>
+<p>The following tests are added to the QA:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Submit the maximum amount of instance create jobs in parallel. As
+soon as a creation job succeeds, submit a removal job for this
+instance.</li>
+<li>Submit as many instance create jobs as there are nodes in the
+cluster in parallel (for non-redundant instances). Removal jobs
+as above.</li>
+<li>For the maximum amount of instances in the cluster, submit modify
+jobs (modify hypervisor and backend parameters) in parallel.</li>
+<li>For the maximum amount of instances in the cluster, submit stop,
+start, reboot and reinstall jobs in parallel.</li>
+<li>For the maximum amount of instances in the cluster, submit multiple
+list and info jobs in parallel.</li>
+<li>For the maximum amount of instances in the cluster, submit move
+jobs in parallel. While the move operations are running, get
+instance information using info jobs. Those jobs are required to
+return within a reasonable low timeout.</li>
+<li>For the maximum amount of instances in the cluster, submit add-,
+remove- and list-tags jobs.</li>
+<li>Submit 200 <cite>gnt-debug delay</cite> jobs with a delay of 0.1 seconds. To
+speed up submission, perform multiple job submissions in parallel.
+Verify that submitting jobs doesn&#8217;t significantly slow down during
+the process. Verify that querying cluster information over CLI and
+RAPI succeeds in a timely fashion with the delay jobs
+running/queued.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="parallel-job-execution-performance">
+<h3><a class="toc-backref" href="#id5">Parallel job execution performance</a><a class="headerlink" href="#parallel-job-execution-performance" title="Permalink to this headline">¶</a></h3>
+<p>Tests targeting the performance of parallel execution of &#8220;real&#8221; jobs
+in close-to-production clusters should actually perform all operations,
+such as creating disks and starting instances. This way, real world
+locking or waiting issues can be reproduced. Performing all those
+operations does requires quite some time though, so only a smaller
+number of instances and parallel jobs can be tested realistically.</p>
+<p>The following tests are added to the QA:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Submitting twice as many instance creation request as there are
+nodes in the cluster, using DRBD as disk template.
+The job parameters are chosen according to best practice for
+parallel instance creation without running the risk of instance
+creation failing for too many parallel creation attempts.
+As soon as a creation job succeeds, submit a removal job for
+this instance.</li>
+<li>Submitting twice as many instance creation request as there are
+nodes in the cluster, using Plain as disk template. As soon as a
+creation job succeeds, submit a removal job for this instance.
+This test can make better use of parallelism because only one
+node must be locked for an instance creation.</li>
+<li>Create an instance using DRBD. Fail it over, migrate it, change
+its secondary node, reboot it and reinstall it while creating an
+additional instance in parallel to each of those operations.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id6">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<p>Based on test results of the tests listed above, additional tests can
+be added to cover more real-world use-cases. Also, based on user
+requests, specially crafted performance tests modeling those workloads
+can be added too.</p>
+<p>Additionally, the correlations between job submission time and job
+queue size could be detected. Therefore, a snapshot of the job queue
+before job submission could be taken to measure job submission time
+based on the jobs in the queue.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Performance tests for QA</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#job-queue-performance">Job queue performance</a></li>
+<li><a class="reference internal" href="#parallel-job-execution-performance">Parallel job execution performance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-partitioned.html"
+                        title="previous chapter">Partitioned Ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-plain-redundancy.html"
+                        title="next chapter">Redundancy for the plain disk template</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-performance-tests.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-plain-redundancy.html" title="Redundancy for the plain disk template"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

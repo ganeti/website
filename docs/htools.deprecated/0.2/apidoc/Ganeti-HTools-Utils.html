@@ -1,0 +1,1072 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Utils</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Utils.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Utils.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Utils</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Debug functions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Miscelaneous
+</A
+></DT
+><DT
+><A HREF="#3"
+>Mathematical functions
+</A
+></DT
+><DT
+><A HREF="#4"
+>JSON-related functions
+</A
+></DT
+><DT
+><A HREF="#5"
+>Parsing utility functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Utility functions 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adebug"
+>debug</A
+> :: Show a =&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdebugFn"
+>debugFn</A
+> :: Show b =&gt; (a -&gt; b) -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdebugXy"
+>debugXy</A
+> :: Show a =&gt; a -&gt; b -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcommaJoin"
+>commaJoin</A
+> :: [String] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsepSplit"
+>sepSplit</A
+> :: Char -&gt; String -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstdDev"
+>stdDev</A
+> :: [Double] -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromJResult"
+>fromJResult</A
+> :: Monad m =&gt; String -&gt; Result a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadEitherString"
+>readEitherString</A
+> :: Monad m =&gt; JSValue -&gt; m String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadJSArray"
+>loadJSArray</A
+> :: Monad m =&gt; String -&gt; String -&gt; m [JSObject JSValue]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromObj"
+>fromObj</A
+> :: (JSON a, Monad m) =&gt; String -&gt; [(String, JSValue)] -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeFromObj"
+>maybeFromObj</A
+> :: (JSON a, Monad m) =&gt; String -&gt; [(String, JSValue)] -&gt; m (Maybe a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromKeyValue"
+>fromKeyValue</A
+> :: (JSON a, Monad m) =&gt; String -&gt; JSValue -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AannotateResult"
+>annotateResult</A
+> ::  String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtryFromObj"
+>tryFromObj</A
+> :: JSON a =&gt; String -&gt; [(String, JSValue)] -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromJVal"
+>fromJVal</A
+> :: (Monad m, JSON a) =&gt; JSValue -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AasJSObject"
+>asJSObject</A
+> :: Monad m =&gt; JSValue -&gt; m (JSObject JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AasObjectList"
+>asObjectList</A
+> :: Monad m =&gt; [JSValue] -&gt; m [JSObject JSValue]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseChoices"
+>parseChoices</A
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; [(a, String)] -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtryRead"
+>tryRead</A
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatTable"
+>formatTable</A
+> :: [[String]] -&gt; [Bool] -&gt; [[String]]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Debug functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debug"
+><A NAME="v%3Adebug"
+></A
+></A
+><B
+>debug</B
+> :: Show a =&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debug"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>To be used only for debugging, breaks referential integrity.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debugFn"
+><A NAME="v%3AdebugFn"
+></A
+></A
+><B
+>debugFn</B
+> :: Show b =&gt; (a -&gt; b) -&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debugFn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Displays a modified form of the second parameter before returning it
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debugXy"
+><A NAME="v%3AdebugXy"
+></A
+></A
+><B
+>debugXy</B
+> :: Show a =&gt; a -&gt; b -&gt; b</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debugXy"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Show the first parameter before returning the second one
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Miscelaneous
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:commaJoin"
+><A NAME="v%3AcommaJoin"
+></A
+></A
+><B
+>commaJoin</B
+> :: [String] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#commaJoin"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Comma-join a string list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:sepSplit"
+><A NAME="v%3AsepSplit"
+></A
+></A
+><B
+>sepSplit</B
+> :: Char -&gt; String -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#sepSplit"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Split a string on a separator and return an array.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Mathematical functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:stdDev"
+><A NAME="v%3AstdDev"
+></A
+></A
+><B
+>stdDev</B
+> :: [Double] -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#stdDev"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Standard deviation function
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>JSON-related functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromJResult"
+><A NAME="v%3AfromJResult"
+></A
+></A
+><B
+>fromJResult</B
+> :: Monad m =&gt; String -&gt; Result a -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#fromJResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a JSON Result into a monadic value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readEitherString"
+><A NAME="v%3AreadEitherString"
+></A
+></A
+><B
+>readEitherString</B
+> :: Monad m =&gt; JSValue -&gt; m String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#readEitherString"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Tries to read a string from a JSON value.
+</P
+><P
+>In case the value was not a string, we fail the read (in the
+ context of the current monad.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadJSArray"
+><A NAME="v%3AloadJSArray"
+></A
+></A
+><B
+>loadJSArray</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#loadJSArray"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Monad m</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>Input message
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; m [JSObject JSValue]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Converts a JSON message into an array of JSON objects.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromObj"
+><A NAME="v%3AfromObj"
+></A
+></A
+><B
+>fromObj</B
+> :: (JSON a, Monad m) =&gt; String -&gt; [(String, JSValue)] -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#fromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the value of a key in a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeFromObj"
+><A NAME="v%3AmaybeFromObj"
+></A
+></A
+><B
+>maybeFromObj</B
+> :: (JSON a, Monad m) =&gt; String -&gt; [(String, JSValue)] -&gt; m (Maybe a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#maybeFromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the value of an optional key in a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromKeyValue"
+><A NAME="v%3AfromKeyValue"
+></A
+></A
+><B
+>fromKeyValue</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#fromKeyValue"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: (JSON a, Monad m)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>The value to read
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; JSValue</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; m a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Reads a JValue, that originated from an object key
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:annotateResult"
+><A NAME="v%3AannotateResult"
+></A
+></A
+><B
+>annotateResult</B
+> ::  String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#annotateResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Annotate a Result with an ownership information
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tryFromObj"
+><A NAME="v%3AtryFromObj"
+></A
+></A
+><B
+>tryFromObj</B
+> :: JSON a =&gt; String -&gt; [(String, JSValue)] -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#tryFromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Try to extract a key from a object with better error reporting
+ than fromObj
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromJVal"
+><A NAME="v%3AfromJVal"
+></A
+></A
+><B
+>fromJVal</B
+> :: (Monad m, JSON a) =&gt; JSValue -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#fromJVal"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Small wrapper over readJSON.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:asJSObject"
+><A NAME="v%3AasJSObject"
+></A
+></A
+><B
+>asJSObject</B
+> :: Monad m =&gt; JSValue -&gt; m (JSObject JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#asJSObject"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a JSON value into a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:asObjectList"
+><A NAME="v%3AasObjectList"
+></A
+></A
+><B
+>asObjectList</B
+> :: Monad m =&gt; [JSValue] -&gt; m [JSObject JSValue]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#asObjectList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Coneverts a list of JSON values into a list of JSON objects.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>Parsing utility functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseChoices"
+><A NAME="v%3AparseChoices"
+></A
+></A
+><B
+>parseChoices</B
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; [(a, String)] -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#parseChoices"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse results from readsPrec
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tryRead"
+><A NAME="v%3AtryRead"
+></A
+></A
+><B
+>tryRead</B
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#tryRead"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Safe <TT
+>read</TT
+> function returning data encapsulated in a Result.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatTable"
+><A NAME="v%3AformatTable"
+></A
+></A
+><B
+>formatTable</B
+> :: [[String]] -&gt; [Bool] -&gt; [[String]]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#formatTable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Format a table of strings to maintain consistent length
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

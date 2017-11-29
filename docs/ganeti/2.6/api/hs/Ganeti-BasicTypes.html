@@ -1,0 +1,1216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.BasicTypes</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-BasicTypes.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/BasicTypes.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.BasicTypes</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Misc functionality
+</A
+></DT
+><DT
+><A HREF="#2"
+>Lookup of partial names functionality
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AResult"
+>Result</A
+> a </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ABad"
+>Bad</A
+> String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AOk"
+>Ok</A
+> a</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisOk"
+>isOk</A
+> ::  <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisBad"
+>isBad</A
+> ::  <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AeitherToResult"
+>eitherToResult</A
+> ::  Either String a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AannotateResult"
+>annotateResult</A
+> ::  String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AannotateIOError"
+>annotateIOError</A
+> ::  String -&gt; IOError -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aselect"
+>select</A
+> ::  a -&gt; [(Bool, a)] -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AMatchPriority"
+>MatchPriority</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AExactMatch"
+>ExactMatch</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AMultipleMatch"
+>MultipleMatch</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3APartialMatch"
+>PartialMatch</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AFailMatch"
+>FailMatch</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ALookupResult"
+>LookupResult</A
+>  = <A HREF="#v%3ALookupResult"
+>LookupResult</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AlrMatchPriority"
+>lrMatchPriority</A
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AMatchPriority"
+>MatchPriority</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AlrContent"
+>lrContent</A
+> :: String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprefixMatch"
+>prefixMatch</A
+> :: String -&gt; String -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgoodMatchPriority"
+>goodMatchPriority</A
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AMatchPriority"
+>MatchPriority</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgoodLookupResult"
+>goodLookupResult</A
+> :: <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcompareNameComponent"
+>compareNameComponent</A
+> :: String -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AchooseLookupResult"
+>chooseLookupResult</A
+> :: String -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlookupName"
+>lookupName</A
+> :: [String] -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Result"
+><A NAME="t%3AResult"
+></A
+></A
+><B
+>Result</B
+> a </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#Result"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>This is similar to the JSON library Result type - <EM
+>very</EM
+> similar,
+ but we want to use it in multiple places, so we abstract it into a
+ mini-library here.
+</P
+><P
+>The failure value for this monad is simply a string.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Bad"
+><A NAME="v%3ABad"
+></A
+></A
+><B
+>Bad</B
+> String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Ok"
+><A NAME="v%3AOk"
+></A
+></A
+><B
+>Ok</B
+> a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isOk"
+><A NAME="v%3AisOk"
+></A
+></A
+><B
+>isOk</B
+> ::  <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#isOk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simple checker for whether a <TT
+><A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+></TT
+> is OK.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isBad"
+><A NAME="v%3AisBad"
+></A
+></A
+><B
+>isBad</B
+> ::  <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#isBad"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simple checker for whether a <TT
+><A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+></TT
+> is a failure.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:eitherToResult"
+><A NAME="v%3AeitherToResult"
+></A
+></A
+><B
+>eitherToResult</B
+> ::  Either String a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#eitherToResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converter from Either String to <TT
+><A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:annotateResult"
+><A NAME="v%3AannotateResult"
+></A
+></A
+><B
+>annotateResult</B
+> ::  String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#annotateResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Annotate a Result with an ownership information.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:annotateIOError"
+><A NAME="v%3AannotateIOError"
+></A
+></A
+><B
+>annotateIOError</B
+> ::  String -&gt; IOError -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#annotateIOError"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Annotates and transforms IOErrors into a Result type. This can be
+ used in the error handler argument to <TT
+>catch</TT
+>, for example.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Misc functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:select"
+><A NAME="v%3Aselect"
+></A
+></A
+><B
+>select</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#select"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: </TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; a</TD
+><TD CLASS="rdoc"
+>list of &quot;condition, result&quot;
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [(Bool, a)]</TD
+><TD CLASS="rdoc"
+>first result which has a True condition, or default
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Return the first result with a True condition, or the default otherwise.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Lookup of partial names functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:MatchPriority"
+><A NAME="t%3AMatchPriority"
+></A
+></A
+><B
+>MatchPriority</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#MatchPriority"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The priority of a match in a lookup result.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ExactMatch"
+><A NAME="v%3AExactMatch"
+></A
+></A
+><B
+>ExactMatch</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:MultipleMatch"
+><A NAME="v%3AMultipleMatch"
+></A
+></A
+><B
+>MultipleMatch</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:PartialMatch"
+><A NAME="v%3APartialMatch"
+></A
+></A
+><B
+>PartialMatch</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:FailMatch"
+><A NAME="v%3AFailMatch"
+></A
+></A
+><B
+>FailMatch</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:LookupResult"
+><A NAME="t%3ALookupResult"
+></A
+></A
+><B
+>LookupResult</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#LookupResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The result of a name lookup in a list.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:LookupResult"
+><A NAME="v%3ALookupResult"
+></A
+></A
+><B
+>LookupResult</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:lrMatchPriority"
+><A NAME="v%3AlrMatchPriority"
+></A
+></A
+><B
+>lrMatchPriority</B
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AMatchPriority"
+>MatchPriority</A
+></TD
+><TD CLASS="rdoc"
+>The result type
+ | Matching value (for ExactMatch, PartialMatch), Lookup string otherwise
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:lrContent"
+><A NAME="v%3AlrContent"
+></A
+></A
+><B
+>lrContent</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prefixMatch"
+><A NAME="v%3AprefixMatch"
+></A
+></A
+><B
+>prefixMatch</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#prefixMatch"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Lookup
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Full name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Whether there is a prefix match
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Check for prefix matches in names.
+ Implemented in Ganeti core utils.text.MatchNameComponent
+ as the regexp r<A HREF="^%s(--*)?$.html"
+>^%s(..*)?$</A
+> % re.escape(key)
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:goodMatchPriority"
+><A NAME="v%3AgoodMatchPriority"
+></A
+></A
+><B
+>goodMatchPriority</B
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AMatchPriority"
+>MatchPriority</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#goodMatchPriority"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Is the lookup priority a <A HREF="good.html"
+>good</A
+> one?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:goodLookupResult"
+><A NAME="v%3AgoodLookupResult"
+></A
+></A
+><B
+>goodLookupResult</B
+> :: <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#goodLookupResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Is the lookup result an actual match?
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:compareNameComponent"
+><A NAME="v%3AcompareNameComponent"
+></A
+></A
+><B
+>compareNameComponent</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#compareNameComponent"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Canonical (target) name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Partial (lookup) name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+><TD CLASS="rdoc"
+>Result of the lookup
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Compares a canonical name and a lookup string.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:chooseLookupResult"
+><A NAME="v%3AchooseLookupResult"
+></A
+></A
+><B
+>chooseLookupResult</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#chooseLookupResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Lookup key
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>String to compare to the lookup key
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+><TD CLASS="rdoc"
+>Previous result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+><TD CLASS="rdoc"
+>New result
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Lookup a string and choose the best result.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:lookupName"
+><A NAME="v%3AlookupName"
+></A
+></A
+><B
+>lookupName</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/BasicTypes.html#lookupName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [String]</TD
+><TD CLASS="rdoc"
+>List of keys
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Lookup string
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3ALookupResult"
+>LookupResult</A
+></TD
+><TD CLASS="rdoc"
+>Result of the lookup
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Find the canonical name for a lookup string in a list of names.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

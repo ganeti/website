@@ -1,0 +1,511 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Query version 2 design &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Splitting the query and job execution paths" href="design-query-splitting.html" />
+    <link rel="prev" title="Redundancy for the plain disk template" href="design-plain-redundancy.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-query-splitting.html" title="Splitting the query and job execution paths"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-plain-redundancy.html" title="Redundancy for the plain disk template"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="query-version-2-design">
+<h1><a class="toc-backref" href="#id8">Query version 2 design</a><a class="headerlink" href="#query-version-2-design" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#query-version-2-design" id="id8">Query version 2 design</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id9">Current state and shortcomings</a><ul>
+<li><a class="reference internal" href="#proposed-changes" id="id10">Proposed changes</a><ul>
+<li><a class="reference internal" href="#regular-expressions" id="id11">Regular expressions</a></li>
+<li><a class="reference internal" href="#item-types" id="id12">Item types</a></li>
+<li><a class="reference internal" href="#data-query" id="id13">Data query</a></li>
+<li><a class="reference internal" href="#fields-query" id="id14">Fields query</a></li>
+<li><a class="reference internal" href="#field-definition" id="id15">Field definition</a></li>
+<li><a class="reference internal" href="#old-result-format" id="id16">Old result format</a></li>
+<li><a class="reference internal" href="#luxi" id="id17">LUXI</a></li>
+<li><a class="reference internal" href="#python" id="id18">Python</a></li>
+<li><a class="reference internal" href="#rapi" id="id19">RAPI</a></li>
+<li><a class="reference internal" href="#cli-programs" id="id20">CLI programs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-discussed-solutions" id="id21">Other discussed solutions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id9">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Queries are used to retrieve information about the cluster, e.g. a list
+of instances or nodes. For historical reasons they use a simple data
+structure for their result. The client submits the fields it would like
+to receive and the query returns a list for each item (instance, node,
+etc.) available. Each item consists of another list representing the
+fields&#8217; values.</p>
+<p>This data structure has a few drawbacks. It can&#8217;t associate a status
+(e.g. “node offline”) with fields as using special values can lead to
+ambiguities. Additionally it can&#8217;t mark fields as “not found” as the
+list of returned columns must match the fields requested.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cli</span><span class="o">.</span><span class="n">GetClient</span><span class="p">()</span><span class="o">.</span><span class="n">QueryNodes</span><span class="p">([],</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;pip&quot;</span><span class="p">,</span> <span class="s">&quot;mfree&quot;</span><span class="p">],</span> <span class="bp">False</span><span class="p">)</span>
+<span class="go">[</span>
+<span class="go">  [&#39;node1.example.com&#39;, &#39;192.0.2.18&#39;, 14800],</span>
+<span class="go">  [&#39;node2.example.com&#39;, &#39;192.0.2.19&#39;, 31280]</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>There is no way for clients to determine the list of possible fields,
+meaning they have to be hardcoded. Selecting unknown fields raises
+an exception:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cli</span><span class="o">.</span><span class="n">GetClient</span><span class="p">()</span><span class="o">.</span><span class="n">QueryNodes</span><span class="p">([],</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;UnknownField&quot;</span><span class="p">],</span> <span class="bp">False</span><span class="p">)</span>
+<span class="go">ganeti.errors.OpPrereqError: (u&#39;Unknown output fields selected: UnknownField&#39;, u&#39;wrong_input&#39;)</span>
+</pre></div>
+</div>
+<p>The client must also know each fields&#8217; kind, that is whether a field is
+numeric, boolean, describes a storage size, etc. Centralizing this
+information in one place, the master daemon, is desirable.</p>
+<div class="section" id="proposed-changes">
+<h3><a class="toc-backref" href="#id10">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h3>
+<p>The current query result format can not be changed as it&#8217;s being used in
+various places. Changing the format from one Ganeti version to another
+would cause too much disruption. For this reason the ability to
+explicitly request a new result format must be added while the old
+format stays the default.</p>
+<p>The implementation of query filters is planned for the future. To avoid
+having to change the calls again, a (hopefully) future-compatible
+interface will be implemented now.</p>
+<p>In Python code, the objects described below will be implemented using
+subclasses of <tt class="docutils literal"><span class="pre">objects.ConfigObject</span></tt>, providing existing facilities
+for de-/serializing.</p>
+<div class="section" id="regular-expressions">
+<h4><a class="toc-backref" href="#id11">Regular expressions</a><a class="headerlink" href="#regular-expressions" title="Permalink to this headline">¶</a></h4>
+<p>As it turned out, only very few fields for instances used regular
+expressions, all of which can easily be turned into static field names.
+Therefore their use in field names is dropped. Reasons:</p>
+<ul class="simple">
+<li>When regexps are used and a field name is not listed as a simple
+string in the field dictionary, all keys in the field dictionary have
+to be checked whether they&#8217;re a regular expression object and if so,
+matched (see <tt class="docutils literal"><span class="pre">utils.FindMatch</span></tt>).</li>
+<li>Code becomes simpler. There would be no need anymore to care about
+regular expressions as field names—they&#8217;d all be simple strings, even
+if there are many more. The list of field names would be static once
+built at module-load time.</li>
+<li>There&#8217;s the issue of formatting titles for the clients. Should it be
+done in the server? In the client? The field definition&#8217;s title would
+contain backreferences to the regexp groups in the field name
+(<tt class="docutils literal"><span class="pre">re.MatchObject.expand</span></tt> can be used). With just strings, the field
+definitions can be passed directly to the client. They&#8217;re static.</li>
+<li>Only a side note: In the memory consumed for 1&#8216;000
+<tt class="docutils literal"><span class="pre">_sre.SRE_Pattern</span></tt> objects (as returned by <tt class="docutils literal"><span class="pre">re.compile</span></tt> for an
+expression with one group) one can easily store 10&#8216;000 strings of the
+same length (the regexp objects keep the expression string around, so
+compiling the expression always uses more memory).</li>
+</ul>
+</div>
+<div class="section" id="item-types">
+<span id="id1"></span><h4><a class="toc-backref" href="#id12">Item types</a><a class="headerlink" href="#item-types" title="Permalink to this headline">¶</a></h4>
+<p>The proposal is to implement this new interface for the following
+items:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">instance</span></tt></dt>
+<dd>Instances</dd>
+<dt><tt class="docutils literal"><span class="pre">node</span></tt></dt>
+<dd>Nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">job</span></tt></dt>
+<dd>Jobs</dd>
+<dt><tt class="docutils literal"><span class="pre">lock</span></tt></dt>
+<dd>Locks</dd>
+<dt><tt class="docutils literal"><span class="pre">os</span></tt></dt>
+<dd>Operating systems</dd>
+</dl>
+</div>
+<div class="section" id="data-query">
+<span id="id2"></span><h4><a class="toc-backref" href="#id13">Data query</a><a class="headerlink" href="#data-query" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="request">
+<span id="data-query-request"></span><h5>Request<a class="headerlink" href="#request" title="Permalink to this headline">¶</a></h5>
+<p>The request is a dictionary with the following entries:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">what</span></tt> (string, required)</dt>
+<dd>An <a class="reference internal" href="#item-types"><em>item type</em></a>.</dd>
+<dt><tt class="docutils literal"><span class="pre">fields</span></tt> (list of strings, required)</dt>
+<dd><p class="first">List of names of fields to return. Example:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;mem&quot;</span><span class="p">,</span> <span class="s">&quot;nic0.ip&quot;</span><span class="p">,</span> <span class="s">&quot;disk0.size&quot;</span><span class="p">,</span> <span class="s">&quot;disk1.size&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">filter</span></tt> (optional)</dt>
+<dd><p class="first">This will be used to filter queries. In this implementation only names
+can be filtered to replace the previous <tt class="docutils literal"><span class="pre">names</span></tt> parameter to
+queries. An empty filter (<tt class="docutils literal"><span class="pre">None</span></tt>) will return all items. To retrieve
+specific names, the filter must be specified as follows, with the
+inner part repeated for each name:</p>
+<div class="highlight-python"><pre>["|", ["=", "name", "node1"], ["=", "name", "node2"], …]</pre>
+</div>
+<p>Filters consist of S-expressions (<tt class="docutils literal"><span class="pre">[&quot;operator&quot;,</span> <span class="pre">&lt;operants…&gt;]</span></tt>) and
+extensions will be made in the future to allow for more operators and
+fields. Such extensions might include a Python-style &#8220;in&#8221; operator,
+but for simplicity only &#8220;=&#8221; is supported in this implementation.</p>
+<p class="last">To reiterate: Filters for this implementation must consist of exactly
+one OR expression (<tt class="docutils literal"><span class="pre">[&quot;|&quot;,</span> <span class="pre">…]</span></tt>) and one or more name equality filters
+(<tt class="docutils literal"><span class="pre">[&quot;=&quot;,</span> <span class="pre">&quot;name&quot;,</span> <span class="pre">&quot;…&quot;]</span></tt>).</p>
+</dd>
+</dl>
+<p>Support for synchronous queries, currently available in the interface
+but disabled in the master daemon, will be dropped. Direct calls to
+opcodes have to be used instead.</p>
+</div>
+<div class="section" id="response">
+<span id="data-query-response"></span><h5>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h5>
+<p>The result is a dictionary with the following entries:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fields</span></tt> (list of <a class="reference internal" href="#field-def"><em>field definitions</em></a>)</dt>
+<dd>In-order list of a <a class="reference internal" href="#field-def"><em>field definition</em></a> for each
+requested field, unknown fields are returned with the kind
+<tt class="docutils literal"><span class="pre">unknown</span></tt>. Length must be equal to number of requested fields.</dd>
+<dt><tt class="docutils literal"><span class="pre">data</span></tt> (list of lists of tuples)</dt>
+<dd><p class="first">List of lists, one list for each item found. Each item&#8217;s list must
+have one entry for each field listed in <tt class="docutils literal"><span class="pre">fields</span></tt> (meaning their
+length is equal). Each field entry is a tuple of <tt class="docutils literal"><span class="pre">(status,</span> <span class="pre">value)</span></tt>.
+<tt class="docutils literal"><span class="pre">status</span></tt> must be one of the following values:</p>
+<dl class="last docutils">
+<dt>Normal (numeric 0)</dt>
+<dd>Value is available and matches the kind in the <a class="reference internal" href="#field-def"><em>field
+definition</em></a>.</dd>
+<dt>Unknown field (numeric 1)</dt>
+<dd>Field for this column is not known. Value must be <tt class="docutils literal"><span class="pre">None</span></tt>.</dd>
+<dt>No data (numeric 2)</dt>
+<dd>Exact meaning depends on query, e.g. node is unreachable or marked
+offline. Value must be <tt class="docutils literal"><span class="pre">None</span></tt>.</dd>
+<dt>Value unavailable for item (numeric 3)</dt>
+<dd>Used if, for example, NIC 3 is requested for an instance with only
+one network interface. Value must be <tt class="docutils literal"><span class="pre">None</span></tt>.</dd>
+<dt>Resource offline (numeric 4)</dt>
+<dd>Used if resource is marked offline. Value must be <tt class="docutils literal"><span class="pre">None</span></tt>.</dd>
+</dl>
+</dd>
+</dl>
+<p>Example response after requesting the fields <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">mfree</span></tt>,
+<tt class="docutils literal"><span class="pre">xyz</span></tt>, <tt class="docutils literal"><span class="pre">mtotal</span></tt>, <tt class="docutils literal"><span class="pre">nic0.ip</span></tt>, <tt class="docutils literal"><span class="pre">nic1.ip</span></tt> and <tt class="docutils literal"><span class="pre">nic2.ip</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Name&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;mfree&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;MemFree&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="c"># Unknown field</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;xyz&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unknown&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;mtotal&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;MemTotal&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic0.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/0&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic1.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/1&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic2.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/2&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">],</span>
+
+  <span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;node1&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;192.0.2.1&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;192.0.2.2&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">None</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;node2&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">96</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;192.0.2.21&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;192.0.2.39&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;192.0.2.90&quot;</span><span class="p">)],</span>
+    <span class="c"># Node not available, can&#39;t get &quot;mfree&quot; or &quot;mtotal&quot;</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;node3&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;192.0.2.30&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">None</span><span class="p">)],</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="fields-query">
+<span id="id3"></span><h4><a class="toc-backref" href="#id14">Fields query</a><a class="headerlink" href="#fields-query" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="fields-query-request">
+<span id="id4"></span><h5>Request<a class="headerlink" href="#fields-query-request" title="Permalink to this headline">¶</a></h5>
+<p>The request is a dictionary with the following entries:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">what</span></tt> (string, required)</dt>
+<dd>An <a class="reference internal" href="#item-types"><em>item type</em></a>.</dd>
+<dt><tt class="docutils literal"><span class="pre">fields</span></tt> (list of strings, optional)</dt>
+<dd><p class="first">List of names of fields to return. If not set, all fields are
+returned. Example:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;mem&quot;</span><span class="p">,</span> <span class="s">&quot;nic0.ip&quot;</span><span class="p">,</span> <span class="s">&quot;disk0.size&quot;</span><span class="p">,</span> <span class="s">&quot;disk1.size&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="fields-query-response">
+<span id="id5"></span><h5>Response<a class="headerlink" href="#fields-query-response" title="Permalink to this headline">¶</a></h5>
+<p>The result is a dictionary with the following entries:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fields</span></tt> (list of <a class="reference internal" href="#field-def"><em>field definitions</em></a>)</dt>
+<dd>List of a <a class="reference internal" href="#field-def"><em>field definition</em></a> for each field. If
+<tt class="docutils literal"><span class="pre">fields</span></tt> was set in the request and contained an unknown field, it
+is returned as type <tt class="docutils literal"><span class="pre">unknown</span></tt>.</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Name&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;mfree&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;MemFree&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;mtotal&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;MemTotal&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic0.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/0&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic1.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/1&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic2.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/2&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;nic3.ip&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Nic.IP/3&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="c"># …</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;disk0.size&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Disk.Size/0&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;disk1.size&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Disk.Size/1&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;disk2.size&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Disk.Size/2&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;disk3.size&quot;</span><span class="p">,</span> <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Disk.Size/3&quot;</span><span class="p">,</span> <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span> <span class="p">},</span>
+    <span class="c"># …</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="field-definition">
+<span id="field-def"></span><h4><a class="toc-backref" href="#id15">Field definition</a><a class="headerlink" href="#field-definition" title="Permalink to this headline">¶</a></h4>
+<p>A field definition is a dictionary with the following entries:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">name</span></tt> (string)</dt>
+<dd>Field name. Must only contain characters matching <tt class="docutils literal"><span class="pre">[a-z0-9/._]</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">title</span></tt> (string)</dt>
+<dd>Human-readable title to use in output. Must not contain whitespace.</dd>
+<dt><tt class="docutils literal"><span class="pre">kind</span></tt> (string)</dt>
+<dd><p class="first">Field type, one of the following:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">unknown</span></tt></dt>
+<dd>Unknown field</dd>
+<dt><tt class="docutils literal"><span class="pre">text</span></tt></dt>
+<dd>String</dd>
+<dt><tt class="docutils literal"><span class="pre">bool</span></tt></dt>
+<dd>Boolean, true/false</dd>
+<dt><tt class="docutils literal"><span class="pre">number</span></tt></dt>
+<dd>Numeric</dd>
+<dt><tt class="docutils literal"><span class="pre">unit</span></tt></dt>
+<dd>Numeric, in megabytes</dd>
+<dt><tt class="docutils literal"><span class="pre">timestamp</span></tt></dt>
+<dd>Unix timestamp in seconds since the epoch</dd>
+<dt><tt class="docutils literal"><span class="pre">other</span></tt></dt>
+<dd>Free-form type, depending on query</dd>
+</dl>
+<p class="last">More types can be added in the future, so clients should default to
+formatting any unknown types the same way as &#8220;other&#8221;, which should be
+a string representation in most cases.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">doc</span></tt> (string)</dt>
+<dd>Human-readable description. Must start with uppercase character and
+must not end with punctuation or contain newlines.</dd>
+</dl>
+<p>Example 1 (item name):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;name&quot;</span><span class="p">,</span>
+  <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Name&quot;</span><span class="p">,</span>
+  <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;text&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Example 2 (free memory):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;mfree&quot;</span><span class="p">,</span>
+  <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;MemFree&quot;</span><span class="p">,</span>
+  <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;unit&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Example 3 (list of primary instances):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;pinst&quot;</span><span class="p">,</span>
+  <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;PrimaryInstances&quot;</span><span class="p">,</span>
+  <span class="s">&quot;kind&quot;</span><span class="p">:</span> <span class="s">&quot;other&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="old-result-format">
+<span id="id6"></span><h4><a class="toc-backref" href="#id16">Old result format</a><a class="headerlink" href="#old-result-format" title="Permalink to this headline">¶</a></h4>
+<p>To limit the amount of code necessary, the <a class="reference internal" href="#data-query-response"><em>new result format</em></a> will be converted for clients calling the old
+methods.  Unavailable values are set to <tt class="docutils literal"><span class="pre">None</span></tt>. If unknown fields were
+requested, the whole query fails as the client expects exactly the
+fields it requested.</p>
+</div>
+<div class="section" id="luxi">
+<span id="query2-luxi"></span><h4><a class="toc-backref" href="#id17">LUXI</a><a class="headerlink" href="#luxi" title="Permalink to this headline">¶</a></h4>
+<p>Currently query calls take a number of parameters, e.g. names, fields
+and whether to use locking. These will continue to work and return the
+<a class="reference internal" href="#old-result-format"><em>old result format</em></a>. Only clients using the
+new calls described below will be able to make use of new features such
+as filters. Two new calls are introduced:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">Query</span></tt></dt>
+<dd>Execute a query on items, optionally filtered. Takes a single
+parameter, a <a class="reference internal" href="#data-query-request"><em>query object</em></a> encoded as a
+dictionary and returns a <a class="reference internal" href="#data-query-response"><em>data query response</em></a>.</dd>
+<dt><tt class="docutils literal"><span class="pre">QueryFields</span></tt></dt>
+<dd>Return list of supported fields as <a class="reference internal" href="#field-def"><em>field definitions</em></a>. Takes a single parameter, a <a class="reference internal" href="#fields-query-request"><em>fields query object</em></a> encoded as a dictionary and returns a
+<a class="reference internal" href="#fields-query-response"><em>fields query response</em></a>.</dd>
+</dl>
+</div>
+<div class="section" id="python">
+<h4><a class="toc-backref" href="#id18">Python</a><a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h4>
+<p>The LUXI API is more or less mapped directly into Python. In addition to
+the existing stub functions new ones will be added for the new query
+requests.</p>
+</div>
+<div class="section" id="rapi">
+<h4><a class="toc-backref" href="#id19">RAPI</a><a class="headerlink" href="#rapi" title="Permalink to this headline">¶</a></h4>
+<p>The RAPI interface already returns dictionaries for each item, but to
+not break compatibility no changes should be made to the structure (e.g.
+to include field definitions). The proposal here is to add a new
+parameter to allow clients to execute the requests described in this
+proposal directly and to receive the unmodified result. The new formats
+are a lot more verbose, flexible and extensible.</p>
+</div>
+<div class="section" id="cli-programs">
+<span id="id7"></span><h4><a class="toc-backref" href="#id20">CLI programs</a><a class="headerlink" href="#cli-programs" title="Permalink to this headline">¶</a></h4>
+<p>Command line programs might have difficulties to display the verbose
+status data to the user. There are several options:</p>
+<ul class="simple">
+<li>Use colours to indicate missing values</li>
+<li>Display status as value in parentheses, e.g. &#8220;(unavailable)&#8221;</li>
+<li>Hide unknown columns from the result table and print a warning</li>
+<li>Exit with non-zero code to indicate failures and/or missing data</li>
+</ul>
+<p>Some are better for interactive usage, some better for use by other
+programs. It is expected that a combination will be used. The column
+separator (<tt class="docutils literal"><span class="pre">--separator=…</span></tt>) can be used to differentiate between
+interactive and programmatic usage.</p>
+</div>
+</div>
+<div class="section" id="other-discussed-solutions">
+<h3><a class="toc-backref" href="#id21">Other discussed solutions</a><a class="headerlink" href="#other-discussed-solutions" title="Permalink to this headline">¶</a></h3>
+<p>Another solution discussed was to add an additional column for each
+non-static field containing the status. Clients interested in the status
+could explicitly query for it.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Query version 2 design</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a><ul>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#regular-expressions">Regular expressions</a></li>
+<li><a class="reference internal" href="#item-types">Item types</a></li>
+<li><a class="reference internal" href="#data-query">Data query</a><ul>
+<li><a class="reference internal" href="#request">Request</a></li>
+<li><a class="reference internal" href="#response">Response</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fields-query">Fields query</a><ul>
+<li><a class="reference internal" href="#fields-query-request">Request</a></li>
+<li><a class="reference internal" href="#fields-query-response">Response</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#field-definition">Field definition</a></li>
+<li><a class="reference internal" href="#old-result-format">Old result format</a></li>
+<li><a class="reference internal" href="#luxi">LUXI</a></li>
+<li><a class="reference internal" href="#python">Python</a></li>
+<li><a class="reference internal" href="#rapi">RAPI</a></li>
+<li><a class="reference internal" href="#cli-programs">CLI programs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-discussed-solutions">Other discussed solutions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-plain-redundancy.html"
+                        title="previous chapter">Redundancy for the plain disk template</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-query-splitting.html"
+                        title="next chapter">Splitting the query and job execution paths</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-query2.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-query-splitting.html" title="Splitting the query and job execution paths"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-plain-redundancy.html" title="Redundancy for the plain disk template"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

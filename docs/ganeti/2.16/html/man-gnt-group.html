@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gnt-group &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-instance" href="man-gnt-instance.html" />
+    <link rel="prev" title="gnt-filter" href="man-gnt-filter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-instance.html" title="gnt-instance"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-gnt-filter.html" title="gnt-filter"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gnt-group">
+<h1>gnt-group<a class="headerlink" href="#gnt-group" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>gnt-group - Ganeti node-group administration</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>gnt-group</strong> {command} [arguments...]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>gnt-group</strong> command is used for node group administration in
+the Ganeti system.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="add">
+<h3>ADD<a class="headerlink" href="#add" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>add</strong> [&#8211;submit] [&#8211;print-jobid]</div>
+<div class="line">[&#8211;node-parameters=*NDPARAMS*]</div>
+<div class="line">[&#8211;alloc-policy=*POLICY*]</div>
+<div class="line">[{-D|&#8211;disk-parameters} <em>disk-template</em>:<em>disk-param*=*value*[,*disk-param*=*value</em>...]]</div>
+<div class="line">[&#8211;ipolicy-bounds-specs <em>bound_ispecs</em>]</div>
+<div class="line">[&#8211;ipolicy-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;ipolicy-spindle-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;ipolicy-vcpu-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">{<em>group</em>}</div>
+</div>
+<p>Creates a new group with the given name. The node group will be
+initially empty; to add nodes to it, use <tt class="docutils literal"><span class="pre">gnt-group</span> <span class="pre">assign-nodes</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">--node-parameters</span></tt> option allows you to set default node
+parameters for nodes in the group. Please see <strong>ganeti</strong>(7) for more
+information about supported key=value pairs and their corresponding
+options.</p>
+<p>The <tt class="docutils literal"><span class="pre">--alloc-policy</span></tt> option allows you to set an allocation policy for
+the group at creation time. Possible values are:</p>
+<dl class="docutils">
+<dt>unallocable</dt>
+<dd>nodes in the group should not be candidates for instance allocation,
+and the operation (e.g., instance creation) should fail if only
+groups in this state could be found to satisfy the requirements.</dd>
+<dt>last_resort</dt>
+<dd>nodes in the group should not be used for instance allocations,
+unless this would be the only way to have the operation succeed.</dd>
+<dt>preferred</dt>
+<dd>nodes in the group can be used freely for allocation of instances
+(this is the default). Note that prioritization among groups in this
+state will be deferred to the iallocator plugin that&#8217;s being used.</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-D</span> <span class="pre">(--disk-parameters)</span></tt> option allows you to set the disk
+parameters for the node group; please see the section about
+<strong>gnt-cluster add</strong> in <strong>gnt-cluster</strong>(8) for more information about
+disk parameters</p>
+<p>The <tt class="docutils literal"><span class="pre">--ipolicy-...</span></tt> options specify instance policies on the node
+group, and are documented in the <strong>gnt-cluster</strong>(8) man page.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="assign-nodes">
+<h3>ASSIGN-NODES<a class="headerlink" href="#assign-nodes" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>assign-nodes</strong></div>
+<div class="line">[&#8211;force] [&#8211;submit] [&#8211;print-jobid]</div>
+<div class="line">{<em>group</em>} {<em>node</em>...}</div>
+</div>
+<p>Assigns one or more nodes to the specified group, moving them from their
+original group (or groups).</p>
+<p>By default, this command will refuse to proceed if the move would split
+between groups any instance that was not previously split (a split
+instance is an instance with a mirrored disk template, e.g. DRBD, that
+has the primary and secondary nodes in different node groups). You can
+force the operation with <tt class="docutils literal"><span class="pre">--force</span></tt>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="modify">
+<h3>MODIFY<a class="headerlink" href="#modify" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>modify</strong> [&#8211;submit] [&#8211;print-jobid]</div>
+<div class="line">[&#8211;node-parameters=*NDPARAMS*]</div>
+<div class="line">[&#8211;alloc-policy=*POLICY*]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">[{-D|&#8211;disk-parameters} <em>disk-template</em>:<em>disk-param*=*value*[,*disk-param*=*value</em>...]]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">[&#8211;ipolicy-bounds-specs <em>bound_ispecs</em>]</div>
+<div class="line">[&#8211;ipolicy-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;ipolicy-spindle-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;ipolicy-vcpu-ratio <em>ratio</em>]</div>
+<div class="line">{<em>group</em>}</div>
+</div>
+<p>Modifies some parameters from the node group.</p>
+<p>The <tt class="docutils literal"><span class="pre">--node-parameters</span></tt> and <tt class="docutils literal"><span class="pre">--alloc-policy</span></tt> options are documented
+in the <strong>add</strong> command above. <tt class="docutils literal"><span class="pre">--hypervisor-state</span></tt> as well as
+<tt class="docutils literal"><span class="pre">--disk-state</span></tt> are documented in detail in <strong>ganeti</strong>(7).</p>
+<p>The <tt class="docutils literal"><span class="pre">--node-parameters</span></tt>, <tt class="docutils literal"><span class="pre">--alloc-policy</span></tt>, <tt class="docutils literal"><span class="pre">-D</span>
+<span class="pre">(--disk-parameters)</span></tt> options are documented in the <strong>add</strong> command
+above.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ipolicy-...</span></tt> options specify instance policies on the node
+group, and are documented in the <strong>gnt-cluster</strong>(8) man page.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="remove">
+<h3>REMOVE<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>remove</strong> [&#8211;submit] [&#8211;print-jobid] {<em>group</em>}</div>
+</div>
+<p>Deletes the indicated node group, which must be empty. There must always be at
+least one group, so the last group cannot be removed.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="list">
+<h3>LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>list</strong> [&#8211;no-headers] [&#8211;separator=*SEPARATOR*] [-v]</div>
+<div class="line">[-o <em>[+]FIELD,...</em>] [&#8211;filter] [group...]</div>
+</div>
+<p>Lists all existing node groups in the cluster.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The <tt class="docutils literal"><span class="pre">-v</span></tt> option activates verbose mode, which changes the display of
+special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span></tt> option takes a comma-separated list of output fields.
+If the value of the option starts with the character <tt class="docutils literal"><span class="pre">+</span></tt>, the new
+fields will be added to the default list. This allows one to quickly
+see the default list plus a few other fields, instead of retyping
+the entire list of fields.</p>
+<p>The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">alloc_policy</span></tt></dt>
+<dd>Allocation policy for group</dd>
+<dt><tt class="docutils literal"><span class="pre">ctime</span></tt></dt>
+<dd>Creation timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_diskparams</span></tt></dt>
+<dd>Custom disk parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_ipolicy</span></tt></dt>
+<dd>Custom instance policy limitations</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_ndparams</span></tt></dt>
+<dd>Custom node parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">diskparams</span></tt></dt>
+<dd>Disk parameters (merged)</dd>
+<dt><tt class="docutils literal"><span class="pre">ipolicy</span></tt></dt>
+<dd>Instance policy limitations (merged)</dd>
+<dt><tt class="docutils literal"><span class="pre">mtime</span></tt></dt>
+<dd>Modification timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">name</span></tt></dt>
+<dd>Group name</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/cpu_speed</span></tt></dt>
+<dd>The &#8220;cpu_speed&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/exclusive_storage</span></tt></dt>
+<dd>The &#8220;exclusive_storage&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/oob_program</span></tt></dt>
+<dd>The &#8220;oob_program&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/ovs</span></tt></dt>
+<dd>The &#8220;ovs&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/ovs_link</span></tt></dt>
+<dd>The &#8220;ovs_link&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/ovs_name</span></tt></dt>
+<dd>The &#8220;ovs_name&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/spindle_count</span></tt></dt>
+<dd>The &#8220;spindle_count&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/ssh_port</span></tt></dt>
+<dd>The &#8220;ssh_port&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndparams</span></tt></dt>
+<dd>Node parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">node_cnt</span></tt></dt>
+<dd>Number of nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">node_list</span></tt></dt>
+<dd>List of nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">pinst_cnt</span></tt></dt>
+<dd>Number of primary instances</dd>
+<dt><tt class="docutils literal"><span class="pre">pinst_list</span></tt></dt>
+<dd>List of primary instances</dd>
+<dt><tt class="docutils literal"><span class="pre">serial_no</span></tt></dt>
+<dd>Group object serial number, incremented on each modification</dd>
+<dt><tt class="docutils literal"><span class="pre">tags</span></tt></dt>
+<dd>Tags</dd>
+<dt><tt class="docutils literal"><span class="pre">uuid</span></tt></dt>
+<dd>Group UUID</dd>
+</dl>
+<p>If exactly one argument is given and it appears to be a query filter
+(see <strong>ganeti</strong>(7)), the query result is filtered accordingly. For
+ambiguous cases (e.g. a single field name as a filter) the <tt class="docutils literal"><span class="pre">--filter</span></tt>
+(<tt class="docutils literal"><span class="pre">-F</span></tt>) option forces the argument to be treated as a filter.</p>
+<p>If no group names are given, then all groups are included. Otherwise,
+only the named groups will be listed.</p>
+</div>
+<div class="section" id="list-fields">
+<h3>LIST-FIELDS<a class="headerlink" href="#list-fields" title="Permalink to this headline">¶</a></h3>
+<p><strong>list-fields</strong> [field...]</p>
+<p>List available fields for node groups.</p>
+</div>
+<div class="section" id="rename">
+<h3>RENAME<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>rename</strong> [&#8211;submit] [&#8211;print-jobid] {<em>oldname</em>} {<em>newname</em>}</div>
+</div>
+<p>Renames a given group from <em>oldname</em> to <em>newname</em>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="evacuate">
+<h3>EVACUATE<a class="headerlink" href="#evacuate" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>evacuate</strong> [&#8211;submit] [&#8211;print-jobid] [&#8211;sequential] [&#8211;force-failover]</div>
+<div class="line">[&#8211;iallocator <em>NAME</em>] [&#8211;to <em>GROUP</em>...] {<em>group</em>}</div>
+</div>
+<p>This command will move all instances out of the given node group.
+Instances are placed in a new group by an iallocator, either given on
+the command line or as a cluster default.</p>
+<p>If no specific destination groups are specified using <tt class="docutils literal"><span class="pre">--to</span></tt>, all
+groups except the evacuated group are considered.</p>
+<p>The moves of the individual instances are handled as separate jobs
+to allow for maximal parallelism. If the <tt class="docutils literal"><span class="pre">--sequential</span></tt> option is
+given, the moves of the individual instances will be executed sequentially.
+This can be usefull if the link between the groups is vulnerable to
+congestion. If the <tt class="docutils literal"><span class="pre">--force-failover</span></tt> option is given, no migrations
+will be made. This might be necessary if the group being evacuated is
+too different from the other groups in the cluster.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-group evacuate -I hail --to rack4 rack1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tags">
+<h3>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="add-tags">
+<h4>ADD-TAGS<a class="headerlink" href="#add-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>add-tags</strong> [&#8211;from <em>file</em>] {<em>groupname</em>} {<em>tag</em>...}</p>
+<p>Add tags to the given node group. If any of the tags contains invalid
+characters, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags will be extended
+with the contents of that file (each line becomes a tag). In this case,
+there is not need to pass tags on the command line (if you do, both
+sources will be used). A file name of <tt class="docutils literal"><span class="pre">-</span></tt> will be interpreted as
+stdin.</p>
+</div>
+<div class="section" id="list-tags">
+<h4>LIST-TAGS<a class="headerlink" href="#list-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>list-tags</strong> {<em>groupname</em>}</p>
+<p>List the tags of the given node group.</p>
+</div>
+<div class="section" id="remove-tags">
+<h4>REMOVE-TAGS<a class="headerlink" href="#remove-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>remove-tags</strong> [&#8211;from <em>file</em>] {<em>groupname</em>} {<em>tag</em>...}</p>
+<p>Remove tags from the given node group. If any of the tags are not
+existing on the node, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags to be removed will
+be extended with the contents of that file (each line becomes a tag). In
+this case, there is not need to pass tags on the command line (if you
+do, tags from both sources will be removed). A file name of <tt class="docutils literal"><span class="pre">-</span></tt> will
+be interpreted as stdin.</p>
+</div>
+</div>
+<div class="section" id="info">
+<h3>INFO<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h3>
+<p><strong>info</strong> [<em>group</em>...]</p>
+<p>Shows config information for all (or given) groups.</p>
+</div>
+<div class="section" id="show-ispecs-cmd">
+<h3>SHOW-ISPECS-CMD<a class="headerlink" href="#show-ispecs-cmd" title="Permalink to this headline">¶</a></h3>
+<p><strong>show-ispecs-cmd</strong> [&#8211;include-defaults] [<em>group</em>...]</p>
+<p>Shows the command line that can be used to recreate the given groups (or
+all groups, if none is given) with the same options relative to specs in
+the instance policies.</p>
+<p>If <tt class="docutils literal"><span class="pre">--include-defaults</span></tt> is specified, include also the default values
+(i.e. the cluster-level settings), and not only the configuration items
+that a group overrides.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gnt-group</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#commands">COMMANDS</a><ul>
+<li><a class="reference internal" href="#add">ADD</a></li>
+<li><a class="reference internal" href="#assign-nodes">ASSIGN-NODES</a></li>
+<li><a class="reference internal" href="#modify">MODIFY</a></li>
+<li><a class="reference internal" href="#remove">REMOVE</a></li>
+<li><a class="reference internal" href="#list">LIST</a></li>
+<li><a class="reference internal" href="#list-fields">LIST-FIELDS</a></li>
+<li><a class="reference internal" href="#rename">RENAME</a></li>
+<li><a class="reference internal" href="#evacuate">EVACUATE</a></li>
+<li><a class="reference internal" href="#tags">Tags</a><ul>
+<li><a class="reference internal" href="#add-tags">ADD-TAGS</a></li>
+<li><a class="reference internal" href="#list-tags">LIST-TAGS</a></li>
+<li><a class="reference internal" href="#remove-tags">REMOVE-TAGS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#info">INFO</a></li>
+<li><a class="reference internal" href="#show-ispecs-cmd">SHOW-ISPECS-CMD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-gnt-filter.html"
+                        title="previous chapter">gnt-filter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-instance.html"
+                        title="next chapter">gnt-instance</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-gnt-group.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-instance.html" title="gnt-instance"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-gnt-filter.html" title="gnt-filter"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

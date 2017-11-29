@@ -1,0 +1,965 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti customisation using hooks &mdash; Ganeti v2.3.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.3.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.3.1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti automatic instance allocation" href="iallocator.html" />
+    <link rel="prev" title="Ganeti locking" href="locking.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="iallocator.html" title="Ganeti automatic instance allocation"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="locking.html" title="Ganeti locking"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-customisation-using-hooks">
+<h1><a class="toc-backref" href="#id2">Ganeti customisation using hooks</a><a class="headerlink" href="#ganeti-customisation-using-hooks" title="Permalink to this headline">¶</a></h1>
+<p>Documents ganeti version 2.0</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-customisation-using-hooks" id="id2">Ganeti customisation using hooks</a><ul>
+<li><a class="reference internal" href="#introduction" id="id3">Introduction</a></li>
+<li><a class="reference internal" href="#organisation" id="id4">Organisation</a><ul>
+<li><a class="reference internal" href="#pre-scripts" id="id5"><em>pre</em> scripts</a></li>
+<li><a class="reference internal" href="#post-scripts" id="id6"><em>post</em> scripts</a></li>
+<li><a class="reference internal" href="#naming" id="id7">Naming</a></li>
+<li><a class="reference internal" href="#order-of-execution" id="id8">Order of execution</a></li>
+<li><a class="reference internal" href="#execution-environment" id="id9">Execution environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#operation-list" id="id10">Operation list</a><ul>
+<li><a class="reference internal" href="#node-operations" id="id11">Node operations</a><ul>
+<li><a class="reference internal" href="#op-add-node" id="id12">OP_ADD_NODE</a></li>
+<li><a class="reference internal" href="#op-remove-node" id="id13">OP_REMOVE_NODE</a></li>
+<li><a class="reference internal" href="#op-node-set-params" id="id14">OP_NODE_SET_PARAMS</a></li>
+<li><a class="reference internal" href="#op-node-evacuate" id="id15">OP_NODE_EVACUATE</a></li>
+<li><a class="reference internal" href="#op-node-migrate" id="id16">OP_NODE_MIGRATE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instance-operations" id="id17">Instance operations</a><ul>
+<li><a class="reference internal" href="#op-instance-add" id="id18">OP_INSTANCE_ADD</a></li>
+<li><a class="reference internal" href="#op-instance-reinstall" id="id19">OP_INSTANCE_REINSTALL</a></li>
+<li><a class="reference internal" href="#op-backup-export" id="id20">OP_BACKUP_EXPORT</a></li>
+<li><a class="reference internal" href="#op-instance-start" id="id21">OP_INSTANCE_START</a></li>
+<li><a class="reference internal" href="#op-instance-shutdown" id="id22">OP_INSTANCE_SHUTDOWN</a></li>
+<li><a class="reference internal" href="#op-instance-reboot" id="id23">OP_INSTANCE_REBOOT</a></li>
+<li><a class="reference internal" href="#op-instance-modify" id="id24">OP_INSTANCE_MODIFY</a></li>
+<li><a class="reference internal" href="#op-instance-failover" id="id25">OP_INSTANCE_FAILOVER</a></li>
+<li><a class="reference internal" href="#op-instance-migrate" id="id26">OP_INSTANCE_MIGRATE</a></li>
+<li><a class="reference internal" href="#op-instance-remove" id="id27">OP_INSTANCE_REMOVE</a></li>
+<li><a class="reference internal" href="#op-instance-replace-disks" id="id28">OP_INSTANCE_REPLACE_DISKS</a></li>
+<li><a class="reference internal" href="#op-instance-grow-disk" id="id29">OP_INSTANCE_GROW_DISK</a></li>
+<li><a class="reference internal" href="#op-instance-rename" id="id30">OP_INSTANCE_RENAME</a></li>
+<li><a class="reference internal" href="#op-instance-move" id="id31">OP_INSTANCE_MOVE</a></li>
+<li><a class="reference internal" href="#op-instance-recreate-disks" id="id32">OP_INSTANCE_RECREATE_DISKS</a></li>
+<li><a class="reference internal" href="#id1" id="id33">OP_INSTANCE_REPLACE_DISKS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cluster-operations" id="id34">Cluster operations</a><ul>
+<li><a class="reference internal" href="#op-post-init-cluster" id="id35">OP_POST_INIT_CLUSTER</a></li>
+<li><a class="reference internal" href="#op-destroy-cluster" id="id36">OP_DESTROY_CLUSTER</a></li>
+<li><a class="reference internal" href="#op-cluster-verify" id="id37">OP_CLUSTER_VERIFY</a></li>
+<li><a class="reference internal" href="#op-cluster-rename" id="id38">OP_CLUSTER_RENAME</a></li>
+<li><a class="reference internal" href="#op-cluster-set-params" id="id39">OP_CLUSTER_SET_PARAMS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#obsolete-operations" id="id40">Obsolete operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#environment-variables" id="id41">Environment variables</a><ul>
+<li><a class="reference internal" href="#common-variables" id="id42">Common variables</a></li>
+<li><a class="reference internal" href="#specialised-variables" id="id43">Specialised variables</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id44">Examples</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id3">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>In order to allow customisation of operations, ganeti runs scripts
+under <tt class="docutils literal"><span class="pre">/etc/ganeti/hooks</span></tt> based on certain rules.</p>
+<p>This is similar to the <tt class="docutils literal"><span class="pre">/etc/network/</span></tt> structure present in Debian
+for network interface handling.</p>
+</div>
+<div class="section" id="organisation">
+<h2><a class="toc-backref" href="#id4">Organisation</a><a class="headerlink" href="#organisation" title="Permalink to this headline">¶</a></h2>
+<p>For every operation, two sets of scripts are run:</p>
+<ul class="simple">
+<li>pre phase (for authorization/checking)</li>
+<li>post phase (for logging)</li>
+</ul>
+<p>Also, for each operation, the scripts are run on one or more nodes,
+depending on the operation type.</p>
+<p>Note that, even though we call them scripts, we are actually talking
+about any executable.</p>
+<div class="section" id="pre-scripts">
+<h3><a class="toc-backref" href="#id5"><em>pre</em> scripts</a><a class="headerlink" href="#pre-scripts" title="Permalink to this headline">¶</a></h3>
+<p>The <em>pre</em> scripts have a definite target: to check that the operation
+is allowed given the site-specific constraints. You could have, for
+example, a rule that says every new instance is required to exists in
+a database; to implement this, you could write a script that checks
+the new instance parameters against your database.</p>
+<p>The objective of these scripts should be their return code (zero or
+non-zero for success and failure). However, if they modify the
+environment in any way, they should be idempotent, as failed
+executions could be restarted and thus the script(s) run again with
+exactly the same parameters.</p>
+<p>Note that if a node is unreachable at the time a hooks is run, this
+will not be interpreted as a deny for the execution. In other words,
+only an actual error returned from a script will cause abort, and not
+an unreachable node.</p>
+<p>Therefore, if you want to guarantee that a hook script is run and
+denies an action, it&#8217;s best to put it on the master node.</p>
+</div>
+<div class="section" id="post-scripts">
+<h3><a class="toc-backref" href="#id6"><em>post</em> scripts</a><a class="headerlink" href="#post-scripts" title="Permalink to this headline">¶</a></h3>
+<p>These scripts should do whatever you need as a reaction to the
+completion of an operation. Their return code is not checked (but
+logged), and they should not depend on the fact that the <em>pre</em> scripts
+have been run.</p>
+</div>
+<div class="section" id="naming">
+<h3><a class="toc-backref" href="#id7">Naming</a><a class="headerlink" href="#naming" title="Permalink to this headline">¶</a></h3>
+<p>The allowed names for the scripts consist of (similar to <em>run-parts</em> )
+upper and lower case, digits, underscores and hyphens. In other words,
+the regexp <tt class="docutils literal"><span class="pre">^[a-zA-Z0-9_-]+$</span></tt>. Also, non-executable scripts will be
+ignored.</p>
+</div>
+<div class="section" id="order-of-execution">
+<h3><a class="toc-backref" href="#id8">Order of execution</a><a class="headerlink" href="#order-of-execution" title="Permalink to this headline">¶</a></h3>
+<p>On a single node, the scripts in a directory are run in lexicographic
+order (more exactly, the python string comparison order). It is
+advisable to implement the usual <em>NN-name</em> convention where <em>NN</em> is a
+two digit number.</p>
+<p>For an operation whose hooks are run on multiple nodes, there is no
+specific ordering of nodes with regard to hooks execution; you should
+assume that the scripts are run in parallel on the target nodes
+(keeping on each node the above specified ordering).  If you need any
+kind of inter-node synchronisation, you have to implement it yourself
+in the scripts.</p>
+</div>
+<div class="section" id="execution-environment">
+<h3><a class="toc-backref" href="#id9">Execution environment</a><a class="headerlink" href="#execution-environment" title="Permalink to this headline">¶</a></h3>
+<p>The scripts will be run as follows:</p>
+<ul class="simple">
+<li>no command line arguments</li>
+<li>no controlling <em>tty</em></li>
+<li>stdin is actually <em>/dev/null</em></li>
+<li>stdout and stderr are directed to files</li>
+<li>PATH is reset to <tt class="docutils literal"><span class="pre">/sbin:/bin:/usr/sbin:/usr/bin</span></tt></li>
+<li>the environment is cleared, and only ganeti-specific variables will
+be left</li>
+</ul>
+<p>All information about the cluster is passed using environment
+variables. Different operations will have sligthly different
+environments, but most of the variables are common.</p>
+</div>
+</div>
+<div class="section" id="operation-list">
+<h2><a class="toc-backref" href="#id10">Operation list</a><a class="headerlink" href="#operation-list" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="node-operations">
+<h3><a class="toc-backref" href="#id11">Node operations</a><a class="headerlink" href="#node-operations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="op-add-node">
+<h4><a class="toc-backref" href="#id12">OP_ADD_NODE</a><a class="headerlink" href="#op-add-node" title="Permalink to this headline">¶</a></h4>
+<p>Adds a node to the cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">node-add</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NODE_NAME, NODE_PIP, NODE_SIP</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">all existing nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">all nodes plus the new node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-remove-node">
+<h4><a class="toc-backref" href="#id13">OP_REMOVE_NODE</a><a class="headerlink" href="#op-remove-node" title="Permalink to this headline">¶</a></h4>
+<p>Removes a node from the cluster. On the removed node the hooks are
+called during the execution of the operation and not after its
+completion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">node-remove</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NODE_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">all existing nodes except the removed node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">all existing nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-node-set-params">
+<h4><a class="toc-backref" href="#id14">OP_NODE_SET_PARAMS</a><a class="headerlink" href="#op-node-set-params" title="Permalink to this headline">¶</a></h4>
+<p>Changes a node&#8217;s parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">node-modify</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">MASTER_CANDIDATE, OFFLINE, DRAINED</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, the target node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, the target node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-node-evacuate">
+<h4><a class="toc-backref" href="#id15">OP_NODE_EVACUATE</a><a class="headerlink" href="#op-node-evacuate" title="Permalink to this headline">¶</a></h4>
+<p>Relocate secondary instances from a node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">node-evacuate</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NEW_SECONDARY, NODE_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, target node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, target node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-node-migrate">
+<h4><a class="toc-backref" href="#id16">OP_NODE_MIGRATE</a><a class="headerlink" href="#op-node-migrate" title="Permalink to this headline">¶</a></h4>
+<p>Relocate secondary instances from a node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">node-migrate</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NODE_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="instance-operations">
+<h3><a class="toc-backref" href="#id17">Instance operations</a><a class="headerlink" href="#instance-operations" title="Permalink to this headline">¶</a></h3>
+<p>All instance operations take at least the following variables:
+INSTANCE_NAME, INSTANCE_PRIMARY, INSTANCE_SECONDARIES,
+INSTANCE_OS_TYPE, INSTANCE_DISK_TEMPLATE, INSTANCE_MEMORY,
+INSTANCE_DISK_SIZES, INSTANCE_VCPUS, INSTANCE_NIC_COUNT,
+INSTANCE_NICn_IP, INSTANCE_NICn_BRIDGE, INSTANCE_NICn_MAC,
+INSTANCE_DISK_COUNT, INSTANCE_DISKn_SIZE, INSTANCE_DISKn_MODE.</p>
+<p>The INSTANCE_NICn_* and INSTANCE_DISKn_* variables represent the
+properties of the <em>n</em> -th NIC and disk, and are zero-indexed.</p>
+<div class="section" id="op-instance-add">
+<h4><a class="toc-backref" href="#id18">OP_INSTANCE_ADD</a><a class="headerlink" href="#op-instance-add" title="Permalink to this headline">¶</a></h4>
+<p>Creates a new instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-add</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">ADD_MODE, SRC_NODE, SRC_PATH, SRC_IMAGES</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-reinstall">
+<h4><a class="toc-backref" href="#id19">OP_INSTANCE_REINSTALL</a><a class="headerlink" href="#op-instance-reinstall" title="Permalink to this headline">¶</a></h4>
+<p>Reinstalls an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-reinstall</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">only the standard instance vars</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-backup-export">
+<h4><a class="toc-backref" href="#id20">OP_BACKUP_EXPORT</a><a class="headerlink" href="#op-backup-export" title="Permalink to this headline">¶</a></h4>
+<p>Exports the instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-export</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">EXPORT_NODE, EXPORT_DO_SHUTDOWN</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-start">
+<h4><a class="toc-backref" href="#id21">OP_INSTANCE_START</a><a class="headerlink" href="#op-instance-start" title="Permalink to this headline">¶</a></h4>
+<p>Starts an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-start</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">FORCE</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-shutdown">
+<h4><a class="toc-backref" href="#id22">OP_INSTANCE_SHUTDOWN</a><a class="headerlink" href="#op-instance-shutdown" title="Permalink to this headline">¶</a></h4>
+<p>Stops an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-stop</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">only the standard instance vars</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-reboot">
+<h4><a class="toc-backref" href="#id23">OP_INSTANCE_REBOOT</a><a class="headerlink" href="#op-instance-reboot" title="Permalink to this headline">¶</a></h4>
+<p>Reboots an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-reboot</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">IGNORE_SECONDARIES, REBOOT_TYPE</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-modify">
+<h4><a class="toc-backref" href="#id24">OP_INSTANCE_MODIFY</a><a class="headerlink" href="#op-instance-modify" title="Permalink to this headline">¶</a></h4>
+<p>Modifies the instance parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-modify</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">only the standard instance vars</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-failover">
+<h4><a class="toc-backref" href="#id25">OP_INSTANCE_FAILOVER</a><a class="headerlink" href="#op-instance-failover" title="Permalink to this headline">¶</a></h4>
+<p>Failovers an instance. In the post phase INSTANCE_PRIMARY and
+INSTANCE_SECONDARIES refer to the nodes that were repectively primary
+and secondary before failover.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-failover</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">IGNORE_CONSISTENCY, OLD_SECONDARY, OLD_PRIMARY, NEW_SECONDARY, NEW_PRIMARY</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, secondary node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-migrate">
+<h4><a class="toc-backref" href="#id26">OP_INSTANCE_MIGRATE</a><a class="headerlink" href="#op-instance-migrate" title="Permalink to this headline">¶</a></h4>
+<p>Migrates an instance. In the post phase INSTANCE_PRIMARY and
+INSTANCE_SECONDARIES refer to the nodes that were repectively primary
+and secondary before migration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-migrate</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">MIGRATE_LIVE, MIGRATE_CLEANUP, OLD_SECONDARY, OLD_PRIMARY, NEW_SECONDARY, NEW_PRIMARY</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, secondary node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-remove">
+<h4><a class="toc-backref" href="#id27">OP_INSTANCE_REMOVE</a><a class="headerlink" href="#op-instance-remove" title="Permalink to this headline">¶</a></h4>
+<p>Remove an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-remove</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">only the standard instance vars</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-replace-disks">
+<h4><a class="toc-backref" href="#id28">OP_INSTANCE_REPLACE_DISKS</a><a class="headerlink" href="#op-instance-replace-disks" title="Permalink to this headline">¶</a></h4>
+<p>Replace an instance&#8217;s disks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">mirror-replace</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">MODE, NEW_SECONDARY, OLD_SECONDARY</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-grow-disk">
+<h4><a class="toc-backref" href="#id29">OP_INSTANCE_GROW_DISK</a><a class="headerlink" href="#op-instance-grow-disk" title="Permalink to this headline">¶</a></h4>
+<p>Grows the disk of an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">disk-grow</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">DISK, AMOUNT</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-rename">
+<h4><a class="toc-backref" href="#id30">OP_INSTANCE_RENAME</a><a class="headerlink" href="#op-instance-rename" title="Permalink to this headline">¶</a></h4>
+<p>Renames an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-rename</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">INSTANCE_NEW_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-move">
+<h4><a class="toc-backref" href="#id31">OP_INSTANCE_MOVE</a><a class="headerlink" href="#op-instance-move" title="Permalink to this headline">¶</a></h4>
+<p>Move an instance by data-copying.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-move</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">TARGET_NODE</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and target nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and target nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-instance-recreate-disks">
+<h4><a class="toc-backref" href="#id32">OP_INSTANCE_RECREATE_DISKS</a><a class="headerlink" href="#op-instance-recreate-disks" title="Permalink to this headline">¶</a></h4>
+<p>Recreate an instance&#8217;s missing disks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">instance-recreate-disks</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">only the standard instance vars</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id1">
+<h4><a class="toc-backref" href="#id33">OP_INSTANCE_REPLACE_DISKS</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>Replace the disks of an instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">mirrors-replace</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">MODE, NEW_SECONDARY, OLD_SECONDARY</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node, primary and new secondary nodes</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node, primary and new secondary nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="cluster-operations">
+<h3><a class="toc-backref" href="#id34">Cluster operations</a><a class="headerlink" href="#cluster-operations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="op-post-init-cluster">
+<h4><a class="toc-backref" href="#id35">OP_POST_INIT_CLUSTER</a><a class="headerlink" href="#op-post-init-cluster" title="Permalink to this headline">¶</a></h4>
+<p>This hook is called via a special &#8220;empty&#8221; LU right after cluster
+initialization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">cluster-init</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">none</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">none</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-destroy-cluster">
+<h4><a class="toc-backref" href="#id36">OP_DESTROY_CLUSTER</a><a class="headerlink" href="#op-destroy-cluster" title="Permalink to this headline">¶</a></h4>
+<p>The post phase of this hook is called during the execution of destroy
+operation and not after its completion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">cluster-destroy</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">none</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">none</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-cluster-verify">
+<h4><a class="toc-backref" href="#id37">OP_CLUSTER_VERIFY</a><a class="headerlink" href="#op-cluster-verify" title="Permalink to this headline">¶</a></h4>
+<p>Verifies the cluster status. This is a special LU with regard to
+hooks, as the result of the opcode will be combined with the result of
+post-execution hooks, in order to allow administrators to enhance the
+cluster verification procedure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">cluster-verify</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">CLUSTER, MASTER, CLUSTER_TAGS, NODE_TAGS_&lt;name&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">none</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">all nodes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-cluster-rename">
+<h4><a class="toc-backref" href="#id38">OP_CLUSTER_RENAME</a><a class="headerlink" href="#op-cluster-rename" title="Permalink to this headline">¶</a></h4>
+<p>Renames the cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">cluster-rename</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NEW_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master-node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master-node</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="op-cluster-set-params">
+<h4><a class="toc-backref" href="#id39">OP_CLUSTER_SET_PARAMS</a><a class="headerlink" href="#op-cluster-set-params" title="Permalink to this headline">¶</a></h4>
+<p>Modifies the cluster parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">directory:</th><td class="field-body">cluster-modify</td>
+</tr>
+<tr class="field"><th class="field-name">env. vars:</th><td class="field-body">NEW_VG_NAME</td>
+</tr>
+<tr class="field"><th class="field-name">pre-execution:</th><td class="field-body">master node</td>
+</tr>
+<tr class="field"><th class="field-name">post-execution:</th><td class="field-body">master node</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="obsolete-operations">
+<h3><a class="toc-backref" href="#id40">Obsolete operations</a><a class="headerlink" href="#obsolete-operations" title="Permalink to this headline">¶</a></h3>
+<p>The following operations are no longer present or don&#8217;t execute hooks
+anymore in Ganeti 2.0:</p>
+<ul class="simple">
+<li>OP_INIT_CLUSTER</li>
+<li>OP_MASTER_FAILOVER</li>
+<li>OP_INSTANCE_ADD_MDDRBD</li>
+<li>OP_INSTANCE_REMOVE_MDDRBD</li>
+</ul>
+</div>
+</div>
+<div class="section" id="environment-variables">
+<h2><a class="toc-backref" href="#id41">Environment variables</a><a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Note that all variables listed here are actually prefixed with
+<em>GANETI_</em> in order to provide a clear namespace.</p>
+<div class="section" id="common-variables">
+<h3><a class="toc-backref" href="#id42">Common variables</a><a class="headerlink" href="#common-variables" title="Permalink to this headline">¶</a></h3>
+<p>This is the list of environment variables supported by all operations:</p>
+<dl class="docutils">
+<dt>HOOKS_VERSION</dt>
+<dd>Documents the hooks interface version. In case this doesnt match
+what the script expects, it should not run. The documents conforms
+to the version 2.</dd>
+<dt>HOOKS_PHASE</dt>
+<dd>One of <em>PRE</em> or <em>POST</em> denoting which phase are we in.</dd>
+<dt>CLUSTER</dt>
+<dd>The cluster name.</dd>
+<dt>MASTER</dt>
+<dd>The master node.</dd>
+<dt>OP_CODE</dt>
+<dd>One of the <em>OP_</em> values from the list of operations.</dd>
+<dt>OBJECT_TYPE</dt>
+<dd>One of <tt class="docutils literal"><span class="pre">INSTANCE</span></tt>, <tt class="docutils literal"><span class="pre">NODE</span></tt>, <tt class="docutils literal"><span class="pre">CLUSTER</span></tt>.</dd>
+<dt>DATA_DIR</dt>
+<dd>The path to the Ganeti configuration directory (to read, for
+example, the <em>ssconf</em> files).</dd>
+</dl>
+</div>
+<div class="section" id="specialised-variables">
+<h3><a class="toc-backref" href="#id43">Specialised variables</a><a class="headerlink" href="#specialised-variables" title="Permalink to this headline">¶</a></h3>
+<p>This is the list of variables which are specific to one or more
+operations.</p>
+<dl class="docutils">
+<dt>INSTANCE_NAME</dt>
+<dd>The name of the instance which is the target of the operation.</dd>
+<dt>INSTANCE_DISK_TEMPLATE</dt>
+<dd>The disk type for the instance.</dd>
+<dt>INSTANCE_DISK_COUNT</dt>
+<dd>The number of disks for the instance.</dd>
+<dt>INSTANCE_DISKn_SIZE</dt>
+<dd>The size of disk <em>n</em> for the instance.</dd>
+<dt>INSTANCE_DISKn_MODE</dt>
+<dd>Either <em>rw</em> for a read-write disk or <em>ro</em> for a read-only one.</dd>
+<dt>INSTANCE_NIC_COUNT</dt>
+<dd>The number of NICs for the instance.</dd>
+<dt>INSTANCE_NICn_BRIDGE</dt>
+<dd>The bridge to which the <em>n</em> -th NIC of the instance is attached.</dd>
+<dt>INSTANCE_NICn_IP</dt>
+<dd>The IP (if any) of the <em>n</em> -th NIC of the instance.</dd>
+<dt>INSTANCE_NICn_MAC</dt>
+<dd>The MAC address of the <em>n</em> -th NIC of the instance.</dd>
+<dt>INSTANCE_OS_TYPE</dt>
+<dd>The name of the instance OS.</dd>
+<dt>INSTANCE_PRIMARY</dt>
+<dd>The name of the node which is the primary for the instance. Note that
+for migrations/failovers, you shouldn&#8217;t rely on this variable since
+the nodes change during the exectution, but on the
+OLD_PRIMARY/NEW_PRIMARY values.</dd>
+<dt>INSTANCE_SECONDARIES</dt>
+<dd>Space-separated list of secondary nodes for the instance. Note that
+for migrations/failovers, you shouldn&#8217;t rely on this variable since
+the nodes change during the exectution, but on the
+OLD_SECONDARY/NEW_SECONDARY values.</dd>
+<dt>INSTANCE_MEMORY</dt>
+<dd>The memory size (in MiBs) of the instance.</dd>
+<dt>INSTANCE_VCPUS</dt>
+<dd>The number of virtual CPUs for the instance.</dd>
+<dt>INSTANCE_STATUS</dt>
+<dd>The run status of the instance.</dd>
+<dt>NODE_NAME</dt>
+<dd>The target node of this operation (not the node on which the hook
+runs).</dd>
+<dt>NODE_PIP</dt>
+<dd>The primary IP of the target node (the one over which inter-node
+communication is done).</dd>
+<dt>NODE_SIP</dt>
+<dd>The secondary IP of the target node (the one over which drbd
+replication is done). This can be equal to the primary ip, in case
+the cluster is not dual-homed.</dd>
+<dt>FORCE</dt>
+<dd>This is provided by some operations when the user gave this flag.</dd>
+<dt>IGNORE_CONSISTENCY</dt>
+<dd>The user has specified this flag. It is used when failing over
+instances in case the primary node is down.</dd>
+<dt>ADD_MODE</dt>
+<dd>The mode of the instance create: either <em>create</em> for create from
+scratch or <em>import</em> for restoring from an exported image.</dd>
+<dt>SRC_NODE, SRC_PATH, SRC_IMAGE</dt>
+<dd>In case the instance has been added by import, these variables are
+defined and point to the source node, source path (the directory
+containing the image and the config file) and the source disk image
+file.</dd>
+<dt>NEW_SECONDARY</dt>
+<dd>The name of the node on which the new mirror component is being
+added (for replace disk). This can be the name of the current
+secondary, if the new mirror is on the same secondary. For
+migrations/failovers, this is the old primary node.</dd>
+<dt>OLD_SECONDARY</dt>
+<dd>The name of the old secondary in the replace-disks command. Note that
+this can be equal to the new secondary if the secondary node hasn&#8217;t
+actually changed. For migrations/failovers, this is the new primary
+node.</dd>
+<dt>OLD_PRIMARY, NEW_PRIMARY</dt>
+<dd>For migrations/failovers, the old and respectively new primary
+nodes. These two mirror the NEW_SECONDARY/OLD_SECONDARY variables</dd>
+<dt>EXPORT_NODE</dt>
+<dd>The node on which the exported image of the instance was done.</dd>
+<dt>EXPORT_DO_SHUTDOWN</dt>
+<dd>This variable tells if the instance has been shutdown or not while
+doing the export. In the &#8220;was shutdown&#8221; case, it&#8217;s likely that the
+filesystem is consistent, whereas in the &#8220;did not shutdown&#8221; case,
+the filesystem would need a check (journal replay or full fsck) in
+order to guarantee consistency.</dd>
+<dt>CLUSTER_TAGS</dt>
+<dd>The list of cluster tags, space separated.</dd>
+<dt>NODE_TAGS_&lt;name&gt;</dt>
+<dd>The list of tags for node <em>&lt;name&gt;</em>, space separated.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id44">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The startup of an instance will pass this environment to the hook
+script:</p>
+<div class="highlight-python"><pre>GANETI_CLUSTER=cluster1.example.com
+GANETI_DATA_DIR=/var/lib/ganeti
+GANETI_FORCE=False
+GANETI_HOOKS_PATH=instance-start
+GANETI_HOOKS_PHASE=post
+GANETI_HOOKS_VERSION=2
+GANETI_INSTANCE_DISK0_MODE=rw
+GANETI_INSTANCE_DISK0_SIZE=128
+GANETI_INSTANCE_DISK_COUNT=1
+GANETI_INSTANCE_DISK_TEMPLATE=drbd
+GANETI_INSTANCE_MEMORY=128
+GANETI_INSTANCE_NAME=instance2.example.com
+GANETI_INSTANCE_NIC0_BRIDGE=xen-br0
+GANETI_INSTANCE_NIC0_IP=
+GANETI_INSTANCE_NIC0_MAC=aa:00:00:a5:91:58
+GANETI_INSTANCE_NIC_COUNT=1
+GANETI_INSTANCE_OS_TYPE=debootstrap
+GANETI_INSTANCE_PRIMARY=node3.example.com
+GANETI_INSTANCE_SECONDARIES=node5.example.com
+GANETI_INSTANCE_STATUS=down
+GANETI_INSTANCE_VCPUS=1
+GANETI_MASTER=node1.example.com
+GANETI_OBJECT_TYPE=INSTANCE
+GANETI_OP_CODE=OP_INSTANCE_STARTUP
+GANETI_OP_TARGET=instance2.example.com</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Ganeti customisation using hooks</a><ul>
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#organisation">Organisation</a><ul>
+<li><a class="reference external" href="#pre-scripts"><em>pre</em> scripts</a></li>
+<li><a class="reference external" href="#post-scripts"><em>post</em> scripts</a></li>
+<li><a class="reference external" href="#naming">Naming</a></li>
+<li><a class="reference external" href="#order-of-execution">Order of execution</a></li>
+<li><a class="reference external" href="#execution-environment">Execution environment</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#operation-list">Operation list</a><ul>
+<li><a class="reference external" href="#node-operations">Node operations</a><ul>
+<li><a class="reference external" href="#op-add-node">OP_ADD_NODE</a></li>
+<li><a class="reference external" href="#op-remove-node">OP_REMOVE_NODE</a></li>
+<li><a class="reference external" href="#op-node-set-params">OP_NODE_SET_PARAMS</a></li>
+<li><a class="reference external" href="#op-node-evacuate">OP_NODE_EVACUATE</a></li>
+<li><a class="reference external" href="#op-node-migrate">OP_NODE_MIGRATE</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#instance-operations">Instance operations</a><ul>
+<li><a class="reference external" href="#op-instance-add">OP_INSTANCE_ADD</a></li>
+<li><a class="reference external" href="#op-instance-reinstall">OP_INSTANCE_REINSTALL</a></li>
+<li><a class="reference external" href="#op-backup-export">OP_BACKUP_EXPORT</a></li>
+<li><a class="reference external" href="#op-instance-start">OP_INSTANCE_START</a></li>
+<li><a class="reference external" href="#op-instance-shutdown">OP_INSTANCE_SHUTDOWN</a></li>
+<li><a class="reference external" href="#op-instance-reboot">OP_INSTANCE_REBOOT</a></li>
+<li><a class="reference external" href="#op-instance-modify">OP_INSTANCE_MODIFY</a></li>
+<li><a class="reference external" href="#op-instance-failover">OP_INSTANCE_FAILOVER</a></li>
+<li><a class="reference external" href="#op-instance-migrate">OP_INSTANCE_MIGRATE</a></li>
+<li><a class="reference external" href="#op-instance-remove">OP_INSTANCE_REMOVE</a></li>
+<li><a class="reference external" href="#op-instance-replace-disks">OP_INSTANCE_REPLACE_DISKS</a></li>
+<li><a class="reference external" href="#op-instance-grow-disk">OP_INSTANCE_GROW_DISK</a></li>
+<li><a class="reference external" href="#op-instance-rename">OP_INSTANCE_RENAME</a></li>
+<li><a class="reference external" href="#op-instance-move">OP_INSTANCE_MOVE</a></li>
+<li><a class="reference external" href="#op-instance-recreate-disks">OP_INSTANCE_RECREATE_DISKS</a></li>
+<li><a class="reference external" href="#id1">OP_INSTANCE_REPLACE_DISKS</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#cluster-operations">Cluster operations</a><ul>
+<li><a class="reference external" href="#op-post-init-cluster">OP_POST_INIT_CLUSTER</a></li>
+<li><a class="reference external" href="#op-destroy-cluster">OP_DESTROY_CLUSTER</a></li>
+<li><a class="reference external" href="#op-cluster-verify">OP_CLUSTER_VERIFY</a></li>
+<li><a class="reference external" href="#op-cluster-rename">OP_CLUSTER_RENAME</a></li>
+<li><a class="reference external" href="#op-cluster-set-params">OP_CLUSTER_SET_PARAMS</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#obsolete-operations">Obsolete operations</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#environment-variables">Environment variables</a><ul>
+<li><a class="reference external" href="#common-variables">Common variables</a></li>
+<li><a class="reference external" href="#specialised-variables">Specialised variables</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="locking.html"
+                                  title="previous chapter">Ganeti locking</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="iallocator.html"
+                                  title="next chapter">Ganeti automatic instance allocation</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/hooks.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="iallocator.html" title="Ganeti automatic instance allocation"
+             >next</a></li>
+        <li class="right" >
+          <a href="locking.html" title="Ganeti locking"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, 2010, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.7.
+    </div>
+  </body>
+</html>

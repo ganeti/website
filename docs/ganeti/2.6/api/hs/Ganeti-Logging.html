@@ -1,0 +1,885 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Logging</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Logging.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Logging.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Logging</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Logging function aliases
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Implementation of the Ganeti logging functionality.
+</P
+><P
+>This currently lacks the following (FIXME):
+</P
+><UL
+><LI
+> log file reopening
+</LI
+></UL
+><P
+>Note that this requires the hslogger library version 1.1 and above.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ASyslogUsage"
+>SyslogUsage</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ASyslogNo"
+>SyslogNo</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASyslogYes"
+>SyslogYes</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASyslogOnly"
+>SyslogOnly</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsyslogUsageFromRaw"
+>syslogUsageFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a1Eyn]. Monad m[a1Eyn] =&gt; String -&gt; m[a1Eyn] <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsyslogUsageToRaw"
+>syslogUsageToRaw</A
+> :: <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogFormatter"
+>logFormatter</A
+> ::  String -&gt; Bool -&gt; Bool -&gt; LogFormatter a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AopenFormattedHandler"
+>openFormattedHandler</A
+> :: LogHandler a =&gt; Bool -&gt; LogFormatter a -&gt; IO a -&gt; IO [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetupLogging"
+>setupLogging</A
+> :: Maybe String -&gt; String -&gt; Bool -&gt; Bool -&gt; Bool -&gt; <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogDebug"
+>logDebug</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogInfo"
+>logInfo</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogNotice"
+>logNotice</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogWarning"
+>logWarning</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogError"
+>logError</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogCritical"
+>logCritical</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogAlert"
+>logAlert</A
+> :: String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlogEmergency"
+>logEmergency</A
+> :: String -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:SyslogUsage"
+><A NAME="t%3ASyslogUsage"
+></A
+></A
+><B
+>SyslogUsage</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#SyslogUsage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Syslog usage type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:SyslogNo"
+><A NAME="v%3ASyslogNo"
+></A
+></A
+><B
+>SyslogNo</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SyslogYes"
+><A NAME="v%3ASyslogYes"
+></A
+></A
+><B
+>SyslogYes</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SyslogOnly"
+><A NAME="v%3ASyslogOnly"
+></A
+></A
+><B
+>SyslogOnly</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:syslogUsageFromRaw"
+><A NAME="v%3AsyslogUsageFromRaw"
+></A
+></A
+><B
+>syslogUsageFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[a1Eyn]. Monad m[a1Eyn] =&gt; String -&gt; m[a1Eyn] <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#syslogUsageFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:syslogUsageToRaw"
+><A NAME="v%3AsyslogUsageToRaw"
+></A
+></A
+><B
+>syslogUsageToRaw</B
+> :: <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#syslogUsageToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logFormatter"
+><A NAME="v%3AlogFormatter"
+></A
+></A
+><B
+>logFormatter</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logFormatter"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: </TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>Multithreaded
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Syslog
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; LogFormatter a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Builds the log formatter.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:openFormattedHandler"
+><A NAME="v%3AopenFormattedHandler"
+></A
+></A
+><B
+>openFormattedHandler</B
+> :: LogHandler a =&gt; Bool -&gt; LogFormatter a -&gt; IO a -&gt; IO [a]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#openFormattedHandler"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper to open and set the formatter on a log if enabled by a
+ given condition, otherwise returning an empty list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setupLogging"
+><A NAME="v%3AsetupLogging"
+></A
+></A
+><B
+>setupLogging</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#setupLogging"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Maybe String</TD
+><TD CLASS="rdoc"
+>Log file
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Program name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Debug level
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Log to stderr
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Log to console
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+></TD
+><TD CLASS="rdoc"
+>Syslog usage
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Sets up the logging configuration.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Logging function aliases
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logDebug"
+><A NAME="v%3AlogDebug"
+></A
+></A
+><B
+>logDebug</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logDebug"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at debug level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logInfo"
+><A NAME="v%3AlogInfo"
+></A
+></A
+><B
+>logInfo</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at info level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logNotice"
+><A NAME="v%3AlogNotice"
+></A
+></A
+><B
+>logNotice</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logNotice"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at notice level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logWarning"
+><A NAME="v%3AlogWarning"
+></A
+></A
+><B
+>logWarning</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logWarning"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at warning level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logError"
+><A NAME="v%3AlogError"
+></A
+></A
+><B
+>logError</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logError"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at error level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logCritical"
+><A NAME="v%3AlogCritical"
+></A
+></A
+><B
+>logCritical</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logCritical"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at critical level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logAlert"
+><A NAME="v%3AlogAlert"
+></A
+></A
+><B
+>logAlert</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logAlert"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at alert level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:logEmergency"
+><A NAME="v%3AlogEmergency"
+></A
+></A
+><B
+>logEmergency</B
+> :: String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Logging.html#logEmergency"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Log at emergency level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

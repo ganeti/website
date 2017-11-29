@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Virtual cluster support &mdash; Ganeti 2.7.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.7.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.7.2 documentation" href="index.html" />
+    <link rel="next" title="OVF converter" href="ovfconverter.html" />
+    <link rel="prev" title="Moving instances between clusters" href="move-instance.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="ovfconverter.html" title="OVF converter"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="move-instance.html" title="Moving instances between clusters"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="virtual-cluster-support">
+<h1><a class="toc-backref" href="#id2">Virtual cluster support</a><a class="headerlink" href="#virtual-cluster-support" title="Permalink to this headline">¶</a></h1>
+<p>Documents Ganeti version 2.7</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#virtual-cluster-support" id="id2">Virtual cluster support</a><ul>
+<li><a class="reference internal" href="#introduction" id="id3">Introduction</a></li>
+<li><a class="reference internal" href="#limitations" id="id4">Limitations</a></li>
+<li><a class="reference internal" href="#basics" id="id5">Basics</a></li>
+<li><a class="reference internal" href="#setup" id="id6">Setup</a></li>
+<li><a class="reference internal" href="#use" id="id7">Use</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id3">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This is a description of Ganeti&#8217;s support for virtual clusters
+introduced in version 2.7. The original design is described
+in a separate <a class="reference internal" href="design-virtual-clusters.html"><em>design document</em></a>.</p>
+<p>A virtual cluster consists of multiple virtual nodes (instances of
+Ganeti daemons) running on the same physical machine within one
+operating system. This way multiple (virtual) nodes can be simulated
+using a single machine. Virtual clusters can be run as a user without
+root privileges (see <a class="reference internal" href="#limitations"><em>limitations</em></a>).</p>
+<p>While not implemented in the helper setup script at the time of this
+writing, virtual clusters can also be split over multiple physical
+machines, allowing for even more virtual nodes.</p>
+</div>
+<div class="section" id="limitations">
+<span id="id1"></span><h2><a class="toc-backref" href="#id4">Limitations</a><a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<p>Due to historical and practical design decisions virtual clusters
+have several limitations.</p>
+<ul class="simple">
+<li>&#8220;fake&#8221; hypervisor only</li>
+<li>Instances must be diskless or file-backed</li>
+<li>Node information is the same over multiple virtual nodes (e.g. free
+memory)</li>
+<li>If running as a user without root privileges, certain operations are
+not available; some operations are not useful even when running as
+root (e.g. powercycle)</li>
+<li>OS definitions must be prepared for this setup</li>
+<li>Setup is partially manual, especially when not running as root</li>
+</ul>
+</div>
+<div class="section" id="basics">
+<h2><a class="toc-backref" href="#id5">Basics</a><a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti programs act as running on a virtual node if the environment
+variables <tt class="docutils literal"><span class="pre">GANETI_ROOTDIR</span></tt> and <tt class="docutils literal"><span class="pre">GANETI_HOSTNAME</span></tt> are set. The former
+must be an absolute path to a directory with the last component being
+equal to the value of <tt class="docutils literal"><span class="pre">GANETI_HOSTNAME</span></tt>, which contains the name of
+the virtual node. The reason for this requirement is that one virtual
+node must be able to compute an absolute path on another node for
+copying files via SSH.</p>
+<p>The whole content of <tt class="docutils literal"><span class="pre">GANETI_ROOTDIR</span></tt> is the node directory, its
+parent directory (without hostname) is the cluster directory.</p>
+<p>Example for environment variables:</p>
+<div class="highlight-python"><pre>GANETI_ROOTDIR=/tmp/vcluster/node1.example.com
+GANETI_HOSTNAME=node1.example.com</pre>
+</div>
+<p>With this example the node directory is
+<tt class="docutils literal"><span class="pre">/tmp/vcluster/node1.example.com</span></tt> and the cluster directory
+<tt class="docutils literal"><span class="pre">/tmp/vcluster</span></tt>.</p>
+</div>
+<div class="section" id="setup">
+<span id="vcluster-setup"></span><h2><a class="toc-backref" href="#id6">Setup</a><a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>A script to configure virtual clusters is included with Ganeti as
+<tt class="docutils literal"><span class="pre">tools/vcluster-setup</span></tt> (usually installed as
+<tt class="docutils literal"><span class="pre">/usr/lib/ganeti/tools/vcluster-setup</span></tt>). Running it with the <tt class="docutils literal"><span class="pre">-h</span></tt>
+option prints a usage description. The script creates all necessary
+directories, configures network interfaces, adds or updates entries in
+<tt class="docutils literal"><span class="pre">/etc/hosts</span></tt> and generates a small number of helper scripts.</p>
+</div>
+<div class="section" id="use">
+<h2><a class="toc-backref" href="#id7">Use</a><a class="headerlink" href="#use" title="Permalink to this headline">¶</a></h2>
+<p>Once the virtual cluster has been <a class="reference internal" href="#vcluster-setup"><em>set up</em></a>, the
+cluster can be initialized. The instructions for doing so have been
+printed by the <tt class="docutils literal"><span class="pre">vcluster-setup</span></tt> script together with other useful
+information, such as the list of virtual nodes. The commands printed
+should be used to configure the list of enabled hypervisors and other
+settings.</p>
+<p>To run commands for a specific virtual node, the script named <tt class="docutils literal"><span class="pre">cmd</span></tt>
+located in the node directory can be used. It takes a command as its
+argument(s), sets the environment variables <tt class="docutils literal"><span class="pre">GANETI_ROOTDIR</span></tt> and
+<tt class="docutils literal"><span class="pre">GANETI_HOSTNAME</span></tt> and then runs the command. Example:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre><span class="c1"># Let&#39;s create a cluster with node1 as its master node</span>
+$ <span class="gs">cd</span> <span class="gs">/tmp/vcluster</span>
+$ <span class="gs">node1.example.com/cmd</span> <span class="gs">gnt-cluster</span> <span class="gs">info</span>
+Cluster name: cluster.example.com
+…
+Master node: node1.example.com
+…
+<span class="c1"># Configure cluster as per &quot;vcluster-setup&quot; script</span>
+$ <span class="gs">node1.example.com/cmd</span> <span class="gs">gnt-cluster</span> <span class="gs">modify</span> <span class="gs">…</span>
+</pre></div>
+</div>
+<p>Scripts are provided in the cluster root directory to start, stop or
+restart all daemons for all virtual nodes. These are named
+<tt class="docutils literal"><span class="pre">start-all</span></tt>, <tt class="docutils literal"><span class="pre">stop-all</span></tt> and <tt class="docutils literal"><span class="pre">restart-all</span></tt>. <tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> can
+be run for all virtual nodes using <tt class="docutils literal"><span class="pre">watcher-all</span></tt>.</p>
+<p>Adding an instance (assuming node1.example.com is the master node as per
+the example above):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">node1.example.com/cmd</span> <span class="gs">gnt-instance</span> <span class="gs">add</span> <span class="gs">--os-size</span> <span class="gs">1G</span> <span class="gs">\</span>
+  <span class="gs">--disk-template=file</span> <span class="gs">--os-type</span> <span class="gs">dummy</span> <span class="gs">-B</span> <span class="gs">memory=192</span> <span class="gs">-I</span> <span class="gs">hail</span> <span class="gs">\</span>
+  <span class="gs">instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Virtual cluster support</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#basics">Basics</a></li>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#use">Use</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="move-instance.html"
+                        title="previous chapter">Moving instances between clusters</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ovfconverter.html"
+                        title="next chapter">OVF converter</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/virtual-cluster.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="ovfconverter.html" title="OVF converter"
+             >next</a></li>
+        <li class="right" >
+          <a href="move-instance.html" title="Moving instances between clusters"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

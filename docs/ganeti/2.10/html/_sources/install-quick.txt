@@ -1,0 +1,284 @@
+.. This file is automatically updated at build time from INSTALL.
+.. Do not edit.
+
+Ganeti quick installation guide
+===============================
+
+Please note that a more detailed installation procedure is described in
+the :doc:`install`. Refer to it if you are setting up Ganeti the first time.
+This quick installation guide is mainly meant as reference for experienced
+users. A glossary of terms can be found in the :doc:`glossary`.
+
+
+Software Requirements
+---------------------
+
+.. highlight:: shell-example
+
+Before installing, please verify that you have the following programs:
+
+- `Xen Hypervisor <http://www.xen.org/>`_, version 3.0 or above, if
+  running on Xen
+- `KVM Hypervisor <http://www.linux-kvm.org>`_, version 72 or above, if
+  running on KVM. In order to use advanced features, such as live
+  migration, virtio, etc, an even newer version is recommended (qemu-kvm
+  versions 0.11.X and above have shown good behavior).
+- `DRBD <http://www.drbd.org/>`_, kernel module and userspace utils,
+  version 8.0.7 or above; note that Ganeti doesn't yet support version 8.4
+- `RBD <http://ceph.newdream.net/>`_, kernel modules
+  (``rbd.ko``/``libceph.ko``) and userspace utils (``ceph-common``)
+- `LVM2 <http://sourceware.org/lvm2/>`_
+- `OpenSSH <http://www.openssh.com/portable.html>`_
+- `bridge utilities <http://www.linuxfoundation.org/en/Net:Bridge>`_
+- `iproute2 <http://www.linuxfoundation.org/en/Net:Iproute2>`_
+- `arping <http://www.skbuff.net/iputils/>`_ (part of iputils)
+- `ndisc6 <http://www.remlab.net/ndisc6/>`_ (if using IPv6)
+- `Python <http://www.python.org/>`_, version 2.6 or above, not 3.0
+- `Python OpenSSL bindings <http://pyopenssl.sourceforge.net/>`_
+- `simplejson Python module <http://code.google.com/p/simplejson/>`_
+- `pyparsing Python module <http://pyparsing.wikispaces.com/>`_, version
+  1.4.6 or above
+- `pyinotify Python module <https://github.com/seb-m/pyinotify>`_
+- `PycURL Python module <http://pycurl.sourceforge.net/>`_
+- `socat <http://www.dest-unreach.org/socat/>`_, see :ref:`note
+  <socat-note>` below
+- `Paramiko <http://www.lag.net/paramiko/>`_, if you want to use
+  ``ganeti-listrunner``
+- `affinity Python module <http://pypi.python.org/pypi/affinity/0.1.0>`_,
+  optional python package for supporting CPU pinning under KVM
+- `fdsend Python module <https://gitorious.org/python-fdsend>`_,
+  optional Python package for supporting NIC hotplugging under KVM
+- `qemu-img <http://qemu.org/>`_, if you want to use ``ovfconverter``
+- `fping <http://fping.sourceforge.net/>`_
+- `Python IP address manipulation library
+  <http://code.google.com/p/ipaddr-py/>`_
+- `Bitarray Python library <http://pypi.python.org/pypi/bitarray/>`_
+- `GNU Make <http://www.gnu.org/software/make/>`_
+- `GNU M4 <http://www.gnu.org/software/m4/>`_
+
+These programs are supplied as part of most Linux distributions, so
+usually they can be installed via the standard package manager. Also
+many of them will already be installed on a standard machine. On
+Debian/Ubuntu, you can use this command line to install all required
+packages, except for RBD, DRBD and Xen::
+
+  $ apt-get install lvm2 ssh bridge-utils iproute iputils-arping make m4 \
+                    ndisc6 python python-openssl openssl \
+                    python-pyparsing python-simplejson python-bitarray \
+                    python-pyinotify python-pycurl python-ipaddr socat fping
+
+For older distributions (eg. Debian  Squeeze) the package names are
+different.::
+
+  $ apt-get install lvm2 ssh bridge-utils iproute iputils-arping make \
+                    ndisc6 python python-pyopenssl openssl \
+                    python-pyparsing python-simplejson python-bitarray \
+                    python-pyinotify python-pycurl python-ipaddr socat fping
+
+If bitarray is missing it can be installed from easy-install::
+
+  $ easy_install bitarray
+
+Note that this does not install optional packages::
+
+  $ apt-get install python-paramiko python-affinity qemu-utils
+
+If some of the python packages are not available in your system,
+you can try installing them using ``easy_install`` command.
+For example::
+
+  $ apt-get install python-setuptools python-dev
+  $ cd / && easy_install \
+            affinity \
+            bitarray \
+            ipaddr
+
+
+On Fedora to install all required packages except RBD, DRBD and Xen::
+
+  $ yum install openssh openssh-clients bridge-utils iproute ndisc6 make \
+                pyOpenSSL pyparsing python-simplejson python-inotify \
+                python-lxm socat fping python-bitarray python-ipaddr
+
+For optional packages use the command::
+
+  $ yum install python-paramiko python-affinity qemu-img
+
+If you want to build from source, please see doc/devnotes.rst for more
+dependencies.
+
+.. _socat-note:
+.. note::
+  Ganeti's import/export functionality uses ``socat`` with OpenSSL for
+  transferring data between nodes. By default, OpenSSL 0.9.8 and above
+  employ transparent compression of all data using zlib if supported by
+  both sides of a connection. In cases where a lot of data is
+  transferred, this can lead to an increased CPU usage. Additionally,
+  Ganeti already compresses all data using ``gzip`` where it makes sense
+  (for inter-cluster instance moves).
+
+  To remedey this situation, patches implementing a new ``socat`` option
+  for disabling OpenSSL compression have been contributed and will
+  likely be included in the next feature release. Until then, users or
+  distributions need to apply the patches on their own.
+
+  Ganeti will use the option if it's detected by the ``configure``
+  script; auto-detection can be disabled by explicitly passing
+  ``--enable-socat-compress`` (use the option to disable compression) or
+  ``--disable-socat-compress`` (don't use the option).
+
+  The patches and more information can be found on
+  http://www.dest-unreach.org/socat/contrib/socat-opensslcompress.html.
+
+Haskell requirements
+~~~~~~~~~~~~~~~~~~~~
+
+Starting with Ganeti 2.7, the Haskell GHC compiler and a few base
+libraries are required in order to build Ganeti (but not to run and
+deploy Ganeti on production machines). More specifically:
+
+- `GHC <http://www.haskell.org/ghc/>`_ version 6.12 or higher
+- or even better, `The Haskell Platform
+  <http://hackage.haskell.org/platform/>`_ which gives you a simple way
+  to bootstrap Haskell
+- `json <http://hackage.haskell.org/package/json>`_, a JSON library
+- `network <http://hackage.haskell.org/package/network>`_, a basic
+  network library
+- `parallel <http://hackage.haskell.org/package/parallel>`_, a parallel
+  programming library (note: tested with up to version 3.x)
+- `bytestring <http://hackage.haskell.org/package/bytestring>`_ and
+  `utf8-string <http://hackage.haskell.org/package/utf8-string>`_
+  libraries; these usually come with the GHC compiler
+- `deepseq <http://hackage.haskell.org/package/deepseq>`_
+- `curl <http://hackage.haskell.org/package/curl>`_, tested with
+  versions 1.3.4 and above
+- `hslogger <http://software.complete.org/hslogger>`_, version 1.1 and
+  above (note that Debian Squeeze only has version 1.0.9)
+
+Some of these are also available as package in Debian/Ubuntu::
+
+  $ apt-get install ghc libghc-json-dev libghc-network-dev \
+                    libghc-parallel-dev libghc-deepseq-dev \
+                    libghc-utf8-string-dev libghc-curl-dev \
+                    libghc-hslogger-dev 
+
+Or in older versions of these distributions (using GHC 6.x)::
+
+  $ apt-get install ghc6 libghc6-json-dev libghc6-network-dev \
+                    libghc6-parallel-dev libghc6-deepseq-dev \
+                    libghc6-curl-dev
+
+In Fedora, some of them are available via packages as well::
+
+  $ yum install ghc ghc-json-devel ghc-network-devel \
+                    ghc-parallel-devel ghc-deepseq-devel
+
+If using a distribution which does not provide them, first install
+the Haskell platform. You can also install ``cabal`` manually::
+
+  $ apt-get install cabal-install
+  $ cabal update
+
+Then install the additional libraries (only the ones not available in your
+distribution packages) via ``cabal``::
+
+  $ cabal install json network parallel utf8-string curl hslogger
+
+Haskell optional features
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optionally, more functionality can be enabled if your build machine has
+a few more Haskell libraries enabled: the ``ganeti-confd`` and
+``ganeti-luxid`` daemon (``--enable-confd``) and the monitoring daemon
+(``--enable-mond``). The list of extra dependencies for these is:
+
+- `Crypto <http://hackage.haskell.org/package/Crypto>`_, tested with
+  version 4.2.4
+- `text <http://hackage.haskell.org/package/text>`_
+- `hinotify <http://hackage.haskell.org/package/hinotify>`_, tested with
+  version 0.3.2
+- `regex-pcre <http://hackage.haskell.org/package/regex-pcre>`_,
+  bindings for the ``pcre`` library
+- `attoparsec <http://hackage.haskell.org/package/attoparsec>`_
+- `vector <http://hackage.haskell.org/package/vector>`_
+- `snap-server` <http://hackage.haskell.org/package/snap-server>`_, version
+  0.8.1 and above.
+- `process <http://hackage.haskell.org/package/process>`_, version 1.0.1.1 and
+  above
+
+These libraries are available in Debian Wheezy (but not in Squeeze), so you
+can use either apt::
+
+  $ apt-get install libghc-crypto-dev libghc-text-dev \
+                    libghc-hinotify-dev libghc-regex-pcre-dev \
+                    libpcre3-dev \
+                    libghc-attoparsec-dev libghc-vector-dev \
+                    libghc-snap-server-dev
+
+or ``cabal``, after installing a required non-Haskell dependency::
+
+  $ apt-get install libpcre3-dev libcurl4-openssl-dev
+  $ cabal install Crypto text hinotify==0.3.2 regex-pcre \
+                  attoparsec vector snap-server
+
+to install them.
+
+In case you still use ghc-6.12, note that ``cabal`` would automatically try to
+install newer versions of some of the libraries snap-server depends on, that
+cannot be compiled with ghc-6.12, so you have to install snap-server on its
+own, explicitly forcing the installation of compatible versions::
+
+  $ cabal install MonadCatchIO-transformers==0.2.2.0 mtl==2.0.1.0 \
+                  hashable==1.1.2.0 case-insensitive==0.3 parsec==3.0.1 \
+                  network==2.3 snap-server==0.8.1
+
+The most recent Fedora doesn't provide ``crypto``, ``inotify``. So these
+need to be installed using ``cabal``, if desired. The other packages can
+be installed via ``yum``::
+
+  $ yum install ghc-hslogger-devel ghc-text-devel \
+                ghc-regex-pcre-devel
+
+.. _cabal-note:
+.. note::
+  If one of the cabal packages fails to install due to unfulfilled
+  dependencies, you can try enabling symlinks in ``~/.cabal/config``.
+
+  Make sure that your ``~/.cabal/bin`` directory (or whatever else
+  is defined as ``bindir``) is in your ``PATH``.
+
+Installation of the software
+----------------------------
+
+To install, simply run the following command::
+
+  $ ./configure --localstatedir=/var --sysconfdir=/etc && \
+    make && \
+    make install
+
+This will install the software under ``/usr/local``. You then need to
+copy ``doc/examples/ganeti.initd`` to ``/etc/init.d/ganeti`` and
+integrate it into your boot sequence (``chkconfig``, ``update-rc.d``,
+etc.).
+
+
+Cluster initialisation
+----------------------
+
+Before initialising the cluster, on each node you need to create the
+following directories:
+
+- ``/etc/ganeti``
+- ``/var/lib/ganeti``
+- ``/var/log/ganeti``
+- ``/srv/ganeti``
+- ``/srv/ganeti/os``
+- ``/srv/ganeti/export``
+
+After this, use ``gnt-cluster init``.
+
+.. vim: set textwidth=72 syntax=rst :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:

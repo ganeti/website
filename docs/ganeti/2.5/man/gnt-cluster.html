@@ -1,0 +1,938 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>gnt-cluster(8) Ganeti | Version 2.5.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">gnt-cluster(8) Ganeti | Version 2.5.2</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >gnt-cluster - Ganeti administration, cluster-wide</p
+  ></div
+><div id="synopsis"
+><h1
+  >Synopsis</h1
+  ><p
+  ><strong
+    >gnt-cluster</strong
+    > {command} [arguments...]</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The <strong
+    >gnt-cluster</strong
+    > is used for cluster-wide administration in the Ganeti system.</p
+  ></div
+><div id="commands"
+><h1
+  >COMMANDS</h1
+  ><div id="add-tags"
+  ><h2
+    >ADD-TAGS</h2
+    ><p
+    ><strong
+      >add-tags</strong
+      > [--from <em
+      >file</em
+      >] {<em
+      >tag</em
+      >...}</p
+    ><p
+    >Add tags to the cluster. If any of the tags contains invalid characters, the entire operation will abort.</p
+    ><p
+    >If the <code
+      >--from</code
+      > option is given, the list of tags will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, both sources will be used). A file name of - will be interpreted as stdin.</p
+    ></div
+  ><div id="command"
+  ><h2
+    >COMMAND</h2
+    ><p
+    ><strong
+      >command</strong
+      > [-n <em
+      >node</em
+      >] [-g <em
+      >group</em
+      >] {<em
+      >command</em
+      >}</p
+    ><p
+    >Executes a command on all nodes. If the option <code
+      >-n</code
+      > is not given, the command will be executed on all nodes, otherwise it will be executed only on the node(s) specified. Use the option multiple times for running it on multiple nodes, like:</p
+    ><pre
+    ><code
+      ># gnt-cluster command -n node1.example.com -n node2.example.com date
+</code
+      ></pre
+    ><p
+    >The <code
+      >-g</code
+      > option can be used to run a command only on a specific node group, e.g.:</p
+    ><pre
+    ><code
+      ># gnt-cluster command -g default date
+</code
+      ></pre
+    ><p
+    >The command is executed serially on the selected nodes. If the master node is present in the list, the command will be executed last on the master. Regarding the other nodes, the execution order is somewhat alphabetic, so that node2.example.com will be earlier than node10.example.com but after node1.example.com.</p
+    ><p
+    >So given the node names node1, node2, node3, node10, node11, with node3 being the master, the order will be: node1, node2, node10, node11, node3.</p
+    ><p
+    >The command is constructed by concatenating all other command line arguments. For example, to list the contents of the /etc directory on all nodes, run:</p
+    ><pre
+    ><code
+      ># gnt-cluster command ls -l /etc
+</code
+      ></pre
+    ><p
+    >and the command which will be executed will be <code
+      >ls -l /etc</code
+      >.</p
+    ></div
+  ><div id="copyfile"
+  ><h2
+    >COPYFILE</h2
+    ><p
+    ><strong
+      >copyfile</strong
+      > [--use-replication-network] [-n <em
+      >node</em
+      >] [-g <em
+      >group</em
+      >]<br
+       />{<em
+      >file</em
+      >}</p
+    ><p
+    >Copies a file to all or to some nodes. The argument specifies the source file (on the current system), the <code
+      >-n</code
+      > argument specifies the target node, or nodes if the option is given multiple times. If <code
+      >-n</code
+      > is not given at all, the file will be copied to all nodes. The <code
+      >-g</code
+      > option can be used to only select nodes in a specific node group. Passing the <code
+      >--use-replication-network</code
+      > option will cause the copy to be done over the replication network (only matters if the primary/secondary IPs are different). Example:</p
+    ><pre
+    ><code
+      ># gnt-cluster -n node1.example.com -n node2.example.com copyfile /tmp/test
+</code
+      ></pre
+    ><p
+    >This will copy the file /tmp/test from the current node to the two named nodes.</p
+    ></div
+  ><div id="destroy"
+  ><h2
+    >DESTROY</h2
+    ><p
+    ><strong
+      >destroy</strong
+      > {--yes-do-it}</p
+    ><p
+    >Remove all configuration files related to the cluster, so that a <strong
+      >gnt-cluster init</strong
+      > can be done again afterwards.</p
+    ><p
+    >Since this is a dangerous command, you are required to pass the argument <em
+      >--yes-do-it.</em
+      ></p
+    ></div
+  ><div id="epo"
+  ><h2
+    >EPO</h2
+    ><p
+    ><strong
+      >epo</strong
+      > [--on] [--groups|--all] [--power-delay] <em
+      >arguments</em
+      ></p
+    ><p
+    >Performs an emergency power-off on nodes given as arguments. If <code
+      >--groups</code
+      > is given, arguments are node groups. If <code
+      >--all</code
+      > is provided, the whole cluster will be shut down.</p
+    ><p
+    >The <code
+      >--on</code
+      > flag recovers the cluster after an emergency power-off. When powering on the cluster you can use <code
+      >--power-delay</code
+      > to define the time in seconds (fractions allowed) waited between powering on individual nodes.</p
+    ><p
+    >Please note that the master node will not be turned down or up automatically. It will just be left in a state, where you can manully perform the shutdown of that one node. If the master is in the list of affected nodes and this is not a complete cluster emergency power-off (e.g. using <code
+      >--all</code
+      >), you're required to do a master failover to another node not affected.</p
+    ></div
+  ><div id="getmaster"
+  ><h2
+    >GETMASTER</h2
+    ><p
+    ><strong
+      >getmaster</strong
+      ></p
+    ><p
+    >Displays the current master node.</p
+    ></div
+  ><div id="info"
+  ><h2
+    >INFO</h2
+    ><p
+    ><strong
+      >info</strong
+      > [--roman]</p
+    ><p
+    >Shows runtime cluster information: cluster name, architecture (32 or 64 bit), master node, node list and instance list.</p
+    ><p
+    >Passing the <code
+      >--roman</code
+      > option gnt-cluster info will try to print its integer fields in a latin friendly way. This allows further diffusion of Ganeti among ancient cultures.</p
+    ></div
+  ><div id="init"
+  ><h2
+    >INIT</h2
+    ><p
+    ><strong
+      >init</strong
+      ><br
+       />[{-s|--secondary-ip} <em
+      >secondary_ip</em
+      >]<br
+       />[--vg-name <em
+      >vg-name</em
+      >]<br
+       />[--master-netdev <em
+      >interface-name</em
+      >]<br
+       />[{-m|--mac-prefix} <em
+      >mac-prefix</em
+      >]<br
+       />[--no-lvm-storage]<br
+       />[--no-etc-hosts]<br
+       />[--no-ssh-init]<br
+       />[--file-storage-dir <em
+      >dir</em
+      >]<br
+       />[--enabled-hypervisors <em
+      >hypervisors</em
+      >]<br
+       />[{-H|--hypervisor-parameters} <em
+      >hypervisor</em
+      >:<em
+      >hv-param</em
+      >=<em
+      >value</em
+      >[,<em
+      >hv-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[{-B|--backend-parameters} <em
+      >be-param</em
+      >=<em
+      >value</em
+      > [,<em
+      >be-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[{-N|--nic-parameters} <em
+      >nic-param</em
+      >=<em
+      >value</em
+      > [,<em
+      >nic-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[--maintain-node-health {yes | no}]<br
+       />[--uid-pool <em
+      >user-id pool definition</em
+      >]<br
+       />[{-I|--default-iallocator} <em
+      >default instance allocator</em
+      >]<br
+       />[--primary-ip-version <em
+      >version</em
+      >]<br
+       />[--prealloc-wipe-disks {yes | no}]<br
+       />[--node-parameters <em
+      >ndparams</em
+      >]<br
+       />[{-C|--candidate-pool-size} <em
+      >candidate_pool_size</em
+      >]<br
+       />{<em
+      >clustername</em
+      >}</p
+    ><p
+    >This commands is only run once initially on the first node of the cluster. It will initialize the cluster configuration, setup the ssh-keys, start the daemons on the master node, etc. in order to have a working one-node cluster.</p
+    ><p
+    >Note that the <em
+      >clustername</em
+      > is not any random name. It has to be resolvable to an IP address using DNS, and it is best if you give the fully-qualified domain name. This hostname must resolve to an IP address reserved exclusively for this purpose, i.e. not already in use.</p
+    ><p
+    >The cluster can run in two modes: single-home or dual-homed. In the first case, all traffic (both public traffic, inter-node traffic and data replication traffic) goes over the same interface. In the dual-homed case, the data replication traffic goes over the second network. The <code
+      >-s (--secondary-ip)</code
+      > option here marks the cluster as dual-homed and its parameter represents this node's address on the second network. If you initialise the cluster with <code
+      >-s</code
+      >, all nodes added must have a secondary IP as well.</p
+    ><p
+    >Note that for Ganeti it doesn't matter if the secondary network is actually a separate physical network, or is done using tunneling, etc. For performance reasons, it's recommended to use a separate network, of course.</p
+    ><p
+    >The <code
+      >--vg-name</code
+      > option will let you specify a volume group different than &quot;xenvg&quot; for Ganeti to use when creating instance disks. This volume group must have the same name on all nodes. Once the cluster is initialized this can be altered by using the <strong
+      >modify</strong
+      > command. If you don't want to use lvm storage at all use the <code
+      >--no-lvm-storage</code
+      > option. Once the cluster is initialized you can change this setup with the <strong
+      >modify</strong
+      > command.</p
+    ><p
+    >The <code
+      >--master-netdev</code
+      > option is useful for specifying a different interface on which the master will activate its IP address. It's important that all nodes have this interface because you'll need it for a master failover.</p
+    ><p
+    >The <code
+      >-m (--mac-prefix)</code
+      > option will let you specify a three byte prefix under which the virtual MAC addresses of your instances will be generated. The prefix must be specified in the format <code
+      >XX:XX:XX</code
+      > and the default is <code
+      >aa:00:00</code
+      >.</p
+    ><p
+    >The <code
+      >--no-lvm-storage</code
+      > option allows you to initialize the cluster without lvm support. This means that only instances using files as storage backend will be possible to create. Once the cluster is initialized you can change this setup with the <strong
+      >modify</strong
+      > command.</p
+    ><p
+    >The <code
+      >--no-etc-hosts</code
+      > option allows you to initialize the cluster without modifying the /etc/hosts file.</p
+    ><p
+    >The <code
+      >--no-ssh-init</code
+      > option allows you to initialize the cluster without creating or distributing SSH key pairs.</p
+    ><p
+    >The <code
+      >--file-storage-dir</code
+      > option allows you set the directory to use for storing the instance disk files when using file storage as backend for instance disks.</p
+    ><p
+    >The <code
+      >--prealloc-wipe-disks</code
+      > sets a cluster wide configuration value for wiping disks prior to allocation. This increases security on instance level as the instance can't access untouched data from it's underlying storage.</p
+    ><p
+    >The <code
+      >--enabled-hypervisors</code
+      > option allows you to set the list of hypervisors that will be enabled for this cluster. Instance hypervisors can only be chosen from the list of enabled hypervisors, and the first entry of this list will be used by default. Currently, the following hypervisors are available:</p
+    ><dl
+    ><dt
+      >xen-pvm</dt
+      ><dd
+      ><p
+	>Xen PVM hypervisor</p
+	></dd
+      ><dt
+      >xen-hvm</dt
+      ><dd
+      ><p
+	>Xen HVM hypervisor</p
+	></dd
+      ><dt
+      >kvm</dt
+      ><dd
+      ><p
+	>Linux KVM hypervisor</p
+	></dd
+      ><dt
+      >chroot</dt
+      ><dd
+      ><p
+	>a simple chroot manager that starts chroot based on a script at the root of the filesystem holding the chroot</p
+	></dd
+      ><dt
+      >fake</dt
+      ><dd
+      ><p
+	>fake hypervisor for development/testing</p
+	></dd
+      ></dl
+    ><p
+    >Either a single hypervisor name or a comma-separated list of hypervisor names can be specified. If this option is not specified, only the xen-pvm hypervisor is enabled by default.</p
+    ><p
+    >The <code
+      >-H (--hypervisor-parameters)</code
+      > option allows you to set default hypervisor specific parameters for the cluster. The format of this option is the name of the hypervisor, followed by a colon and a comma-separated list of key=value pairs. The keys available for each hypervisors are detailed in the gnt-instance(8) man page, in the <strong
+      >add</strong
+      > command plus the following parameters which are only configurable globally (at cluster level):</p
+    ><dl
+    ><dt
+      >migration_port</dt
+      ><dd
+      ><p
+	>Valid for the Xen PVM and KVM hypervisors.</p
+	><p
+	>This options specifies the TCP port to use for live-migration. For Xen, the same port should be configured on all nodes in the <code
+	  >/etc/xen/xend-config.sxp</code
+	  > file, under the key &quot;xend-relocation-port&quot;.</p
+	></dd
+      ><dt
+      >migration_bandwidth</dt
+      ><dd
+      ><p
+	>Valid for the KVM hypervisor.</p
+	><p
+	>This option specifies the maximum bandwidth that KVM will use for instance live migrations. The value is in MiB/s.</p
+	><p
+	>This option is only effective with kvm versions &gt;= 78 and qemu-kvm versions &gt;= 0.10.0.</p
+	></dd
+      ></dl
+    ><p
+    >The <code
+      >-B (--backend-parameters)</code
+      > option allows you to set the default backend parameters for the cluster. The parameter format is a comma-separated list of key=value pairs with the following supported keys:</p
+    ><dl
+    ><dt
+      >vcpus</dt
+      ><dd
+      ><p
+	>Number of VCPUs to set for an instance by default, must be an integer, will be set to 1 if no specified.</p
+	></dd
+      ><dt
+      >memory</dt
+      ><dd
+      ><p
+	>Amount of memory to allocate for an instance by default, can be either an integer or an integer followed by a unit (M for mebibytes and G for gibibytes are supported), will be set to 128M if not specified.</p
+	></dd
+      ><dt
+      >auto_balance</dt
+      ><dd
+      ><p
+	>Value of the auto_balance flag for instances to use by default, will be set to true if not specified.</p
+	></dd
+      ></dl
+    ><p
+    >The <code
+      >-N (--nic-parameters)</code
+      > option allows you to set the default nic parameters for the cluster. The parameter format is a comma-separated list of key=value pairs with the following supported keys:</p
+    ><dl
+    ><dt
+      >mode</dt
+      ><dd
+      ><p
+	>The default nic mode, 'routed' or 'bridged'.</p
+	></dd
+      ><dt
+      >link</dt
+      ><dd
+      ><p
+	>In bridged mode the default NIC bridge. In routed mode it represents an hypervisor-vif-script dependent value to allow different instance groups. For example under the KVM default network script it is interpreted as a routing table number or name.</p
+	></dd
+      ></dl
+    ><p
+    >The option <code
+      >--maintain-node-health</code
+      > allows one to enable/disable automatic maintenance actions on nodes. Currently these include automatic shutdown of instances and deactivation of DRBD devices on offline nodes; in the future it might be extended to automatic removal of unknown LVM volumes, etc.</p
+    ><p
+    >The <code
+      >--uid-pool</code
+      > option initializes the user-id pool. The <em
+      >user-id pool definition</em
+      > can contain a list of user-ids and/or a list of user-id ranges. The parameter format is a comma-separated list of numeric user-ids or user-id ranges. The ranges are defined by a lower and higher boundary, separated by a dash. The boundaries are inclusive. If the <code
+      >--uid-pool</code
+      > option is not supplied, the user-id pool is initialized to an empty list. An empty list means that the user-id pool feature is disabled.</p
+    ><p
+    >The <code
+      >-I (--default-iallocator)</code
+      > option specifies the default instance allocator. The instance allocator will be used for operations like instance creation, instance and node migration, etc. when no manual override is specified. If this option is not specified and htools was not enabled at build time, the default instance allocator will be blank, which means that relevant operations will require the administrator to manually specify either an instance allocator, or a set of nodes. If the option is not specified but htools was enabled, the default iallocator will be <strong
+      >hail</strong
+      >(1) (assuming it can be found on disk). The default iallocator can be changed later using the <strong
+      >modify</strong
+      > command.</p
+    ><p
+    >The <code
+      >--primary-ip-version</code
+      > option specifies the IP version used for the primary address. Possible values are 4 and 6 for IPv4 and IPv6, respectively. This option is used when resolving node names and the cluster name.</p
+    ><p
+    >The <code
+      >--node-parameters</code
+      > option allows you to set default node parameters for the cluster. Please see <strong
+      >ganeti</strong
+      >(7) for more information about supported key=value pairs.</p
+    ><p
+    >The <code
+      >-C (--candidate-pool-size)</code
+      > option specifies the <code
+      >candidate_pool_size</code
+      > cluster parameter. This is the number of nodes that the master will try to keep as master_candidates. For more details about this role and other node roles, see the ganeti(7).</p
+    ></div
+  ><div id="list-tags"
+  ><h2
+    >LIST-TAGS</h2
+    ><p
+    ><strong
+      >list-tags</strong
+      ></p
+    ><p
+    >List the tags of the cluster.</p
+    ></div
+  ><div id="master-failover"
+  ><h2
+    >MASTER-FAILOVER</h2
+    ><p
+    ><strong
+      >master-failover</strong
+      > [--no-voting]</p
+    ><p
+    >Failover the master role to the current node.</p
+    ><p
+    >The <code
+      >--no-voting</code
+      > option skips the remote node agreement checks. This is dangerous, but necessary in some cases (for example failing over the master role in a 2 node cluster with the original master down). If the original master then comes up, it won't be able to start its master daemon because it won't have enough votes, but so won't the new master, if the master daemon ever needs a restart. You can pass <code
+      >--no-voting</code
+      > to <strong
+      >ganeti-masterd</strong
+      > on the new master to solve this problem, and run <strong
+      >gnt-cluster redist-conf</strong
+      > to make sure the cluster is consistent again.</p
+    ></div
+  ><div id="master-ping"
+  ><h2
+    >MASTER-PING</h2
+    ><p
+    ><strong
+      >master-ping</strong
+      ></p
+    ><p
+    >Checks if the master daemon is alive.</p
+    ><p
+    >If the master daemon is alive and can respond to a basic query (the equivalent of <strong
+      >gnt-cluster info</strong
+      >), then the exit code of the command will be 0. If the master daemon is not alive (either due to a crash or because this is not the master node), the exit code will be 1.</p
+    ></div
+  ><div id="modify"
+  ><h2
+    >MODIFY</h2
+    ><p
+    ><strong
+      >modify</strong
+      ><br
+       />[--vg-name <em
+      >vg-name</em
+      >]<br
+       />[--no-lvm-storage]<br
+       />[--enabled-hypervisors <em
+      >hypervisors</em
+      >]<br
+       />[{-H|--hypervisor-parameters} <em
+      >hypervisor</em
+      >:<em
+      >hv-param</em
+      >=<em
+      >value</em
+      >[,<em
+      >hv-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[{-B|--backend-parameters} <em
+      >be-param</em
+      >=<em
+      >value</em
+      > [,<em
+      >be-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[{-N|--nic-parameters} <em
+      >nic-param</em
+      >=<em
+      >value</em
+      > [,<em
+      >nic-param</em
+      >=<em
+      >value</em
+      >...]]<br
+       />[--uid-pool <em
+      >user-id pool definition</em
+      >]<br
+       />[--add-uids <em
+      >user-id pool definition</em
+      >]<br
+       />[--remove-uids <em
+      >user-id pool definition</em
+      >]<br
+       />[{-C|--candidate-pool-size} <em
+      >candidate_pool_size</em
+      >]<br
+       />[--maintain-node-health {yes | no}]<br
+       />[--prealloc-wipe-disks {yes | no}]<br
+       />[{-I|--default-iallocator} <em
+      >default instance allocator</em
+      >]<br
+       />[--reserved-lvs=<em
+      >NAMES</em
+      >]<br
+       />[--node-parameters <em
+      >ndparams</em
+      >]<br
+       />[--master-netdev <em
+      >interface-name</em
+      >]</p
+    ><p
+    >Modify the options for the cluster.</p
+    ><p
+    >The <code
+      >--vg-name</code
+      >, <code
+      >--no-lvm-storarge</code
+      >, <code
+      >--enabled-hypervisors</code
+      >, <code
+      >-H (--hypervisor-parameters)</code
+      >, <code
+      >-B (--backend-parameters)</code
+      >, <code
+      >--nic-parameters</code
+      >, <code
+      >-C (--candidate-pool-size)</code
+      >, <code
+      >--maintain-node-health</code
+      >, <code
+      >--prealloc-wipe-disks</code
+      >, <code
+      >--uid-pool</code
+      >, <code
+      >--node-parameters</code
+      >, <code
+      >--master-netdev</code
+      > options are described in the <strong
+      >init</strong
+      > command.</p
+    ><p
+    >The <code
+      >--add-uids</code
+      > and <code
+      >--remove-uids</code
+      > options can be used to modify the user-id pool by adding/removing a list of user-ids or user-id ranges.</p
+    ><p
+    >The option <code
+      >--reserved-lvs</code
+      > specifies a list (comma-separated) of logical volume group names (regular expressions) that will be ignored by the cluster verify operation. This is useful if the volume group used for Ganeti is shared with the system for other uses. Note that it's not recommended to create and mark as ignored logical volume names which match Ganeti's own name format (starting with UUID and then .diskN), as this option only skips the verification, but not the actual use of the names given.</p
+    ><p
+    >To remove all reserved logical volumes, pass in an empty argument to the option, as in <code
+      >--reserved-lvs=</code
+      > or <code
+      >--reserved-lvs ''</code
+      >.</p
+    ><p
+    >The <code
+      >-I (--default-iallocator)</code
+      > is described in the <strong
+      >init</strong
+      > command. To clear the default iallocator, just pass an empty string ('').</p
+    ></div
+  ><div id="queue"
+  ><h2
+    >QUEUE</h2
+    ><p
+    ><strong
+      >queue</strong
+      > {drain | undrain | info}</p
+    ><p
+    >Change job queue properties.</p
+    ><p
+    >The <code
+      >drain</code
+      > option sets the drain flag on the job queue. No new jobs will be accepted, but jobs already in the queue will be processed.</p
+    ><p
+    >The <code
+      >undrain</code
+      > will unset the drain flag on the job queue. New jobs will be accepted.</p
+    ><p
+    >The <code
+      >info</code
+      > option shows the properties of the job queue.</p
+    ></div
+  ><div id="watcher"
+  ><h2
+    >WATCHER</h2
+    ><p
+    ><strong
+      >watcher</strong
+      > {pause <em
+      >duration</em
+      > | continue | info}</p
+    ><p
+    >Make the watcher pause or let it continue.</p
+    ><p
+    >The <code
+      >pause</code
+      > option causes the watcher to pause for <em
+      >duration</em
+      > seconds.</p
+    ><p
+    >The <code
+      >continue</code
+      > option will let the watcher continue.</p
+    ><p
+    >The <code
+      >info</code
+      > option shows whether the watcher is currently paused.</p
+    ></div
+  ><div id="redist-conf"
+  ><h2
+    >redist-conf</h2
+    ><p
+    ><strong
+      >redist-conf</strong
+      > [--submit]</p
+    ><p
+    >This command forces a full push of configuration files from the master node to the other nodes in the cluster. This is normally not needed, but can be run if the <strong
+      >verify</strong
+      > complains about configuration mismatches.</p
+    ><p
+    >The <code
+      >--submit</code
+      > option is used to send the job to the master daemon but not wait for its completion. The job ID will be shown so that it can be examined via <strong
+      >gnt-job info</strong
+      >.</p
+    ></div
+  ><div id="remove-tags"
+  ><h2
+    >REMOVE-TAGS</h2
+    ><p
+    ><strong
+      >remove-tags</strong
+      > [--from <em
+      >file</em
+      >] {<em
+      >tag</em
+      >...}</p
+    ><p
+    >Remove tags from the cluster. If any of the tags are not existing on the cluster, the entire operation will abort.</p
+    ><p
+    >If the <code
+      >--from</code
+      > option is given, the list of tags to be removed will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, tags from both sources will be removed). A file name of - will be interpreted as stdin.</p
+    ></div
+  ><div id="rename"
+  ><h2
+    >RENAME</h2
+    ><p
+    ><strong
+      >rename</strong
+      > [-f] {<em
+      >name</em
+      >}</p
+    ><p
+    >Renames the cluster and in the process updates the master IP address to the one the new name resolves to. At least one of either the name or the IP address must be different, otherwise the operation will be aborted.</p
+    ><p
+    >Note that since this command can be dangerous (especially when run over SSH), the command will require confirmation unless run with the <code
+      >-f</code
+      > option.</p
+    ></div
+  ><div id="renew-crypto"
+  ><h2
+    >RENEW-CRYPTO</h2
+    ><p
+    ><strong
+      >renew-crypto</strong
+      > [-f]<br
+       />[--new-cluster-certificate] [--new-confd-hmac-key]<br
+       />[--new-rapi-certificate] [--rapi-certificate <em
+      >rapi-cert</em
+      >]<br
+       />[--new-cluster-domain-secret] [--cluster-domain-secret <em
+      >filename</em
+      >]</p
+    ><p
+    >This command will stop all Ganeti daemons in the cluster and start them again once the new certificates and keys are replicated. The options <code
+      >--new-cluster-certificate</code
+      > and <code
+      >--new-confd-hmac-key</code
+      > can be used to regenerate the cluster-internal SSL certificate respective the HMAC key used by ganeti-confd(8).</p
+    ><p
+    >To generate a new self-signed RAPI certificate (used by ganeti-rapi(8)) specify <code
+      >--new-rapi-certificate</code
+      >. If you want to use your own certificate, e.g. one signed by a certificate authority (CA), pass its filename to <code
+      >--rapi-certificate</code
+      >.</p
+    ><p
+    ><code
+      >--new-cluster-domain-secret</code
+      > generates a new, random cluster domain secret. <code
+      >--cluster-domain-secret</code
+      > reads the secret from a file. The cluster domain secret is used to sign information exchanged between separate clusters via a third party.</p
+    ></div
+  ><div id="repair-disk-sizes"
+  ><h2
+    >REPAIR-DISK-SIZES</h2
+    ><p
+    ><strong
+      >repair-disk-sizes</strong
+      > [instance...]</p
+    ><p
+    >This command checks that the recorded size of the given instance's disks matches the actual size and updates any mismatches found. This is needed if the Ganeti configuration is no longer consistent with reality, as it will impact some disk operations. If no arguments are given, all instances will be checked.</p
+    ><p
+    >Note that only active disks can be checked by this command; in case a disk cannot be activated it's advised to use <strong
+      >gnt-instance activate-disks --ignore-size ...</strong
+      > to force activation without regard to the current size.</p
+    ><p
+    >When the all disk sizes are consistent, the command will return no output. Otherwise it will log details about the inconsistencies in the configuration.</p
+    ></div
+  ><div id="search-tags"
+  ><h2
+    >SEARCH-TAGS</h2
+    ><p
+    ><strong
+      >search-tags</strong
+      > {<em
+      >pattern</em
+      >}</p
+    ><p
+    >Searches the tags on all objects in the cluster (the cluster itself, the nodes and the instances) for a given pattern. The pattern is interpreted as a regular expression and a search will be done on it (i.e. the given pattern is not anchored to the beggining of the string; if you want that, prefix the pattern with ^).</p
+    ><p
+    >If no tags are matching the pattern, the exit code of the command will be one. If there is at least one match, the exit code will be zero. Each match is listed on one line, the object and the tag separated by a space. The cluster will be listed as /cluster, a node will be listed as /nodes/<em
+      >name</em
+      >, and an instance as /instances/<em
+      >name</em
+      >. Example:</p
+    ><pre
+    ><code
+      ># gnt-cluster search-tags time
+/cluster ctime:2007-09-01
+/nodes/node1.example.com mtime:2007-10-04
+</code
+      ></pre
+    ></div
+  ><div id="verify"
+  ><h2
+    >VERIFY</h2
+    ><p
+    ><strong
+      >verify</strong
+      > [--no-nplus1-mem] [--node-group <em
+      >nodegroup</em
+      >]</p
+    ><p
+    >Verify correctness of cluster configuration. This is safe with respect to running instances, and incurs no downtime of the instances.</p
+    ><p
+    >If the <code
+      >--no-nplus1-mem</code
+      > option is given, Ganeti won't check whether if it loses a node it can restart all the instances on their secondaries (and report an error otherwise).</p
+    ><p
+    >With <code
+      >--node-group</code
+      >, restrict the verification to those nodes and instances that live in the named group. This will not verify global settings, but will allow to perform verification of a group while other operations are ongoing in other groups.</p
+    ></div
+  ><div id="verify-disks"
+  ><h2
+    >VERIFY-DISKS</h2
+    ><p
+    ><strong
+      >verify-disks</strong
+      ></p
+    ><p
+    >The command checks which instances have degraded DRBD disks and activates the disks of those instances.</p
+    ><p
+    >This command is run from the <strong
+      >ganeti-watcher</strong
+      > tool, which also has a different, complementary algorithm for doing this check. Together, these two should ensure that DRBD disks are kept consistent.</p
+    ></div
+  ><div id="version"
+  ><h2
+    >VERSION</h2
+    ><p
+    ><strong
+      >version</strong
+      ></p
+    ><p
+    >Show the cluster version.</p
+    ></div
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

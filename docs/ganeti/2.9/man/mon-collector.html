@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>mon-collector(7) Ganeti | Version 2.9.7</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">mon-collector(7) Ganeti | Version 2.9.7</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#collectors">COLLECTORS</a><ul>
+<li><a href="#diskstats">DISKSTATS</a></li>
+<li><a href="#drbd">DRBD</a></li>
+<li><a href="#instance-status">INSTANCE STATUS</a></li>
+<li><a href="#logical-volumes">LOGICAL VOLUMES</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>mon-collector - Command line interface for the data collectors of the monitoring system</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>mon-collector</strong> {collector}</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p><code>mon-collector</code> is a suite of tools designed to provide a command line interface to the data collectors implemented by the ganeti monitoring system. <code>mon-collector</code> is also the generic binary that must be invoked specifying, as the first command line parameter, the name of the actual desired data collector to be run.</p>
+<p>When executed, <code>mon-collector</code> will run the specified collector and will print its output to stdout, in JSON format.</p>
+<h1 id="collectors"><a href="#TOC">COLLECTORS</a></h1>
+<h2 id="diskstats"><a href="#TOC">DISKSTATS</a></h2>
+<p>diskstats [ [ <strong>-f</strong> | <strong>--file</strong> ] = <em>input-file</em> ]</p>
+<p>Collects the information about the status of the disks of the system, as listed by /proc/diskstats, or by an alternate file with the same syntax specified on the command line.</p>
+<p>The options that can be passed to the DRBD collector are as follows:</p>
+<dl>
+<dt>-f <em>input-file</em>, --file=<em>input-file</em></dt>
+<dd><p>Where to read the data from. Default if not specified: /proc/diskstats</p>
+</dd>
+</dl>
+<h2 id="drbd"><a href="#TOC">DRBD</a></h2>
+<p>drbd [ [ <strong>-s</strong> | <strong>--drbd-status</strong> ] = <em>status-file</em> ] [ [ <strong>-p</strong> | <strong>--drbd-pairing</strong>] = <em>pairing-file</em> ]</p>
+<p>Collects the information about the version and status of the DRBD kernel module, and of the disks it is managing.</p>
+<p>If <em>status-file</em> and <em>pairing-file</em> are specified, the status and the instance-minor paring information will be read from those files. Otherwise, the collector will read them, respectively, from /proc/drbd and from the Confd server.</p>
+<p>The options that can be passed to the DRBD collector are as follows:</p>
+<dl>
+<dt>-s <em>status-file</em>, --drbd-status=<em>status-file</em></dt>
+<dd><p>Read the DRBD status from the specified file instead of /proc/drbd.</p>
+</dd>
+<dt>-p <em>pairing-file</em>, --drbd-pairing=<em>pairing-file</em></dt>
+<dd><p>Read the information about the pairing between instances and DRBD minors from the specified file instead of asking the Confd servers for them.</p>
+</dd>
+</dl>
+<h2 id="instance-status"><a href="#TOC">INSTANCE STATUS</a></h2>
+<p>inst-status-xen [ [ <strong>-a</strong> | <strong>--address</strong> ] = <em>ip-address</em> ] [ [ <strong>-p</strong> | <strong>--port</strong> ] = <em>port-number</em> ]</p>
+<p>Collects the information about the status of the instances of the current node. In order to perform this task, it needs to connect to the ConfD daemon to fetch some configuration information. The following parameters allow the user to specify the position where the daemon is listening, in case it's not the default one:</p>
+<dl>
+<dt>-a <em>ip-address</em>, --address=<em>ip-address</em></dt>
+<dd><p>The IP address the ConfD daemon is listening on.</p>
+</dd>
+<dt>-p <em>port-number</em>, --port=<em>port-number</em></dt>
+<dd><p>The port the ConfD deamon is listening on.</p>
+</dd>
+</dl>
+<h2 id="logical-volumes"><a href="#TOC">LOGICAL VOLUMES</a></h2>
+<p>lv [ [ <strong>-a</strong> | <strong>--address</strong> ] = <em>ip-address</em> ] [ [ <strong>-p</strong> | <strong>--port</strong> ] = <em>port-number</em> ] [ [ <strong>-f</strong> | <strong>--file</strong> ] = <em>input-file</em> ] [ [ <strong>-i</strong> | <strong>--instances</strong> ] = <em>instances-file</em> ]</p>
+<p>Collects the information about the logical volumes of the current node.</p>
+<p>In order to perform this task, it needs to interact with the <code>lvs</code> command line tool and to connect to the ConfD daemon to fetch some configuration information. The following parameters allow the user to specify the position where the daemon is listening, in case it's not the default one:</p>
+<dl>
+<dt>-a <em>ip-address</em>, --address=<em>ip-address</em></dt>
+<dd><p>The IP address the ConfD daemon is listening on.</p>
+</dd>
+<dt>-p <em>port-number</em>, --port=<em>port-number</em></dt>
+<dd><p>The port the ConfD deamon is listening on.</p>
+</dd>
+</dl>
+<p>Instead of accessing the live data on the cluster, the tool can also read data serialized on files (mainly for testing purposes). Namely:</p>
+<dl>
+<dt>-f <em>input-file</em>, --file <em>input-file</em></dt>
+<dd><p>The name of the file containing a recorded output of the <code>lvs</code> tool.</p>
+</dd>
+<dt>-i <em>instances-file</em>, --instances=<em>instances-file</em></dt>
+<dd><p>The name of the file containing a JSON serialization of instances the current node is primary and secondary for, listed as:</p>
+<pre><code>([Instance], [Instance])</code></pre>
+<p>where the first list contains the instances the node is primary for, the second list those the node is secondary for.</p>
+</dd>
+</dl>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p>
+</body>
+</html>

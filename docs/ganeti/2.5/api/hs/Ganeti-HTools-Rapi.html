@@ -1,0 +1,692 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Rapi</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Rapi.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Rapi.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Rapi</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the RAPI client interface.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetUrl"
+>getUrl</A
+> :: Monad m =&gt; String -&gt; IO (m String)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatHost"
+>formatHost</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstances"
+>getInstances</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetNodes"
+>getNodes</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetGroups"
+>getGroups</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseInstance"
+>parseInstance</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseNode"
+>parseNode</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseGroup"
+>parseGroup</A
+> :: <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadData"
+>readData</A
+> :: String -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseData"
+>parseData</A
+> :: (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String) -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadData"
+>loadData</A
+> :: String -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getUrl"
+><A NAME="v%3AgetUrl"
+></A
+></A
+><B
+>getUrl</B
+> :: Monad m =&gt; String -&gt; IO (m String)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#getUrl"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Read an URL via curl and return the body if successful.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatHost"
+><A NAME="v%3AformatHost"
+></A
+></A
+><B
+>formatHost</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#formatHost"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Append the default port if not passed in.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstances"
+><A NAME="v%3AgetInstances"
+></A
+></A
+><B
+>getInstances</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#getInstances"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a instance list in JSON format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getNodes"
+><A NAME="v%3AgetNodes"
+></A
+></A
+><B
+>getNodes</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#getNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a node list in JSON format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getGroups"
+><A NAME="v%3AgetGroups"
+></A
+></A
+><B
+>getGroups</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#getGroups"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a group list in JSON format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseInstance"
+><A NAME="v%3AparseInstance"
+></A
+></A
+><B
+>parseInstance</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#parseInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Construct an instance from a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseNode"
+><A NAME="v%3AparseNode"
+></A
+></A
+><B
+>parseNode</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#parseNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Construct a node from a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseGroup"
+><A NAME="v%3AparseGroup"
+></A
+></A
+><B
+>parseGroup</B
+> :: <A HREF="Ganeti-HTools-Utils.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#parseGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Construct a group from a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readData"
+><A NAME="v%3AreadData"
+></A
+></A
+><B
+>readData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#readData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Cluster or URL to use as source
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Loads the raw cluster data from an URL.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseData"
+><A NAME="v%3AparseData"
+></A
+></A
+><B
+>parseData</B
+> :: (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String, <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> String) -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#parseData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Builds the cluster data from the raw Rapi content.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadData"
+><A NAME="v%3AloadData"
+></A
+></A
+><B
+>loadData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Rapi.html#loadData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Cluster or URL to use as source
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Top level function for data loading.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

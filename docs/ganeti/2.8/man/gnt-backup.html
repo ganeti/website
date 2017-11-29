@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-backup(8) Ganeti | Version 2.8.4</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-backup(8) Ganeti | Version 2.8.4</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#export">EXPORT</a></li>
+<li><a href="#import">IMPORT</a></li>
+<li><a href="#list">LIST</a></li>
+<li><a href="#list-fields">LIST-FIELDS</a></li>
+<li><a href="#remove">REMOVE</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-backup - Ganeti instance import/export</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-backup</strong> {command} [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-backup</strong> is used for importing and exporting instances and their configuration from a Ganeti system. It is useful for backing up instances and also to migrate them between clusters.</p>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="export"><a href="#TOC">EXPORT</a></h2>
+<p><strong>export</strong> {-n <em>node</em>} [--shutdown-timeout=<em>N</em>] [--noshutdown]<br />[--remove-instance] [--ignore-remove-failures] [--submit]<br />{<em>instance</em>}</p>
+<p>Exports an instance to the target node. All the instance data and its configuration will be exported under the <code>/srv/ganeti/export/$instance</code> directory on the target node.</p>
+<p>The <code>--shutdown-timeout</code> is used to specify how much time to wait before forcing the shutdown (xm destroy in xen, killing the kvm process, for kvm). By default two minutes are given to each instance to stop.</p>
+<p>The <code>--noshutdown</code> option will create a snapshot disk of the instance without shutting it down first. While this is faster and involves no downtime, it cannot be guaranteed that the instance data will be in a consistent state in the exported dump.</p>
+<p>The <code>--remove</code> option can be used to remove the instance after it was exported. This is useful to make one last backup before removing the instance.</p>
+<p>The exit code of the command is 0 if all disks were backed up successfully, 1 if no data was backed up or if the configuration export failed, and 2 if just some of the disks failed to backup. The exact details of the failures will be shown during the command execution (and will be stored in the job log). It is recommended that for any non-zero exit code, the backup is considered invalid, and retried.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<p>Example:</p>
+<pre><code># gnt-backup export -n node1.example.com instance3.example.com</code></pre>
+<h2 id="import"><a href="#TOC">IMPORT</a></h2>
+<p><strong>import</strong><br />{-n <em>node[:secondary-node]</em> | --iallocator <em>name</em>}<br />[--disk <em>N</em>:size=<em>VAL</em> [,vg=<em>VG</em>], [,mode=<em>ro|rw</em>]...]<br />[--net <em>N</em> [:options...] | --no-nics]<br />[-B <em>BEPARAMS</em>]<br />[-H <em>HYPERVISOR</em> [: option=<em>value</em>... ]]<br />[--src-node=<em>source-node</em>] [--src-dir=<em>source-dir</em>]<br />[-t [diskless | plain | drbd | file]]<br />[--identify-defaults]<br />[--ignore-ipolicy]<br />[--submit]<br />{<em>instance</em>}</p>
+<p>Imports a new instance from an export residing on <em>source-node</em> in <em>source-dir</em>. <em>instance</em> must be in DNS and resolve to a IP in the same network as the nodes in the cluster. If the source node and directory are not passed, the last backup in the cluster is used, as visible with the <strong>list</strong> command.</p>
+<p>The <code>disk</code> option specifies the parameters for the disks of the instance. The numbering of disks starts at zero. For each disk, at least the size needs to be given, and optionally the access mode (read-only or the default of read-write) and LVM volume group can also be specified. The size is interpreted (when no unit is given) in mebibytes. You can also use one of the suffixes m, g or t to specificy the exact the units used; these suffixes map to mebibytes, gibibytes and tebibytes.</p>
+<p>Alternatively, a single-disk instance can be created via the <code>-s</code> option which takes a single argument, the size of the disk. This is similar to the Ganeti 1.2 version (but will only create one disk).</p>
+<p>If no disk information is passed, the disk configuration saved at export time will be used.</p>
+<p>The minimum disk specification is therefore empty (export information will be used), a single disk can be specified as <code>--disk 0:size=20G</code> (or <code>-s 20G</code> when using the <code>-s</code> option), and a three-disk instance can be specified as <code>--disk 0:size=20G --disk 1:size=4G --disk 2:size=100G</code>.</p>
+<p>The NICs of the instances can be specified via the <code>--net</code> option. By default, the NIC configuration of the original (exported) instance will be reused. Each NIC can take up to three parameters (all optional):</p>
+<dl>
+<dt>mac</dt>
+<dd><p>either a value or <code>generate</code> to generate a new unique MAC, or <code>auto</code> to reuse the old MAC</p>
+</dd>
+<dt>ip</dt>
+<dd><p>specifies the IP address assigned to the instance from the Ganeti side (this is not necessarily what the instance will use, but what the node expects the instance to use)</p>
+</dd>
+<dt>mode</dt>
+<dd><p>specifies the connection mode for this NIC: <code>routed</code>, <code>bridged</code> or <code>openvswitch</code></p>
+</dd>
+<dt>link</dt>
+<dd><p>in bridged and openvswitch mode specifies the interface to attach this NIC to, in routed mode it's intended to differentiate between different routing tables/instance groups (but the meaning is dependent on the network script in use, see <strong>gnt-cluster</strong>(8) for more details)</p>
+</dd>
+</dl>
+<p>Of these <code>mode</code> and <code>link</code> are NIC parameters, and inherit their default at cluster level.</p>
+<p>If no network is desired for the instance, you should create a single empty NIC and delete it afterwards via <strong>gnt-instance modify --net delete</strong>.</p>
+<p>The <code>-B</code> option specifies the backend parameters for the instance. If no such parameters are specified, the values are inherited from the export. Possible parameters are:</p>
+<dl>
+<dt>maxmem</dt>
+<dd><p>the maximum memory size of the instance; as usual, suffixes can be used to denote the unit, otherwise the value is taken in mebibytes</p>
+</dd>
+<dt>minmem</dt>
+<dd><p>the minimum memory size of the instance; as usual, suffixes can be used to denote the unit, otherwise the value is taken in mebibytes</p>
+</dd>
+<dt>vcpus</dt>
+<dd><p>the number of VCPUs to assign to the instance (if this value makes sense for the hypervisor)</p>
+</dd>
+<dt>auto_balance</dt>
+<dd><p>whether the instance is considered in the N+1 cluster checks (enough redundancy in the cluster to survive a node failure)</p>
+</dd>
+<dt>always_failover</dt>
+<dd><p><code>True</code> or <code>False</code>, whether the instance must be failed over (shut down and rebooted) always or it may be migrated (briefly suspended)</p>
+</dd>
+</dl>
+<p>The <code>-t</code> options specifies the disk layout type for the instance. If not passed, the configuration of the original instance is used. The available choices are:</p>
+<dl>
+<dt>diskless</dt>
+<dd><p>This creates an instance with no disks. Its useful for testing only (or other special cases).</p>
+</dd>
+<dt>plain</dt>
+<dd><p>Disk devices will be logical volumes.</p>
+</dd>
+<dt>drbd</dt>
+<dd><p>Disk devices will be drbd (version 8.x) on top of lvm volumes.</p>
+</dd>
+<dt>file</dt>
+<dd><p>Disk devices will be backed up by files, under the directory <code>/srv/ganeti/file-storage</code>. By default, each instance will get a directory (as its own name) under this path, and each disk is stored as individual files in this (instance-specific) directory.</p>
+</dd>
+</dl>
+<p>The <code>--iallocator</code> option specifies the instance allocator plugin to use. If you pass in this option the allocator will select nodes for this instance automatically, so you don't need to pass them with the <code>-n</code> option. For more information please refer to the instance allocator documentation.</p>
+<p>The optional second value of the <code>--node</code> is used for the drbd template and specifies the remote node.</p>
+<p>The <code>--src-dir</code> option allows importing instances from a directory below <code>/srv/ganeti/export</code>.</p>
+<p>If <code>--ignore-ipolicy</code> is given any instance policy violations occuring during this operation are ignored.</p>
+<p>Since many of the parameters are by default read from the exported instance information and used as such, the new instance will have all parameters explicitly specified, the opposite of a newly added instance which has most parameters specified via cluster defaults. To change the import behaviour to recognize parameters whose saved value matches the current cluster default and mark it as such (default value), pass the <code>--identify-defaults</code> option. This will affect the hypervisor, backend and NIC parameters, both read from the export file and passed in via the command line.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<p>Example for identical instance import:</p>
+<pre><code># gnt-backup import -n node1.example.com instance3.example.com</code></pre>
+<p>Explicit configuration example:</p>
+<pre><code># gnt-backup import -t plain --disk 0:size=1G -B memory=512 \
+&gt; -n node1.example.com \
+&gt; instance3.example.com</code></pre>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--node=<em>NODE</em>] [--no-headers] [--separator=<em>SEPARATOR</em>]<br />[-o <em>[+]FIELD,...</em>]</p>
+<p>Lists the exports currently available in the default directory in all the nodes of the current cluster, or optionally only a subset of them specified using the <code>--node</code> option (which can be used multiple times)</p>
+<p>The <code>--no-headers</code> option will skip the initial header line. The <code>--separator</code> option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p>
+<p>The <code>-o</code> option takes a comma-separated list of output fields. The available fields and their meaning are:</p>
+<dl>
+<dt><code>export</code></dt>
+<dd><p>Export name</p>
+</dd>
+<dt><code>node</code></dt>
+<dd><p>Node name</p>
+</dd>
+</dl>
+<p>If the value of the option starts with the character <code>+</code>, the new fields will be added to the default list. This allows one to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p>
+<p>Example:</p>
+<pre><code># gnt-backup list --node node1 --node node2</code></pre>
+<h2 id="list-fields"><a href="#TOC">LIST-FIELDS</a></h2>
+<p><strong>list-fields</strong> [field...]</p>
+<p>Lists available fields for exports.</p>
+<h2 id="remove"><a href="#TOC">REMOVE</a></h2>
+<p><strong>remove</strong> {instance_name}</p>
+<p>Removes the backup for the given instance name, if any. If the backup was for a deleted instance, it is needed to pass the FQDN of the instance, and not only the short hostname.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p>
+</body>
+</html>

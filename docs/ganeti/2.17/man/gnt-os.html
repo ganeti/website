@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-os(8) Ganeti | Version 2.17.0~beta1</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-os(8) Ganeti | Version 2.17.0~beta1</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#list">LIST</a></li>
+<li><a href="#diagnose">DIAGNOSE</a></li>
+<li><a href="#info">INFO</a></li>
+<li><a href="#modify">MODIFY</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-os - Instance operating system administration</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-os</strong> {command} [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-os</strong> is used for managing the list of available operating system flavours for the instances in the Ganeti cluster.</p>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--no-headers]</p>
+<p>Gives the list of available/supported OS to use in the instances. When creating the instance you can give the OS-name as an option.</p>
+<p>Note that hidden or blacklisted OSes are not displayed by this command, use <strong>diagnose</strong> for showing those.</p>
+<h2 id="diagnose"><a href="#TOC">DIAGNOSE</a></h2>
+<p><strong>diagnose</strong></p>
+<p>This command will help you see why an installed OS is not available in the cluster. The <strong>list</strong> command shows only the OS-es that the cluster sees available on all nodes. It could be that some OS is missing from a node, or is only partially installed, and this command will show the details of all the OSes and the reasons they are or are not valid.</p>
+<h2 id="info"><a href="#TOC">INFO</a></h2>
+<p><strong>info</strong></p>
+<p>This command will list detailed information about each OS available in the cluster, including its validity status, the supported API versions, the supported parameters and variants (if any), and their documentation, etc.</p>
+<p>Note that this command besides the information about the given OS(es), shows detailed information about the given available/supported OS variant(s), in terms of the modified per-OS hypervisor parameters and the modified per-OS parameters passed to the OS install scripts.</p>
+<p>For the list of the available OSes use <strong>list</strong>. Also, see <strong>modify</strong> for a description of how to modify the parameters for a specific operating system.</p>
+<h2 id="modify"><a href="#TOC">MODIFY</a></h2>
+<p><strong>modify</strong> [--submit] [--print-jobid]<br />[ [ -O | --os-parameters ] =<em>option</em>=<em>value</em>]<br />[ --os-parameters-private=<em>option</em>=<em>value</em>]<br />[-H <em>HYPERVISOR</em>:option=<em>value</em>[,...]]<br />[--hidden=<em>yes|no</em>] [--blacklisted=<em>yes|no</em>]<br />{<em>OS</em>}</p>
+<p>This command will allow you to modify OS parameters.</p>
+<p>To modify the per-OS hypervisor parameters (which override the global hypervisor parameters), you can run modify <code>-H</code> with the same syntax as in <strong>gnt-cluster init</strong> to override default hypervisor parameters of the cluster for specified <em>OS</em> argument.</p>
+<p>To modify the parameters passed to the OS install scripts, use the <strong>--os-parameters</strong> option. If the value of the parameter should not be saved to logs, use <strong>--os-parameters-private</strong> <em>and</em> make sure that no Ganeti daemon or program is running in debug mode. <strong>ganeti-luxid</strong> in particular will issue a warning at startup time if ran in debug mode.</p>
+<p>To modify the hidden and blacklisted states of an OS, pass the options <code>--hidden</code> <em>yes|no</em>, or respectively <code>--blacklisted ...</code>. The 'hidden' state means that an OS won't be listed by default in the OS list, but is available for installation. The 'blacklisted' state means that the OS is not listed and is also not allowed for new instance creations (but can be used for reinstalling old instances).</p>
+<p>Note: The given operating system doesn't have to exist. This allows preseeding the settings for operating systems not yet known to <strong>gnt-os</strong>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design for adding UUID and name to devices &mdash; Ganeti 2.11.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.11.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.11.8 documentation" href="index.html" />
+    <link rel="next" title="File-based Storage" href="design-file-based-storage.html" />
+    <link rel="prev" title="Ganeti CPU Pinning" href="design-cpu-pinning.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-storage.html" title="File-based Storage"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-cpu-pinning.html" title="Ganeti CPU Pinning"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-for-adding-uuid-and-name-to-devices">
+<h1><a class="toc-backref" href="#id1">Design for adding UUID and name to devices</a><a class="headerlink" href="#design-for-adding-uuid-and-name-to-devices" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#design-for-adding-uuid-and-name-to-devices" id="id1">Design for adding UUID and name to devices</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed Changes</a></li>
+<li><a class="reference internal" href="#implementation-details" id="id4">Implementation Details</a><ul>
+<li><a class="reference internal" href="#configuration-changes" id="id5">Configuration Changes</a></li>
+<li><a class="reference internal" href="#instance-queries" id="id6">Instance Queries</a></li>
+<li><a class="reference internal" href="#hook-variables" id="id7">Hook Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document about adding UUID and name to instance devices
+(Disks/NICs) and the ability to reference them by those identifiers.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, the only way to refer to a device (Disk/NIC) is by its index
+inside the VM (e.g. gnt-instance modify &#8211;disk 2:remove).</p>
+<p>Using indices as identifiers has the drawback that addition/removal of a
+device results in changing the identifiers(indices) of other devices and
+makes the net effect of commands depend on their strict ordering. A
+device reference is not absolute, meaning an external entity controlling
+Ganeti, e.g., over RAPI, cannot keep permanent identifiers for referring
+to devices, nor can it have more than one outstanding commands, since
+their order of execution is not guaranteed.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed Changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>To be able to reference a device in a unique way, we propose to extend
+Disks and NICs by assigning to them a UUID and a name. The UUID will be
+assigned by Ganeti upon creation, while the name will be an optional
+user parameter. Renaming a device will also be supported.</p>
+<p>Commands (e.g. <cite>gnt-instance modify</cite>) will be able to reference each
+device by its index, UUID, or name. To be able to refer to devices by
+name, we must guarantee that device names are unique. Unlike other
+objects (instances, networks, nodegroups, etc.), NIC and Disk objects
+will not have unique names across the cluster, since they are still not
+independent entities, but rather part of the instance object. This makes
+global uniqueness of names hard to achieve at this point. Instead their
+names will be unique at instance level.</p>
+<p>Apart from unique device names, we must also guarantee that a device
+name can not be the UUID of another device. Also, to remove ambiguity
+while supporting both indices and names as identifiers, we forbid purely
+numeric device names.</p>
+</div>
+<div class="section" id="implementation-details">
+<h2><a class="toc-backref" href="#id4">Implementation Details</a><a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<p>Modify OpInstanceSetParams to accept not only indexes, but also device
+names and UUIDs. So, the accepted NIC and disk modifications will have
+the following format:</p>
+<p>identifier:action,key=value</p>
+<p>where, from now on, identifier can be an index (-1 for the last device),
+UUID, or name and action should be add, modify, or remove.</p>
+<div class="section" id="configuration-changes">
+<h3><a class="toc-backref" href="#id5">Configuration Changes</a><a class="headerlink" href="#configuration-changes" title="Permalink to this headline">¶</a></h3>
+<p>Disk and NIC config objects get two extra slots:</p>
+<ul class="simple">
+<li>uuid</li>
+<li>name</li>
+</ul>
+</div>
+<div class="section" id="instance-queries">
+<h3><a class="toc-backref" href="#id6">Instance Queries</a><a class="headerlink" href="#instance-queries" title="Permalink to this headline">¶</a></h3>
+<p>We will extend the query mechanism to expose names and UUIDs of NICs and
+Disks.</p>
+</div>
+<div class="section" id="hook-variables">
+<h3><a class="toc-backref" href="#id7">Hook Variables</a><a class="headerlink" href="#hook-variables" title="Permalink to this headline">¶</a></h3>
+<p>We will expose the name of NICs and Disks to the hook environment of
+instance-related operations:</p>
+<p><tt class="docutils literal"><span class="pre">INSTANCE_NIC%d_NAME</span></tt>
+<tt class="docutils literal"><span class="pre">INSTANCE_DISK%d_NAME</span></tt></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design for adding UUID and name to devices</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed Changes</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation Details</a><ul>
+<li><a class="reference internal" href="#configuration-changes">Configuration Changes</a></li>
+<li><a class="reference internal" href="#instance-queries">Instance Queries</a></li>
+<li><a class="reference internal" href="#hook-variables">Hook Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-cpu-pinning.html"
+                        title="previous chapter">Ganeti CPU Pinning</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-file-based-storage.html"
+                        title="next chapter">File-based Storage</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-device-uuid-name.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-storage.html" title="File-based Storage"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-cpu-pinning.html" title="Ganeti CPU Pinning"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

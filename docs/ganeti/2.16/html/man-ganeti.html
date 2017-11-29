@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-backup" href="man-gnt-backup.html" />
+    <link rel="prev" title="ganeti-wconfd" href="man-ganeti-wconfd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-backup.html" title="gnt-backup"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-wconfd.html" title="ganeti-wconfd"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti">
+<h1>ganeti<a class="headerlink" href="#ganeti" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti - cluster-based virtualization management</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre># gnt-cluster init cluster1.example.com
+# gnt-node add node2.example.com
+# gnt-instance add -n node2.example.com \
+&gt; -o debootstrap --disk 0:size=30g \
+&gt; -t plain instance1.example.com</pre>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The Ganeti software manages physical nodes and virtual instances of a
+cluster based on a virtualization software. The current version (2.3)
+supports Xen 3.x and KVM (72 or above) as hypervisors, and LXC as an
+experimental hypervisor.</p>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>First you must install the software on all the cluster nodes, either
+from sources or (if available) from a package. The next step is to
+create the initial cluster configuration, using <strong>gnt-cluster init</strong>.</p>
+<p>Then you can add other nodes, or start creating instances.</p>
+</div>
+<div class="section" id="cluster-architecture">
+<h2>Cluster architecture<a class="headerlink" href="#cluster-architecture" title="Permalink to this headline">¶</a></h2>
+<p>In Ganeti 2.0, the architecture of the cluster is a little more
+complicated than in 1.2. The cluster is coordinated by a master daemon
+(<strong>ganeti-masterd</strong>(8)), running on the master node. Each node runs
+(as before) a node daemon, and the master has the RAPI daemon running
+too.</p>
+<div class="section" id="node-roles">
+<h3>Node roles<a class="headerlink" href="#node-roles" title="Permalink to this headline">¶</a></h3>
+<p>Each node can be in one of the following states:</p>
+<dl class="docutils">
+<dt>master</dt>
+<dd>Only one node per cluster can be in this role, and this node is the
+one holding the authoritative copy of the cluster configuration and
+the one that can actually execute commands on the cluster and
+modify the cluster state. See more details under
+<em>Cluster configuration</em>.</dd>
+<dt>master_candidate</dt>
+<dd>The node receives the full cluster configuration (configuration
+file and jobs) and can become a master via the
+<strong>gnt-cluster master-failover</strong> command. Nodes that are not in this
+state cannot transition into the master role due to missing state.</dd>
+<dt>regular</dt>
+<dd>This the normal state of a node.</dd>
+<dt>drained</dt>
+<dd>Nodes in this state are functioning normally but cannot receive
+new instances, because the intention is to set them to <em>offline</em>
+or remove them from the cluster.</dd>
+<dt>offline</dt>
+<dd>These nodes are still recorded in the Ganeti configuration, but
+except for the master daemon startup voting procedure, they are not
+actually contacted by the master. This state was added in order to
+allow broken machines (that are being repaired) to remain in the
+cluster but without creating problems.</dd>
+</dl>
+</div>
+<div class="section" id="node-flags">
+<h3>Node flags<a class="headerlink" href="#node-flags" title="Permalink to this headline">¶</a></h3>
+<p>Nodes have two flags which govern which roles they can take:</p>
+<dl class="docutils">
+<dt>master_capable</dt>
+<dd>The node can become a master candidate, and furthermore the master
+node. When this flag is disabled, the node cannot become a
+candidate; this can be useful for special networking cases, or less
+reliable hardware.</dd>
+<dt>vm_capable</dt>
+<dd>The node can host instances. When enabled (the default state), the
+node will participate in instance allocation, capacity calculation,
+etc. When disabled, the node will be skipped in many cluster checks
+and operations.</dd>
+</dl>
+</div>
+<div class="section" id="node-parameters">
+<h3>Node Parameters<a class="headerlink" href="#node-parameters" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">ndparams</span></tt> refer to node parameters. These can be set as defaults
+on cluster and node group levels, but they take effect for nodes only.</p>
+<p>Currently we support the following node parameters:</p>
+<dl class="docutils">
+<dt>oob_program</dt>
+<dd>Path to an executable used as the out-of-band helper. It needs to implement
+the corresponding interface; in particular, in needs to support the
+<tt class="docutils literal"><span class="pre">power-on</span></tt>, <tt class="docutils literal"><span class="pre">power-off</span></tt>, <tt class="docutils literal"><span class="pre">power-cycle</span></tt>, <tt class="docutils literal"><span class="pre">power-status</span></tt>, and
+<tt class="docutils literal"><span class="pre">health</span></tt> commands. The full specification can be found in the
+<cite>Ganeti Node OOB Management Framework</cite> design document (implemented
+in Ganeti 2.4). Design documents are also available online on
+<tt class="docutils literal"><span class="pre">http://docs.ganeti.org/</span></tt>.</dd>
+<dt>spindle_count</dt>
+<dd>This should reflect the I/O performance of local attached storage
+(e.g. for &#8220;file&#8221;, &#8220;plain&#8221; and &#8220;drbd&#8221; disk templates). It doesn&#8217;t
+have to match the actual spindle count of (any eventual) mechanical
+hard-drives, its meaning is site-local and just the relative values
+matter.</dd>
+<dt>exclusive_storage</dt>
+<dd>When this Boolean flag is enabled, physical disks on the node are
+assigned to instance disks in an exclusive manner, so as to lower I/O
+interference between instances. This
+parameter cannot be set on individual nodes, as its value must be
+the same within each node group.
+The <cite>Partitioned Ganeti</cite> design document (implemented in Ganeti 2.9)
+contains more details.</dd>
+<dt>ovs</dt>
+<dd>When this Boolean flag is enabled, OpenvSwitch will be used as the
+network layer. This will cause the initialization of OpenvSwitch on
+the nodes when added to the cluster. Per default this is not enabled.</dd>
+<dt>ovs_name</dt>
+<dd>When ovs is enabled, this parameter will represent the name of the
+OpenvSwitch to generate and use. This will default to <cite>switch1</cite>.</dd>
+<dt>ovs_link</dt>
+<dd>When ovs is enabled, a OpenvSwitch will be initialized on new nodes
+and will have this as its connection to the outside. This parameter
+is not set per default, as it depends very much on the specific
+setup.</dd>
+<dt>ssh_port</dt>
+<dd>The port used for SSH connections to nodes belonging to a group. The user
+is responsible for properly configuring the ports of SSH daemons on
+machines prior to adding them as Ganeti nodes or when modifying the
+parameter value of an existing group. Note that using non-standard SSH
+ports and downgrading to an older Ganeti version that doesn&#8217;t support
+<tt class="docutils literal"><span class="pre">ssh_port</span></tt> will break the cluster.</dd>
+</dl>
+</div>
+<div class="section" id="hypervisor-state-parameters">
+<h3>Hypervisor State Parameters<a class="headerlink" href="#hypervisor-state-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Using <tt class="docutils literal"><span class="pre">--hypervisor-state</span></tt> you can set hypervisor specific states.</p>
+<p>The format is: <tt class="docutils literal"><span class="pre">hypervisor:option=value</span></tt>.</p>
+<p>Currently we support the following hypervisor state values:</p>
+<dl class="docutils">
+<dt>mem_total</dt>
+<dd>Total node memory, as discovered by this hypervisor</dd>
+<dt>mem_node</dt>
+<dd>Memory used by, or reserved for, the node itself; note that some
+hypervisors can report this in an authoritative way, other not</dd>
+<dt>mem_hv</dt>
+<dd>Memory used either by the hypervisor itself or lost due to instance
+allocation rounding; usually this cannot be precisely computed, but
+only roughly estimated</dd>
+<dt>cpu_total</dt>
+<dd>Total node cpu (core) count; usually this can be discovered
+automatically</dd>
+<dt>cpu_node</dt>
+<dd>Number of cores reserved for the node itself; this can either be
+discovered or set manually. Only used for estimating how many VCPUs
+are left for instances</dd>
+</dl>
+<p>Note that currently this option is unused by Ganeti; values will be
+recorded but will not influence the Ganeti operation.</p>
+</div>
+<div class="section" id="disk-state-parameters">
+<h3>Disk State Parameters<a class="headerlink" href="#disk-state-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Using <tt class="docutils literal"><span class="pre">--disk-state</span></tt> you can set disk specific states.</p>
+<p>The format is: <tt class="docutils literal"><span class="pre">storage_type/identifier:option=value</span></tt>. Where we
+currently just support <tt class="docutils literal"><span class="pre">lvm</span></tt> as storage type. The identifier in this
+case is the LVM volume group. By default this is <tt class="docutils literal"><span class="pre">xenvg</span></tt>.</p>
+<p>Currently we support the following hypervisor state values:</p>
+<dl class="docutils">
+<dt>disk_total</dt>
+<dd>Total disk size (usually discovered automatically)</dd>
+<dt>disk_reserved</dt>
+<dd>Reserved disk size; this is a lower limit on the free space, if such a
+limit is desired</dd>
+<dt>disk_overhead</dt>
+<dd>Disk that is expected to be used by other volumes (set via
+<tt class="docutils literal"><span class="pre">reserved_lvs</span></tt>); usually should be zero</dd>
+</dl>
+<p>Note that currently this option is unused by Ganeti; values will be
+recorded but will not influence the Ganeti operation.</p>
+</div>
+<div class="section" id="cluster-configuration">
+<h3>Cluster configuration<a class="headerlink" href="#cluster-configuration" title="Permalink to this headline">¶</a></h3>
+<p>The master node keeps and is responsible for the cluster
+configuration. On the filesystem, this is stored under the
+<tt class="docutils literal"><span class="pre">/var/ganeti/lib</span></tt> directory, and if the master daemon is
+stopped it can be backed up normally.</p>
+<p>The master daemon will replicate the configuration database called
+<tt class="docutils literal"><span class="pre">config.data</span></tt> and the job files to all the nodes in the master
+candidate role. It will also distribute a copy of some configuration
+values via the <em>ssconf</em> files, which are stored in the same directory
+and start with a <tt class="docutils literal"><span class="pre">ssconf_</span></tt> prefix, to all nodes.</p>
+</div>
+<div class="section" id="jobs">
+<h3>Jobs<a class="headerlink" href="#jobs" title="Permalink to this headline">¶</a></h3>
+<p>All cluster modification are done via jobs. A job consists of one
+or more opcodes, and the list of opcodes is processed serially. If
+an opcode fails, the entire job is failed and later opcodes are no
+longer processed. A job can be in one of the following states:</p>
+<dl class="docutils">
+<dt>queued</dt>
+<dd>The job has been submitted but not yet processed by the master
+daemon.</dd>
+<dt>waiting</dt>
+<dd>The job is waiting for for locks before the first of its opcodes.</dd>
+<dt>canceling</dt>
+<dd>The job is waiting for locks, but is has been marked for
+cancellation. It will not transition to <em>running</em>, but to
+<em>canceled</em>.</dd>
+<dt>running</dt>
+<dd>The job is currently being executed.</dd>
+<dt>canceled</dt>
+<dd>The job has been canceled before starting execution.</dd>
+<dt>success</dt>
+<dd>The job has finished successfully.</dd>
+<dt>error</dt>
+<dd>The job has failed during runtime, or the master daemon has been
+stopped during the job execution.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="common-command-line-features">
+<h2>Common command line features<a class="headerlink" href="#common-command-line-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="options">
+<h3>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
+<p>Many Ganeti commands provide the following options. The
+availability for a certain command can be checked by calling the
+command using the <tt class="docutils literal"><span class="pre">--help</span></tt> option.</p>
+<div class="line-block">
+<div class="line"><strong>gnt-...</strong> <em>command</em> [&#8211;dry-run] [&#8211;priority {low | normal | high}]</div>
+<div class="line">[&#8211;submit] [&#8211;print-jobid]</div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">--dry-run</span></tt> option can be used to check whether an operation
+would succeed.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--priority</span></tt> sets the priority for opcodes submitted
+by the command.</p>
+<p>The <tt class="docutils literal"><span class="pre">--submit</span></tt> option is used to send the job to the master daemon but
+not wait for its completion. The job ID will be shown so that it can be
+examined using <strong>gnt-job info</strong>.</p>
+<p>The <tt class="docutils literal"><span class="pre">--reason</span></tt> option allows to specify a reason for the submitted
+job. It is inherited by all jobs created by this job and intended
+to make it easier to track the reason why any given job exists.
+Some reason strings have special meanings:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>rate-limit:<em>n</em>:<em>label</em></dt>
+<dd>Assigns the job to a rate-limiting bucket identified by the
+combination of (<tt class="docutils literal"><span class="pre">n</span></tt>, <tt class="docutils literal"><span class="pre">label</span></tt>); that is <tt class="docutils literal"><span class="pre">rate-limit:4:mylabel</span></tt>
+and <tt class="docutils literal"><span class="pre">rate-limit:5:mylabel</span></tt> are different buckets.
+<tt class="docutils literal"><span class="pre">n</span></tt> must be a positive integer; <tt class="docutils literal"><span class="pre">label</span></tt> is an arbitrary ASCII
+string.
+The job scheduler will ensure that, for each rate-limiting bucket,
+there are at most <tt class="docutils literal"><span class="pre">n</span></tt> jobs belonging to that bucket that are
+running in parallel.</dd>
+</dl>
+</div></blockquote>
+<p>The special-cases for reason strings above must be given in exactly
+the specified format; if they are preceded by other characters
+(whitespace included), they become normal reasons and have no special
+effect.</p>
+<p>The <tt class="docutils literal"><span class="pre">--print-jobid</span></tt> option makes the command print the job id as first
+line on stdout, so that it is easy to parse by other programs.</p>
+</div>
+<div class="section" id="defaults">
+<h3>Defaults<a class="headerlink" href="#defaults" title="Permalink to this headline">¶</a></h3>
+<p>For certain commands you can use environment variables to provide
+default command line arguments. Just assign the arguments as a string to
+the corresponding environment variable. The format of that variable
+name is <strong>binary**_*command*. **binary</strong> is the name of the <tt class="docutils literal"><span class="pre">gnt-*</span></tt>
+script all upper case and dashes replaced by underscores, and <em>command</em>
+is the command invoked on that script.</p>
+<p>Currently supported commands are <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span></tt>, <tt class="docutils literal"><span class="pre">gnt-group</span> <span class="pre">list</span></tt>
+and <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">list</span></tt>. So you can configure default command line
+flags by setting <tt class="docutils literal"><span class="pre">GNT_NODE_LIST</span></tt>, <tt class="docutils literal"><span class="pre">GNT_GROUP_LIST</span></tt> and
+<tt class="docutils literal"><span class="pre">GNT_INSTANCE_LIST</span></tt>.</p>
+</div>
+<div class="section" id="debug-options">
+<h3>Debug options<a class="headerlink" href="#debug-options" title="Permalink to this headline">¶</a></h3>
+<p>If the variable <tt class="docutils literal"><span class="pre">FORCE_LUXI_SOCKET</span></tt> is set, it will override the
+socket used for LUXI connections by command-line tools
+(<tt class="docutils literal"><span class="pre">gnt-*</span></tt>). This is useful mostly for debugging, and some operations
+won&#8217;t work at all if, for example, you point this variable to the
+confd-supplied query socket and try to submit a job.</p>
+<p>If the variable is set to the value <tt class="docutils literal"><span class="pre">master</span></tt>, it will connect to the
+correct path for the master daemon (even if, for example, split
+queries are enabled and this is a query operation). If set to
+<tt class="docutils literal"><span class="pre">query</span></tt>, it will always (try to) connect to the query socket, even
+if split queries are disabled. Otherwise, the value is taken to
+represent a filesystem path to the socket to use.</p>
+</div>
+</div>
+<div class="section" id="field-formatting">
+<h2>Field formatting<a class="headerlink" href="#field-formatting" title="Permalink to this headline">¶</a></h2>
+<p>Multiple ganeti commands use the same framework for tabular listing of
+resources (e.g. <strong>gnt-instance list</strong>, <strong>gnt-node list</strong>, <strong>gnt-group
+list</strong>, <strong>gnt-debug locks</strong>, etc.). For these commands, special states
+are denoted via a special symbol (in terse mode) or a string (in
+verbose mode):</p>
+<dl class="docutils">
+<dt>*, (offline)</dt>
+<dd>The node in question is marked offline, and thus it cannot be
+queried for data. This result is persistent until the node is
+de-offlined.</dd>
+<dt>?, (nodata)</dt>
+<dd>Ganeti expected to receive an answer from this entity, but the
+cluster RPC call failed and/or we didn&#8217;t receive a valid answer;
+usually more information is available in the node daemon log (if
+the node is alive) or the master daemon log. This result is
+transient, and re-running command might return a different result.</dd>
+<dt>-, (unavail)</dt>
+<dd>The respective field doesn&#8217;t make sense for this entity;
+e.g. querying a down instance for its current memory &#8216;live&#8217; usage,
+or querying a non-vm_capable node for disk/memory data. This
+result is persistent, and until the entity state is changed via
+ganeti commands, the result won&#8217;t change.</dd>
+<dt>??, (unknown)</dt>
+<dd>This field is not known (note that this is different from entity
+being unknown). Either you have mis-typed the field name, or you
+are using a field that the running Ganeti master daemon doesn&#8217;t
+know. This result is persistent, re-running the command won&#8217;t
+change it.</dd>
+</dl>
+<div class="section" id="key-value-parameters">
+<h3>Key-value parameters<a class="headerlink" href="#key-value-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Multiple options take parameters that are of the form
+<tt class="docutils literal"><span class="pre">key=value,key=value,...</span></tt> or <tt class="docutils literal"><span class="pre">category:key=value,...</span></tt>. Examples
+are the hypervisor parameters, backend parameters, etc. For these,
+it&#8217;s possible to use values that contain commas by escaping with via a
+backslash (which needs two if not single-quoted, due to shell
+behaviour):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance modify -H kernel_path=an\\,example instance1</span>
+<span class="c"># gnt-instance modify -H kernel_path=&#39;an\,example&#39; instance1</span>
+</pre></div>
+</div>
+<p>Additionally, the following non-string parameters can be passed. To
+pass the boolean value <tt class="docutils literal"><span class="pre">True</span></tt>, only mention the key (leaving out the
+equality sign and any value). To pass the boolean value <tt class="docutils literal"><span class="pre">False</span></tt>,
+again only mention the key, but prefix it with <tt class="docutils literal"><span class="pre">no_</span></tt>. To pass the
+special <tt class="docutils literal"><span class="pre">None</span></tt> value, again only mention the key, but prefix it with
+a single <tt class="docutils literal"><span class="pre">-</span></tt> sign.</p>
+</div>
+<div class="section" id="query-filters">
+<h3>Query filters<a class="headerlink" href="#query-filters" title="Permalink to this headline">¶</a></h3>
+<p>Most commands listing resources (e.g. instances or nodes) support filtering.
+The filter language is similar to Python expressions with some elements from
+Perl. The language is not generic. Each condition must consist of a field name
+and a value (except for boolean checks), a field can not be compared to another
+field. Keywords are case-sensitive.</p>
+<p>Examples (see below for syntax details):</p>
+<ul>
+<li><p class="first">List webservers:</p>
+<div class="highlight-python"><pre>gnt-instance list --filter 'name =* "web*.example.com"'</pre>
+</div>
+</li>
+<li><p class="first">List instances with three or six virtual CPUs and whose primary
+nodes reside in groups starting with the string &#8220;rack&#8221;:</p>
+<div class="highlight-python"><pre>gnt-instance list --filter
+  '(be/vcpus == 3 or be/vcpus == 6) and pnode.group =~ m/^rack/'</pre>
+</div>
+</li>
+<li><p class="first">Nodes hosting primary instances:</p>
+<div class="highlight-python"><pre>gnt-node list --filter 'pinst_cnt != 0'</pre>
+</div>
+</li>
+<li><p class="first">Nodes which aren&#8217;t master candidates:</p>
+<div class="highlight-python"><pre>gnt-node list --filter 'not master_candidate'</pre>
+</div>
+</li>
+<li><p class="first">Short version for globbing patterns:</p>
+<div class="highlight-python"><pre>gnt-instance list '*.site1' '*.site2'</pre>
+</div>
+</li>
+</ul>
+<p>Syntax in pseudo-BNF:</p>
+<div class="highlight-python"><pre>&lt;quoted-string&gt; ::= /* String quoted with single or double quotes,
+                       backslash for escaping */
+
+&lt;integer&gt; ::= /* Number in base-10 positional notation */
+
+&lt;re&gt; ::= /* Regular expression */
+
+/*
+  Modifier "i": Case-insensitive matching, see
+  http://docs.python.org/library/re#re.IGNORECASE
+
+  Modifier "s": Make the "." special character match any character,
+  including newline, see http://docs.python.org/library/re#re.DOTALL
+*/
+&lt;re-modifiers&gt; ::= /* empty */ | i | s
+
+&lt;value&gt; ::= &lt;quoted-string&gt; | &lt;integer&gt;
+
+&lt;condition&gt; ::=
+  { /* Value comparison */
+    &lt;field&gt; { == | != | &lt; | &lt;= | &gt;= | &gt; } &lt;value&gt;
+
+    /* Collection membership */
+    | &lt;value&gt; [ not ] in &lt;field&gt;
+
+    /* Regular expressions (recognized delimiters
+       are "/", "#", "^", and "|"; backslash for escaping)
+    */
+    | &lt;field&gt; { =~ | !~ } m/&lt;re&gt;/&lt;re-modifiers&gt;
+
+    /* Globbing */
+    | &lt;field&gt; { =* | !* } &lt;quoted-string&gt;
+
+    /* Boolean */
+    | &lt;field&gt;
+  }
+
+&lt;filter&gt; ::=
+  { [ not ] &lt;condition&gt; | ( &lt;filter&gt; ) }
+  [ { and | or } &lt;filter&gt; ]</pre>
+</div>
+<p>Operators:</p>
+<dl class="docutils">
+<dt><em>==</em></dt>
+<dd>Equality</dd>
+<dt><em>!=</em></dt>
+<dd>Inequality</dd>
+<dt><em>&lt;</em></dt>
+<dd>Less than</dd>
+<dt><em>&lt;=</em></dt>
+<dd>Less than or equal</dd>
+<dt><em>&gt;</em></dt>
+<dd>Greater than</dd>
+<dt><em>&gt;=</em></dt>
+<dd>Greater than or equal</dd>
+<dt><em>=~</em></dt>
+<dd>Pattern match using regular expression</dd>
+<dt><em>!~</em></dt>
+<dd>Logically negated from <em>=~</em></dd>
+<dt><em>=*</em></dt>
+<dd>Globbing, see <strong>glob</strong>(7), though only * and ? are supported</dd>
+<dt><em>!*</em></dt>
+<dd>Logically negated from <em>=*</em></dd>
+<dt><em>in</em>, <em>not in</em></dt>
+<dd>Collection membership and negation</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="common-daemon-functionality">
+<h2>Common daemon functionality<a class="headerlink" href="#common-daemon-functionality" title="Permalink to this headline">¶</a></h2>
+<p>All Ganeti daemons re-open the log file(s) when sent a SIGHUP signal.
+<strong>logrotate</strong>(8) can be used to rotate Ganeti&#8217;s log files.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li><a class="reference internal" href="#cluster-architecture">Cluster architecture</a><ul>
+<li><a class="reference internal" href="#node-roles">Node roles</a></li>
+<li><a class="reference internal" href="#node-flags">Node flags</a></li>
+<li><a class="reference internal" href="#node-parameters">Node Parameters</a></li>
+<li><a class="reference internal" href="#hypervisor-state-parameters">Hypervisor State Parameters</a></li>
+<li><a class="reference internal" href="#disk-state-parameters">Disk State Parameters</a></li>
+<li><a class="reference internal" href="#cluster-configuration">Cluster configuration</a></li>
+<li><a class="reference internal" href="#jobs">Jobs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-command-line-features">Common command line features</a><ul>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#defaults">Defaults</a></li>
+<li><a class="reference internal" href="#debug-options">Debug options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#field-formatting">Field formatting</a><ul>
+<li><a class="reference internal" href="#key-value-parameters">Key-value parameters</a></li>
+<li><a class="reference internal" href="#query-filters">Query filters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-daemon-functionality">Common daemon functionality</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-wconfd.html"
+                        title="previous chapter">ganeti-wconfd</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-backup.html"
+                        title="next chapter">gnt-backup</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-backup.html" title="gnt-backup"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-wconfd.html" title="ganeti-wconfd"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

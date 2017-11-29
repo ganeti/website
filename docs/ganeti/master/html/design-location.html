@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Improving location awareness of Ganeti &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Linux HA integration" href="design-linuxha.html" />
+    <link rel="prev" title="KVM daemon" href="design-kvmd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-linuxha.html" title="Linux HA integration"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-kvmd.html" title="KVM daemon"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="improving-location-awareness-of-ganeti">
+<h1><a class="toc-backref" href="#id1">Improving location awareness of Ganeti</a><a class="headerlink" href="#improving-location-awareness-of-ganeti" title="Permalink to this headline">¶</a></h1>
+<p>This document describes an enhancement of Ganeti&#8217;s instance
+placement by taking into account that some nodes are vulnerable
+to common failures.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#improving-location-awareness-of-ganeti" id="id1">Improving location awareness of Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#failure-tags" id="id4">Failure tags</a></li>
+<li><a class="reference internal" href="#metric-changes" id="id5">Metric changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#additional-migration-restrictions" id="id6">Additional migration restrictions</a><ul>
+<li><a class="reference internal" href="#migration-tags" id="id7">Migration tags</a></li>
+<li><a class="reference internal" href="#restriction" id="id8">Restriction</a></li>
+<li><a class="reference internal" href="#example" id="id9">Example</a></li>
+<li><a class="reference internal" href="#advise-only" id="id10">Advise only</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instance-pinning" id="id11">Instance pinning</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, Ganeti considers all nodes in a single node group as
+equal. However, this is not true in some setups. Nodes might share
+common causes of failure or be even located in different places
+with spacial redundancy being a desired feature.</p>
+<p>The similar problem for instances, i.e., instances providing the
+same external service should not placed on the same nodes, is
+solved by means of exclusion tags. However, there is no mechanism
+for a good choice of node pairs for a single instance. Moreover,
+while instances providing the same service run on different nodes,
+they are not spread out location wise.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to the cluster metric (as used, e.g., by <tt class="docutils literal"><span class="pre">hbal</span></tt> and <tt class="docutils literal"><span class="pre">hail</span></tt>)
+to honor additional node tags indicating nodes that might have a common
+cause of failure.</p>
+<div class="section" id="failure-tags">
+<h3><a class="toc-backref" href="#id4">Failure tags</a><a class="headerlink" href="#failure-tags" title="Permalink to this headline">¶</a></h3>
+<p>As for exclusion tags, cluster tags will determine which tags are considered
+to denote a source of common failure. More precisely, a cluster tag of the
+form <em>htools:nlocation:x</em> will make node tags starting with <em>x:</em> indicate a
+common cause of failure, that redundant instances should avoid.</p>
+</div>
+<div class="section" id="metric-changes">
+<h3><a class="toc-backref" href="#id5">Metric changes</a><a class="headerlink" href="#metric-changes" title="Permalink to this headline">¶</a></h3>
+<p>The following components will be added cluster metric, weighed appropriately.</p>
+<ul class="simple">
+<li>The number of pairs of an instance and a common-failure tag, where primary
+and secondary node both have this tag.</li>
+<li>The number of pairs of exclusion tags and common-failure tags where there
+exist at least two instances with the given exclusion tag with the primary
+node having the given common-failure tag.</li>
+</ul>
+<p>The weights for these components might have to be tuned as experience with these
+setups grows, but as a starting point, both components will have a weight of
+1.0 each. In this way, any common-failure violations are less important than
+any hard constraints missed (like instances on offline nodes) so that
+the hard constraints will be restored first when balancing a cluster.
+Nevertheless, with weight 1.0 the new common-failure components will
+still be significantly more important than all the balancedness components
+(cpu, disk, memory), as the latter are standard deviations of fractions.
+It will also dominate the disk load component which, which, when only taking
+static information into account, essentially amounts to counting disks. In
+this way, Ganeti will be willing to sacrifice equal numbers of disks on every
+node in order to fulfill location requirements.</p>
+<p>Appart from changing the balancedness metric, common-failure tags will
+not have any other effect. In particular, as opposed to exclusion tags,
+no hard guarantees are made: <tt class="docutils literal"><span class="pre">hail</span></tt> will try allocate an instance in
+a common-failure avoiding way if possible, but still allocate the instance
+if not.</p>
+</div>
+</div>
+<div class="section" id="additional-migration-restrictions">
+<h2><a class="toc-backref" href="#id6">Additional migration restrictions</a><a class="headerlink" href="#additional-migration-restrictions" title="Permalink to this headline">¶</a></h2>
+<p>Inequality between nodes can also restrict the set of instance migrations
+possible. Here, the most prominent example is updating the hypervisor where
+usually migrations from the new to the old hypervisor version is not possible.</p>
+<div class="section" id="migration-tags">
+<h3><a class="toc-backref" href="#id7">Migration tags</a><a class="headerlink" href="#migration-tags" title="Permalink to this headline">¶</a></h3>
+<p>As for exclusion tags, cluster tags will determine which tags are considered
+restricting migration. More precisely, a cluster tag of the form
+<em>htools:migration:x</em> will make node tags starting with <em>x:</em> a migration relevant
+node property. Additionally, cluster tags of the form
+<em>htools:allowmigration:y::z</em> where <em>y</em> and <em>z</em> are migration tags not containing
+<em>::</em> specify a unidirectional migration possibility from <em>y</em> to <em>z</em>.</p>
+</div>
+<div class="section" id="restriction">
+<h3><a class="toc-backref" href="#id8">Restriction</a><a class="headerlink" href="#restriction" title="Permalink to this headline">¶</a></h3>
+<p>An instance migration will only be considered by <tt class="docutils literal"><span class="pre">htools</span></tt>, if for all
+migration tags <em>y</em> present on the node migrated from, either the tag
+is also present on the node migrated to or there is a cluster tag
+<em>htools::allowmigration:y::z</em> and the target node is tagged <em>z</em> (or both).</p>
+</div>
+<div class="section" id="example">
+<h3><a class="toc-backref" href="#id9">Example</a><a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>For the simple hypervisor upgrade, where migration from old to new is possible,
+but not the other way round, tagging all already upgraded nodes suffices.</p>
+</div>
+<div class="section" id="advise-only">
+<h3><a class="toc-backref" href="#id10">Advise only</a><a class="headerlink" href="#advise-only" title="Permalink to this headline">¶</a></h3>
+<p>These tags are of advisory nature only. That is, all <tt class="docutils literal"><span class="pre">htools</span></tt> will strictly
+obey the restrictions imposed by those tags, but Ganeti will not prevent users
+from manually instructing other migrations.</p>
+</div>
+</div>
+<div class="section" id="instance-pinning">
+<h2><a class="toc-backref" href="#id11">Instance pinning</a><a class="headerlink" href="#instance-pinning" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes, administrators want specific instances located in a particular,
+typically geographic, location. To support these kind of requests, instances
+can be assigned tags of the form <em>htools:desiredlocation:x</em> where <em>x</em> is a
+failure tag. Those tags indicate the the instance wants to be placed on a
+node tagged <em>x</em>. To make <tt class="docutils literal"><span class="pre">htools</span></tt> honor those desires, the metric is extended,
+appropriately weighted, by the following component.</p>
+<ul class="simple">
+<li>Sum of dissatisfied desired locations number among all cluster instances.
+An instance desired location is dissatisfied when the instance is assigned
+a desired-location tag <em>x</em> where the node is not tagged with the location
+tag <em>x</em>.</li>
+</ul>
+<p>Such metric extension allows to specify multiple desired locations for each
+instance. These desired locations may be contradictive as well. Contradictive
+desired locations mean that we don&#8217;t care which one of desired locations will
+be satisfied.</p>
+<p>Again, instance pinning is just heuristics, not a hard enforced requirement;
+it will only be achieved by the cluster metrics favouring such placements.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Improving location awareness of Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#failure-tags">Failure tags</a></li>
+<li><a class="reference internal" href="#metric-changes">Metric changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#additional-migration-restrictions">Additional migration restrictions</a><ul>
+<li><a class="reference internal" href="#migration-tags">Migration tags</a></li>
+<li><a class="reference internal" href="#restriction">Restriction</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#advise-only">Advise only</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instance-pinning">Instance pinning</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-kvmd.html"
+                        title="previous chapter">KVM daemon</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-linuxha.html"
+                        title="next chapter">Linux HA integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-location.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-linuxha.html" title="Linux HA integration"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-kvmd.html" title="KVM daemon"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

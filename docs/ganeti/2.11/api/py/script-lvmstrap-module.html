@@ -1,0 +1,1493 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>script-lvmstrap</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Script&nbsp;lvmstrap
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="script-lvmstrap-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== SCRIPT DESCRIPTION ==================== -->
+<h1 class="epydoc">Script lvmstrap</h1><p class="nomargin-top"></p>
+<p>Program which configures LVM on the Ganeti nodes.</p>
+  <p>This program wipes disks and creates a volume group on top of them. It
+  can also show disk information to help you decide which disks you want to
+  wipe.</p>
+  <p>The error handling is done by raising our own exceptions from most of 
+  the functions; these exceptions then handled globally in the main() 
+  function. The exceptions that each function can raise are not documented 
+  individually, since almost every error path ends in a raise.</p>
+  <p>Another two exceptions that are handled globally are IOError and 
+  OSError. The idea behind this is, since we run as root, we should usually
+  not get these errors, but if we do it's most probably a system error, so 
+  they should be handled and the user instructed to report them.</p>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.Error-class.html" class="summary-name">Error</a><br />
+      Generic exception
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.ProgrammingError-class.html" class="summary-name">ProgrammingError</a><br />
+      Exception denoting invalid assumptions in programming.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.SysconfigError-class.html" class="summary-name">SysconfigError</a><br />
+      Exception denoting invalid system configuration.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.PrereqError-class.html" class="summary-name">PrereqError</a><br />
+      Exception denoting invalid prerequisites.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.OperationalError-class.html" class="summary-name">OperationalError</a><br />
+      Exception denoting actual errors.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap.ParameterError-class.html" class="summary-name">ParameterError</a><br />
+      Exception denoting invalid input from user.
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Usage"></a><span class="summary-sig-name">Usage</span>()</span><br />
+      Shows program usage information and exits the program.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">tuple</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ParseOptions" class="summary-sig-name">ParseOptions</a>()</span><br />
+      Parses the command line options.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#IsPartitioned" class="summary-sig-name">IsPartitioned</a>(<span class="summary-sig-arg">disk</span>)</span><br />
+      Returns whether a given disk should be used partitioned or as-is.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#DeviceName" class="summary-sig-name">DeviceName</a>(<span class="summary-sig-arg">disk</span>)</span><br />
+      Returns the appropriate device name for a disk.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="SysfsName"></a><span class="summary-sig-name">SysfsName</span>(<span class="summary-sig-arg">disk</span>)</span><br />
+      Returns the sysfs name for a disk or partition.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">tuple</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ExecCommand" class="summary-sig-name">ExecCommand</a>(<span class="summary-sig-arg">command</span>)</span><br />
+      Executes a command.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckPrereq" class="summary-sig-name">CheckPrereq</a>()</span><br />
+      Check the prerequisites of this program.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckVGExists" class="summary-sig-name">CheckVGExists</a>(<span class="summary-sig-arg">vgname</span>)</span><br />
+      Checks to see if a volume group exists.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckSysDev" class="summary-sig-name">CheckSysDev</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">devnum</span>)</span><br />
+      Checks consistency between /sys and /dev trees.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ReadDev" class="summary-sig-name">ReadDev</a>(<span class="summary-sig-arg">syspath</span>)</span><br />
+      Reads the device number from a sysfs path.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">int</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ReadSize" class="summary-sig-name">ReadSize</a>(<span class="summary-sig-arg">syspath</span>)</span><br />
+      Reads the size from a sysfs path.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ReadPV" class="summary-sig-name">ReadPV</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Reads physical volume information.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#GetDiskList" class="summary-sig-name">GetDiskList</a>(<span class="summary-sig-arg">opts</span>)</span><br />
+      Computes the block device list for this system.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">dict</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#GetMountInfo" class="summary-sig-name">GetMountInfo</a>()</span><br />
+      Reads /proc/mounts and computes the mountpoint-devnum mapping.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="GetSwapInfo"></a><span class="summary-sig-name">GetSwapInfo</span>()</span><br />
+      Reads /proc/swaps and returns the list of swap backing stores.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#DevInfo" class="summary-sig-name">DevInfo</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">dev</span>,
+        <span class="summary-sig-arg">mountinfo</span>)</span><br />
+      Computes miscellaneous information about a block device.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ShowDiskInfo" class="summary-sig-name">ShowDiskInfo</a>(<span class="summary-sig-arg">opts</span>)</span><br />
+      Shows a nicely formatted block device list for this system.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckSysfsHolders" class="summary-sig-name">CheckSysfsHolders</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Check to see if a device is 'hold' at sysfs level.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckReread" class="summary-sig-name">CheckReread</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Check to see if a block device is in use.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CheckMounted" class="summary-sig-name">CheckMounted</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Check to see if a block device is a mountpoint.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="CheckSwap"></a><span class="summary-sig-name">CheckSwap</span>(<span class="summary-sig-arg">name</span>)</span><br />
+      Check to see if a block device is being used as swap.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="InUse"></a><span class="summary-sig-name">InUse</span>(<span class="summary-sig-arg">name</span>)</span><br />
+      Returns if a disk is in use or not.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#WipeDisk" class="summary-sig-name">WipeDisk</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Wipes a block device.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#PartitionDisk" class="summary-sig-name">PartitionDisk</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">use_sfdisk</span>)</span><br />
+      Partitions a disk.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CreatePVOnDisk" class="summary-sig-name">CreatePVOnDisk</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Creates a physical volume on a block device.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#CreateVG" class="summary-sig-name">CreateVG</a>(<span class="summary-sig-arg">vgname</span>,
+        <span class="summary-sig-arg">disks</span>)</span><br />
+      Creates the volume group.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#ValidateDiskList" class="summary-sig-name">ValidateDiskList</a>(<span class="summary-sig-arg">options</span>)</span><br />
+      Validates or computes the disk list for create.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="BootStrap"></a><span class="summary-sig-name">BootStrap</span>()</span><br />
+      Actual main routine.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-lvmstrap-module.html#main" class="summary-sig-name">main</a>()</span><br />
+      Application entry point.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap-module.html#USAGE" class="summary-name">USAGE</a> = <code title="&quot;\tlvmstrap diskinfo\n&quot; &quot;\tlvmstrap [--vg-name=NAME] [--allow-removabl\
+e]&quot; &quot; { --alldisks | --disks DISKLIST } [--use-sfdisk]&quot; &quot; create&quot;">&quot;\tlvmstrap diskinfo\n&quot; &quot;\tlvmstrap [--vg-name=NAME] [<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="verbose_flag"></a><span class="summary-name">verbose_flag</span> = <code title="False">False</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="SUPPORTED_TYPES"></a><span class="summary-name">SUPPORTED_TYPES</span> = <code title="[&quot;hd&quot;, &quot;sd&quot;, &quot;md&quot;, &quot;ubd&quot;,]">[&quot;hd&quot;, &quot;sd&quot;, &quot;md&quot;, &quot;ubd&quot;,]</code><br />
+      Supported disk types (as prefixes)
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-lvmstrap-module.html#EXCLUDED_FS" class="summary-name">EXCLUDED_FS</a> = <code title="compat.UniqueFrozenset([&quot;nfs&quot;, &quot;nfs4&quot;, &quot;autofs&quot;, &quot;tmpfs&quot;, &quot;proc&quot;, &quot;sys\
+fs&quot;, &quot;usbfs&quot;, &quot;devpts&quot;,])">compat.UniqueFrozenset([&quot;nfs&quot;, &quot;nfs4&quot;, &quot;autofs&quot;,<code class="variable-ellipsis">...</code></code><br />
+      Excluded filesystem types
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PART_RE"></a><span class="summary-name">PART_RE</span> = <code title="re.compile(&quot;^((?:h|s|m|ub)d[a-z]{1,2})[0-9]+$&quot;)">re.compile(&quot;^((?:h|s|m|ub)d[a-z]{1,2})[0-9]+$&quot;)</code><br />
+      A regular expression that matches partitions (must be kept in sync
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PART_MINSIZE"></a><span class="summary-name">PART_MINSIZE</span> = <code title="1024* 1024* 1024">1024* 1024* 1024</code><br />
+      Minimum partition size to be considered (1 GB)
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MBR_MAX_SIZE"></a><span class="summary-name">MBR_MAX_SIZE</span> = <code title="2*(10** 12)">2*(10** 12)</code>
+    </td>
+  </tr>
+</table>
+<p class="indent-wrapped-lines"><b>Imports:</b>
+  <span title="os">os</span>,
+  <span title="sys">sys</span>,
+  <span title="optparse">optparse</span>,
+  <span title="time">time</span>,
+  <span title="errno">errno</span>,
+  <span title="re">re</span>,
+  <span title="ganeti.utils.RunCmd">RunCmd</span>,
+  <span title="ganeti.utils.ReadFile">ReadFile</span>,
+  <a href="ganeti.constants-module.html" title="ganeti.constants">constants</a>,
+  <a href="ganeti.cli-module.html" title="ganeti.cli">cli</a>,
+  <a href="ganeti.compat-module.html" title="ganeti.compat">compat</a>
+</p><br />
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="ParseOptions"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ParseOptions</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Parses the command line options.</p>
+  <p>In case of command line errors, it will show the usage and exit the 
+  program.</p>
+  <dl class="fields">
+    <dt>Returns: tuple</dt>
+        <dd>a tuple of (options, args), as returned by 
+          OptionParser.parse_args</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="IsPartitioned"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">IsPartitioned</span>(<span class="sig-arg">disk</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns whether a given disk should be used partitioned or as-is.</p>
+  <p>Currently only md devices are used as is.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="DeviceName"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">DeviceName</span>(<span class="sig-arg">disk</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the appropriate device name for a disk.</p>
+  <p>For non-partitioned devices, it returns the name as is, otherwise it 
+  returns the first partition.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="ExecCommand"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ExecCommand</span>(<span class="sig-arg">command</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Executes a command.</p>
+  <p>This is just a wrapper around commands.getstatusoutput, with the 
+  difference that if the command line argument -v has been given, it will 
+  print the command line and the command output on stdout.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>command</code></strong> - the command line to be executed</li>
+    </ul></dd>
+    <dt>Returns: tuple</dt>
+        <dd>a tuple of (status, output) where status is the exit status and 
+          output the stdout and stderr of the command together</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckPrereq"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckPrereq</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check the prerequisites of this program.</p>
+  <p>It check that it runs on Linux 2.6, and that /sys is mounted and the 
+  fact that /sys/block is a directory.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckVGExists"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckVGExists</span>(<span class="sig-arg">vgname</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Checks to see if a volume group exists.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>vgname</code></strong> - the volume group name</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>a four-tuple (exists, lv_count, vg_size, vg_free), where:
+          <ul>
+            <li>
+              exists: True if the volume exists, otherwise False; if False,
+              all other members of the tuple are None
+            </li>
+            <li>
+              lv_count: The number of logical volumes in the volume group
+            </li>
+            <li>
+              vg_size: The total size of the volume group (in gibibytes)
+            </li>
+            <li>
+              vg_free: The available space in the volume group
+            </li>
+          </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckSysDev"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckSysDev</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">devnum</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Checks consistency between /sys and /dev trees.</p>
+  <p>In /sys/block/&lt;name&gt;/dev and 
+  /sys/block/&lt;name&gt;/&lt;part&gt;/dev are the kernel-known device 
+  numbers. The /dev/&lt;name&gt; block/char devices are created by 
+  userspace and thus could differ from the kernel view. This function 
+  checks the consistency between the device number read from /sys and the 
+  actual device number in /dev.</p>
+  <p>Note that since the system could be using udev which removes and 
+  recreates the device nodes on partition table rescan, we need to do some 
+  retries here. Since we only do a stat, we can afford to do many short 
+  retries.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - the device name, e.g. 'sda'</li>
+        <li><strong class="pname"><code>devnum</code></strong> - the device number, e.g. 0x803 (2051 in decimal) for sda3</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="script-lvmstrap.SysconfigError-class.html">SysconfigError</a></strong></code> - in case of failure of the check</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ReadDev"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ReadDev</span>(<span class="sig-arg">syspath</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Reads the device number from a sysfs path.</p>
+  <p>The device number is given in sysfs under a block device directory in 
+  a file named 'dev' which contains major:minor (in ASCII). This function 
+  reads that file and converts the major:minor pair to a dev number.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>syspath</code></strong> (string) - the path to a block device dir in sysfs, e.g. 
+          <code>/sys/block/sda</code></li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>the device number</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ReadSize"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ReadSize</span>(<span class="sig-arg">syspath</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Reads the size from a sysfs path.</p>
+  <p>The size is given in sysfs under a block device directory in a file 
+  named 'size' which contains the number of sectors (in ASCII). This 
+  function reads that file and converts the number in sectors to the size 
+  in bytes.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>syspath</code></strong> (string) - the path to a block device dir in sysfs, e.g. 
+          <code>/sys/block/sda</code></li>
+    </ul></dd>
+    <dt>Returns: int</dt>
+        <dd>the device size in bytes</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ReadPV"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ReadPV</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Reads physical volume information.</p>
+  <p>This function tries to see if a block device is a physical volume.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> (string) - the device name (e.g. sda)</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>the name of the volume group to which this PV belongs, or 
+          &quot;&quot; if this PV is not in use, or None if this is not a 
+          PV</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetDiskList"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetDiskList</span>(<span class="sig-arg">opts</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Computes the block device list for this system.</p>
+  <p>This function examines the /sys/block tree and using information 
+  therein, computes the status of the block device.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>a list like [(name, size, dev, partitions, inuse), ...], where:
+          <ul>
+            <li>
+              name is the block device name (e.g. sda)
+            </li>
+            <li>
+              size the size in bytes
+            </li>
+            <li>
+              dev is the device number (e.g. 8704 for hdg)
+            </li>
+            <li>
+              partitions is [(name, size, dev), ...] mirroring the disk 
+              list data inuse is a boolean showing the in-use status of the
+              disk, computed as the possibility of re-reading the partition
+              table (the meaning of the operation varies with the kernel 
+              version, but is usually accurate; a mounted disk/partition or
+              swap-area or PV with active LVs on it is busy)
+            </li>
+          </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetMountInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetMountInfo</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Reads /proc/mounts and computes the mountpoint-devnum mapping.</p>
+  <p>This function reads /proc/mounts, finds the mounted filesystems 
+  (excepting a hard-coded blacklist of network and virtual filesystems) and
+  does a stat on these mountpoints. The st_dev number of the results is 
+  memorised for later matching against the /sys/block devices.</p>
+  <dl class="fields">
+    <dt>Returns: dict</dt>
+        <dd>a {mountpoint: device number} dictionary</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="DevInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">DevInfo</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">dev</span>,
+        <span class="sig-arg">mountinfo</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Computes miscellaneous information about a block device.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> (string) - the device name, e.g. sda</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>a tuple (mpath, whatvg, fileinfo), where:
+          <ul>
+            <li>
+              mpath is the mount path where this device is mounted or None
+            </li>
+            <li>
+              whatvg is the result of the ReadPV function
+            </li>
+            <li>
+              fileinfo is the output of file -bs on the device
+            </li>
+          </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ShowDiskInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ShowDiskInfo</span>(<span class="sig-arg">opts</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Shows a nicely formatted block device list for this system.</p>
+  <p>This function shows the user a table with the information gathered by 
+  the other functions defined, in order to help the user make a choice 
+  about which disks should be allocated to our volume group.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckSysfsHolders"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckSysfsHolders</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check to see if a device is 'hold' at sysfs level.</p>
+  <p>This is usually the case for Physical Volumes under LVM.</p>
+  <dl class="fields">
+    <dt>Returns: boolean</dt>
+        <dd>true if the device is available according to sysfs</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckReread"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckReread</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check to see if a block device is in use.</p>
+  <p>Uses blockdev to reread the partition table of a block device (or 
+  fuser if the device is not partitionable), and thus compute the in-use 
+  status.  See the discussion in GetDiskList about the meaning of 'in 
+  use'.</p>
+  <dl class="fields">
+    <dt>Returns: boolean</dt>
+        <dd>the in-use status of the device</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckMounted"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckMounted</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check to see if a block device is a mountpoint.</p>
+  <p>In recent distros/kernels, this is reported directly via fuser, but on
+  older ones not, so we do an additional check here (manually).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="WipeDisk"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">WipeDisk</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Wipes a block device.</p>
+  <p>This function wipes a block device, by clearing and re-reading the 
+  partition table. If not successful, it writes back the old partition 
+  data, and leaves the cleanup to the user.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - the device name (e.g. sda)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="PartitionDisk"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">PartitionDisk</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">use_sfdisk</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Partitions a disk.</p>
+  <p>This function creates a single partition spanning the entire disk, by 
+  means of fdisk.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - the device name, e.g. sda</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CreatePVOnDisk"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CreatePVOnDisk</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Creates a physical volume on a block device.</p>
+  <p>This function creates a physical volume on a block device, overriding 
+  all warnings. So it can wipe existing PVs and PVs which are in a VG.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - the device name, e.g. sda</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CreateVG"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CreateVG</span>(<span class="sig-arg">vgname</span>,
+        <span class="sig-arg">disks</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Creates the volume group.</p>
+  <p>This function creates a volume group named `vgname` on the disks given
+  as parameters. The physical extent size is set to 64MB.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>disks</code></strong> - a list of disk names, e.g. ['sda','sdb']</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ValidateDiskList"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ValidateDiskList</span>(<span class="sig-arg">options</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Validates or computes the disk list for create.</p>
+  <p>This function either computes the available disk list (if the user 
+  gave --alldisks option), or validates the user-given disk list (by using 
+  the --disks option) such that all given disks are present and not in 
+  use.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>options</code></strong> - the options returned from OptParser.parse_options</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>a list of disk names, e.g. ['sda', 'sdb']</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="main"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">main</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Application entry point.</p>
+  <p>This is just a wrapper over BootStrap, to handle our own 
+  exceptions.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="USAGE"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">USAGE</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+&quot;\tlvmstrap diskinfo\n&quot; &quot;\tlvmstrap [--vg-name=NAME] [--allow-removabl<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+e]&quot; &quot; { --alldisks | --disks DISKLIST } [--use-sfdisk]&quot; &quot; create&quot;
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="EXCLUDED_FS"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">EXCLUDED_FS</h3>
+  <p>Excluded filesystem types</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+compat.UniqueFrozenset([&quot;nfs&quot;, &quot;nfs4&quot;, &quot;autofs&quot;, &quot;tmpfs&quot;, &quot;proc&quot;, &quot;sys<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+fs&quot;, &quot;usbfs&quot;, &quot;devpts&quot;,])
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Jan 11 11:57:45 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

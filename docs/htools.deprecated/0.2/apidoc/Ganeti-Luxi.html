@@ -1,0 +1,1405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Luxi</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Luxi.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Luxi.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Luxi</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Utility functions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Generic protocol functionality
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the Ganeti LUXI interface.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwithTimeout"
+>withTimeout</A
+> ::  Int -&gt; String -&gt; IO a -&gt; IO a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ALuxiOp"
+>LuxiOp</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AQueryInstances"
+>QueryInstances</A
+> [String] [String] Bool</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryNodes"
+>QueryNodes</A
+> [String] [String] Bool</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryJobs"
+>QueryJobs</A
+> [Int] [String]</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryExports"
+>QueryExports</A
+> [String] Bool</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryConfigValues"
+>QueryConfigValues</A
+> [String]</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryClusterInfo"
+>QueryClusterInfo</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AQueryTags"
+>QueryTags</A
+> String String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASubmitJob"
+>SubmitJob</A
+> [<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASubmitManyJobs"
+>SubmitManyJobs</A
+> [[<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]]</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AWaitForJobChange"
+>WaitForJobChange</A
+> Int [String] JSValue JSValue Int</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AArchiveJob"
+>ArchiveJob</A
+> Int</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAutoArchiveJobs"
+>AutoArchiveJobs</A
+> Int Int</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ACancelJob"
+>CancelJob</A
+> Int</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASetDrainFlag"
+>SetDrainFlag</A
+> Bool</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASetWatcherPause"
+>SetWatcherPause</A
+> Double</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstrOfOp"
+>strOfOp</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AeOM"
+>eOM</A
+> :: Char</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AMsgKeys"
+>MsgKeys</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AMethod"
+>Method</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AArgs"
+>Args</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ASuccess"
+>Success</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AResult"
+>Result</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstrOfKey"
+>strOfKey</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AMsgKeys"
+>MsgKeys</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AClient"
+>Client</A
+>  = <A HREF="#v%3AClient"
+>Client</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Asocket"
+>socket</A
+> :: Socket</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Arbuf"
+>rbuf</A
+> :: IORef String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetClient"
+>getClient</A
+> :: String -&gt; IO <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcloseClient"
+>closeClient</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsendMsg"
+>sendMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArecvMsg"
+>recvMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AopToArgs"
+>opToArgs</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildCall"
+>buildCall</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AvalidateResult"
+>validateResult</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcallMethod"
+>callMethod</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsubmitManyJobs"
+>submitManyJobs</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [[<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]] -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryJobsStatus"
+>queryJobsStatus</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [String] -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>])</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Utility functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:withTimeout"
+><A NAME="v%3AwithTimeout"
+></A
+></A
+><B
+>withTimeout</B
+> ::  Int -&gt; String -&gt; IO a -&gt; IO a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#withTimeout"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over System.Timeout.timeout that fails in the IO monad.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Generic protocol functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:LuxiOp"
+><A NAME="t%3ALuxiOp"
+></A
+></A
+><B
+>LuxiOp</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#LuxiOp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Currently supported Luxi operations.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryInstances"
+><A NAME="v%3AQueryInstances"
+></A
+></A
+><B
+>QueryInstances</B
+> [String] [String] Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryNodes"
+><A NAME="v%3AQueryNodes"
+></A
+></A
+><B
+>QueryNodes</B
+> [String] [String] Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryJobs"
+><A NAME="v%3AQueryJobs"
+></A
+></A
+><B
+>QueryJobs</B
+> [Int] [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryExports"
+><A NAME="v%3AQueryExports"
+></A
+></A
+><B
+>QueryExports</B
+> [String] Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryConfigValues"
+><A NAME="v%3AQueryConfigValues"
+></A
+></A
+><B
+>QueryConfigValues</B
+> [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryClusterInfo"
+><A NAME="v%3AQueryClusterInfo"
+></A
+></A
+><B
+>QueryClusterInfo</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:QueryTags"
+><A NAME="v%3AQueryTags"
+></A
+></A
+><B
+>QueryTags</B
+> String String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SubmitJob"
+><A NAME="v%3ASubmitJob"
+></A
+></A
+><B
+>SubmitJob</B
+> [<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SubmitManyJobs"
+><A NAME="v%3ASubmitManyJobs"
+></A
+></A
+><B
+>SubmitManyJobs</B
+> [[<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:WaitForJobChange"
+><A NAME="v%3AWaitForJobChange"
+></A
+></A
+><B
+>WaitForJobChange</B
+> Int [String] JSValue JSValue Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ArchiveJob"
+><A NAME="v%3AArchiveJob"
+></A
+></A
+><B
+>ArchiveJob</B
+> Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AutoArchiveJobs"
+><A NAME="v%3AAutoArchiveJobs"
+></A
+></A
+><B
+>AutoArchiveJobs</B
+> Int Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:CancelJob"
+><A NAME="v%3ACancelJob"
+></A
+></A
+><B
+>CancelJob</B
+> Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SetDrainFlag"
+><A NAME="v%3ASetDrainFlag"
+></A
+></A
+><B
+>SetDrainFlag</B
+> Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:SetWatcherPause"
+><A NAME="v%3ASetWatcherPause"
+></A
+></A
+><B
+>SetWatcherPause</B
+> Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:strOfOp"
+><A NAME="v%3AstrOfOp"
+></A
+></A
+><B
+>strOfOp</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#strOfOp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The serialisation of LuxiOps into strings in messages.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:eOM"
+><A NAME="v%3AeOM"
+></A
+></A
+><B
+>eOM</B
+> :: Char</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#eOM"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The end-of-message separator.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:MsgKeys"
+><A NAME="t%3AMsgKeys"
+></A
+></A
+><B
+>MsgKeys</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#MsgKeys"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Valid keys in the requests and responses.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Method"
+><A NAME="v%3AMethod"
+></A
+></A
+><B
+>Method</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Args"
+><A NAME="v%3AArgs"
+></A
+></A
+><B
+>Args</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Success"
+><A NAME="v%3ASuccess"
+></A
+></A
+><B
+>Success</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Result"
+><A NAME="v%3AResult"
+></A
+></A
+><B
+>Result</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:strOfKey"
+><A NAME="v%3AstrOfKey"
+></A
+></A
+><B
+>strOfKey</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AMsgKeys"
+>MsgKeys</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#strOfKey"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The serialisation of MsgKeys into strings in messages.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Client"
+><A NAME="t%3AClient"
+></A
+></A
+><B
+>Client</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#Client"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Luxi client encapsulation.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Client"
+><A NAME="v%3AClient"
+></A
+></A
+><B
+>Client</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:socket"
+><A NAME="v%3Asocket"
+></A
+></A
+><B
+>socket</B
+> :: Socket</TD
+><TD CLASS="rdoc"
+>The socket of the client
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:rbuf"
+><A NAME="v%3Arbuf"
+></A
+></A
+><B
+>rbuf</B
+> :: IORef String</TD
+><TD CLASS="rdoc"
+>Already received buffer
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getClient"
+><A NAME="v%3AgetClient"
+></A
+></A
+><B
+>getClient</B
+> :: String -&gt; IO <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#getClient"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Connects to the master daemon and returns a luxi Client.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:closeClient"
+><A NAME="v%3AcloseClient"
+></A
+></A
+><B
+>closeClient</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#closeClient"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Closes the client socket.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:sendMsg"
+><A NAME="v%3AsendMsg"
+></A
+></A
+><B
+>sendMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#sendMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sends a message over a luxi transport.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:recvMsg"
+><A NAME="v%3ArecvMsg"
+></A
+></A
+><B
+>recvMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#recvMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Waits for a message over a luxi transport.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:opToArgs"
+><A NAME="v%3AopToArgs"
+></A
+></A
+><B
+>opToArgs</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#opToArgs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the serialized form of a Luxi operation
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildCall"
+><A NAME="v%3AbuildCall"
+></A
+></A
+><B
+>buildCall</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#buildCall"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+><TD CLASS="rdoc"
+>The method
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The serialized form
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Serialize a request to String.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:validateResult"
+><A NAME="v%3AvalidateResult"
+></A
+></A
+><B
+>validateResult</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#validateResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that luxi responses contain the required keys and that the
+ call was successful.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:callMethod"
+><A NAME="v%3AcallMethod"
+></A
+></A
+><B
+>callMethod</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#callMethod"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generic luxi method call.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:submitManyJobs"
+><A NAME="v%3AsubmitManyJobs"
+></A
+></A
+><B
+>submitManyJobs</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [[<A HREF="Ganeti-OpCodes.html#t%3AOpCode"
+>OpCode</A
+>]] -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [String])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#submitManyJobs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Specialized submitManyJobs call.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryJobsStatus"
+><A NAME="v%3AqueryJobsStatus"
+></A
+></A
+><B
+>queryJobsStatus</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [String] -&gt; IO (<A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Luxi.html#queryJobsStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Custom queryJobs call.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

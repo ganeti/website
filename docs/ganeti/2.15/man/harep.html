@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>HAREP(1) Ganeti | Version 2.15.2</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">HAREP(1) Ganeti | Version 2.15.2</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#limitations">LIMITATIONS</a></li>
+<li><a href="#options">OPTIONS</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>harep - Ganeti auto-repair tool</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>harep</strong> [ [<strong>-L</strong> | <strong>--luxi</strong> ] = <em>socket</em> ] [ --job-delay = <em>seconds</em> ]</p>
+<p><strong>harep</strong> --version</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>Harep is the Ganeti auto-repair tool. It is able to detect that an instance is broken and to generate a sequence of jobs that will fix it, in accordance to the policies set by the administrator.</p>
+<p>Harep is able to recognize what state an instance is in (healthy, suspended, needs repair, repair disallowed, pending repair, repair failed) and to lead it through a sequence of steps that will bring the instance back to the healthy state. Therefore, harep is mainly meant to be run regularly and frequently using a cron job, so that it can actually follow the instance along all the process. At every run, harep will update the tags it adds to instances that describe its repair status, and will submit jobs that actually perform the required repair operations.</p>
+<p>By default, harep only reports on the health status of instances, but doesn't perform any action, as they might be potentially dangerous. Therefore, harep will only touch instances that it has been explicitly authorized to work on.</p>
+<p>The tags enabling harep, can be associated to single instances, or to a nodegroup or to the whole cluster, therefore affecting all the instances they contain. The possible tags share the common structure:</p>
+<pre><code>ganeti:watcher:autorepair:&lt;type&gt;</code></pre>
+<p>where <code>&lt;type&gt;</code> can have the following values:</p>
+<ul>
+<li><code>fix-storage</code>: allow disk replacement or fix the backend without affecting the instance itself (broken DRBD secondary)</li>
+<li><code>migrate</code>: allow instance migration</li>
+<li><code>failover</code>: allow instance reboot on the secondary</li>
+<li><code>reinstall</code>: allow disks to be recreated and the instance to be reinstalled</li>
+</ul>
+<p>Each element in the list of tags, includes all the authorizations of the previous one, with <code>fix-storage</code> being the least powerful and <code>reinstall</code> being the most powerful.</p>
+<p>In case multiple autorepair tags act on the same instance, only one can actually be active. The conflict is solved according to the following rules:</p>
+<ol>
+<li><p>if multiple tags are in the same object, the least destructive takes precedence.</p></li>
+<li><p>if the tags are across objects, the nearest tag wins.</p></li>
+</ol>
+<p>Example: A cluster has instances I1 and I2, where I1 has the <code>failover</code> tag, and the cluster has both <code>fix-storage</code> and <code>reinstall</code>. The I1 instance will be allowed to <code>failover</code>, the I2 instance only to <code>fix-storage</code>.</p>
+<h1 id="limitations"><a href="#TOC">LIMITATIONS</a></h1>
+<p>Harep doesn't do any hardware failure detection on its own, it relies on nodes being marked as offline by the administrator.</p>
+<p>Also harep currently works only for instances with the <code>drbd</code> and <code>plain</code> disk templates.</p>
+<p>Both these issues will be addressed by a new maintenance daemon in future Ganeti versions, which will supersede harep.</p>
+<h1 id="options"><a href="#TOC">OPTIONS</a></h1>
+<p>The options that can be passed to the program are as follows:</p>
+<dl>
+<dt>-L <em>socket</em>, --luxi=<em>socket</em></dt>
+<dd><p>collect data via Luxi, optionally using the given <em>socket</em> path.</p>
+</dd>
+<dt>--job-delay=<em>seconds</em></dt>
+<dd><p>insert this much delay before the execution of repair jobs to allow the tool to continue processing instances.</p>
+</dd>
+</dl>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

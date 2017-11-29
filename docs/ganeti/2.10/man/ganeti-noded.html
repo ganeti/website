@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-noded(8) Ganeti | Version 2.10.8</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-noded(8) Ganeti | Version 2.10.8</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a><ul>
+<li><a href="#role">ROLE</a></li>
+<li><a href="#communication-protocol">COMMUNICATION PROTOCOL</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>ganeti-noded - Ganeti node daemon</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>ganeti-noded</strong> [-f] [-d] [-p <em>PORT</em>] [-b <em>ADDRESS</em>] [-i <em>INTERFACE</em>] [--no-mlock] [--syslog] [--no-ssl] [-K <em>SSL_KEY_FILE</em>] [-C <em>SSL_CERT_FILE</em>]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>ganeti-noded</strong> is the daemon which is responsible for the node functions in the Ganeti system.</p>
+<p>By default, in order to be able to support features such as node powercycling even on systems with a very damaged root disk, <strong>ganeti-noded</strong> locks itself in RAM using <strong>mlockall</strong>(2). You can disable this feature by passing in the <code>--no-mlock</code> to the daemon.</p>
+<p>For testing purposes, you can give the <code>-f</code> option and the program won't detach from the running terminal.</p>
+<p>Debug-level message can be activated by giving the <code>-d</code> option.</p>
+<p>Logging to syslog, rather than its own log file, can be enabled by passing in the <code>--syslog</code> option.</p>
+<p>The <strong>ganeti-noded</strong> daemon listens to port 1811 TCP, on all interfaces, by default. The port can be overridden by an entry in the services database (usually <code>/etc/services</code>) or by passing the <code>-p</code> option. The <code>-b</code> option can be used to specify the address to bind to (defaults to <code>0.0.0.0</code>); alternatively, the <code>-i</code> option can be used to specify the interface to bind do.</p>
+<p>Ganeti noded communication is protected via SSL, with a key generated at cluster init time. This can be disabled with the <code>--no-ssl</code> option, or a different SSL key and certificate can be specified using the <code>-K</code> and <code>-C</code> options.</p>
+<h2 id="role"><a href="#TOC">ROLE</a></h2>
+<p>The role of the node daemon is to do almost all the actions that change the state of the node. Things like creating disks for instances, activating disks, starting/stopping instance and so on are done via the node daemon.</p>
+<p>Also, in some cases the startup/shutdown of the master daemon are done via the node daemon, and the cluster IP address is also added/removed to the master node via it.</p>
+<p>If the node daemon is stopped, the instances are not affected, but the master won't be able to talk to that node.</p>
+<h2 id="communication-protocol"><a href="#TOC">COMMUNICATION PROTOCOL</a></h2>
+<p>Currently the master-node RPC is done using a simple RPC protocol built using JSON over HTTP(S).</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2014 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

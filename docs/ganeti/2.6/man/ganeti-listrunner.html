@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>ganeti-listrunner(8) Ganeti | Version 2.6.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">ganeti-listrunner(8) Ganeti | Version 2.6.2</h1>
+<div id="name"
+><h1
+  >NAME</h1
+  ><p
+  >ganeti-listrunner - Run commands in parallel over multiple machines</p
+  ></div
+><div id="synopsis"
+><h1
+  >SYNOPSIS</h1
+  ><p
+  ><strong
+    >ganeti-listrunner</strong
+    > <code
+    >-l</code
+    > <em
+    >logdir</em
+    > {<code
+    >-x</code
+    > <em
+    >executable</em
+    > | <code
+    >-c</code
+    > <em
+    >shell-cmd</em
+    >} {<code
+    >-f</code
+    > <em
+    >hostfile</em
+    > | <code
+    >-h</code
+    > <em
+    >hostlist</em
+    >} [<code
+    >-a</code
+    > <em
+    >aux-file</em
+    >] [<code
+    >-b</code
+    > <em
+    >batch-size</em
+    >] [<code
+    >-u</code
+    > <em
+    >username</em
+    >] [<code
+    >-A</code
+    >]</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  ><strong
+    >ganeti-listrunner</strong
+    > is a tool to run commands in parallel over multiple machines. It differs from <code
+    >dsh</code
+    > or other tools in that it asks for the password once (if not using <code
+    >ssh-agent</code
+    >) and then reuses the password to connect to all machines, thus being easily usable even when public key authentication or Kerberos authentication is not available.</p
+  ><p
+  >It can run either a command or a script (which gets uploaded first and deleted after execution) on a list of hosts provided either via a file (one host per line) or as a comma-separated list on the commandline. The output (stdout and stderr are merged) of the remote execution is written to a logfile. One logfile per host is written.</p
+  ></div
+><div id="options"
+><h1
+  >OPTIONS</h1
+  ><p
+  >The options that can be passed to the program are as follows:</p
+  ><dl
+  ><dt
+    ><code
+      >-l</code
+      > <em
+      >logdir</em
+      ></dt
+    ><dd
+    ><p
+      >The directory under which the logfiles files should be written.</p
+      ></dd
+    ><dt
+    ><code
+      >-x</code
+      > <em
+      >executable</em
+      ></dt
+    ><dd
+    ><p
+      >The executable to copy and run on the target hosts.</p
+      ></dd
+    ><dt
+    ><code
+      >-c</code
+      > <em
+      >shell-cmd</em
+      ></dt
+    ><dd
+    ><p
+      >The shell command to run on the remote hosts.</p
+      ></dd
+    ><dt
+    ><code
+      >-f</code
+      > <em
+      >hostfile</em
+      ></dt
+    ><dd
+    ><p
+      >The file with the target hosts, one hostname per line.</p
+      ></dd
+    ><dt
+    ><code
+      >-h</code
+      > <em
+      >hostlist</em
+      ></dt
+    ><dd
+    ><p
+      >Comma-separated list of target hosts.</p
+      ></dd
+    ><dt
+    ><code
+      >-a</code
+      > <em
+      >aux-file</em
+      ></dt
+    ><dd
+    ><p
+      >A file to copy to the target hosts. Can be given multiple times, in which case all files will be copied to the temporary directory. The executable or the shell command will be run from the (temporary) directory where these files have been copied.</p
+      ></dd
+    ><dt
+    ><code
+      >-b</code
+      > <em
+      >batch-size</em
+      ></dt
+    ><dd
+    ><p
+      >The host list will be split into batches of batch-size which will be processed in parallel. The default if 15, and should be increased if faster processing is needed.</p
+      ></dd
+    ><dt
+    ><code
+      >-u</code
+      > <em
+      >username</em
+      ></dt
+    ><dd
+    ><p
+      >Username to connect as instead of the default root username.</p
+      ></dd
+    ><dt
+    ><code
+      >-A</code
+      ></dt
+    ><dd
+    ><p
+      >Use an existing ssh-agent instead of password authentication.</p
+      ></dd
+    ><dt
+    ><code
+      >--args</code
+      ></dt
+    ><dd
+    ><p
+      >Arguments to pass to executable (<code
+	>-x</code
+	>).</p
+      ></dd
+    ></dl
+  ></div
+><div id="exit-status"
+><h1
+  >EXIT STATUS</h1
+  ><p
+  >The exist status of the command will be zero, unless it was aborted in some way (e.g. ^C).</p
+  ></div
+><div id="example"
+><h1
+  >EXAMPLE</h1
+  ><p
+  >Run a command on a list of hosts:</p
+  ><pre
+  ><code
+    >listrunner -l logdir -c &quot;uname -a&quot; -h host1,host2,host3
+</code
+    ></pre
+  ><p
+  >Upload a script, some auxiliary files and run the script:</p
+  ><pre
+  ><code
+    >listrunner -l logdir -x runme.sh \
+  -a seed.dat -a golden.dat \
+  -h host1,host2,host3
+</code
+    ></pre
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >dsh(1), cssh(1)</p
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters), <strong
+    >hinfo</strong
+    >(1) (cluster information printer).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

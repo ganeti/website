@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti Node OOB Management Framework &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Support for Open vSwitch" href="design-openvswitch.html" />
+    <link rel="prev" title="Improvements of Node Security" href="design-node-security.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-openvswitch.html" title="Support for Open vSwitch"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-node-security.html" title="Improvements of Node Security"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-node-oob-management-framework">
+<h1>Ganeti Node OOB Management Framework<a class="headerlink" href="#ganeti-node-oob-management-framework" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>Extend Ganeti with Out of Band (<a class="reference internal" href="glossary.html#term-oob"><em class="xref std std-term">OOB</em></a>) Cluster Node Management
+Capabilities.</p>
+</div>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti currently has no support for Out of Band management of the nodes
+in a cluster. It relies on the OS running on the nodes and has therefore
+limited possibilities when the OS is not responding. The command
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">powercycle</span></tt> can be issued to attempt a reboot of a node that
+crashed but there are no means to power a node off and power it back
+on. Supporting this is very handy in the following situations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Emergency Power Off</strong>: During emergencies, time is critical and
+manual tasks just add latency which can be avoided through
+automation. If a server room overheats, halting the OS on the nodes
+is not enough. The nodes need to be powered off cleanly to prevent
+damage to equipment.</li>
+<li><strong>Repairs</strong>: In most cases, repairing a node means that the node has
+to be powered off.</li>
+<li><strong>Crashes</strong>: Software bugs may crash a node. Having an OS
+independent way to power-cycle a node helps to recover the node
+without human intervention.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti will be extended with OOB capabilities through adding a new
+<strong>Cluster Parameter</strong> (<tt class="docutils literal"><span class="pre">--oob-program</span></tt>), a new <strong>Node Property</strong>
+(<tt class="docutils literal"><span class="pre">--oob-program</span></tt>), a new <strong>Node State (powered)</strong> and support in
+<tt class="docutils literal"><span class="pre">gnt-node</span></tt> for invoking an <strong>External Helper Command</strong> which executes
+the actual OOB command (<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">&lt;command&gt;</span> <span class="pre">nodename</span> <span class="pre">...</span></tt>). The
+supported commands are: <tt class="docutils literal"><span class="pre">power</span> <span class="pre">on</span></tt>, <tt class="docutils literal"><span class="pre">power</span> <span class="pre">off</span></tt>, <tt class="docutils literal"><span class="pre">power</span> <span class="pre">cycle</span></tt>,
+<tt class="docutils literal"><span class="pre">power</span> <span class="pre">status</span></tt> and <tt class="docutils literal"><span class="pre">health</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The new <strong>Node State (powered)</strong> is a <strong>State of Record</strong>
+(<a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a>), not a <strong>State of World</strong> (<a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a>).  The maximum
+execution time of the <strong>External Helper Command</strong> will be limited to
+60s to prevent the cluster from getting locked for an undefined amount
+of time.</p>
+</div>
+</div>
+<div class="section" id="detailed-design">
+<h2>Detailed Design<a class="headerlink" href="#detailed-design" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-gnt-cluster-parameter">
+<h3>New <tt class="docutils literal"><span class="pre">gnt-cluster</span></tt> Parameter<a class="headerlink" href="#new-gnt-cluster-parameter" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-cluster</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">modify|init</span></tt></div>
+<div class="line">Parameters: <tt class="docutils literal"><span class="pre">--oob-program</span></tt></div>
+<div class="line">Options: <tt class="docutils literal"><span class="pre">--oob-program</span></tt>: executable OOB program (absolute path)</div>
+</div>
+</div>
+<div class="section" id="new-gnt-cluster-epo-command">
+<h3>New <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">epo</span></tt> Command<a class="headerlink" href="#new-gnt-cluster-epo-command" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-cluster</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">epo</span></tt></div>
+<div class="line">Parameter: <tt class="docutils literal"><span class="pre">--on</span></tt> <tt class="docutils literal"><span class="pre">--force</span></tt> <tt class="docutils literal"><span class="pre">--groups</span></tt> <tt class="docutils literal"><span class="pre">--all</span></tt></div>
+<div class="line">Options: <tt class="docutils literal"><span class="pre">--on</span></tt>: By default epo turns off, with <tt class="docutils literal"><span class="pre">--on</span></tt> it tries to get the</div>
+<div class="line-block">
+<div class="line-block">
+<div class="line">cluster back online</div>
+</div>
+<div class="line"><tt class="docutils literal"><span class="pre">--force</span></tt>: To force the operation without asking for confirmation</div>
+<div class="line"><tt class="docutils literal"><span class="pre">--groups</span></tt>: To operate on groups instead of nodes</div>
+<div class="line"><tt class="docutils literal"><span class="pre">--all</span></tt>: To operate on the whole cluster</div>
+</div>
+</div>
+<p>This is a convenience command to allow easy emergency power off of a
+whole cluster or part of it. It takes care of all steps needed to get
+the cluster into a sane state to turn off the nodes.</p>
+<p>With <tt class="docutils literal"><span class="pre">--on</span></tt> it does the reverse and tries to bring the rest of the
+cluster back to life.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The master node is not able to shut itself cleanly down. Therefore,
+this command will not do all the work on single node clusters. On
+multi node clusters the command tries to find another master or if
+that is not possible prepares everything to the point where the user
+has to shutdown the master node itself alone this applies also to the
+single node cluster configuration.</p>
+</div>
+</div>
+<div class="section" id="new-gnt-node-property">
+<h3>New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> Property<a class="headerlink" href="#new-gnt-node-property" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">modify|add</span></tt></div>
+<div class="line">Parameters: <tt class="docutils literal"><span class="pre">--oob-program</span></tt></div>
+<div class="line">Options: <tt class="docutils literal"><span class="pre">--oob-program</span></tt>: executable OOB program (absolute path)</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is set to <tt class="docutils literal"><span class="pre">!</span></tt> then the node has no OOB
+capabilities.  Otherwise, we will inherit the node group respectively
+the cluster wide value. I.e. the nodes have to opt out from OOB
+capabilities.</p>
+</div>
+</div>
+<div class="section" id="addition-to-gnt-cluster-verify">
+<h3>Addition to <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt><a class="headerlink" href="#addition-to-gnt-cluster-verify" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-cluster</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">verify</span></tt></div>
+<div class="line">Parameter: None</div>
+<div class="line">Option: None</div>
+<div class="line">Additional Checks:</div>
+</div>
+<blockquote>
+<div><ol class="arabic simple">
+<li>existence and execution flag of OOB program on all Master
+Candidates if the cluster parameter <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is set or at
+least one node has the property <tt class="docutils literal"><span class="pre">--oob-program</span></tt> set. The OOB
+helper is just invoked on the master</li>
+<li>check if node state powered matches actual power state of the
+machine for those nodes where <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is set</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="new-node-state">
+<h3>New Node State<a class="headerlink" href="#new-node-state" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti supports the following two boolean states related to the nodes:</p>
+<dl class="docutils">
+<dt><strong>drained</strong></dt>
+<dd>The cluster still communicates with drained nodes but excludes them
+from allocation operations</dd>
+<dt><strong>offline</strong></dt>
+<dd>if offline, the cluster does not communicate with offline nodes;
+useful for nodes that are not reachable in order to avoid delays</dd>
+</dl>
+<p>And will extend this list with the following boolean state:</p>
+<dl class="docutils">
+<dt><strong>powered</strong></dt>
+<dd>if not powered, the cluster does not communicate with not powered
+nodes if the node property <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is not set, the state
+powered is not displayed</dd>
+</dl>
+<p>Additionally modify the meaning of the offline state as follows:</p>
+<dl class="docutils">
+<dt><strong>offline</strong></dt>
+<dd>if offline, the cluster does not communicate with offline nodes
+(<strong>with the exception of OOB commands for nodes where</strong>
+<tt class="docutils literal"><span class="pre">--oob-program</span></tt> <strong>is set</strong>); useful for nodes that are not reachable
+in order to avoid delays</dd>
+</dl>
+<p>The corresponding command extensions are:</p>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">info</span></tt></div>
+<div class="line">Parameter:  [ <tt class="docutils literal"><span class="pre">nodename</span></tt> ... ]</div>
+<div class="line">Option: None</div>
+</div>
+<p>Additional Output (<a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a>, ommited if node property
+<tt class="docutils literal"><span class="pre">--oob-program</span></tt> is not set):
+powered: <tt class="docutils literal"><span class="pre">[True|False]</span></tt></p>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">modify</span></tt></div>
+<div class="line">Parameter: nodename</div>
+<div class="line">Option: [ <tt class="docutils literal"><span class="pre">--powered=yes|no</span></tt> ]</div>
+<div class="line">Reasoning: sometimes you will need to sync the <a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a> with the <a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a> manually</div>
+<div class="line">Caveat: <tt class="docutils literal"><span class="pre">--powered</span></tt> can only be modified if <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is set for</div>
+<div class="line-block">
+<div class="line">the node in question</div>
+</div>
+</div>
+</div>
+<div class="section" id="new-gnt-node-commands-power-on-off-cycle-status">
+<h3>New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> commands: <tt class="docutils literal"><span class="pre">power</span> <span class="pre">[on|off|cycle|status]</span></tt><a class="headerlink" href="#new-gnt-node-commands-power-on-off-cycle-status" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">power</span> <span class="pre">[on|off|cycle|status]</span></tt></div>
+<div class="line">Parameters: [ <tt class="docutils literal"><span class="pre">nodename</span></tt> ... ]</div>
+<div class="line">Options: None</div>
+<div class="line">Caveats:</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li>If no nodenames are passed to <tt class="docutils literal"><span class="pre">power</span> <span class="pre">[on|off|cycle]</span></tt>, the user
+will be prompted with <tt class="docutils literal"><span class="pre">&quot;Do</span> <span class="pre">you</span> <span class="pre">really</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">power</span> <span class="pre">[on|off|cycle]</span>
+<span class="pre">the</span> <span class="pre">following</span> <span class="pre">nodes:</span> <span class="pre">&lt;display</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">OOB</span> <span class="pre">capable</span> <span class="pre">nodes</span> <span class="pre">in</span> <span class="pre">the</span>
+<span class="pre">cluster)?</span> <span class="pre">(y/n)&quot;</span></tt></li>
+<li>For <tt class="docutils literal"><span class="pre">power-status</span></tt>, nodename is optional, if omitted, we list the
+power-status of all OOB capable nodes in the cluster (<a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a>)</li>
+<li>User should be warned and needs to confirm with yes if s/he tries to
+<tt class="docutils literal"><span class="pre">power</span> <span class="pre">[off|cycle]</span></tt> a node with running instances.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="error-handling">
+<h4>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Exception</th>
+<th class="head">Error Message</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OOB program return code != 0</td>
+<td>OOB program execution failed ($ERROR_MSG)</td>
+</tr>
+<tr class="row-odd"><td>OOB program execution time
+exceeds 60s</td>
+<td>OOB program execution timeout exceeded, OOB
+program execution aborted</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="node-state-changes">
+<h4>Node State Changes<a class="headerlink" href="#node-state-changes" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="21%" />
+<col width="22%" />
+<col width="36%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">State before
+execution</th>
+<th class="head">Command</th>
+<th class="head">State after
+execution</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>powered: False</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">off</span></tt></td>
+<td>powered: False</td>
+<td>FYI: IPMI will complain
+if you try to power off
+a machine that is already
+powered off</td>
+</tr>
+<tr class="row-odd"><td>powered: False</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">cycle</span></tt></td>
+<td>powered: False</td>
+<td>FYI: IPMI will complain
+if you try to cycle a
+machine that is already
+powered off</td>
+</tr>
+<tr class="row-even"><td>powered: False</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">on</span></tt></td>
+<td>powered: True</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>powered: True</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">off</span></tt></td>
+<td>powered: False</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>powered: True</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">cycle</span></tt></td>
+<td>powered: True</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>powered: True</td>
+<td><tt class="docutils literal"><span class="pre">power</span> <span class="pre">on</span></tt></td>
+<td>powered: True</td>
+<td>FYI: IPMI will complain
+if you try to power on
+a machine that is already
+powered on</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>If the command fails, the Node State remains unchanged.</li>
+<li>We will not prevent the user from trying to power off a node that is
+already powered off since the powered state represents the
+<a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a> only and not the <a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a>. This can however create
+problems when the cluster administrator wants to bring the
+<a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a> in sync with the :term:SoW` without actually having to
+mess with the node(s). For this case, we allow direct modification
+of the powered state through the gnt-node modify
+<tt class="docutils literal"><span class="pre">--powered=[yes|no]</span></tt> command as long as the node has OOB
+capabilities (i.e. <tt class="docutils literal"><span class="pre">--oob-program</span></tt> is set).</li>
+<li>All node power state changes will be logged</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="node-power-status-listing-sow">
+<h3>Node Power Status Listing (<a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a>)<a class="headerlink" href="#node-power-status-listing-sow" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">power-status</span></tt></div>
+<div class="line">Parameters: [ <tt class="docutils literal"><span class="pre">nodename</span></tt> ... ]</div>
+</div>
+<p>Example output (represents <a class="reference internal" href="glossary.html#term-sow"><em class="xref std std-term">SoW</em></a>):</p>
+<div class="highlight-python"><pre>gnt-node oob power-status
+Node                      Power Status
+node1.example.com         on
+node2.example.com         off
+node3.example.com         on
+node4.example.com         unknown</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>We use <tt class="docutils literal"><span class="pre">unknown</span></tt> in case the Helper Program could not determine
+the power state.</li>
+<li>If no nodenames are provided, we will list the power state of all
+nodes which are not opted out from OOB management.</li>
+<li>Only nodes which are not opted out from OOB management will be
+listed.  Invoking the command on a node that does not meet this
+condition will result in an error message &#8220;Node X does not support
+OOB commands&#8221;.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="node-power-status-listing-sor">
+<h3>Node Power Status Listing (<a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a>)<a class="headerlink" href="#node-power-status-listing-sor" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">info</span></tt></div>
+<div class="line">Parameter:  [ <tt class="docutils literal"><span class="pre">nodename</span></tt> ... ]</div>
+<div class="line">Option: None</div>
+</div>
+<p>Example output (represents <a class="reference internal" href="glossary.html#term-sor"><em class="xref std std-term">SoR</em></a>):</p>
+<div class="highlight-python"><pre>gnt-node info node1.example.com
+Node name: node1.example.com
+  primary ip: 192.168.1.1
+  secondary ip: 192.168.2.1
+  master candidate: True
+  drained: False
+  offline: False
+  powered: True
+  primary for instances:
+    - inst1.example.com
+    - inst2.example.com
+    - inst3.example.com
+  secondary for instances:
+    - inst4.example.com
+    - inst5.example.com
+    - inst6.example.com
+    - inst7.example.com</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only nodes which are not opted out from OOB management will report the
+powered state.</p>
+</div>
+</div>
+<div class="section" id="new-gnt-node-oob-subcommand-health">
+<h3>New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> oob subcommand: <tt class="docutils literal"><span class="pre">health</span></tt><a class="headerlink" href="#new-gnt-node-oob-subcommand-health" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: <tt class="docutils literal"><span class="pre">gnt-node</span></tt></div>
+<div class="line">Command: <tt class="docutils literal"><span class="pre">health</span></tt></div>
+<div class="line">Parameters: [ <tt class="docutils literal"><span class="pre">nodename</span></tt> ... ]</div>
+<div class="line">Options: None</div>
+<div class="line">Example: <tt class="docutils literal"><span class="pre">/usr/bin/oob</span> <span class="pre">health</span> <span class="pre">node5.example.com</span></tt></div>
+</div>
+<p>Caveats:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If no nodename(s) are provided, we will report the health of all
+nodes in the cluster which have <tt class="docutils literal"><span class="pre">--oob-program</span></tt> set.</li>
+<li>Only nodes which are not opted out from OOB management will report
+their health. Invoking the command on a node that does not meet this
+condition will result in an error message &#8220;Node does not support OOB
+commands&#8221;.</li>
+</ul>
+</div></blockquote>
+<p>For error handling see <a class="reference internal" href="#error-handling">Error Handling</a></p>
+</div>
+<div class="section" id="oob-program-helper-program-parameters-return-codes-and-data-format">
+<h3>OOB Program (Helper Program) Parameters, Return Codes and Data Format<a class="headerlink" href="#oob-program-helper-program-parameters-return-codes-and-data-format" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Program: executable OOB program (absolute path)</div>
+<div class="line">Parameters: command nodename</div>
+<div class="line">Command: [power-{on|off|cycle|status}|health]</div>
+<div class="line">Options: None</div>
+<div class="line">Example: <tt class="docutils literal"><span class="pre">/usr/bin/oob</span> <span class="pre">power-on</span> <span class="pre">node1.example.com</span></tt></div>
+<div class="line">Caveat: maximum runtime is limited to 60s</div>
+</div>
+<div class="section" id="return-codes">
+<h4>Return Codes<a class="headerlink" href="#return-codes" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Return code</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>Command succeeded</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>Command failed</td>
+</tr>
+<tr class="row-even"><td>others</td>
+<td>Unsupported/undefined</td>
+</tr>
+</tbody>
+</table>
+<p>Error messages are passed from the helper program to Ganeti through
+<em class="manpage">stderr(3)</em> (return code == 1).  On <em class="manpage">stdout(3)</em>, the
+helper program will send data back to Ganeti (return code == 0). The
+format of the data is JSON.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Command</th>
+<th class="head">Expected output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">power-on</span></tt></td>
+<td>None</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">power-off</span></tt></td>
+<td>None</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">power-cycle</span></tt></td>
+<td>None</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">power-status</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">{</span> <span class="pre">&quot;powered&quot;:</span> <span class="pre">true|false</span> <span class="pre">}</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">health</span></tt></td>
+<td><div class="first last highlight-python"><pre>[[item, status],
+ [item, status],
+ ...]</pre>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="data-format">
+<h4>Data Format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h4>
+<p>For the health output, the fields are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>item</td>
+<td><p class="first">String identifier of the item we are querying the health of,
+examples:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>Ambient Temp</li>
+<li>PS Redundancy</li>
+<li>FAN 1 RPM</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td>status</td>
+<td><p class="first">String; Can take one of the following four values:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>OK</li>
+<li>WARNING</li>
+<li>CRITICAL</li>
+<li>UNKNOWN</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>The item output list is defined by the Helper Program. It is up to
+the author of the Helper Program to decide which items should be
+monitored and what each corresponding return status is.</li>
+<li>Ganeti will currently not take any actions based on the item
+status. It will however create log entries for items with status
+WARNING or CRITICAL for each run of the <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">oob</span> <span class="pre">health</span>
+<span class="pre">nodename</span></tt> command. Automatic actions (regular monitoring of the
+item status) is considered a new service and will be treated in a
+separate design document.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">power-[on|off]</span></tt> (power state changes) commands will
+create log entries following current Ganeti logging practices. In
+addition, health items with status WARNING or CRITICAL will be logged
+for each run of <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">health</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti Node OOB Management Framework</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#detailed-design">Detailed Design</a><ul>
+<li><a class="reference internal" href="#new-gnt-cluster-parameter">New <tt class="docutils literal"><span class="pre">gnt-cluster</span></tt> Parameter</a></li>
+<li><a class="reference internal" href="#new-gnt-cluster-epo-command">New <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">epo</span></tt> Command</a></li>
+<li><a class="reference internal" href="#new-gnt-node-property">New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> Property</a></li>
+<li><a class="reference internal" href="#addition-to-gnt-cluster-verify">Addition to <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt></a></li>
+<li><a class="reference internal" href="#new-node-state">New Node State</a></li>
+<li><a class="reference internal" href="#new-gnt-node-commands-power-on-off-cycle-status">New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> commands: <tt class="docutils literal"><span class="pre">power</span> <span class="pre">[on|off|cycle|status]</span></tt></a><ul>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#node-state-changes">Node State Changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-power-status-listing-sow">Node Power Status Listing (<tt class="docutils literal"><span class="pre">SoW</span></tt>)</a></li>
+<li><a class="reference internal" href="#node-power-status-listing-sor">Node Power Status Listing (<tt class="docutils literal"><span class="pre">SoR</span></tt>)</a></li>
+<li><a class="reference internal" href="#new-gnt-node-oob-subcommand-health">New <tt class="docutils literal"><span class="pre">gnt-node</span></tt> oob subcommand: <tt class="docutils literal"><span class="pre">health</span></tt></a></li>
+<li><a class="reference internal" href="#oob-program-helper-program-parameters-return-codes-and-data-format">OOB Program (Helper Program) Parameters, Return Codes and Data Format</a><ul>
+<li><a class="reference internal" href="#return-codes">Return Codes</a></li>
+<li><a class="reference internal" href="#data-format">Data Format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logging">Logging</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-node-security.html"
+                        title="previous chapter">Improvements of Node Security</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-openvswitch.html"
+                        title="next chapter">Support for Open vSwitch</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-oob.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-openvswitch.html" title="Support for Open vSwitch"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-node-security.html" title="Improvements of Node Security"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

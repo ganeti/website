@@ -1,0 +1,1163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Loader</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Loader.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Loader.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Loader</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Constants
+</A
+></DT
+><DT
+><A HREF="#2"
+>Types
+</A
+></DT
+><DT
+><A HREF="#3"
+>Functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generic data loader
+</P
+><P
+>This module holds the common code for parsing the input data after it
+has been loaded from external sources.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexTagsPrefix"
+>exTagsPrefix</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ARqType"
+>RqType</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AAllocate"
+>Allocate</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> Int</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ARelocate"
+>Relocate</A
+> <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> Int [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AEvacuate"
+>Evacuate</A
+> [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ARequest"
+>Request</A
+>  = <A HREF="#v%3ARequest"
+>Request</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3ARqType"
+>RqType</A
+> <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlookupNode"
+>lookupNode</A
+> :: Monad m =&gt; [(String, <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>)] -&gt; String -&gt; String -&gt; m <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlookupInstance"
+>lookupInstance</A
+> :: Monad m =&gt; [(String, <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>)] -&gt; String -&gt; m <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AassignIndices"
+>assignIndices</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a =&gt; [(String, a)] -&gt; (<A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+>, [(Int, a)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AassocEqual"
+>assocEqual</A
+> :: Eq a =&gt; (a, b) -&gt; (a, b) -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfixNodes"
+>fixNodes</A
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfilterExTags"
+>filterExTags</A
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AupdateMovable"
+>updateMovable</A
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlongestDomain"
+>longestDomain</A
+> :: [String] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AextractExTags"
+>extractExTags</A
+> :: [String] -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcommonSuffix"
+>commonSuffix</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmergeData"
+>mergeData</A
+> :: [(String, <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+>)] -&gt; [String] -&gt; [String] -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AAssocList"
+>AssocList</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AAssocList"
+>AssocList</A
+>, [String]) -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckData"
+>checkData</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; ([String], <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnodeImem"
+>nodeImem</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnodeIdsk"
+>nodeIdsk</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; Int</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Constants
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:exTagsPrefix"
+><A NAME="v%3AexTagsPrefix"
+></A
+></A
+><B
+>exTagsPrefix</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#exTagsPrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The exclusion tag prefix
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Types
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:RqType"
+><A NAME="t%3ARqType"
+></A
+></A
+><B
+>RqType</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#RqType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+><P
+>The iallocator request type.
+</P
+><P
+>This type denotes what request we got from Ganeti and also holds
+request-specific fields.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Allocate"
+><A NAME="v%3AAllocate"
+></A
+></A
+><B
+>Allocate</B
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> Int</TD
+><TD CLASS="rdoc"
+>A new instance allocation
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Relocate"
+><A NAME="v%3ARelocate"
+></A
+></A
+><B
+>Relocate</B
+> <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> Int [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+><TD CLASS="rdoc"
+>Move an instance to a new
+ secondary node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Evacuate"
+><A NAME="v%3AEvacuate"
+></A
+></A
+><B
+>Evacuate</B
+> [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+><TD CLASS="rdoc"
+>Evacuate nodes
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Request"
+><A NAME="t%3ARequest"
+></A
+></A
+><B
+>Request</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#Request"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>A complete request, as received from Ganeti.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Request"
+><A NAME="v%3ARequest"
+></A
+></A
+><B
+>Request</B
+> <A HREF="Ganeti-HTools-Loader.html#t%3ARqType"
+>RqType</A
+> <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:lookupNode"
+><A NAME="v%3AlookupNode"
+></A
+></A
+><B
+>lookupNode</B
+> :: Monad m =&gt; [(String, <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>)] -&gt; String -&gt; String -&gt; m <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#lookupNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Lookups a node into an assoc list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:lookupInstance"
+><A NAME="v%3AlookupInstance"
+></A
+></A
+><B
+>lookupInstance</B
+> :: Monad m =&gt; [(String, <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>)] -&gt; String -&gt; m <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#lookupInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Lookups an instance into an assoc list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:assignIndices"
+><A NAME="v%3AassignIndices"
+></A
+></A
+><B
+>assignIndices</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a =&gt; [(String, a)] -&gt; (<A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+>, [(Int, a)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#assignIndices"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Given a list of elements (and their names), assign indices to them.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:assocEqual"
+><A NAME="v%3AassocEqual"
+></A
+></A
+><B
+>assocEqual</B
+> :: Eq a =&gt; (a, b) -&gt; (a, b) -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#assocEqual"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Assoc element comparator
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fixNodes"
+><A NAME="v%3AfixNodes"
+></A
+></A
+><B
+>fixNodes</B
+> :: [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#fixNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>For each instance, add its index to its primary and secondary nodes.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:filterExTags"
+><A NAME="v%3AfilterExTags"
+></A
+></A
+><B
+>filterExTags</B
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#filterExTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Remove non-selected tags from the exclusion list
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:updateMovable"
+><A NAME="v%3AupdateMovable"
+></A
+></A
+><B
+>updateMovable</B
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#updateMovable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Update the movable attribute
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:longestDomain"
+><A NAME="v%3AlongestDomain"
+></A
+></A
+><B
+>longestDomain</B
+> :: [String] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#longestDomain"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the longest common suffix of a list of strings that
+ | starts with a dot.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:extractExTags"
+><A NAME="v%3AextractExTags"
+></A
+></A
+><B
+>extractExTags</B
+> :: [String] -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#extractExTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Extracts the exclusion tags from the cluster configuration
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:commonSuffix"
+><A NAME="v%3AcommonSuffix"
+></A
+></A
+><B
+>commonSuffix</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#commonSuffix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Extracts the common suffix from node/instance names
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:mergeData"
+><A NAME="v%3AmergeData"
+></A
+></A
+><B
+>mergeData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#mergeData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [(String, <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+>)]</TD
+><TD CLASS="rdoc"
+>Instance utilisation data
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [String]</TD
+><TD CLASS="rdoc"
+>Exclusion tags
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [String]</TD
+><TD CLASS="rdoc"
+>Untouchable instances
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AAssocList"
+>AssocList</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AAssocList"
+>AssocList</A
+>, [String])</TD
+><TD CLASS="rdoc"
+>Data from backends
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [String])</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Initializer function that loads the data from a node and instance
+ list and massages it into the correct format.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkData"
+><A NAME="v%3AcheckData"
+></A
+></A
+><B
+>checkData</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; ([String], <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#checkData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks the cluster data for consistency.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nodeImem"
+><A NAME="v%3AnodeImem"
+></A
+></A
+><B
+>nodeImem</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#nodeImem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the amount of memory used by primary instances on a node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nodeIdsk"
+><A NAME="v%3AnodeIdsk"
+></A
+></A
+><B
+>nodeIdsk</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Loader.html#nodeIdsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the amount of disk used by instances on a node (either primary
+ or secondary).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

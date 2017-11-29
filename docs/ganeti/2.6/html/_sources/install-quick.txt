@@ -1,0 +1,213 @@
+.. This file is automatically updated at build time from INSTALL.
+.. Do not edit.
+
+Ganeti quick installation guide
+===============================
+
+Please note that a more detailed installation procedure is described in
+the :doc:`install`. A glossary of terms can be found in the
+:doc:`glossary`.
+
+
+Software Requirements
+---------------------
+
+.. highlight:: shell-example
+
+Before installing, please verify that you have the following programs:
+
+- `Xen Hypervisor <http://www.xen.org/>`_, version 3.0 or above, if
+  running on Xen
+- `KVM Hypervisor <http://www.linux-kvm.org>`_, version 72 or above, if
+  running on KVM. In order to use advanced features, such as live
+  migration, virtio, etc, an even newer version is recommended (qemu-kvm
+  versions 0.11.X and above have shown good behavior).
+- `DRBD <http://www.drbd.org/>`_, kernel module and userspace utils,
+  version 8.0.7 or above; note that Ganeti doesn't yet support version 8.4
+- `RBD <http://ceph.newdream.net/>`_, kernel modules
+  (``rbd.ko``/``libceph.ko``) and userspace utils (``ceph-common``)
+- `LVM2 <http://sourceware.org/lvm2/>`_
+- `OpenSSH <http://www.openssh.com/portable.html>`_
+- `bridge utilities <http://www.linuxfoundation.org/en/Net:Bridge>`_
+- `iproute2 <http://www.linuxfoundation.org/en/Net:Iproute2>`_
+- `arping <http://www.skbuff.net/iputils/>`_ (part of iputils)
+- `ndisc6 <http://www.remlab.net/ndisc6/>`_ (if using IPv6)
+- `Python <http://www.python.org/>`_, version 2.4 or above, not 3.0
+- `Python OpenSSL bindings <http://pyopenssl.sourceforge.net/>`_
+- `simplejson Python module <http://code.google.com/p/simplejson/>`_
+- `pyparsing Python module <http://pyparsing.wikispaces.com/>`_, version
+  1.4.6 or above
+- `pyinotify Python module <http://trac.dbzteam.org/pyinotify/>`_
+- `PycURL Python module <http://pycurl.sourceforge.net/>`_
+- `ctypes Python module
+  <http://starship.python.net/crew/theller/ctypes/>`_, if running on
+  python 2.4 (optional, used for node daemon memory locking)
+- `socat <http://www.dest-unreach.org/socat/>`_, see :ref:`note
+  <socat-note>` below
+- `Paramiko <http://www.lag.net/paramiko/>`_, if you want automated SSH
+  setup; optional otherwise but manual setup of the nodes required
+- `affinity Python module <http://pypi.python.org/pypi/affinity/0.1.0>`_,
+  optional python package for supporting CPU pinning under KVM
+- `ElementTree Python module <http://effbot.org/zone/element-index.htm>`_,
+  if running python 2.4 (optional, used by the ``ovfconverter`` tool)
+- `qemu-img <http://qemu.org/>`_, if you want to use ``ovfconverter``
+- `fping <http://fping.sourceforge.net/>`_
+
+These programs are supplied as part of most Linux distributions, so
+usually they can be installed via the standard package manager. Also
+many of them will already be installed on a standard machine. On
+Debian/Ubuntu, you can use this command line to install all required
+packages, except for RBD, DRBD and Xen::
+
+  $ apt-get install lvm2 ssh bridge-utils iproute iputils-arping \
+                    ndisc6 python python-pyopenssl openssl \
+                    python-pyparsing python-simplejson \
+                    python-pyinotify python-pycurl socat \
+                    python-elementtree qemu
+
+On Fedora to install all required packages except RBD, DRBD and Xen::
+
+  $ yum install openssh openssh-clients bridge-utils iproute ndisc6 \
+                pyOpenSSL pyparsing python-simplejson python-inotify \
+                python-lxml python-paramiko socat qemu-img
+
+
+If you want to build from source, please see doc/devnotes.rst for more
+dependencies.
+
+.. _socat-note:
+.. note::
+  Ganeti's import/export functionality uses ``socat`` with OpenSSL for
+  transferring data between nodes. By default, OpenSSL 0.9.8 and above
+  employ transparent compression of all data using zlib if supported by
+  both sides of a connection. In cases where a lot of data is
+  transferred, this can lead to an increased CPU usage. Additionally,
+  Ganeti already compresses all data using ``gzip`` where it makes sense
+  (for inter-cluster instance moves).
+
+  To remedey this situation, patches implementing a new ``socat`` option
+  for disabling OpenSSL compression have been contributed and will
+  likely be included in the next feature release. Until then, users or
+  distributions need to apply the patches on their own.
+
+  Ganeti will use the option if it's detected by the ``configure``
+  script; auto-detection can be disabled by explicitly passing
+  ``--enable-socat-compress`` (use the option to disable compression) or
+  ``--disable-socat-compress`` (don't use the option).
+
+  The patches and more information can be found on
+  http://www.dest-unreach.org/socat/contrib/socat-opensslcompress.html.
+
+Haskell requirements
+~~~~~~~~~~~~~~~~~~~~
+
+If you want to enable the `htools` component, which is recommended on
+bigger deployments (this give you automatic instance placement, cluster
+balancing, etc.), then you need to have a Haskell compiler installed on
+your build machine (but this is not required on the machines which are
+just going to run Ganeti). More specifically:
+
+- `GHC <http://www.haskell.org/ghc/>`_ version 6.12 or higher
+- or even better, `The Haskell Platform
+  <http://hackage.haskell.org/platform/>`_ which gives you a simple way
+  to bootstrap Haskell
+- `json <http://hackage.haskell.org/package/json>`_, a JSON library
+- `network <http://hackage.haskell.org/package/network>`_, a basic
+  network library
+- `parallel <http://hackage.haskell.org/package/parallel>`_, a parallel
+  programming library (note: tested with up to version 3.x)
+- `curl <http://hackage.haskell.org/package/curl>`_, bindings for the
+  curl library, only needed if you want these tools to connect to remote
+  clusters (as opposed to the local one)
+
+All of these are also available as package in Debian/Ubuntu::
+
+  $ apt-get install ghc6 libghc6-json-dev libghc6-network-dev \
+                    libghc6-parallel-dev libghc6-curl-dev
+
+Or in Fedora running::
+
+  $ yum install ghc ghc-json-devel ghc-network-devel ghc-parallel-devel
+
+The most recent Fedora doesn't provide ``ghc-curl``. So this needs to be
+installed using ``cabal`` or alternatively htools can be build without
+curl support.
+
+Note that more recent version have switched to GHC 7.x and the packages
+were renamed::
+
+  $ apt-get install ghc libghc-json-dev libghc-network-dev \
+                    libghc-parallel-dev libghc-curl-dev
+
+If using a distribution which does not provide them, the first install
+the Haskell platform and then install the additional libraries via
+``cabal``::
+
+  $ cabal install json network parallel curl
+
+The compilation of the htools components is automatically enabled when
+the compiler and the requisite libraries are found. You can use the
+``--enable-htools`` configure flag to force the selection (at which
+point ``./configure`` will fail if it doesn't find the prerequisites).
+
+In Ganeti version 2.6, one of the daemons (``ganeti-confd``) is shipped
+in two versions: the Python default version (which has no extra
+dependencies), and an experimental Haskell version. This latter version
+can be enabled via the ``./configure`` flag ``--enable-confd=haskell``
+and a few has extra dependencies:
+
+- `hslogger <http://software.complete.org/hslogger>`_, version 1.1 and
+  above (note that Debian Squeeze only has version 1.0.9)
+- `Crypto <http://hackage.haskell.org/package/Crypto>`_, tested with
+  version 4.2.4
+- `text <http://hackage.haskell.org/package/text>`_
+- ``bytestring``, which usually comes with the compiler
+- `hinotify <http://hackage.haskell.org/package/hinotify>`_
+
+These libraries are available in Debian Wheezy (but not in Squeeze), so
+you can use either apt::
+
+  $ apt-get install libghc-hslogger-dev libghc-crypto-dev libghc-text-dev \
+                    libghc-hinotify-dev
+
+or ``cabal``::
+
+  $ cabal install hslogger Crypto text hinotify
+
+to install them.
+
+Installation of the software
+----------------------------
+
+To install, simply run the following command::
+
+  $ ./configure --localstatedir=/var --sysconfdir=/etc && \
+    make && \
+    make install
+
+This will install the software under ``/usr/local``. You then need to
+copy ``doc/examples/ganeti.initd`` to ``/etc/init.d/ganeti`` and
+integrate it into your boot sequence (``chkconfig``, ``update-rc.d``,
+etc.).
+
+
+Cluster initialisation
+----------------------
+
+Before initialising the cluster, on each node you need to create the
+following directories:
+
+- ``/etc/ganeti``
+- ``/var/lib/ganeti``
+- ``/var/log/ganeti``
+- ``/srv/ganeti``
+- ``/srv/ganeti/os``
+- ``/srv/ganeti/export``
+
+After this, use ``gnt-cluster init``.
+
+.. vim: set textwidth=72 syntax=rst :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:

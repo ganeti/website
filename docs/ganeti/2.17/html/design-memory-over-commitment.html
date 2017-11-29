@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Memory Over Commitment &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Migration speed accounting in Hbal" href="design-migration-speed-hbal.html" />
+    <link rel="prev" title="Submitting jobs from logical units" href="design-lu-generated-jobs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-migration-speed-hbal.html" title="Migration speed accounting in Hbal"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-lu-generated-jobs.html" title="Submitting jobs from logical units"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="memory-over-commitment">
+<h1><a class="toc-backref" href="#id1">Memory Over Commitment</a><a class="headerlink" href="#memory-over-commitment" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#memory-over-commitment" id="id1">Memory Over Commitment</a><ul>
+<li><a class="reference internal" href="#background" id="id2">Background</a><ul>
+<li><a class="reference internal" href="#overview-over-the-current-memory-model" id="id3">Overview over the current memory model</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id4">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id5">Proposed changes</a><ul>
+<li><a class="reference internal" href="#extension-of-the-policy-by-a-new-parameter" id="id6">Extension of the policy by a new parameter</a></li>
+<li><a class="reference internal" href="#changes-to-the-memory-reporting-on-non-xen-hvm-and-xen-pvm" id="id7">Changes to the memory reporting on non <tt class="docutils literal"><span class="pre">xen-hvm</span></tt> and <tt class="docutils literal"><span class="pre">xen-pvm</span></tt></a></li>
+<li><a class="reference internal" href="#changes-to-the-memory-policy" id="id8">Changes to the memory policy</a></li>
+<li><a class="reference internal" href="#changes-to-cluster-verify" id="id9">Changes to cluster verify</a></li>
+<li><a class="reference internal" href="#changes-to-htools" id="id10">Changes to <tt class="docutils literal"><span class="pre">htools</span></tt></a></li>
+<li><a class="reference internal" href="#balancing" id="id11">Balancing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This document describes the proposed changes to support memory
+overcommitment in Ganeti.</p>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id2">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Memory is a non-preemptable resource, and thus cannot be shared, e.g.,
+in a round-robin fashion. Therefore, Ganeti is very careful to make
+sure there is always enough physical memory for the memory promised
+to the instances. In fact, even in an N+1 redundant way: should one
+node fail, its instances can be relocated to other nodes while still
+having enough physical memory for the memory promised to all instances.</p>
+<div class="section" id="overview-over-the-current-memory-model">
+<h3><a class="toc-backref" href="#id3">Overview over the current memory model</a><a class="headerlink" href="#overview-over-the-current-memory-model" title="Permalink to this headline">¶</a></h3>
+<p>To make decisions, <tt class="docutils literal"><span class="pre">htools</span></tt> query the following parameters from Ganeti.</p>
+<ul>
+<li><p class="first">The amount of memory used by each instance. This is the state-of-record
+backend parameter <tt class="docutils literal"><span class="pre">maxmem</span></tt> for that instance (maybe inherited from
+group-level or cluster-level backend paramters). It tells the hypervisor
+the maximal amount of memory that instance may use.</p>
+</li>
+<li><p class="first">The state-of-world parameters for the node memory. They are collected
+live and are hypervisor specific. The following parameters are collected.</p>
+<ul class="simple">
+<li>memory_total: the total memory size on the node</li>
+<li>memory_free: the available memory on the node for instances</li>
+<li>memory_dom0: the memory used by the node itself, if available</li>
+</ul>
+<p>For Xen, the amount of total and free memory are obtained by parsing
+the output of Xen <tt class="docutils literal"><span class="pre">info</span></tt> command (e.g., <tt class="docutils literal"><span class="pre">xm</span> <span class="pre">info</span></tt>). The dom0
+memory is obtained by looking in the output of the <tt class="docutils literal"><span class="pre">list</span></tt> command
+for <tt class="docutils literal"><span class="pre">Domain-0</span></tt>.</p>
+<p>For the <tt class="docutils literal"><span class="pre">kvm</span></tt> hypervisor, all these paramters are obtained by
+reading <tt class="docutils literal"><span class="pre">/proc/memstate</span></tt>, where the entries <tt class="docutils literal"><span class="pre">MemTotal</span></tt> and
+<tt class="docutils literal"><span class="pre">Active</span></tt> are considered the values for <tt class="docutils literal"><span class="pre">memory_total</span></tt> and
+<tt class="docutils literal"><span class="pre">memory_dom0</span></tt>, respectively. The value for <tt class="docutils literal"><span class="pre">memory_free</span></tt> is
+taken as the sum of the entries <tt class="docutils literal"><span class="pre">MemFree</span></tt>, <tt class="docutils literal"><span class="pre">Buffers</span></tt>, and <tt class="docutils literal"><span class="pre">Cached</span></tt>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id4">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>While the current model of never over committing memory serves well
+to provide reliability guarantees to instances, it does not suit well
+situations were the actual use of memory in the instances is spiky. Consider
+a scenario where instances only touch a small portion of their memory most
+of the time, but occasionally use a large amount of memory. Then, at any moment,
+a large fraction of the memory used for the instances sits around without
+being actively used. By swapping out the not actively used memory, resources
+can be used more efficiently.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id5">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to support over commitment of memory if desired by the
+administrator. Memory will change from being a hard constraint to
+being a question of policy. The default will be not to over commit
+memory.</p>
+<div class="section" id="extension-of-the-policy-by-a-new-parameter">
+<h3><a class="toc-backref" href="#id6">Extension of the policy by a new parameter</a><a class="headerlink" href="#extension-of-the-policy-by-a-new-parameter" title="Permalink to this headline">¶</a></h3>
+<p>The instance policy is extended by a new real-number field <tt class="docutils literal"><span class="pre">memory-ratio</span></tt>.
+Policies on groups inherit this parameter from the cluster wide policy in the
+same way as all other parameters of the instance policy.</p>
+<p>When a cluster is upgraded from an earlier version not containing
+<tt class="docutils literal"><span class="pre">memory-ratio</span></tt>, the value <tt class="docutils literal"><span class="pre">1.0</span></tt> is inserted for this new field in
+the cluster-level <tt class="docutils literal"><span class="pre">ipolicy</span></tt>; in this way, the status quo of not over
+committing memory is preserved via upgrades. The <tt class="docutils literal"><span class="pre">gnt-cluster</span>
+<span class="pre">modify</span></tt> and <tt class="docutils literal"><span class="pre">gnt-group</span> <span class="pre">modify</span></tt> commands are extended to allow
+setting of the <tt class="docutils literal"><span class="pre">memory-ratio</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">htools</span></tt> text format is extended to also contain this new
+ipolicy parameter. It is added as an optional entry at the end of the
+parameter list of an ipolicy line, to remain backwards compatible.
+If the paramter is missing, the value <tt class="docutils literal"><span class="pre">1.0</span></tt> is assumed.</p>
+</div>
+<div class="section" id="changes-to-the-memory-reporting-on-non-xen-hvm-and-xen-pvm">
+<h3><a class="toc-backref" href="#id7">Changes to the memory reporting on non <tt class="docutils literal"><span class="pre">xen-hvm</span></tt> and <tt class="docutils literal"><span class="pre">xen-pvm</span></tt></a><a class="headerlink" href="#changes-to-the-memory-reporting-on-non-xen-hvm-and-xen-pvm" title="Permalink to this headline">¶</a></h3>
+<p>For all hypervisors <tt class="docutils literal"><span class="pre">memory_dom0</span></tt> corresponds to the amount of memory used
+by Ganeti itself and all other non-hypervisor processes running on this node.
+The amount of memory currently reported for <tt class="docutils literal"><span class="pre">memory_dom0</span></tt> on hypervisors
+other than <tt class="docutils literal"><span class="pre">xen-hvm</span></tt> and <tt class="docutils literal"><span class="pre">xen-pvm</span></tt>, however, includes the amount of active
+memory of the hypervisor processes. This is in conflict with the underlying
+assumption <tt class="docutils literal"><span class="pre">memory_dom0</span></tt> memory is not available for instance.</p>
+<p>Therefore, for hypervisors other than <tt class="docutils literal"><span class="pre">xen-pvm</span></tt> and <tt class="docutils literal"><span class="pre">xen-hvm</span></tt> we will use
+a new state-of-recored hypervisor paramter called <tt class="docutils literal"><span class="pre">mem_node</span></tt> in htools
+instead of the reported <tt class="docutils literal"><span class="pre">memory_dom0</span></tt>. As a hypervisor state parameter, it is
+run-time tunable and inheritable at group and cluster levels. If this paramter
+is not present, a default value of <tt class="docutils literal"><span class="pre">1024M</span></tt> will be used, which is a
+conservative estimate of the amount of memory used by Ganeti on a medium-sized
+cluster. The reason for using a state-of-record value is to have a stable
+amount of reserved memory, irrespective of the current activity of Ganeti.</p>
+<p>Currently, hypervisor state parameters are partly implemented but not used
+by ganeti.</p>
+</div>
+<div class="section" id="changes-to-the-memory-policy">
+<h3><a class="toc-backref" href="#id8">Changes to the memory policy</a><a class="headerlink" href="#changes-to-the-memory-policy" title="Permalink to this headline">¶</a></h3>
+<p>The memory policy will be changed in that we assume that one byte
+of physical node memory can hold <tt class="docutils literal"><span class="pre">memory-ratio</span></tt> bytes of instance
+memory, but still only one byte of Ganeti memory. Of course, in practise
+this has to be backed by swap space; it is the administrator&#8217;s responsibility
+to ensure that each node has swap of at
+least <tt class="docutils literal"><span class="pre">(memory-ratio</span> <span class="pre">-</span> <span class="pre">1.0)</span> <span class="pre">*</span> <span class="pre">(memory_total</span> <span class="pre">-</span> <span class="pre">memory_dom0)</span></tt>. Ganeti
+will warn if the amount of swap space is not big enough.</p>
+<p>The new memory policy will be as follows.</p>
+<ul class="simple">
+<li>The difference between the total memory of a node and its dom0
+memory will be considered the amount of <em>available memory</em>.</li>
+<li>The amount of <em>used memory</em> will be (as is now) the sum of
+the memory of all instance and the reserved memory.</li>
+<li>The <em>relative memory usage</em> is the fraction of used and available
+memory. Note that the relative usage can be bigger than <tt class="docutils literal"><span class="pre">1.0</span></tt>.</li>
+<li>The memory-related constraint for instance placement is that
+afterwards the relative memory usage be at most the
+memory-ratio. Again, if the ratio of the memory of the real
+instances on the node to available memory is bigger than the
+memory-ratio this is considered a hard violation, otherwise
+it is considered a soft violation.</li>
+<li>The definition of N+1 redundancy (including
+<a class="reference internal" href="design-shared-storage-redundancy.html"><em>N+1 redundancy for shared storage</em></a>) is kept literally as is.
+Note, however, that the meaning does change, as the definition depends
+on the notion of allowed moves, which is changed by this proposal.</li>
+</ul>
+</div>
+<div class="section" id="changes-to-cluster-verify">
+<h3><a class="toc-backref" href="#id9">Changes to cluster verify</a><a class="headerlink" href="#changes-to-cluster-verify" title="Permalink to this headline">¶</a></h3>
+<p>The only place where the Ganeti core handles memory is
+when <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> verifies N+1 redundancy. This code will be changed
+to follow the new memory model.</p>
+<p>Additionally, <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> will warn if the sum of available memory
+and swap space is not at least as big as the used memory.</p>
+</div>
+<div class="section" id="changes-to-htools">
+<h3><a class="toc-backref" href="#id10">Changes to <tt class="docutils literal"><span class="pre">htools</span></tt></a><a class="headerlink" href="#changes-to-htools" title="Permalink to this headline">¶</a></h3>
+<p>The underlying model of the cluster will be changed in accordance with
+the suggested change of the memory policy. As all higher-level <tt class="docutils literal"><span class="pre">htools</span></tt>
+operations go through only the primitives of adding/moving an instance
+if possible, and inspecting the cluster metrics, changing the base
+model will make all <tt class="docutils literal"><span class="pre">htools</span></tt> compliant with the new memory model.</p>
+</div>
+<div class="section" id="balancing">
+<h3><a class="toc-backref" href="#id11">Balancing</a><a class="headerlink" href="#balancing" title="Permalink to this headline">¶</a></h3>
+<p>The cluster metric components will not be changed. Note the standard
+deviation of relative memory usage is already one of the components.
+For dynamic (load-based) balancing, the amount of not immediately
+discardable memory will serve as an indication of memory activity;
+as usual, the measure will be the standard deviation of the relative
+value (i.e., the ratio of non-discardable memory to available
+memory). The weighting for this metric component will have to be
+determined by experimentation and will depend on the memory ratio;
+for a memory ratio of <tt class="docutils literal"><span class="pre">1.0</span></tt> the weight will be <tt class="docutils literal"><span class="pre">0.0</span></tt>, as memory
+need not be taken into account if no over-commitment is in place.
+For memory ratios bigger than <tt class="docutils literal"><span class="pre">1.0</span></tt>, the weight will be positive
+and grow with the ratio.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Memory Over Commitment</a><ul>
+<li><a class="reference internal" href="#background">Background</a><ul>
+<li><a class="reference internal" href="#overview-over-the-current-memory-model">Overview over the current memory model</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#extension-of-the-policy-by-a-new-parameter">Extension of the policy by a new parameter</a></li>
+<li><a class="reference internal" href="#changes-to-the-memory-reporting-on-non-xen-hvm-and-xen-pvm">Changes to the memory reporting on non <tt class="docutils literal"><span class="pre">xen-hvm</span></tt> and <tt class="docutils literal"><span class="pre">xen-pvm</span></tt></a></li>
+<li><a class="reference internal" href="#changes-to-the-memory-policy">Changes to the memory policy</a></li>
+<li><a class="reference internal" href="#changes-to-cluster-verify">Changes to cluster verify</a></li>
+<li><a class="reference internal" href="#changes-to-htools">Changes to <tt class="docutils literal"><span class="pre">htools</span></tt></a></li>
+<li><a class="reference internal" href="#balancing">Balancing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-lu-generated-jobs.html"
+                        title="previous chapter">Submitting jobs from logical units</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-migration-speed-hbal.html"
+                        title="next chapter">Migration speed accounting in Hbal</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-memory-over-commitment.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-migration-speed-hbal.html" title="Migration speed accounting in Hbal"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-lu-generated-jobs.html" title="Submitting jobs from logical units"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

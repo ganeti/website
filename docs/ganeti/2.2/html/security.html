@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Security in Ganeti &mdash; Ganeti v2.2.2 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.2.2 documentation" href="index.html" />
+    <link rel="next" title="Ganeti 2.0 design" href="design-2.0.html" />
+    <link rel="prev" title="Ganeti walk-through" href="walkthrough.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.0.html" title="Ganeti 2.0 design"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="walkthrough.html" title="Ganeti walk-through"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.2.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="security-in-ganeti">
+<h1>Security in Ganeti<a class="headerlink" href="#security-in-ganeti" title="Permalink to this headline">¶</a></h1>
+<p>Ganeti was developed to run on internal, trusted systems. As such, the
+security model is all-or-nothing.</p>
+<p>All the Ganeti code runs as root, because all the operations that Ganeti
+is doing require privileges: creating logical volumes, drbd devices,
+starting instances, etc. Running as root does not mean setuid, but that
+you need to be root to run the cluster commands.</p>
+<div class="section" id="host-issues">
+<h2>Host issues<a class="headerlink" href="#host-issues" title="Permalink to this headline">¶</a></h2>
+<p>For a host on which the Ganeti software has been installed, but not
+joined to a cluster, there are no changes to the system.</p>
+<p>For a host that has been joined to the cluster, there are very important
+changes:</p>
+<ul class="simple">
+<li>The host will have its SSH host key replaced with the one of the
+cluster (which is the one the initial node had at the cluster
+creation)</li>
+<li>A new public key will be added to root&#8217;s authorized_keys file,
+granting root access to all nodes of the cluster. The private part of
+the key is also distributed to all nodes. Old files are renamed.</li>
+<li>Communication between nodes is encrypted using SSL/TLS. A common key
+and certificate combo is shared between all nodes of the cluster.  At
+this time, no CA is used.</li>
+<li>The Ganeti node daemon will accept RPC requests from any host within
+the cluster with the correct certificate, and the operations it will
+do as a result of these requests are:<ul>
+<li>running commands under the /etc/ganeti/hooks directory</li>
+<li>creating DRBD disks between it and the IP it has been told</li>
+<li>overwrite a defined list of files on the host</li>
+</ul>
+</li>
+</ul>
+<p>As you can see, as soon as a node is joined, it becomes equal to all
+other nodes in the cluster, and the security of the cluster is
+determined by the weakest node.</p>
+<p>Note that only the SSH key will allow other machines to run random
+commands on this node; the RPC method will run only:</p>
+<ul class="simple">
+<li>well defined commands to create, remove, activate logical volumes,
+drbd devices, start/stop instances, etc;</li>
+<li>run SSH commands on other nodes in the cluster, again well-defined</li>
+<li>scripts under the /etc/ganeti/hooks directory</li>
+</ul>
+<p>It is therefore important to make sure that the contents of the
+/etc/ganeti/hooks directory is supervised and only trusted sources can
+populate it.</p>
+</div>
+<div class="section" id="cluster-issues">
+<h2>Cluster issues<a class="headerlink" href="#cluster-issues" title="Permalink to this headline">¶</a></h2>
+<p>As told above, there are multiple ways of communication between cluster
+nodes:</p>
+<ul class="simple">
+<li>SSH-based, for high-volume traffic like image dumps or for low-level
+command, e.g. restarting the Ganeti node daemon</li>
+<li>RPC communication between master and nodes</li>
+<li>DRBD real-time disk replication traffic</li>
+</ul>
+<p>The SSH traffic is protected (after the initial login to a new node) by
+the cluster-wide shared SSH key.</p>
+<p>RPC communication between the master and nodes is protected using
+SSL/TLS encryption. Both the client and the server must have the
+cluster-wide shared SSL/TLS certificate and verify it when establishing
+the connection by comparing fingerprints. We decided not to use a CA to
+simplify the key handling.</p>
+<p>The DRBD traffic is not protected by encryption, as DRBD does not
+support this. It&#8217;s therefore recommended to implement host-level
+firewalling or to use a separate range of IP addresses for the DRBD
+traffic (this is supported in Ganeti) which is not routed outside the
+cluster. DRBD connections are protected from connecting due to bugs to
+other machines, and from accepting connections from other machines, by
+using a shared secret, exchanged via RPC requests from the master to the
+nodes when configuring the device.</p>
+</div>
+<div class="section" id="master-daemon">
+<h2>Master daemon<a class="headerlink" href="#master-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The command-line tools to master daemon communication is done via an
+UNIX socket, whose permissions are reset to <tt class="docutils literal"><span class="pre">0600</span></tt> after listening but
+before serving requests. This permission-based protection is documented
+and works on Linux, but is not-portable; however, Ganeti doesn&#8217;t work on
+non-Linux system at the moment.</p>
+</div>
+<div class="section" id="remote-api">
+<h2>Remote API<a class="headerlink" href="#remote-api" title="Permalink to this headline">¶</a></h2>
+<p>Starting with Ganeti 2.0, Remote API traffic is encrypted using SSL/TLS
+by default. It supports Basic authentication as per <span class="target" id="index-6"></span><a class="reference external" href="http://tools.ietf.org/html/rfc2617.html"><strong>RFC 2617</strong></a>.</p>
+<p>Paths for certificate, private key and CA files required for SSL/TLS
+will be set at source configure time. Symlinks or command line
+parameters may be used to use different files.</p>
+</div>
+<div class="section" id="inter-cluster-instance-moves">
+<h2>Inter-cluster instance moves<a class="headerlink" href="#inter-cluster-instance-moves" title="Permalink to this headline">¶</a></h2>
+<p>To move instances between clusters, different clusters must be able to
+communicate with each other over a secure channel. Up to and including
+Ganeti 2.1, clusters were self-contained entities and had no knowledge
+of other clusters. With Ganeti 2.2, clusters can exchange data if tokens
+(an encryption certificate) was exchanged by a trusted third party
+before.</p>
+</div>
+<div class="section" id="kvm-security">
+<h2>KVM Security<a class="headerlink" href="#kvm-security" title="Permalink to this headline">¶</a></h2>
+<p>When running KVM instances under Ganeti three security models ara
+available: &#8216;none&#8217;, &#8216;user&#8217; and &#8216;pool&#8217;.</p>
+<p>Under security model &#8216;none&#8217; instances run by default as root. This means
+that, if an instance gets jail broken, it will be able to own the host
+node, and thus the ganeti cluster. This is the default model, and the
+only one available before Ganeti 2.1.2.</p>
+<p>Under security model &#8216;user&#8217; an instance is run as the user specified by
+the hypervisor parameter &#8216;security_domain&#8217;. This makes it easy to run
+all instances as non privileged users, and allows to manually allocate
+specific users to specific instances or sets of instances. If the
+specified user doesn&#8217;t have permissions a jail broken instance will need
+some local privilege escalation before being able to take over the node
+and the cluster. It&#8217;s possible though for a jail broken instance to
+affect other ones running under the same user.</p>
+<p>Under security model &#8216;pool&#8217; a global cluster-level uid pool is used to
+start each instance on the same node under a different user. The uids in
+the cluster pool can be set with <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt> and <tt class="docutils literal"><span class="pre">gnt-cluster</span>
+<span class="pre">modify</span></tt>, and must correspond to existing users on all nodes. Ganeti
+will then allocate one to each instance, as needed. This way a jail
+broken instance won&#8217;t be able to affect any other. Since the users are
+handed out by ganeti in a per-node randomized way, in this mode there is
+no way to make sure a particular instance is always run as a certain
+user. Use mode &#8216;user&#8217; for that.</p>
+<p>In addition to these precautions, if you want to avoid instances sending
+traffic on your node network, you can use an iptables rule such as:</p>
+<div class="highlight-python"><pre>iptables -A OUTPUT -m owner --uid-owner &lt;uid&gt;[-&lt;uid&gt;] -j LOG \
+  --log-prefix "ganeti uid pool user network traffic"
+iptables -A OUTPUT -m owner --uid-owner &lt;uid&gt;[-&lt;uid&gt;] -j DROP</pre>
+</div>
+<p>This won&#8217;t affect regular instance traffic (that comes out of the tapX
+allocated to the instance, and can be filtered or subject to appropriate
+policy routes) but will stop any user generated traffic that might come
+from a jailbroken instance.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Security in Ganeti</a><ul>
+<li><a class="reference external" href="#host-issues">Host issues</a></li>
+<li><a class="reference external" href="#cluster-issues">Cluster issues</a></li>
+<li><a class="reference external" href="#master-daemon">Master daemon</a></li>
+<li><a class="reference external" href="#remote-api">Remote API</a></li>
+<li><a class="reference external" href="#inter-cluster-instance-moves">Inter-cluster instance moves</a></li>
+<li><a class="reference external" href="#kvm-security">KVM Security</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="walkthrough.html"
+                                  title="previous chapter">Ganeti walk-through</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="design-2.0.html"
+                                  title="next chapter">Ganeti 2.0 design</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/security.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.0.html" title="Ganeti 2.0 design"
+             >next</a></li>
+        <li class="right" >
+          <a href="walkthrough.html" title="Ganeti walk-through"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.2.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, 2010, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.7.
+    </div>
+  </body>
+</html>

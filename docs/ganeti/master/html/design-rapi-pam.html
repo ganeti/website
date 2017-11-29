@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RAPI authentication and authorization using PAM &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti reason trail" href="design-reason-trail.html" />
+    <link rel="prev" title="Splitting the query and job execution paths" href="design-query-splitting.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-reason-trail.html" title="Ganeti reason trail"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-query-splitting.html" title="Splitting the query and job execution paths"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rapi-authentication-and-authorization-using-pam">
+<h1><a class="toc-backref" href="#id2">RAPI authentication and authorization using PAM</a><a class="headerlink" href="#rapi-authentication-and-authorization-using-pam" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#rapi-authentication-and-authorization-using-pam" id="id2">RAPI authentication and authorization using PAM</a><ul>
+<li><a class="reference internal" href="#current-state" id="id3">Current State</a></li>
+<li><a class="reference internal" href="#motivation" id="id4">Motivation</a></li>
+<li><a class="reference internal" href="#proposed-implementation" id="id5">Proposed Implementation</a><ul>
+<li><a class="reference internal" href="#authentication-specific-details" id="id6">Authentication Specific Details</a></li>
+<li><a class="reference internal" href="#authorization-specific-details" id="id7">Authorization Specific Details</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#one-more-time-about-the-goals" id="id8">One More Time About the Goals</a><ul>
+<li><a class="reference internal" href="#support-for-different-authentication-methods" id="id9">Support for Different Authentication Methods</a></li>
+<li><a class="reference internal" href="#granular-access-to-different-command-subsets" id="id10">Granular Access to Different Command Subsets</a></li>
+<li><a class="reference internal" href="#granular-access-to-different-target-instances" id="id11">Granular Access to Different Target Instances</a></li>
+<li><a class="reference internal" href="#switching-between-the-old-and-the-new-implementations" id="id12">Switching Between the Old and the New Implementations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-changes" id="id13">Other Changes</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This design document describes a way of <a class="reference internal" href="rapi.html"><em>Ganeti remote API</em></a> authentication
+and authorization refactoring by using the pluggable authentication
+modules (PAM).</p>
+<div class="section" id="current-state">
+<h2><a class="toc-backref" href="#id3">Current State</a><a class="headerlink" href="#current-state" title="Permalink to this headline">¶</a></h2>
+<p>Currently <a class="reference internal" href="rapi.html"><em>Ganeti remote API</em></a> supports authentication using <em>basic auth</em> over
+https protocol. The users are stored in a file (usually
+<tt class="docutils literal"><span class="pre">/var/lib/ganeti/rapi/users</span></tt>) and have either read or write rights.
+Please read <a class="reference internal" href="rapi.html#rapi-users"><em>Users and passwords</em></a> for more details.</p>
+</div>
+<div class="section" id="motivation">
+<span id="id1"></span><h2><a class="toc-backref" href="#id4">Motivation</a><a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
+<p>During GanetiCon 2015 the following features were requested by the
+community:</p>
+<ul class="simple">
+<li>Support for different authentication methods;</li>
+<li>Granular access to different RAPI command subsets;</li>
+<li>Granular access to different target instances.</li>
+</ul>
+<p>The last two statements may be desired when an administrator wants to
+provide some restricted cluster or instance management rights for users.</p>
+</div>
+<div class="section" id="proposed-implementation">
+<h2><a class="toc-backref" href="#id5">Proposed Implementation</a><a class="headerlink" href="#proposed-implementation" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti RAPI will use PAM for <em>authentication</em> and <em>account</em>
+(authorization) purposes. <tt class="docutils literal"><span class="pre">ganeti-basic</span></tt> PAM module performing
+<em>authentication</em> and <em>account</em> based on the contents of
+<tt class="docutils literal"><span class="pre">ganeti/rapi/users</span></tt> file will be distributed with Ganeti. Ganeti rapi
+will interact with PAM using <tt class="docutils literal"><span class="pre">ganeti-rapi</span></tt> service name. The default
+configuration for <tt class="docutils literal"><span class="pre">ganeti-rapi</span></tt> PAM service will just use
+<tt class="docutils literal"><span class="pre">ganeti-basic</span></tt> module.</p>
+<p>A good documentation on client-server PAM model is available
+at <a class="reference external" href="http://www.linux-pam.org/pre/doc/current-draft.txt">http://www.linux-pam.org/pre/doc/current-draft.txt</a>.</p>
+<div class="section" id="authentication-specific-details">
+<h3><a class="toc-backref" href="#id6">Authentication Specific Details</a><a class="headerlink" href="#authentication-specific-details" title="Permalink to this headline">¶</a></h3>
+<p>In case of <em>basic auth</em> over http, the username and password will
+be extracted as they are presented in the
+<a class="reference internal" href="rapi.html#basic-protocol"><em>standard form</em></a>. Note, that independent from
+authentication method, all interactions will be performed via https
+protocol.</p>
+<p>In case of another authentication method, additional user&#8217;s credintials
+(e.g. request signature) should be provided in
+<tt class="docutils literal"><span class="pre">Ganeti-RAPI-Credential</span></tt> field. The field should be encoded using
+base64 algorithm as for the <em>basic auth</em> over http.</p>
+<p>Ganeti will copy the username to <tt class="docutils literal"><span class="pre">PAM_USER</span></tt> field of a <tt class="docutils literal"><span class="pre">pam_handler</span></tt>
+and the contents of <tt class="docutils literal"><span class="pre">Ganeti-RAPI-Credential</span></tt> http header fielf to
+<tt class="docutils literal"><span class="pre">PAM_AUTHTOK</span></tt> field of a <tt class="docutils literal"><span class="pre">pam_handler</span></tt>.</p>
+<p>User&#8217;s password will be send as a reply to each request made by
+<em>conversation function</em> with <tt class="docutils literal"><span class="pre">PAM_PROMPT_ECHO_OFF</span></tt> message constant.
+Other requests will be just ignored.</p>
+</div>
+<div class="section" id="authorization-specific-details">
+<h3><a class="toc-backref" href="#id7">Authorization Specific Details</a><a class="headerlink" href="#authorization-specific-details" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti will pass several parameters that might be useful for the
+<em>authorization</em> phase to the modules via the private PAM environmental
+variables (using <tt class="docutils literal"><span class="pre">pam_setenv</span></tt>)</p>
+<dl class="docutils">
+<dt>GANETI_RAPI_URI</dt>
+<dd>The requested URI.</dd>
+<dt>GANETI_REQUEST_BODY</dt>
+<dd>The body of a request if any or an empty string otherwise.</dd>
+<dt>GANETI_REQUEST_METHOD</dt>
+<dd>The method of an http request (GET, PUT, POST or DELETE).</dd>
+<dt>GANETI_RESOURCE_ACCESS</dt>
+<dd>The comma-separated access handlers of a resource if provided in
+rlib2 or empty string otherwise.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="one-more-time-about-the-goals">
+<h2><a class="toc-backref" href="#id8">One More Time About the Goals</a><a class="headerlink" href="#one-more-time-about-the-goals" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="support-for-different-authentication-methods">
+<h3><a class="toc-backref" href="#id9">Support for Different Authentication Methods</a><a class="headerlink" href="#support-for-different-authentication-methods" title="Permalink to this headline">¶</a></h3>
+<p>The proposed solution allows to use signatures of any kind instead of
+user password or in addition to it. It allows an administrator to
+support more complex and secure authentication schemes than just a basic
+authentication over http.</p>
+</div>
+<div class="section" id="granular-access-to-different-command-subsets">
+<h3><a class="toc-backref" href="#id10">Granular Access to Different Command Subsets</a><a class="headerlink" href="#granular-access-to-different-command-subsets" title="Permalink to this headline">¶</a></h3>
+<p>This functionality can be implemented just by writing more complex
+authorization module that will permit or deny execution of some command
+based on the environment variables passed and some additional config
+file.</p>
+</div>
+<div class="section" id="granular-access-to-different-target-instances">
+<h3><a class="toc-backref" href="#id11">Granular Access to Different Target Instances</a><a class="headerlink" href="#granular-access-to-different-target-instances" title="Permalink to this headline">¶</a></h3>
+<p>For such kind of authorization, a PAM module may be implemented as
+well. The main difference is that for complex access rights maintaining
+the module will have to store users rights and lists of owned objects
+on some kind of dynamic database instead of simple static config file.</p>
+</div>
+<div class="section" id="switching-between-the-old-and-the-new-implementations">
+<h3><a class="toc-backref" href="#id12">Switching Between the Old and the New Implementations</a><a class="headerlink" href="#switching-between-the-old-and-the-new-implementations" title="Permalink to this headline">¶</a></h3>
+<p>As the changes introduced should be backwards compatible, a new
+ganeti-rapi daemon run-time option <tt class="docutils literal"><span class="pre">--enable_pam_rapi</span></tt> will be
+introduced.</p>
+</div>
+</div>
+<div class="section" id="other-changes">
+<h2><a class="toc-backref" href="#id13">Other Changes</a><a class="headerlink" href="#other-changes" title="Permalink to this headline">¶</a></h2>
+<p>As writing PAM module is an universal solution for the authorization
+problem, sometimes such flexibility is not necessary or not
+available because of disabled PAM. In that case it is still possible
+to provide granular access to the RAPI.</p>
+<p>For that purpose <tt class="docutils literal"><span class="pre">RAPI-Auth:username</span></tt> will be added to the reason
+trail just before sending a job for a further processing. That will
+allow to configure a filter that will reject job subsets initiated
+by some specific user i.e. add a user to a blacklist. See
+<a class="reference internal" href="design-optables.html"><em>Filtering of jobs for the Ganeti job queue</em></a> for more information about job filters.</p>
+<p>Additionally, we propose to introduce a new
+<a class="reference internal" href="design-optables.html#filter-predicates"><em>filter predicate</em></a>, <tt class="docutils literal"><span class="pre">username</span></tt> that will
+contain the authenticated user&#8217;s login and thus will make it possible to
+define an allowed user set for each operation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">RAPI authentication and authorization using PAM</a><ul>
+<li><a class="reference internal" href="#current-state">Current State</a></li>
+<li><a class="reference internal" href="#motivation">Motivation</a></li>
+<li><a class="reference internal" href="#proposed-implementation">Proposed Implementation</a><ul>
+<li><a class="reference internal" href="#authentication-specific-details">Authentication Specific Details</a></li>
+<li><a class="reference internal" href="#authorization-specific-details">Authorization Specific Details</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#one-more-time-about-the-goals">One More Time About the Goals</a><ul>
+<li><a class="reference internal" href="#support-for-different-authentication-methods">Support for Different Authentication Methods</a></li>
+<li><a class="reference internal" href="#granular-access-to-different-command-subsets">Granular Access to Different Command Subsets</a></li>
+<li><a class="reference internal" href="#granular-access-to-different-target-instances">Granular Access to Different Target Instances</a></li>
+<li><a class="reference internal" href="#switching-between-the-old-and-the-new-implementations">Switching Between the Old and the New Implementations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-changes">Other Changes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-query-splitting.html"
+                        title="previous chapter">Splitting the query and job execution paths</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-reason-trail.html"
+                        title="next chapter">Ganeti reason trail</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-rapi-pam.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-reason-trail.html" title="Ganeti reason trail"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-query-splitting.html" title="Splitting the query and job execution paths"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

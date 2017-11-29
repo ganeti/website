@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design for a X509 Certificate Authority &mdash; Ganeti 2.13.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.13.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.13.3 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Design for replacing Ganeti’s HTTP server" href="design-http-server.html" />
+    <link rel="prev" title="Design document drafts" href="design-draft.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-http-server.html" title="Design for replacing Ganeti’s HTTP server"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-draft.html" title="Design document drafts"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-for-a-x509-certificate-authority">
+<h1><a class="toc-backref" href="#id1">Design for a X509 Certificate Authority</a><a class="headerlink" href="#design-for-a-x509-certificate-authority" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#design-for-a-x509-certificate-authority" id="id1">Design for a X509 Certificate Authority</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a></li>
+<li><a class="reference internal" href="#software-requirements" id="id4">Software requirements</a></li>
+<li><a class="reference internal" href="#code-samples" id="id5">Code samples</a><ul>
+<li><a class="reference internal" href="#generating-x509-ca-using-pyopenssl" id="id6">Generating X509 CA using pyOpenSSL</a></li>
+<li><a class="reference internal" href="#signing-x509-certificate-using-ca" id="id7">Signing X509 certificate using CA</a></li>
+<li><a class="reference internal" href="#how-to-generate-certificate-signing-request" id="id8">How to generate Certificate Signing Request</a></li>
+<li><a class="reference internal" href="#x509-certificate-from-certificate-signing-request" id="id9">X509 certificate from Certificate Signing Request</a></li>
+<li><a class="reference internal" href="#verify-whether-x509-certificate-matches-private-key" id="id10">Verify whether X509 certificate matches private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Import/export in Ganeti have a need for many unique X509 certificates.
+So far these were all self-signed, but with the <a class="reference internal" href="design-impexp2.html"><em>new design for
+import/export</em></a> they need to be signed by a Certificate
+Authority (CA).</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The plan is to implement a simple CA in Ganeti.</p>
+<p>Interacting with an external CA is too difficult or impossible for
+automated processes like exporting instances, so each Ganeti cluster
+will have its own CA. The public key will be stored in
+<tt class="docutils literal"><span class="pre">…/lib/ganeti/ca/cert.pem</span></tt>, the private key (only readable by the
+master daemon) in <tt class="docutils literal"><span class="pre">…/lib/ganeti/ca/key.pem</span></tt>.</p>
+<p>Similar to the RAPI certificate, a new CA certificate can be installed
+using the <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">renew-crypto</span></tt> command. Such a CA could be an
+intermediate of a third-party CA. By default a self-signed CA is
+generated and used.</p>
+<p id="x509-ca-serial">Each certificate signed by the CA is required to have a unique serial
+number. The serial number is stored in the file
+<tt class="docutils literal"><span class="pre">…/lib/ganeti/ca/serial</span></tt>, replicated to all master candidates and
+never reset, even when a new CA is installed.</p>
+<p>The threat model is expected to be the same as with self-signed
+certificates. To reinforce this, all certificates signed by the CA must
+be valid for less than one week (168 hours).</p>
+<p>Implementing support for Certificate Revocation Lists (CRL) using
+OpenSSL is non-trivial. Lighttpd doesn&#8217;t support them at all and
+<a class="reference external" href="http://redmine.lighttpd.net/issues/2278">apparently never will in version 1.4.x</a>. Some CRL-related parts have
+only been added in the most recent version of pyOpenSSL (0.11). Instead
+of a CRL, Ganeti will gain a new cluster configuration property defining
+the minimum accepted serial number. In case of a lost or compromised
+private key this property can be set to the most recently generated
+serial number.</p>
+<p>While possible to implement in the future, other X509 certificates used
+by the cluster (e.g. RAPI or inter-node communication) will not be
+automatically signed by the per-cluster CA.</p>
+<p>The <tt class="docutils literal"><span class="pre">commonName</span></tt> attribute of signed certificates must be set to the
+the cluster name or the name of a node in the cluster.</p>
+</div>
+<div class="section" id="software-requirements">
+<h2><a class="toc-backref" href="#id4">Software requirements</a><a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>pyOpenSSL 0.10 or above (lower versions can&#8217;t set the X509v3 extension
+<tt class="docutils literal"><span class="pre">subjectKeyIdentifier</span></tt> recommended for certificate authority
+certificates by <span class="target" id="index-0"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc3280.html"><strong>RFC 3280</strong></a>, section 4.2.1.2)</li>
+</ul>
+</div>
+<div class="section" id="code-samples">
+<h2><a class="toc-backref" href="#id5">Code samples</a><a class="headerlink" href="#code-samples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="generating-x509-ca-using-pyopenssl">
+<h3><a class="toc-backref" href="#id6">Generating X509 CA using pyOpenSSL</a><a class="headerlink" href="#generating-x509-ca-using-pyopenssl" title="Permalink to this headline">¶</a></h3>
+<p>The following code sample shows how to generate a CA certificate using
+pyOpenSSL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">key</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">PKey</span><span class="p">()</span>
+<span class="n">key</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">TYPE_RSA</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span>
+
+<span class="n">ca</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509</span><span class="p">()</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">set_version</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">set_serial_number</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span><span class="o">.</span><span class="n">CN</span> <span class="o">=</span> <span class="s">&quot;ca.example.com&quot;</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">gmtime_adj_notBefore</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">gmtime_adj_notAfter</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">set_issuer</span><span class="p">(</span><span class="n">ca</span><span class="o">.</span><span class="n">get_subject</span><span class="p">())</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">set_pubkey</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">add_extensions</span><span class="p">([</span>
+  <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509Extension</span><span class="p">(</span><span class="s">&quot;basicConstraints&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span>
+                               <span class="s">&quot;CA:TRUE, pathlen:0&quot;</span><span class="p">),</span>
+  <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509Extension</span><span class="p">(</span><span class="s">&quot;keyUsage&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span>
+                               <span class="s">&quot;keyCertSign, cRLSign&quot;</span><span class="p">),</span>
+  <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509Extension</span><span class="p">(</span><span class="s">&quot;subjectKeyIdentifier&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&quot;hash&quot;</span><span class="p">,</span>
+                               <span class="n">subject</span><span class="o">=</span><span class="n">ca</span><span class="p">),</span>
+  <span class="p">])</span>
+<span class="n">ca</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="signing-x509-certificate-using-ca">
+<h3><a class="toc-backref" href="#id7">Signing X509 certificate using CA</a><a class="headerlink" href="#signing-x509-certificate-using-ca" title="Permalink to this headline">¶</a></h3>
+<p>The following code sample shows how to sign an X509 certificate using a
+CA:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ca_cert</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                          <span class="s">&quot;ca.pem&quot;</span><span class="p">)</span>
+<span class="n">ca_key</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_privatekey</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                        <span class="s">&quot;ca.pem&quot;</span><span class="p">)</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">PKey</span><span class="p">()</span>
+<span class="n">key</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">TYPE_RSA</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span>
+
+<span class="n">cert</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509</span><span class="p">()</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span><span class="o">.</span><span class="n">CN</span> <span class="o">=</span> <span class="s">&quot;node1.example.com&quot;</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_serial_number</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">gmtime_adj_notBefore</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">gmtime_adj_notAfter</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_issuer</span><span class="p">(</span><span class="n">ca_cert</span><span class="o">.</span><span class="n">get_subject</span><span class="p">())</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_pubkey</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ca_key</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-generate-certificate-signing-request">
+<h3><a class="toc-backref" href="#id8">How to generate Certificate Signing Request</a><a class="headerlink" href="#how-to-generate-certificate-signing-request" title="Permalink to this headline">¶</a></h3>
+<p>The following code sample shows how to generate an X509 Certificate
+Request (CSR):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">key</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">PKey</span><span class="p">()</span>
+<span class="n">key</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">TYPE_RSA</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span>
+
+<span class="n">req</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509Req</span><span class="p">()</span>
+<span class="n">req</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span><span class="o">.</span><span class="n">CN</span> <span class="o">=</span> <span class="s">&quot;node1.example.com&quot;</span>
+<span class="n">req</span><span class="o">.</span><span class="n">set_pubkey</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">req</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">)</span>
+
+<span class="c"># Write private key</span>
+<span class="k">print</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">dump_privatekey</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+<span class="c"># Write request</span>
+<span class="k">print</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">dump_certificate_request</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">req</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="x509-certificate-from-certificate-signing-request">
+<h3><a class="toc-backref" href="#id9">X509 certificate from Certificate Signing Request</a><a class="headerlink" href="#x509-certificate-from-certificate-signing-request" title="Permalink to this headline">¶</a></h3>
+<p>The following code sample shows how to create an X509 certificate from a
+Certificate Signing Request and sign it with a CA:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ca_cert</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                          <span class="s">&quot;ca.pem&quot;</span><span class="p">)</span>
+<span class="n">ca_key</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_privatekey</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                        <span class="s">&quot;ca.pem&quot;</span><span class="p">)</span>
+<span class="n">req</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate_request</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                              <span class="nb">open</span><span class="p">(</span><span class="s">&quot;req.csr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="n">cert</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">X509</span><span class="p">()</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_subject</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">get_subject</span><span class="p">())</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_serial_number</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">gmtime_adj_notBefore</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">gmtime_adj_notAfter</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_issuer</span><span class="p">(</span><span class="n">ca_cert</span><span class="o">.</span><span class="n">get_subject</span><span class="p">())</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">set_pubkey</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">())</span>
+<span class="n">cert</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ca_key</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">dump_certificate</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">cert</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="verify-whether-x509-certificate-matches-private-key">
+<h3><a class="toc-backref" href="#id10">Verify whether X509 certificate matches private key</a><a class="headerlink" href="#verify-whether-x509-certificate-matches-private-key" title="Permalink to this headline">¶</a></h3>
+<p>The code sample below shows how to check whether a certificate matches
+with a certain private key. OpenSSL has a function for this,
+<tt class="docutils literal"><span class="pre">X509_check_private_key</span></tt>, but pyOpenSSL provides no access to it.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ctx</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">OpenSSL</span><span class="o">.</span><span class="n">SSL</span><span class="o">.</span><span class="n">TLSv1_METHOD</span><span class="p">)</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">use_privatekey</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">use_certificate</span><span class="p">(</span><span class="n">cert</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="n">check_privatekey</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">SSL</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+  <span class="k">print</span> <span class="s">&quot;Incorrect key&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="k">print</span> <span class="s">&quot;Key matches certificate&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design for a X509 Certificate Authority</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a></li>
+<li><a class="reference internal" href="#software-requirements">Software requirements</a></li>
+<li><a class="reference internal" href="#code-samples">Code samples</a><ul>
+<li><a class="reference internal" href="#generating-x509-ca-using-pyopenssl">Generating X509 CA using pyOpenSSL</a></li>
+<li><a class="reference internal" href="#signing-x509-certificate-using-ca">Signing X509 certificate using CA</a></li>
+<li><a class="reference internal" href="#how-to-generate-certificate-signing-request">How to generate Certificate Signing Request</a></li>
+<li><a class="reference internal" href="#x509-certificate-from-certificate-signing-request">X509 certificate from Certificate Signing Request</a></li>
+<li><a class="reference internal" href="#verify-whether-x509-certificate-matches-private-key">Verify whether X509 certificate matches private key</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-draft.html"
+                        title="previous chapter">Design document drafts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-http-server.html"
+                        title="next chapter">Design for replacing Ganeti&#8217;s HTTP server</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-x509-ca.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-http-server.html" title="Design for replacing Ganeti’s HTTP server"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-draft.html" title="Design document drafts"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Container</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Container.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Container.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Container</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Module abstracting the node and instance container implementation.
+</P
+><P
+>This is currently implemented on top of an IntMap, which seems to
+give the best performance for our workload.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AKey"
+>Key</A
+> = Key</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AContainer"
+>Container</A
+> = IntMap</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aempty"
+>empty</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Asize"
+>size</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Afind"
+>find</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aadd"
+>add</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aremove"
+>remove</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aelems"
+>elems</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Akeys"
+>keys</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; [<A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromAssocList"
+>fromAssocList</A
+> ::  [(<A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddTwo"
+>addTwo</A
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnameOf"
+>nameOf</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a =&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfindByName"
+>findByName</A
+> :: (<A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a, Monad m) =&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; String -&gt; m a</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:Key"
+><A NAME="t%3AKey"
+></A
+></A
+><B
+>Key</B
+> = Key</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#Key"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:Container"
+><A NAME="t%3AContainer"
+></A
+></A
+><B
+>Container</B
+> = IntMap</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#Container"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:empty"
+><A NAME="v%3Aempty"
+></A
+></A
+><B
+>empty</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#empty"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Create an empty container.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:size"
+><A NAME="v%3Asize"
+></A
+></A
+><B
+>size</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#size"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the number of elements in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:find"
+><A NAME="v%3Afind"
+></A
+></A
+><B
+>find</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#find"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Locate a key in the map (must exist).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:add"
+><A NAME="v%3Aadd"
+></A
+></A
+><B
+>add</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#add"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Add or update one element to the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:remove"
+><A NAME="v%3Aremove"
+></A
+></A
+><B
+>remove</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#remove"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Remove an element from the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:elems"
+><A NAME="v%3Aelems"
+></A
+></A
+><B
+>elems</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; [a]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#elems"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Return the list of values in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:keys"
+><A NAME="v%3Akeys"
+></A
+></A
+><B
+>keys</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; [<A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#keys"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Return the list of keys in the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromAssocList"
+><A NAME="v%3AfromAssocList"
+></A
+></A
+><B
+>fromAssocList</B
+> ::  [(<A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+>, a)] -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#fromAssocList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Create a map from an association list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addTwo"
+><A NAME="v%3AaddTwo"
+></A
+></A
+><B
+>addTwo</B
+> ::  <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#addTwo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Add or update two elements of the map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nameOf"
+><A NAME="v%3AnameOf"
+></A
+></A
+><B
+>nameOf</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a =&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; <A HREF="Ganeti-HTools-Container.html#t%3AKey"
+>Key</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#nameOf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute the name of an element in a container.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:findByName"
+><A NAME="v%3AfindByName"
+></A
+></A
+><B
+>findByName</B
+> :: (<A HREF="Ganeti-HTools-Types.html#t%3AElement"
+>Element</A
+> a, Monad m) =&gt; <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> a -&gt; String -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Container.html#findByName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Find an element by name in a Container; this is a very slow function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

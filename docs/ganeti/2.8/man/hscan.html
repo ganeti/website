@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>HSCAN(1) Ganeti | Version 2.8.4</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">HSCAN(1) Ganeti | Version 2.8.4</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#options">OPTIONS</a></li>
+<li><a href="#exit-status">EXIT STATUS</a></li>
+<li><a href="#bugs">BUGS</a></li>
+<li><a href="#example">EXAMPLE</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>hscan - Scan clusters via RAPI and save node/instance data</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>hscan</strong> [-p] [--no-headers] [-d <em>path</em> ] <em>cluster...</em></p>
+<p><strong>hscan</strong> --version</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>hscan is a tool for scanning clusters via RAPI and saving their data in the input format used by <strong>hbal</strong>(1) and <strong>hspace</strong>(1). It will also show a one-line score for each cluster scanned or, if desired, the cluster state as show by the <strong>-p</strong> option to the other tools.</p>
+<p>For each cluster, one file named <em>cluster</em><strong>.data</strong> will be generated holding the node and instance data. This file can then be used in <strong>hbal</strong>(1) or <strong>hspace</strong>(1) via the <em>-t</em> option. In case the cluster name contains slashes (as it can happen when the cluster is a fully-specified URL), these will be replaced with underscores.</p>
+<p>The one-line output for each cluster will show the following:</p>
+<dl>
+<dt>Name</dt>
+<dd><p>The name of the cluster (or the IP address that was given, etc.)</p>
+</dd>
+<dt>Nodes</dt>
+<dd><p>The number of nodes in the cluster</p>
+</dd>
+<dt>Inst</dt>
+<dd><p>The number of instances in the cluster</p>
+</dd>
+<dt>BNode</dt>
+<dd><p>The number of nodes failing N+1</p>
+</dd>
+<dt>BInst</dt>
+<dd><p>The number of instances living on N+1-failed nodes</p>
+</dd>
+<dt>t_mem</dt>
+<dd><p>Total memory in the cluster</p>
+</dd>
+<dt>f_mem</dt>
+<dd><p>Free memory in the cluster</p>
+</dd>
+<dt>t_disk</dt>
+<dd><p>Total disk in the cluster</p>
+</dd>
+<dt>f_disk</dt>
+<dd><p>Free disk space in the cluster</p>
+</dd>
+<dt>Score</dt>
+<dd><p>The score of the cluster, as would be reported by <strong>hbal</strong>(1) if run on the generated data files.</p>
+</dd>
+</dl>
+<p>In case of errors while collecting data, all fields after the name of the cluster are replaced with the error display.</p>
+<p><strong>Note:</strong> this output format is not yet final so it should not be used for scripting yet.</p>
+<h1 id="options"><a href="#TOC">OPTIONS</a></h1>
+<p>The options that can be passed to the program are as follows:</p>
+<dl>
+<dt>-p, --print-nodes</dt>
+<dd><p>Prints the node status for each cluster after the cluster's one-line status display, in a format designed to allow the user to understand the node's most important parameters. For details, see the man page for <strong>htools</strong>(1).</p>
+</dd>
+<dt>-d <em>path</em></dt>
+<dd><p>Save the node and instance data for each cluster under <em>path</em>, instead of the current directory.</p>
+</dd>
+<dt>-V, --version</dt>
+<dd><p>Just show the program version and exit.</p>
+</dd>
+</dl>
+<h1 id="exit-status"><a href="#TOC">EXIT STATUS</a></h1>
+<p>The exist status of the command will be zero, unless for some reason loading the input data failed fatally (e.g. wrong node or instance data).</p>
+<h1 id="bugs"><a href="#TOC">BUGS</a></h1>
+<p>The program does not check its input data for consistency, and aborts with cryptic errors messages in this case.</p>
+<h1 id="example"><a href="#TOC">EXAMPLE</a></h1>
+<pre><code>$ hscan cluster1
+Name     Nodes  Inst BNode BInst  t_mem  f_mem t_disk f_disk      Score
+cluster1     2     2     0     0   1008    652    255    253 0.24404762
+$ ls -l cluster1.data
+-rw-r--r-- 1 root root 364 2009-03-23 07:26 cluster1.data</code></pre>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p>
+</body>
+</html>

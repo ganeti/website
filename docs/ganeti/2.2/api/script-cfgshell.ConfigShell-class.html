@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>script-cfgshell.ConfigShell</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="script-cfgshell-module.html">Script&nbsp;cfgshell</a> ::
+        Class&nbsp;ConfigShell
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="script-cfgshell.ConfigShell-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class ConfigShell</h1><p class="nomargin-top"></p>
+<center>
+<center>  <map id="uml_class_diagram_for_script_c" name="uml_class_diagram_for_script_c">
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#prompt" title="script&#45;cfgshell.ConfigShell.prompt" alt="" coords="29,527,293,545"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#__init__" title="Constructor for the ConfigShell object." alt="" coords="29,548,293,567"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#emptyline" title="Empty line handling." alt="" coords="29,567,293,585"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#precmd" title="Precmd hook to prevent commands in invalid states." alt="" coords="29,585,293,604"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#postcmd" title="Postcmd hook to update the prompt." alt="" coords="29,604,293,623"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_load" title="Load function." alt="" coords="29,623,293,641"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_ls" title="List the current entry." alt="" coords="29,641,293,660"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#complete_cd" title="Completion function for the cd command." alt="" coords="29,660,293,679"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_cd" title="Changes the current path." alt="" coords="29,679,293,697"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_pwd" title="Shows the current path." alt="" coords="29,697,293,716"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#complete_cat" title="Completion for the cat command." alt="" coords="29,716,293,735"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_cat" title="Shows the contents of the given file." alt="" coords="29,735,293,753"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_verify" title="Verify the configuration." alt="" coords="29,753,293,772"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_save" title="Saves the configuration data." alt="" coords="29,772,293,791"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html#do_quit" title="Exit the application." alt="" coords="29,809,293,828"/>
+<area shape="rect" href="script-cfgshell.ConfigShell-class.html" title="Command tool for editing the config file." alt="" coords="28,509,295,829"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.identchars" alt="" coords="17,28,305,47"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.ruler" alt="" coords="17,47,305,65"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.lastcmd" alt="" coords="17,65,305,84"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.intro" alt="" coords="17,84,305,103"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.doc_leader" alt="" coords="17,103,305,121"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.doc_header" alt="" coords="17,121,305,140"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.misc_header" alt="" coords="17,140,305,159"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.undoc_header" alt="" coords="17,159,305,177"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.nohelp" alt="" coords="17,177,305,196"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.use_rawinput" alt="" coords="17,196,305,215"/>
+<area shape="rect" href="javascript:void(0);" title="Repeatedly issue a prompt, accept input, parse an initial prefix off the &#160;received input, and dispatch to action methods, passing them the remainder &#160;of the line as argument." alt="" coords="17,217,305,236"/>
+<area shape="rect" href="javascript:void(0);" title="Hook method executed once when the cmdloop() method is called." alt="" coords="17,236,305,255"/>
+<area shape="rect" href="javascript:void(0);" title="Hook method executed once when the cmdloop() method is about to return." alt="" coords="17,255,305,273"/>
+<area shape="rect" href="javascript:void(0);" title="Parse the line into a command name and a string containing the arguments." alt="" coords="17,273,305,292"/>
+<area shape="rect" href="javascript:void(0);" title="Interpret the argument as though it had been typed in response to the &#160;prompt." alt="" coords="17,292,305,311"/>
+<area shape="rect" href="javascript:void(0);" title="Called on an input line when the command prefix is not recognized." alt="" coords="17,311,305,329"/>
+<area shape="rect" href="javascript:void(0);" title="Method called to complete an input line when no command&#45;specific &#160;complete_*() method is available." alt="" coords="17,329,305,348"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.completenames" alt="" coords="17,348,305,367"/>
+<area shape="rect" href="javascript:void(0);" title="Return the next possible completion for &#39;text&#39;." alt="" coords="17,367,305,385"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.get_names" alt="" coords="17,385,305,404"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.complete_help" alt="" coords="17,404,305,423"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.do_help" alt="" coords="17,423,305,441"/>
+<area shape="rect" href="javascript:void(0);" title="cmd.Cmd.print_topics" alt="" coords="17,441,305,460"/>
+<area shape="rect" href="javascript:void(0);" title="Display a list of strings as a compact set of columns." alt="" coords="17,460,305,479"/>
+<area shape="rect" href="javascript:void(0);" title="A simple framework for writing line&#45;oriented command interpreters." alt="" coords="16,11,307,480"/>
+</map>
+  <img src="uml_class_diagram_for_script_c.gif" alt='' usemap="#uml_class_diagram_for_script_c" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Command tool for editing the config file.</p>
+  <p>Note that although we don't do saves after remove, the current 
+  ConfigWriter code does that; so we can't prevent someone from actually 
+  breaking the config with this tool. It's the users' responsibility to 
+  know what they're doing.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">cfg_file</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Constructor for the ConfigShell object.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#emptyline" class="summary-sig-name">emptyline</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Empty line handling.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#precmd" class="summary-sig-name">precmd</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Precmd hook to prevent commands in invalid states.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#postcmd" class="summary-sig-name">postcmd</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">stop</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Postcmd hook to update the prompt.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_load" class="summary-sig-name">do_load</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Load function.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_ls" class="summary-sig-name">do_ls</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      List the current entry.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="complete_cd"></a><span class="summary-sig-name">complete_cd</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">line</span>,
+        <span class="summary-sig-arg">begidx</span>,
+        <span class="summary-sig-arg">endidx</span>)</span><br />
+      Completion function for the cd command.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_cd" class="summary-sig-name">do_cd</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Changes the current path.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_pwd" class="summary-sig-name">do_pwd</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Shows the current path.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="complete_cat"></a><span class="summary-sig-name">complete_cat</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">line</span>,
+        <span class="summary-sig-arg">begidx</span>,
+        <span class="summary-sig-arg">endidx</span>)</span><br />
+      Completion for the cat command.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_cat" class="summary-sig-name">do_cat</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Shows the contents of the given file.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_verify" class="summary-sig-name">do_verify</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Verify the configuration.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_save" class="summary-sig-name">do_save</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Saves the configuration data.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#do_rm" class="summary-sig-name">do_rm</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Removes an instance or a node.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>cmd.Cmd</code></b>:
+      <code>cmdloop</code>,
+      <code>columnize</code>,
+      <code>complete</code>,
+      <code>complete_help</code>,
+      <code>completedefault</code>,
+      <code>completenames</code>,
+      <code>default</code>,
+      <code>do_help</code>,
+      <code>get_names</code>,
+      <code>onecmd</code>,
+      <code>parseline</code>,
+      <code>postloop</code>,
+      <code>preloop</code>,
+      <code>print_topics</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== STATIC METHODS ==================== -->
+<a name="section-StaticMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Static Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-StaticMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-cfgshell.ConfigShell-class.html#_get_entries" class="summary-sig-name" onclick="show_private();">_get_entries</a>(<span class="summary-sig-arg">obj</span>)</span><br />
+      Computes the list of subdirs and files in the given object.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="do_EOF"></a><span class="summary-sig-name">do_EOF</span>(<span class="summary-sig-arg">line</span>)</span><br />
+      Exit the application.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="do_quit"></a><span class="summary-sig-name">do_quit</span>(<span class="summary-sig-arg">line</span>)</span><br />
+      Exit the application.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="prompt"></a><span class="summary-name">prompt</span> = <code title="&quot;(/) &quot;">&quot;(/) &quot;</code>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>cmd.Cmd</code></b>:
+      <code>doc_header</code>,
+      <code>doc_leader</code>,
+      <code>identchars</code>,
+      <code>intro</code>,
+      <code>lastcmd</code>,
+      <code>misc_header</code>,
+      <code>nohelp</code>,
+      <code>ruler</code>,
+      <code>undoc_header</code>,
+      <code>use_rawinput</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">cfg_file</span>=<span class="sig-default">None</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Constructor for the ConfigShell object.</p>
+  <p>The optional cfg_file argument will be used to load a config file at 
+  startup.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        cmd.Cmd.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="emptyline"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">emptyline</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Empty line handling.</p>
+  <p>Note that the default will re-run the last command. We don't want 
+  that, and just ignore the empty line.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        cmd.Cmd.emptyline
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_get_entries"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_get_entries</span>(<span class="sig-arg">obj</span>)</span>
+    <br /><em class="fname">Static Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Computes the list of subdirs and files in the given object.</p>
+  <p>This, depending on the passed object entry, look at each logical child
+  of the object and decides if it's a container or a simple object. Based 
+  on this, it computes the list of subdir and files.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="precmd"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">precmd</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Precmd hook to prevent commands in invalid states.</p>
+  <p>This will prevent everything except load and quit when no 
+  configuration is loaded.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        cmd.Cmd.precmd
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="postcmd"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">postcmd</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">stop</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Postcmd hook to update the prompt.</p>
+  <p>We show the current location in the prompt and this function is used 
+  to update it; this is only needed after cd and load, but we update it 
+  anyway.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        cmd.Cmd.postcmd
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_load"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_load</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Load function.</p>
+  <p>Syntax: load [/path/to/config/file]</p>
+  <p>This will load a new configuration, discarding any existing data (if 
+  any). If no argument has been passed, it will use the default config file
+  location.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_ls"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_ls</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>List the current entry.</p>
+  <p>This will show directories with a slash appended and files 
+  normally.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_cd"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_cd</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Changes the current path.</p>
+  <p>Valid arguments: either .., /, &quot;&quot; (no argument) or a child 
+  of the current object.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_pwd"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_pwd</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Shows the current path.</p>
+  <p>This duplicates the prompt functionality, but it's reasonable to 
+  have.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_cat"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_cat</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Shows the contents of the given file.</p>
+  <p>This will display the contents of the given file, which must be a 
+  child of the current path (as shows by `ls`).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_verify"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_verify</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Verify the configuration.</p>
+  <p>This verifies the contents of the configuration file (and not the 
+  in-memory data, as every modify operation automatically saves the 
+  file).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_save"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_save</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Saves the configuration data.</p>
+  <p>Note that is redundant (all modify operations automatically save the 
+  data), but it is good to use it as in the future that could change.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="do_rm"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">do_rm</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Removes an instance or a node.</p>
+  <p>This function works only on instances or nodes. You must be in either 
+  `/nodes` or `/instances` and give a valid argument.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Thu Dec  9 15:56:01 2010
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

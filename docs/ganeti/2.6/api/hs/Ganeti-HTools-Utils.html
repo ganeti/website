@@ -1,0 +1,1060 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Utils</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Utils.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Utils.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Utils</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Debug functions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Miscellaneous
+</A
+></DT
+><DT
+><A HREF="#3"
+>Mathematical functions
+</A
+></DT
+><DT
+><A HREF="#4"
+>Logical functions
+</A
+></DT
+><DT
+><A HREF="#5"
+>Parsing utility functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Utility functions. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adebug"
+>debug</A
+> :: Show a =&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdebugFn"
+>debugFn</A
+> :: Show b =&gt; (a -&gt; b) -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdebugXy"
+>debugXy</A
+> :: Show a =&gt; a -&gt; b -&gt; b</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AapplyIf"
+>applyIf</A
+> ::  Bool -&gt; (a -&gt; a) -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcommaJoin"
+>commaJoin</A
+> :: [String] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsepSplit"
+>sepSplit</A
+> :: Eq a =&gt; a -&gt; [a] -&gt; [[a]]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aplural"
+>plural</A
+> :: Int -&gt; String -&gt; String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AensureQuoted"
+>ensureQuoted</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstdDev"
+>stdDev</A
+> :: [Double] -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aif%27"
+>if'</A
+> ::  Bool -&gt; a -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseChoices"
+>parseChoices</A
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; [(a, String)] -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtryRead"
+>tryRead</A
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatTable"
+>formatTable</A
+> :: [[String]] -&gt; [Bool] -&gt; [[String]]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintTable"
+>printTable</A
+> :: String -&gt; [String] -&gt; [[String]] -&gt; [Bool] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseUnitValue"
+>parseUnitValue</A
+> :: Monad m =&gt; String -&gt; m Rational</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseUnit"
+>parseUnit</A
+> :: (Monad m, Integral a, Read a) =&gt; String -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexitIfBad"
+>exitIfBad</A
+> ::  String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; IO a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexitErr"
+>exitErr</A
+> ::  String -&gt; IO a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexitWhen"
+>exitWhen</A
+> :: Bool -&gt; String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexitUnless"
+>exitUnless</A
+> :: Bool -&gt; String -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Debug functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debug"
+><A NAME="v%3Adebug"
+></A
+></A
+><B
+>debug</B
+> :: Show a =&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debug"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>To be used only for debugging, breaks referential integrity.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debugFn"
+><A NAME="v%3AdebugFn"
+></A
+></A
+><B
+>debugFn</B
+> :: Show b =&gt; (a -&gt; b) -&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debugFn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Displays a modified form of the second parameter before returning
+ it.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:debugXy"
+><A NAME="v%3AdebugXy"
+></A
+></A
+><B
+>debugXy</B
+> :: Show a =&gt; a -&gt; b -&gt; b</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#debugXy"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Show the first parameter before returning the second one.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Miscellaneous
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:applyIf"
+><A NAME="v%3AapplyIf"
+></A
+></A
+><B
+>applyIf</B
+> ::  Bool -&gt; (a -&gt; a) -&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#applyIf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Apply the function if condition holds, otherwise use default value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:commaJoin"
+><A NAME="v%3AcommaJoin"
+></A
+></A
+><B
+>commaJoin</B
+> :: [String] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#commaJoin"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Comma-join a string list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:sepSplit"
+><A NAME="v%3AsepSplit"
+></A
+></A
+><B
+>sepSplit</B
+> :: Eq a =&gt; a -&gt; [a] -&gt; [[a]]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#sepSplit"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Split a list on a separator and return an array.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:plural"
+><A NAME="v%3Aplural"
+></A
+></A
+><B
+>plural</B
+> :: Int -&gt; String -&gt; String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#plural"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simple pluralize helper
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:ensureQuoted"
+><A NAME="v%3AensureQuoted"
+></A
+></A
+><B
+>ensureQuoted</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#ensureQuoted"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Ensure a value is quoted if needed.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Mathematical functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:stdDev"
+><A NAME="v%3AstdDev"
+></A
+></A
+><B
+>stdDev</B
+> :: [Double] -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#stdDev"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Standard deviation function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Logical functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:if'"
+><A NAME="v%3Aif%27"
+></A
+></A
+><B
+>if'</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#if%27"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: </TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; Bool</TD
+><TD CLASS="rdoc"
+>&quot;then&quot; result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; a</TD
+><TD CLASS="rdoc"
+>&quot;else&quot; result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; a</TD
+><TD CLASS="rdoc"
+>&quot;then&quot; or <A HREF="else.html"
+>else</A
+> result depending on the condition
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>&quot;if&quot; as a function, rather than as syntactic sugar.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>Parsing utility functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseChoices"
+><A NAME="v%3AparseChoices"
+></A
+></A
+><B
+>parseChoices</B
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; [(a, String)] -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#parseChoices"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse results from readsPrec.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tryRead"
+><A NAME="v%3AtryRead"
+></A
+></A
+><B
+>tryRead</B
+> :: (Monad m, Read a) =&gt; String -&gt; String -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#tryRead"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Safe <TT
+>read</TT
+> function returning data encapsulated in a Result.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatTable"
+><A NAME="v%3AformatTable"
+></A
+></A
+><B
+>formatTable</B
+> :: [[String]] -&gt; [Bool] -&gt; [[String]]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#formatTable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Format a table of strings to maintain consistent length.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printTable"
+><A NAME="v%3AprintTable"
+></A
+></A
+><B
+>printTable</B
+> :: String -&gt; [String] -&gt; [[String]] -&gt; [Bool] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#printTable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constructs a printable table from given header and rows
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseUnitValue"
+><A NAME="v%3AparseUnitValue"
+></A
+></A
+><B
+>parseUnitValue</B
+> :: Monad m =&gt; String -&gt; m Rational</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#parseUnitValue"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a unit (e.g. m or GB) into a scaling factor.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseUnit"
+><A NAME="v%3AparseUnit"
+></A
+></A
+><B
+>parseUnit</B
+> :: (Monad m, Integral a, Read a) =&gt; String -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#parseUnit"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Tries to extract number and scale from the given string.
+</P
+><P
+>Input must be in the format NUMBER+ SPACE* [UNIT]. If no unit is
+ specified, it defaults to MiB. Return value is always an integral
+ value in MiB.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:exitIfBad"
+><A NAME="v%3AexitIfBad"
+></A
+></A
+><B
+>exitIfBad</B
+> ::  String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a -&gt; IO a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#exitIfBad"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Unwraps a <TT
+><A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+></TT
+>, exiting the program if it is a <TT
+><A HREF="Ganeti-BasicTypes.html#v%3ABad"
+>Bad</A
+></TT
+> value,
+ otherwise returning the actual contained value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:exitErr"
+><A NAME="v%3AexitErr"
+></A
+></A
+><B
+>exitErr</B
+> ::  String -&gt; IO a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#exitErr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Exits immediately with an error message.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:exitWhen"
+><A NAME="v%3AexitWhen"
+></A
+></A
+><B
+>exitWhen</B
+> :: Bool -&gt; String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#exitWhen"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Exits with an error message if the given boolean condition if true.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:exitUnless"
+><A NAME="v%3AexitUnless"
+></A
+></A
+><B
+>exitUnless</B
+> :: Bool -&gt; String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Utils.html#exitUnless"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Exits with an error message <EM
+>unless</EM
+> the given boolean condition
+ if true, the opposite of <TT
+><A HREF="Ganeti-HTools-Utils.html#v%3AexitWhen"
+>exitWhen</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

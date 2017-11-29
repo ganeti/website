@@ -1,0 +1,1091 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.storage.base.BlockDev</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.storage-module.html">Package&nbsp;storage</a> ::
+        <a href="ganeti.storage.base-module.html">Module&nbsp;base</a> ::
+        Class&nbsp;BlockDev
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.storage.base.BlockDev-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class BlockDev</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_ganeti_s_11" name="uml_class_diagram_for_ganeti_s_11">
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#__init__" title="x.__init__(...) initializes x; see help(type(x)) for signature" alt="" coords="17,39,437,57"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Assemble" title="Assemble the device from its components." alt="" coords="17,57,437,76"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Attach" title="Find a device which matches our config and attach to it." alt="" coords="17,76,437,95"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Close" title="Notifies that the device will no longer be used for I/O." alt="" coords="17,95,437,113"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Create" title="Create the device." alt="" coords="17,113,437,132"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Remove" title="Remove this device." alt="" coords="17,132,437,151"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Rename" title="Rename this device." alt="" coords="17,151,437,169"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Open" title="Make the device ready for use." alt="" coords="17,169,437,188"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#Shutdown" title="Shut down the device, freeing its children." alt="" coords="17,188,437,207"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#SetSyncParams" title="Adjust the synchronization parameters of the mirror." alt="" coords="17,207,437,225"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#PauseResumeSync" title="Pause/Resume the sync of the mirror." alt="" coords="17,225,437,244"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#GetSyncStatus" title="Returns the sync status of the device." alt="" coords="17,244,437,263"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#CombinedSyncStatus" title="Calculate the mirror status recursively for our children." alt="" coords="17,263,437,281"/>
+<area shape="rect" id="node1491" href="ganeti.storage.base.BlockDev-class.html#__repr__" title="repr(x)" alt="" coords="17,300,437,319"/>
+<area shape="rect" id="node1" href="ganeti.storage.base.BlockDev-class.html" title="Block device abstract class." alt="" coords="5,6,448,325"/>
+</map>
+  <img src="uml_class_diagram_for_ganeti_s_11.gif" alt='' usemap="#uml_class_diagram_for_ganeti_s_11" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Block device abstract class.</p>
+  <p>A block device can be in the following states:</p>
+  <ul>
+    <li>
+      not existing on the system, and by `Create()` it goes into:
+    </li>
+    <li>
+      existing but not setup/not active, and by `Assemble()` goes into:
+    </li>
+    <li>
+      active read-write and by `Open()` it goes into
+    </li>
+    <li>
+      online (=used, or ready for use)
+    </li>
+  </ul>
+  <p>A device can also be online but read-only, however we are not using 
+  the readonly state (LV has it, if needed in the future) and we are 
+  usually looking at this like at a stack, so it's easier to conceptualise 
+  the transition from not-existing to online and back like a linear 
+  one.</p>
+  <p>The many different states of the device are due to the fact that we 
+  need to cover many device types:</p>
+  <ul>
+    <li>
+      logical volumes are created, lvchange -a y $lv, and used
+    </li>
+    <li>
+      drbd devices are attached to a local disk/remote peer and made 
+      primary
+    </li>
+  </ul>
+  <p>A block device is identified by three items:</p>
+  <ul>
+    <li>
+      the /dev path of the device (dynamic)
+    </li>
+    <li>
+      a unique ID of the device (static)
+    </li>
+    <li>
+      it's major/minor pair (dynamic)
+    </li>
+  </ul>
+  <p>Not all devices implement both the first two as distinct items. LVM 
+  logical volumes have their unique ID (the pair volume group, logical 
+  volume name) in a 1-to-1 relation to the dev path. For DRBD devices, the 
+  /dev path is again dynamic and the unique id is the pair (host1, dev1), 
+  (host2, dev2).</p>
+  <p>You can get to a device in two ways:</p>
+  <ul>
+    <li>
+      creating the (real) device, which returns you an attached instance 
+      (lvcreate)
+    </li>
+    <li>
+      attaching of a python instance to an existing (real) device
+    </li>
+  </ul>
+  <p>The second point, the attachment to a device, is different depending 
+  on whether the device is assembled or not. At init() time, we search for 
+  a device with the same unique_id as us. If found, good. It also means 
+  that the device is already assembled. If not, after assembly we'll have 
+  our correct major/minor.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">unique_id</span>,
+        <span class="summary-sig-arg">children</span>,
+        <span class="summary-sig-arg">size</span>,
+        <span class="summary-sig-arg">params</span>)</span><br />
+      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Assemble" class="summary-sig-name">Assemble</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Assemble the device from its components.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Assemble">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Attach"></a><span class="summary-sig-name">Attach</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Find a device which matches our config and attach to it.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Attach">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Close"></a><span class="summary-sig-name">Close</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Notifies that the device will no longer be used for I/O.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Close">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Remove" class="summary-sig-name">Remove</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Remove this device.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Remove">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Rename" class="summary-sig-name">Rename</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">new_id</span>)</span><br />
+      Rename this device.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Rename">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Open" class="summary-sig-name">Open</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Make the device ready for use.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Open">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Shutdown" class="summary-sig-name">Shutdown</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Shut down the device, freeing its children.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Shutdown">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#SetSyncParams" class="summary-sig-name">SetSyncParams</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">params</span>)</span><br />
+      Adjust the synchronization parameters of the mirror.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.SetSyncParams">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#PauseResumeSync" class="summary-sig-name">PauseResumeSync</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">pause</span>)</span><br />
+      Pause/Resume the sync of the mirror.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.PauseResumeSync">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">objects.BlockDevStatus</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#GetSyncStatus" class="summary-sig-name">GetSyncStatus</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns the sync status of the device.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetSyncStatus">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">objects.BlockDevStatus</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#CombinedSyncStatus" class="summary-sig-name">CombinedSyncStatus</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Calculate the mirror status recursively for our children.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.CombinedSyncStatus">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#SetInfo" class="summary-sig-name">SetInfo</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>)</span><br />
+      Update metadata with info text.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.SetInfo">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Grow" class="summary-sig-name">Grow</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">amount</span>,
+        <span class="summary-sig-arg">dryrun</span>,
+        <span class="summary-sig-arg">backingstore</span>,
+        <span class="summary-sig-arg">excl_stor</span>)</span><br />
+      Grow the block device.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Grow">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#GetActualSize" class="summary-sig-name">GetActualSize</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the actual disk size.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualSize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#GetActualSpindles" class="summary-sig-name">GetActualSpindles</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the actual number of spindles used.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualSpindles">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">tuple</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#GetActualDimensions" class="summary-sig-name">GetActualDimensions</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the actual disk size and number of spindles used.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualDimensions">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#__repr__" class="summary-sig-name">__repr__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      repr(x)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.__repr__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS METHODS ==================== -->
+<a name="section-ClassMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="ganeti.storage.base.BlockDev-class.html" 
+      class="link">BlockDev</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.storage.base.BlockDev-class.html#Create" class="summary-sig-name">Create</a>(<span class="summary-sig-arg">cls</span>,
+        <span class="summary-sig-arg">unique_id</span>,
+        <span class="summary-sig-arg">children</span>,
+        <span class="summary-sig-arg">size</span>,
+        <span class="summary-sig-arg">spindles</span>,
+        <span class="summary-sig-arg">params</span>,
+        <span class="summary-sig-arg">excl_stor</span>)</span><br />
+      Create the device.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Create">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">unique_id</span>,
+        <span class="sig-arg">children</span>,
+        <span class="sig-arg">size</span>,
+        <span class="sig-arg">params</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Assemble"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Assemble</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Assemble">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Assemble the device from its components.</p>
+  <p>Implementations of this method by child classes must ensure that:</p>
+  <ul>
+    <li>
+      after the device has been assembled, it knows its major/minor 
+      numbers; this allows other devices (usually parents) to probe 
+      correctly for their children
+    </li>
+    <li>
+      calling this method on an existing, in-use device is safe
+    </li>
+    <li>
+      if the device is already configured (and in an OK state), this method
+      is idempotent
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Create"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Create</span>(<span class="sig-arg">cls</span>,
+        <span class="sig-arg">unique_id</span>,
+        <span class="sig-arg">children</span>,
+        <span class="sig-arg">size</span>,
+        <span class="sig-arg">spindles</span>,
+        <span class="sig-arg">params</span>,
+        <span class="sig-arg">excl_stor</span>)</span>
+    <br /><em class="fname">Class Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Create">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Create the device.</p>
+  <p>If the device cannot be created, it will return None instead. Error 
+  messages go to the logging system.</p>
+  <p>Note that for some devices, the unique_id is used, and for other, the 
+  children. The idea is that these two, taken together, are enough for both
+  creation and assembly (later).</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>unique_id</code></strong> (2-element tuple or list) - unique identifier; the details depend on the actual device type</li>
+        <li><strong class="pname"><code>children</code></strong> (list of <a href="ganeti.storage.base.BlockDev-class.html" 
+          class="link">BlockDev</a>) - for hierarchical devices, the child devices</li>
+        <li><strong class="pname"><code>size</code></strong> (float) - size in MiB</li>
+        <li><strong class="pname"><code>spindles</code></strong> (int) - number of physical disk to dedicate to the device</li>
+        <li><strong class="pname"><code>params</code></strong> (dict) - device-specific options/parameters</li>
+        <li><strong class="pname"><code>excl_stor</code></strong> (bool) - whether exclusive_storage is active</li>
+    </ul></dd>
+    <dt>Returns: <a href="ganeti.storage.base.BlockDev-class.html" 
+      class="link">BlockDev</a></dt>
+        <dd>the created device, or <code>None</code> in case of an error</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Remove"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Remove</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Remove">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Remove this device.</p>
+  <p>This makes sense only for some of the device types: LV and file 
+  storage. Also note that if the device can't attach, the removal can't be 
+  completed.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Rename"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Rename</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">new_id</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Rename">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Rename this device.</p>
+  <p>This may or may not make sense for a given device type.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Open"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Open</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Open">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Make the device ready for use.</p>
+  <p>This makes the device ready for I/O. For now, just the DRBD devices 
+  need this.</p>
+  <p>The force parameter signifies that if the device has any kind of 
+  --force thing, it should be used, we know what we are doing.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>force</code></strong> (boolean)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Shutdown"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Shutdown</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Shutdown">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Shut down the device, freeing its children.</p>
+  <p>This undoes the `Assemble()` work, except for the child assembling; as
+  such, the children on the device are still assembled after this call.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="SetSyncParams"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">SetSyncParams</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">params</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.SetSyncParams">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Adjust the synchronization parameters of the mirror.</p>
+  <p>In case this is not a mirroring device, this is no-op.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>params</code></strong> - dictionary of LD level disk parameters related to the 
+          synchronization.</li>
+    </ul></dd>
+    <dt>Returns: list</dt>
+        <dd>a list of error messages, emitted both by the current node and by
+          children. An empty list means no errors.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="PauseResumeSync"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">PauseResumeSync</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">pause</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.PauseResumeSync">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Pause/Resume the sync of the mirror.</p>
+  <p>In case this is not a mirroring device, this is no-op.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>pause</code></strong> (boolean) - Whether to pause or resume</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetSyncStatus"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetSyncStatus</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetSyncStatus">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the sync status of the device.</p>
+  <p>If this device is a mirroring device, this function returns the status
+  of the mirror.</p>
+  <p>If sync_percent is None, it means the device is not syncing.</p>
+  <p>If estimated_time is None, it means we can't estimate the time needed,
+  otherwise it's the time left in seconds.</p>
+  <p>If is_degraded is True, it means the device is missing redundancy. 
+  This is usually a sign that something went wrong in the device setup, if 
+  sync_percent is None.</p>
+  <p>The ldisk parameter represents the degradation of the local data. This
+  is only valid for some devices, the rest will always return False (not 
+  degraded).</p>
+  <dl class="fields">
+    <dt>Returns: objects.BlockDevStatus</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CombinedSyncStatus"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CombinedSyncStatus</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.CombinedSyncStatus">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Calculate the mirror status recursively for our children.</p>
+  <p>The return value is the same as for `GetSyncStatus()` except the 
+  minimum percent and maximum time are calculated across our children.</p>
+  <dl class="fields">
+    <dt>Returns: objects.BlockDevStatus</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="SetInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">SetInfo</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">text</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.SetInfo">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Update metadata with info text.</p>
+  <p>Only supported for some device types.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Grow"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Grow</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">amount</span>,
+        <span class="sig-arg">dryrun</span>,
+        <span class="sig-arg">backingstore</span>,
+        <span class="sig-arg">excl_stor</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.Grow">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Grow the block device.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>amount</code></strong> (integer) - the amount (in mebibytes) to grow with</li>
+        <li><strong class="pname"><code>dryrun</code></strong> (boolean) - whether to execute the operation in simulation mode only, without
+          actually increasing the size</li>
+        <li><strong class="pname"><code>backingstore</code></strong> - whether to execute the operation on backing storage only, or on 
+          &quot;logical&quot; storage only; e.g. DRBD is logical storage, 
+          whereas LVM, file, RBD are backing storage</li>
+        <li><strong class="pname"><code>excl_stor</code></strong> (boolean) - Whether exclusive_storage is active</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetActualSize"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetActualSize</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualSize">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return the actual disk size.</p>
+  <dl class="fields">
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        the device needs to be active when this is called
+      </p>
+</div></td></tr></table>
+</div>
+<a name="GetActualSpindles"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetActualSpindles</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualSpindles">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return the actual number of spindles used.</p>
+  <p>This is not supported by all devices; if not supported, 
+  <code>None</code> is returned.</p>
+  <dl class="fields">
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        the device needs to be active when this is called
+      </p>
+</div></td></tr></table>
+</div>
+<a name="GetActualDimensions"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetActualDimensions</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.GetActualDimensions">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return the actual disk size and number of spindles used.</p>
+  <dl class="fields">
+    <dt>Returns: tuple</dt>
+        <dd>(size, spindles); spindles is <code>None</code> when they are not
+          supported</dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        the device needs to be active when this is called
+      </p>
+</div></td></tr></table>
+</div>
+<a name="__repr__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__repr__</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">(Representation operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.storage.base-pysrc.html#BlockDev.__repr__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>repr(x)</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__repr__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Wed Dec 30 13:42:52 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

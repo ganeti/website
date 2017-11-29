@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>HSQUEEZE(1) Ganeti | Version 2.12.6</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">HSQUEEZE(1) Ganeti | Version 2.12.6</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a><ul>
+<li><a href="#algorithm">ALGORITHM</a></li>
+</ul></li>
+<li><a href="#options">OPTIONS</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>hsqueeze - Dynamic power management</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>hsqueeze</strong> {backend options...} [algorithm options...] [reporting options...]</p>
+<p><strong>hsqueeze</strong> --version</p>
+<p>Backend options:</p>
+<p>{ <strong>-L[</strong> <em>path</em> <strong>]</strong> | <strong>-t</strong> <em>data-file</em> }</p>
+<p>Algorithm options:</p>
+<p><strong>[ --minimal-resources=<em>factor</em> ]</strong> <strong>[ --target-resources=<em>factor</em> ]</strong></p>
+<p>Reporting options:</p>
+<p><strong>[ -S <em>file</em> ]</strong> <strong>[ -C[<em>file</em>] ]</strong></p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>hsqueeze does dynamic power management, by powering up or shutting down nodes, depending on the current load of the cluster. Currently, only suggesting nodes is implemented.</p>
+<h2 id="algorithm"><a href="#TOC">ALGORITHM</a></h2>
+<p>hsqueeze considers all online non-master nodes with only externally mirrored instances as candidates for being taken offline. These nodes are iteratively, starting from the node with the least number of instances, added to the set of nodes to be put offline, if possible. A set of nodes is considered as suitable for being taken offline, if, after marking these nodes as offline, balancing the cluster by the algorithm used by <strong>hbal</strong>(1) yields a situation where all instances are located on online nodes, and each node has at least the target resources free for new instances.</p>
+<p>All offline nodes with a tag starting with <code>htools:standby</code> are considered candidates for being taken online. Those nodes are taken online till balancing the cluster by the algorithm used by <strong>hbal</strong>(1) yields a situation where each node has at least the minimal resources free for new instances.</p>
+<h1 id="options"><a href="#TOC">OPTIONS</a></h1>
+<dl>
+<dt>-L [<em>path</em>]</dt>
+<dd><p>Backend specification: collect data directly from the master daemon, which is to be contacted via LUXI (an internal Ganeti protocol). The option is described in the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>-S <em>filename</em>, --save-cluster=<em>filename</em></dt>
+<dd><p>If given, the state of the cluster before the squeezing is saved to the given file plus the extension &quot;original&quot; (i.e. <em>filename</em>.original), and the state at the end of the squeezing operation is saved to the given file plus the extension &quot;squeezed&quot; (i.e. <em>filename</em>.squeezed).</p>
+</dd>
+<dt>-C[<em>filename</em>], --print-commands[=<em>filename</em>]</dt>
+<dd><p>If given, a shell script containing the commands to squeeze or unsqueeze the cluster are saved in a file with the given name; if no name is provided, they are printed to stdout.</p>
+</dd>
+<dt>-t <em>datafile</em>, --text-data=<em>datafile</em></dt>
+<dd><p>Backend specification: the name of the file holding node and instance information (if not collecting LUXI). This or one of the other backends must be selected. The option is described in the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>--minimal-resources=<em>factor</em></dt>
+<dd><p>Specify the amount of resources to be free on each node for hsqueeze not to consider onlining additional nodes. The value is reported a multiple of the standard instance specification, as taken from the instance policy.</p>
+</dd>
+<dt>--target-resources=<em>factor</em></dt>
+<dd><p>Specify the amount of resources to remain free on any node after squeezing. The value is reported a multiple of the standard instance specification, as taken from the instance policy.</p>
+</dd>
+</dl>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

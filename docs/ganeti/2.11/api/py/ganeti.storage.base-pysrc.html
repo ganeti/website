@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.storage.base</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.storage-module.html">Package&nbsp;storage</a> ::
+        Module&nbsp;base
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.storage.base-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.storage.base-module.html">Module ganeti.storage.base</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2006, 2007, 2010, 2011, 2012, 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""Block device abstraction - base class and utility functions"""</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.objects=ganeti.objects-module.html"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-1', 'objects', 'link-1');">objects</a></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-3', 'constants', 'link-3');">constants</a></tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Package ganeti.utils=ganeti.utils-module.html"><a title="ganeti.utils" class="py-name" href="#" onclick="return doclink('link-5', 'utils', 'link-5');">utils</a></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-7', 'errors', 'link-7');">errors</a></tt> </tt>
+<a name="BlockDev"></a><div id="BlockDev-def"><a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt> <a class="py-toggle" href="#" id="BlockDev-toggle" onclick="return toggle('BlockDev');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html">BlockDev</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BlockDev-expanded"><a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">  <tt class="py-docstring">"""Block device abstract class.</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-docstring">  A block device can be in the following states:</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-docstring">    - not existing on the system, and by `Create()` it goes into:</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-docstring">    - existing but not setup/not active, and by `Assemble()` goes into:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-docstring">    - active read-write and by `Open()` it goes into</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"><tt class="py-docstring">    - online (=used, or ready for use)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"><tt class="py-docstring">  A device can also be online but read-only, however we are not using</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt class="py-docstring">  the readonly state (LV has it, if needed in the future) and we are</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt class="py-docstring">  usually looking at this like at a stack, so it's easier to</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"><tt class="py-docstring">  conceptualise the transition from not-existing to online and back</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-docstring">  like a linear one.</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring">  The many different states of the device are due to the fact that we</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">  need to cover many device types:</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring">    - logical volumes are created, lvchange -a y $lv, and used</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">    - drbd devices are attached to a local disk/remote peer and made primary</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">  A block device is identified by three items:</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring">    - the /dev path of the device (dynamic)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">    - a unique ID of the device (static)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-docstring">    - it's major/minor pair (dynamic)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">  Not all devices implement both the first two as distinct items. LVM</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring">  logical volumes have their unique ID (the pair volume group, logical</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">  volume name) in a 1-to-1 relation to the dev path. For DRBD devices,</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-docstring">  the /dev path is again dynamic and the unique id is the pair (host1,</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-docstring">  dev1), (host2, dev2).</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">  You can get to a device in two ways:</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">    - creating the (real) device, which returns you</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">      an attached instance (lvcreate)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">    - attaching of a python instance to an existing (real) device</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">  The second point, the attachment to a device, is different</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">  depending on whether the device is assembled or not. At init() time,</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring">  we search for a device with the same unique_id as us. If found,</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">  good. It also means that the device is already assembled. If not,</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring">  after assembly we'll have our correct major/minor.</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">  <tt class="py-comment"># pylint: disable=W0613</tt> </tt>
+<a name="BlockDev.__init__"></a><div id="BlockDev.__init__-def"><a name="L85"></a><tt class="py-lineno"> 85</tt> <a class="py-toggle" href="#" id="BlockDev.__init__-toggle" onclick="return toggle('BlockDev.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">unique_id</tt><tt class="py-op">,</tt> <tt class="py-param">children</tt><tt class="py-op">,</tt> <tt class="py-param">size</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">dyn_params</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.__init__-expanded"><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt> <tt class="py-op">=</tt> <tt class="py-name">children</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">unique_id</tt> <tt class="py-op">=</tt> <tt class="py-name">unique_id</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">major</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">minor</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">attached</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">size</tt> <tt class="py-op">=</tt> <tt class="py-name">size</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">params</tt> <tt class="py-op">=</tt> <tt class="py-name">params</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dyn_params</tt> <tt class="py-op">=</tt> <tt class="py-name">dyn_params</tt> </tt>
+</div><a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Assemble"></a><div id="BlockDev.Assemble-def"><a name="L96"></a><tt class="py-lineno"> 96</tt> <a class="py-toggle" href="#" id="BlockDev.Assemble-toggle" onclick="return toggle('BlockDev.Assemble');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Assemble">Assemble</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Assemble-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Assemble-expanded"><a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">    <tt class="py-docstring">"""Assemble the device from its components.</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">    Implementations of this method by child classes must ensure that:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">      - after the device has been assembled, it knows its major/minor</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">        numbers; this allows other devices (usually parents) to probe</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">        correctly for their children</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">      - calling this method on an existing, in-use device is safe</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring">      - if the device is already configured (and in an OK state),</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"><tt class="py-docstring">        this method is idempotent</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Attach"></a><div id="BlockDev.Attach-def"><a name="L110"></a><tt class="py-lineno">110</tt> <a class="py-toggle" href="#" id="BlockDev.Attach-toggle" onclick="return toggle('BlockDev.Attach');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Attach">Attach</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Attach-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Attach-expanded"><a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-docstring">"""Find a device which matches our config and attach to it.</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Close"></a><div id="BlockDev.Close-def"><a name="L116"></a><tt class="py-lineno">116</tt> <a class="py-toggle" href="#" id="BlockDev.Close-toggle" onclick="return toggle('BlockDev.Close');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Close">Close</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Close-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Close-expanded"><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">    <tt class="py-docstring">"""Notifies that the device will no longer be used for I/O.</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="BlockDev.Create"></a><div id="BlockDev.Create-def"><a name="L123"></a><tt class="py-lineno">123</tt> <a class="py-toggle" href="#" id="BlockDev.Create-toggle" onclick="return toggle('BlockDev.Create');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Create">Create</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">unique_id</tt><tt class="py-op">,</tt> <tt class="py-param">children</tt><tt class="py-op">,</tt> <tt class="py-param">size</tt><tt class="py-op">,</tt> <tt class="py-param">spindles</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">excl_stor</tt><tt class="py-op">,</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">             <tt class="py-param">dyn_params</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Create-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Create-expanded"><a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">    <tt class="py-docstring">"""Create the device.</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"><tt class="py-docstring">    If the device cannot be created, it will return None</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">    instead. Error messages go to the logging system.</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">    Note that for some devices, the unique_id is used, and for other,</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">    the children. The idea is that these two, taken together, are</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">    enough for both creation and assembly (later).</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">    @type unique_id: 2-element tuple or list</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"><tt class="py-docstring">    @param unique_id: unique identifier; the details depend on the actual device</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">        type</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring">    @type children: list of L{BlockDev}</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">    @param children: for hierarchical devices, the child devices</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"><tt class="py-docstring">    @type size: float</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring">    @param size: size in MiB</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">    @type spindles: int</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">    @param spindles: number of physical disk to dedicate to the device</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">    @type params: dict</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">    @param params: device-specific options/parameters</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">    @type excl_stor: bool</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">    @param excl_stor: whether exclusive_storage is active</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">    @type dyn_params: dict</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">    @param dyn_params: dynamic parameters of the disk only valid for this node.</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">        As set by L{objects.Disk.UpdateDynamicDiskParams}.</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: L{BlockDev}</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">    @return: the created device, or C{None} in case of an error</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Remove"></a><div id="BlockDev.Remove-def"><a name="L156"></a><tt class="py-lineno">156</tt> <a class="py-toggle" href="#" id="BlockDev.Remove-toggle" onclick="return toggle('BlockDev.Remove');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Remove">Remove</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Remove-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Remove-expanded"><a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">    <tt class="py-docstring">"""Remove this device.</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-docstring">    This makes sense only for some of the device types: LV and file</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring">    storage. Also note that if the device can't attach, the removal</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"><tt class="py-docstring">    can't be completed.</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Rename"></a><div id="BlockDev.Rename-def"><a name="L166"></a><tt class="py-lineno">166</tt> <a class="py-toggle" href="#" id="BlockDev.Rename-toggle" onclick="return toggle('BlockDev.Rename');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Rename">Rename</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">new_id</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Rename-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Rename-expanded"><a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">    <tt class="py-docstring">"""Rename this device.</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring">    This may or may not make sense for a given device type.</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Open"></a><div id="BlockDev.Open-def"><a name="L174"></a><tt class="py-lineno">174</tt> <a class="py-toggle" href="#" id="BlockDev.Open-toggle" onclick="return toggle('BlockDev.Open');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Open">Open</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">force</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Open-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Open-expanded"><a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">    <tt class="py-docstring">"""Make the device ready for use.</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"><tt class="py-docstring">    This makes the device ready for I/O. For now, just the DRBD</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line"><tt class="py-docstring">    devices need this.</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line"><tt class="py-docstring">    The force parameter signifies that if the device has any kind of</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line"><tt class="py-docstring">    --force thing, it should be used, we know what we are doing.</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"><tt class="py-docstring">    @type force: boolean</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Shutdown"></a><div id="BlockDev.Shutdown-def"><a name="L188"></a><tt class="py-lineno">188</tt> <a class="py-toggle" href="#" id="BlockDev.Shutdown-toggle" onclick="return toggle('BlockDev.Shutdown');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Shutdown">Shutdown</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Shutdown-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Shutdown-expanded"><a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line">    <tt class="py-docstring">"""Shut down the device, freeing its children.</tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"><tt class="py-docstring">    This undoes the `Assemble()` work, except for the child</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"><tt class="py-docstring">    assembling; as such, the children on the device are still</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line"><tt class="py-docstring">    assembled after this call.</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.SetSyncParams"></a><div id="BlockDev.SetSyncParams-def"><a name="L198"></a><tt class="py-lineno">198</tt> <a class="py-toggle" href="#" id="BlockDev.SetSyncParams-toggle" onclick="return toggle('BlockDev.SetSyncParams');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#SetSyncParams">SetSyncParams</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.SetSyncParams-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.SetSyncParams-expanded"><a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">    <tt class="py-docstring">"""Adjust the synchronization parameters of the mirror.</tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line"><tt class="py-docstring">    In case this is not a mirroring device, this is no-op.</tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"><tt class="py-docstring">    @param params: dictionary of LD level disk parameters related to the</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"><tt class="py-docstring">    synchronization.</tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: list</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line"><tt class="py-docstring">    @return: a list of error messages, emitted both by the current node and by</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"><tt class="py-docstring">    children. An empty list means no errors.</tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">    <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">      <tt class="py-keyword">for</tt> <tt class="py-name">child</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">        <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">extend</tt><tt class="py-op">(</tt><tt class="py-name">child</tt><tt class="py-op">.</tt><tt id="link-8" class="py-name" targets="Method ganeti.storage.base.BlockDev.SetSyncParams()=ganeti.storage.base.BlockDev-class.html#SetSyncParams,Method ganeti.storage.drbd.DRBD8Dev.SetSyncParams()=ganeti.storage.drbd.DRBD8Dev-class.html#SetSyncParams"><a title="ganeti.storage.base.BlockDev.SetSyncParams
+ganeti.storage.drbd.DRBD8Dev.SetSyncParams" class="py-name" href="#" onclick="return doclink('link-8', 'SetSyncParams', 'link-8');">SetSyncParams</a></tt><tt class="py-op">(</tt><tt class="py-name">params</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">result</tt> </tt>
+</div><a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.PauseResumeSync"></a><div id="BlockDev.PauseResumeSync-def"><a name="L216"></a><tt class="py-lineno">216</tt> <a class="py-toggle" href="#" id="BlockDev.PauseResumeSync-toggle" onclick="return toggle('BlockDev.PauseResumeSync');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#PauseResumeSync">PauseResumeSync</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">pause</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.PauseResumeSync-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.PauseResumeSync-expanded"><a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">    <tt class="py-docstring">"""Pause/Resume the sync of the mirror.</tt> </tt>
+<a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line"><tt class="py-docstring">    In case this is not a mirroring device, this is no-op.</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"><tt class="py-docstring">    @type pause: boolean</tt> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"><tt class="py-docstring">    @param pause: Whether to pause or resume</tt> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line">    <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line">      <tt class="py-keyword">for</tt> <tt class="py-name">child</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line">        <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">result</tt> <tt class="py-keyword">and</tt> <tt class="py-name">child</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Method ganeti.storage.base.BlockDev.PauseResumeSync()=ganeti.storage.base.BlockDev-class.html#PauseResumeSync,Method ganeti.storage.drbd.DRBD8Dev.PauseResumeSync()=ganeti.storage.drbd.DRBD8Dev-class.html#PauseResumeSync"><a title="ganeti.storage.base.BlockDev.PauseResumeSync
+ganeti.storage.drbd.DRBD8Dev.PauseResumeSync" class="py-name" href="#" onclick="return doclink('link-9', 'PauseResumeSync', 'link-9');">PauseResumeSync</a></tt><tt class="py-op">(</tt><tt class="py-name">pause</tt><tt class="py-op">)</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">result</tt> </tt>
+</div><a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.GetSyncStatus"></a><div id="BlockDev.GetSyncStatus-def"><a name="L231"></a><tt class="py-lineno">231</tt> <a class="py-toggle" href="#" id="BlockDev.GetSyncStatus-toggle" onclick="return toggle('BlockDev.GetSyncStatus');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#GetSyncStatus">GetSyncStatus</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.GetSyncStatus-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.GetSyncStatus-expanded"><a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line">    <tt class="py-docstring">"""Returns the sync status of the device.</tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"><tt class="py-docstring">    If this device is a mirroring device, this function returns the</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"><tt class="py-docstring">    status of the mirror.</tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"><tt class="py-docstring">    If sync_percent is None, it means the device is not syncing.</tt> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line"><tt class="py-docstring">    If estimated_time is None, it means we can't estimate</tt> </tt>
+<a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line"><tt class="py-docstring">    the time needed, otherwise it's the time left in seconds.</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line"><tt class="py-docstring">    If is_degraded is True, it means the device is missing</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line"><tt class="py-docstring">    redundancy. This is usually a sign that something went wrong in</tt> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line"><tt class="py-docstring">    the device setup, if sync_percent is None.</tt> </tt>
+<a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line"><tt class="py-docstring">    The ldisk parameter represents the degradation of the local</tt> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line"><tt class="py-docstring">    data. This is only valid for some devices, the rest will always</tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line"><tt class="py-docstring">    return False (not degraded).</tt> </tt>
+<a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: objects.BlockDevStatus</tt> </tt>
+<a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-10" class="py-name"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-10', 'objects', 'link-1');">objects</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Class ganeti.objects.BlockDevStatus=ganeti.objects.BlockDevStatus-class.html"><a title="ganeti.objects.BlockDevStatus" class="py-name" href="#" onclick="return doclink('link-11', 'BlockDevStatus', 'link-11');">BlockDevStatus</a></tt><tt class="py-op">(</tt><tt class="py-name">dev_path</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt><tt class="py-op">,</tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">                                  <tt class="py-name">major</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">major</tt><tt class="py-op">,</tt> </tt>
+<a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line">                                  <tt class="py-name">minor</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">minor</tt><tt class="py-op">,</tt> </tt>
+<a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line">                                  <tt class="py-name">sync_percent</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line">                                  <tt class="py-name">estimated_time</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line">                                  <tt class="py-name">is_degraded</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line">                                  <tt class="py-name">ldisk_status</tt><tt class="py-op">=</tt><tt id="link-12" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-12', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Variable ganeti._constants.LDS_OKAY=ganeti._constants-module.html#LDS_OKAY"><a title="ganeti._constants.LDS_OKAY" class="py-name" href="#" onclick="return doclink('link-13', 'LDS_OKAY', 'link-13');">LDS_OKAY</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.CombinedSyncStatus"></a><div id="BlockDev.CombinedSyncStatus-def"><a name="L261"></a><tt class="py-lineno">261</tt> <a class="py-toggle" href="#" id="BlockDev.CombinedSyncStatus-toggle" onclick="return toggle('BlockDev.CombinedSyncStatus');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#CombinedSyncStatus">CombinedSyncStatus</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.CombinedSyncStatus-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.CombinedSyncStatus-expanded"><a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">    <tt class="py-docstring">"""Calculate the mirror status recursively for our children.</tt> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line"><tt class="py-docstring">    The return value is the same as for `GetSyncStatus()` except the</tt> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line"><tt class="py-docstring">    minimum percent and maximum time are calculated across our</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line"><tt class="py-docstring">    children.</tt> </tt>
+<a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: objects.BlockDevStatus</tt> </tt>
+<a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line">    <tt class="py-name">status</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name" targets="Method ganeti.storage.base.BlockDev.GetSyncStatus()=ganeti.storage.base.BlockDev-class.html#GetSyncStatus,Method ganeti.storage.bdev.LogicalVolume.GetSyncStatus()=ganeti.storage.bdev.LogicalVolume-class.html#GetSyncStatus,Method ganeti.storage.drbd.DRBD8Dev.GetSyncStatus()=ganeti.storage.drbd.DRBD8Dev-class.html#GetSyncStatus"><a title="ganeti.storage.base.BlockDev.GetSyncStatus
+ganeti.storage.bdev.LogicalVolume.GetSyncStatus
+ganeti.storage.drbd.DRBD8Dev.GetSyncStatus" class="py-name" href="#" onclick="return doclink('link-14', 'GetSyncStatus', 'link-14');">GetSyncStatus</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line"> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line">    <tt class="py-name">min_percent</tt> <tt class="py-op">=</tt> <tt class="py-name">status</tt><tt class="py-op">.</tt><tt class="py-name">sync_percent</tt> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line">    <tt class="py-name">max_time</tt> <tt class="py-op">=</tt> <tt class="py-name">status</tt><tt class="py-op">.</tt><tt class="py-name">estimated_time</tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line">    <tt class="py-name">is_degraded</tt> <tt class="py-op">=</tt> <tt class="py-name">status</tt><tt class="py-op">.</tt><tt class="py-name">is_degraded</tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line">    <tt class="py-name">ldisk_status</tt> <tt class="py-op">=</tt> <tt class="py-name">status</tt><tt class="py-op">.</tt><tt class="py-name">ldisk_status</tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line"> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line">      <tt class="py-keyword">for</tt> <tt class="py-name">child</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line">        <tt class="py-name">child_status</tt> <tt class="py-op">=</tt> <tt class="py-name">child</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="ganeti.storage.base.BlockDev.GetSyncStatus
+ganeti.storage.bdev.LogicalVolume.GetSyncStatus
+ganeti.storage.drbd.DRBD8Dev.GetSyncStatus" class="py-name" href="#" onclick="return doclink('link-15', 'GetSyncStatus', 'link-14');">GetSyncStatus</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line"> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">min_percent</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line">          <tt class="py-name">min_percent</tt> <tt class="py-op">=</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">sync_percent</tt> </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">        <tt class="py-keyword">elif</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">sync_percent</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line">          <tt class="py-name">min_percent</tt> <tt class="py-op">=</tt> <tt class="py-name">min</tt><tt class="py-op">(</tt><tt class="py-name">min_percent</tt><tt class="py-op">,</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">sync_percent</tt><tt class="py-op">)</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line"> </tt>
+<a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">max_time</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line">          <tt class="py-name">max_time</tt> <tt class="py-op">=</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">estimated_time</tt> </tt>
+<a name="L289"></a><tt class="py-lineno">289</tt>  <tt class="py-line">        <tt class="py-keyword">elif</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">estimated_time</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line">          <tt class="py-name">max_time</tt> <tt class="py-op">=</tt> <tt class="py-name">max</tt><tt class="py-op">(</tt><tt class="py-name">max_time</tt><tt class="py-op">,</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">estimated_time</tt><tt class="py-op">)</tt> </tt>
+<a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line"> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line">        <tt class="py-name">is_degraded</tt> <tt class="py-op">=</tt> <tt class="py-name">is_degraded</tt> <tt class="py-keyword">or</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">is_degraded</tt> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line"> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">ldisk_status</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line">          <tt class="py-name">ldisk_status</tt> <tt class="py-op">=</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">ldisk_status</tt> </tt>
+<a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line">        <tt class="py-keyword">elif</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">ldisk_status</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line">          <tt class="py-name">ldisk_status</tt> <tt class="py-op">=</tt> <tt class="py-name">max</tt><tt class="py-op">(</tt><tt class="py-name">ldisk_status</tt><tt class="py-op">,</tt> <tt class="py-name">child_status</tt><tt class="py-op">.</tt><tt class="py-name">ldisk_status</tt><tt class="py-op">)</tt> </tt>
+<a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line"> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-16" class="py-name"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-16', 'objects', 'link-1');">objects</a></tt><tt class="py-op">.</tt><tt id="link-17" class="py-name"><a title="ganeti.objects.BlockDevStatus" class="py-name" href="#" onclick="return doclink('link-17', 'BlockDevStatus', 'link-11');">BlockDevStatus</a></tt><tt class="py-op">(</tt><tt class="py-name">dev_path</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt><tt class="py-op">,</tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line">                                  <tt class="py-name">major</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">major</tt><tt class="py-op">,</tt> </tt>
+<a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line">                                  <tt class="py-name">minor</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">minor</tt><tt class="py-op">,</tt> </tt>
+<a name="L302"></a><tt class="py-lineno">302</tt>  <tt class="py-line">                                  <tt class="py-name">sync_percent</tt><tt class="py-op">=</tt><tt class="py-name">min_percent</tt><tt class="py-op">,</tt> </tt>
+<a name="L303"></a><tt class="py-lineno">303</tt>  <tt class="py-line">                                  <tt class="py-name">estimated_time</tt><tt class="py-op">=</tt><tt class="py-name">max_time</tt><tt class="py-op">,</tt> </tt>
+<a name="L304"></a><tt class="py-lineno">304</tt>  <tt class="py-line">                                  <tt class="py-name">is_degraded</tt><tt class="py-op">=</tt><tt class="py-name">is_degraded</tt><tt class="py-op">,</tt> </tt>
+<a name="L305"></a><tt class="py-lineno">305</tt>  <tt class="py-line">                                  <tt class="py-name">ldisk_status</tt><tt class="py-op">=</tt><tt class="py-name">ldisk_status</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L306"></a><tt class="py-lineno">306</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.SetInfo"></a><div id="BlockDev.SetInfo-def"><a name="L307"></a><tt class="py-lineno">307</tt> <a class="py-toggle" href="#" id="BlockDev.SetInfo-toggle" onclick="return toggle('BlockDev.SetInfo');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#SetInfo">SetInfo</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">text</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.SetInfo-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.SetInfo-expanded"><a name="L308"></a><tt class="py-lineno">308</tt>  <tt class="py-line">    <tt class="py-docstring">"""Update metadata with info text.</tt> </tt>
+<a name="L309"></a><tt class="py-lineno">309</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L310"></a><tt class="py-lineno">310</tt>  <tt class="py-line"><tt class="py-docstring">    Only supported for some device types.</tt> </tt>
+<a name="L311"></a><tt class="py-lineno">311</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L312"></a><tt class="py-lineno">312</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L313"></a><tt class="py-lineno">313</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">child</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">:</tt> </tt>
+<a name="L314"></a><tt class="py-lineno">314</tt>  <tt class="py-line">      <tt class="py-name">child</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Method ganeti.storage.base.BlockDev.SetInfo()=ganeti.storage.base.BlockDev-class.html#SetInfo,Method ganeti.storage.bdev.ExtStorageDevice.SetInfo()=ganeti.storage.bdev.ExtStorageDevice-class.html#SetInfo,Method ganeti.storage.bdev.LogicalVolume.SetInfo()=ganeti.storage.bdev.LogicalVolume-class.html#SetInfo"><a title="ganeti.storage.base.BlockDev.SetInfo
+ganeti.storage.bdev.ExtStorageDevice.SetInfo
+ganeti.storage.bdev.LogicalVolume.SetInfo" class="py-name" href="#" onclick="return doclink('link-18', 'SetInfo', 'link-18');">SetInfo</a></tt><tt class="py-op">(</tt><tt id="link-19" class="py-name" targets="Module ganeti.utils.text=ganeti.utils.text-module.html"><a title="ganeti.utils.text" class="py-name" href="#" onclick="return doclink('link-19', 'text', 'link-19');">text</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L315"></a><tt class="py-lineno">315</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.Grow"></a><div id="BlockDev.Grow-def"><a name="L316"></a><tt class="py-lineno">316</tt> <a class="py-toggle" href="#" id="BlockDev.Grow-toggle" onclick="return toggle('BlockDev.Grow');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#Grow">Grow</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">amount</tt><tt class="py-op">,</tt> <tt class="py-param">dryrun</tt><tt class="py-op">,</tt> <tt class="py-param">backingstore</tt><tt class="py-op">,</tt> <tt class="py-param">excl_stor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.Grow-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.Grow-expanded"><a name="L317"></a><tt class="py-lineno">317</tt>  <tt class="py-line">    <tt class="py-docstring">"""Grow the block device.</tt> </tt>
+<a name="L318"></a><tt class="py-lineno">318</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L319"></a><tt class="py-lineno">319</tt>  <tt class="py-line"><tt class="py-docstring">    @type amount: integer</tt> </tt>
+<a name="L320"></a><tt class="py-lineno">320</tt>  <tt class="py-line"><tt class="py-docstring">    @param amount: the amount (in mebibytes) to grow with</tt> </tt>
+<a name="L321"></a><tt class="py-lineno">321</tt>  <tt class="py-line"><tt class="py-docstring">    @type dryrun: boolean</tt> </tt>
+<a name="L322"></a><tt class="py-lineno">322</tt>  <tt class="py-line"><tt class="py-docstring">    @param dryrun: whether to execute the operation in simulation mode</tt> </tt>
+<a name="L323"></a><tt class="py-lineno">323</tt>  <tt class="py-line"><tt class="py-docstring">        only, without actually increasing the size</tt> </tt>
+<a name="L324"></a><tt class="py-lineno">324</tt>  <tt class="py-line"><tt class="py-docstring">    @param backingstore: whether to execute the operation on backing storage</tt> </tt>
+<a name="L325"></a><tt class="py-lineno">325</tt>  <tt class="py-line"><tt class="py-docstring">        only, or on "logical" storage only; e.g. DRBD is logical storage,</tt> </tt>
+<a name="L326"></a><tt class="py-lineno">326</tt>  <tt class="py-line"><tt class="py-docstring">        whereas LVM, file, RBD are backing storage</tt> </tt>
+<a name="L327"></a><tt class="py-lineno">327</tt>  <tt class="py-line"><tt class="py-docstring">    @type excl_stor: boolean</tt> </tt>
+<a name="L328"></a><tt class="py-lineno">328</tt>  <tt class="py-line"><tt class="py-docstring">    @param excl_stor: Whether exclusive_storage is active</tt> </tt>
+<a name="L329"></a><tt class="py-lineno">329</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L330"></a><tt class="py-lineno">330</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L331"></a><tt class="py-lineno">331</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt> </tt>
+</div><a name="L332"></a><tt class="py-lineno">332</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.GetActualSize"></a><div id="BlockDev.GetActualSize-def"><a name="L333"></a><tt class="py-lineno">333</tt> <a class="py-toggle" href="#" id="BlockDev.GetActualSize-toggle" onclick="return toggle('BlockDev.GetActualSize');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#GetActualSize">GetActualSize</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.GetActualSize-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.GetActualSize-expanded"><a name="L334"></a><tt class="py-lineno">334</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return the actual disk size.</tt> </tt>
+<a name="L335"></a><tt class="py-lineno">335</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L336"></a><tt class="py-lineno">336</tt>  <tt class="py-line"><tt class="py-docstring">    @note: the device needs to be active when this is called</tt> </tt>
+<a name="L337"></a><tt class="py-lineno">337</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L338"></a><tt class="py-lineno">338</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L339"></a><tt class="py-lineno">339</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">attached</tt><tt class="py-op">,</tt> <tt class="py-string">"BlockDevice not attached in GetActualSize()"</tt> </tt>
+<a name="L340"></a><tt class="py-lineno">340</tt>  <tt class="py-line">    <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="ganeti.utils" class="py-name" href="#" onclick="return doclink('link-20', 'utils', 'link-5');">utils</a></tt><tt class="py-op">.</tt><tt id="link-21" class="py-name" targets="Function ganeti.utils.process.RunCmd()=ganeti.utils.process-module.html#RunCmd"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-21', 'RunCmd', 'link-21');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"blockdev"</tt><tt class="py-op">,</tt> <tt class="py-string">"--getsize64"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L341"></a><tt class="py-lineno">341</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L342"></a><tt class="py-lineno">342</tt>  <tt class="py-line">      <tt id="link-22" class="py-name" targets="Function ganeti.storage.base.ThrowError()=ganeti.storage.base-module.html#ThrowError"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-22', 'ThrowError', 'link-22');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"blockdev failed (%s): %s"</tt><tt class="py-op">,</tt> </tt>
+<a name="L343"></a><tt class="py-lineno">343</tt>  <tt class="py-line">                  <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">fail_reason</tt><tt class="py-op">,</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Variable ganeti.utils.process.RunResult.output=ganeti.utils.process.RunResult-class.html#output"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-23', 'output', 'link-23');">output</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L344"></a><tt class="py-lineno">344</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L345"></a><tt class="py-lineno">345</tt>  <tt class="py-line">      <tt class="py-name">sz</tt> <tt class="py-op">=</tt> <tt class="py-name">int</tt><tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-24" class="py-name"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-24', 'output', 'link-23');">output</a></tt><tt class="py-op">.</tt><tt class="py-name">strip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L346"></a><tt class="py-lineno">346</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-op">(</tt><tt class="py-name">ValueError</tt><tt class="py-op">,</tt> <tt class="py-name">TypeError</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L347"></a><tt class="py-lineno">347</tt>  <tt class="py-line">      <tt id="link-25" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-25', 'ThrowError', 'link-22');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to parse blockdev output: %s"</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L348"></a><tt class="py-lineno">348</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">sz</tt> </tt>
+</div><a name="L349"></a><tt class="py-lineno">349</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.GetActualSpindles"></a><div id="BlockDev.GetActualSpindles-def"><a name="L350"></a><tt class="py-lineno">350</tt> <a class="py-toggle" href="#" id="BlockDev.GetActualSpindles-toggle" onclick="return toggle('BlockDev.GetActualSpindles');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#GetActualSpindles">GetActualSpindles</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.GetActualSpindles-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.GetActualSpindles-expanded"><a name="L351"></a><tt class="py-lineno">351</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return the actual number of spindles used.</tt> </tt>
+<a name="L352"></a><tt class="py-lineno">352</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L353"></a><tt class="py-lineno">353</tt>  <tt class="py-line"><tt class="py-docstring">    This is not supported by all devices; if not supported, C{None} is returned.</tt> </tt>
+<a name="L354"></a><tt class="py-lineno">354</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L355"></a><tt class="py-lineno">355</tt>  <tt class="py-line"><tt class="py-docstring">    @note: the device needs to be active when this is called</tt> </tt>
+<a name="L356"></a><tt class="py-lineno">356</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L357"></a><tt class="py-lineno">357</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L358"></a><tt class="py-lineno">358</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">attached</tt><tt class="py-op">,</tt> <tt class="py-string">"BlockDevice not attached in GetActualSpindles()"</tt> </tt>
+<a name="L359"></a><tt class="py-lineno">359</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="L360"></a><tt class="py-lineno">360</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.GetActualDimensions"></a><div id="BlockDev.GetActualDimensions-def"><a name="L361"></a><tt class="py-lineno">361</tt> <a class="py-toggle" href="#" id="BlockDev.GetActualDimensions-toggle" onclick="return toggle('BlockDev.GetActualDimensions');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#GetActualDimensions">GetActualDimensions</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.GetActualDimensions-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.GetActualDimensions-expanded"><a name="L362"></a><tt class="py-lineno">362</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return the actual disk size and number of spindles used.</tt> </tt>
+<a name="L363"></a><tt class="py-lineno">363</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L364"></a><tt class="py-lineno">364</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: tuple</tt> </tt>
+<a name="L365"></a><tt class="py-lineno">365</tt>  <tt class="py-line"><tt class="py-docstring">    @return: (size, spindles); spindles is C{None} when they are not supported</tt> </tt>
+<a name="L366"></a><tt class="py-lineno">366</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L367"></a><tt class="py-lineno">367</tt>  <tt class="py-line"><tt class="py-docstring">    @note: the device needs to be active when this is called</tt> </tt>
+<a name="L368"></a><tt class="py-lineno">368</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L369"></a><tt class="py-lineno">369</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L370"></a><tt class="py-lineno">370</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-26" class="py-name" targets="Method ganeti.storage.base.BlockDev.GetActualSize()=ganeti.storage.base.BlockDev-class.html#GetActualSize,Method ganeti.storage.filestorage.FileStorage.GetActualSize()=ganeti.storage.filestorage.FileStorage-class.html#GetActualSize,Method ganeti.storage.gluster.GlusterStorage.GetActualSize()=ganeti.storage.gluster.GlusterStorage-class.html#GetActualSize"><a title="ganeti.storage.base.BlockDev.GetActualSize
+ganeti.storage.filestorage.FileStorage.GetActualSize
+ganeti.storage.gluster.GlusterStorage.GetActualSize" class="py-name" href="#" onclick="return doclink('link-26', 'GetActualSize', 'link-26');">GetActualSize</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Method ganeti.storage.base.BlockDev.GetActualSpindles()=ganeti.storage.base.BlockDev-class.html#GetActualSpindles,Method ganeti.storage.bdev.LogicalVolume.GetActualSpindles()=ganeti.storage.bdev.LogicalVolume-class.html#GetActualSpindles"><a title="ganeti.storage.base.BlockDev.GetActualSpindles
+ganeti.storage.bdev.LogicalVolume.GetActualSpindles" class="py-name" href="#" onclick="return doclink('link-27', 'GetActualSpindles', 'link-27');">GetActualSpindles</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L371"></a><tt class="py-lineno">371</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.GetUserspaceAccessUri"></a><div id="BlockDev.GetUserspaceAccessUri-def"><a name="L372"></a><tt class="py-lineno">372</tt> <a class="py-toggle" href="#" id="BlockDev.GetUserspaceAccessUri-toggle" onclick="return toggle('BlockDev.GetUserspaceAccessUri');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#GetUserspaceAccessUri">GetUserspaceAccessUri</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">hypervisor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.GetUserspaceAccessUri-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.GetUserspaceAccessUri-expanded"><a name="L373"></a><tt class="py-lineno">373</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return URIs hypervisors can use to access disks in userspace mode.</tt> </tt>
+<a name="L374"></a><tt class="py-lineno">374</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L375"></a><tt class="py-lineno">375</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: string</tt> </tt>
+<a name="L376"></a><tt class="py-lineno">376</tt>  <tt class="py-line"><tt class="py-docstring">    @return: userspace device URI</tt> </tt>
+<a name="L377"></a><tt class="py-lineno">377</tt>  <tt class="py-line"><tt class="py-docstring">    @raise errors.BlockDeviceError: if userspace access is not supported</tt> </tt>
+<a name="L378"></a><tt class="py-lineno">378</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L379"></a><tt class="py-lineno">379</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L380"></a><tt class="py-lineno">380</tt>  <tt class="py-line">    <tt id="link-28" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-28', 'ThrowError', 'link-22');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Userspace access with %s block device and %s hypervisor is not "</tt> </tt>
+<a name="L381"></a><tt class="py-lineno">381</tt>  <tt class="py-line">               <tt class="py-string">"supported."</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> </tt>
+<a name="L382"></a><tt class="py-lineno">382</tt>  <tt class="py-line">                               <tt id="link-29" class="py-name" targets="Package ganeti.hypervisor=ganeti.hypervisor-module.html"><a title="ganeti.hypervisor" class="py-name" href="#" onclick="return doclink('link-29', 'hypervisor', 'link-29');">hypervisor</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L383"></a><tt class="py-lineno">383</tt>  <tt class="py-line"> </tt>
+<a name="BlockDev.__repr__"></a><div id="BlockDev.__repr__-def"><a name="L384"></a><tt class="py-lineno">384</tt> <a class="py-toggle" href="#" id="BlockDev.__repr__-toggle" onclick="return toggle('BlockDev.__repr__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base.BlockDev-class.html#__repr__">__repr__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BlockDev.__repr__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BlockDev.__repr__-expanded"><a name="L385"></a><tt class="py-lineno">385</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-string">"&lt;%s: unique_id: %s, children: %s, %s:%s, %s&gt;"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L386"></a><tt class="py-lineno">386</tt>  <tt class="py-line">            <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">unique_id</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_children</tt><tt class="py-op">,</tt> </tt>
+<a name="L387"></a><tt class="py-lineno">387</tt>  <tt class="py-line">             <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">major</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">minor</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L388"></a><tt class="py-lineno">388</tt>  <tt class="py-line"> </tt>
+<a name="ThrowError"></a><div id="ThrowError-def"><a name="L389"></a><tt class="py-lineno">389</tt>  <tt class="py-line"> </tt>
+<a name="L390"></a><tt class="py-lineno">390</tt> <a class="py-toggle" href="#" id="ThrowError-toggle" onclick="return toggle('ThrowError');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base-module.html#ThrowError">ThrowError</a><tt class="py-op">(</tt><tt class="py-param">msg</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ThrowError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ThrowError-expanded"><a name="L391"></a><tt class="py-lineno">391</tt>  <tt class="py-line">  <tt class="py-docstring">"""Log an error to the node daemon and the raise an exception.</tt> </tt>
+<a name="L392"></a><tt class="py-lineno">392</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L393"></a><tt class="py-lineno">393</tt>  <tt class="py-line"><tt class="py-docstring">  @type msg: string</tt> </tt>
+<a name="L394"></a><tt class="py-lineno">394</tt>  <tt class="py-line"><tt class="py-docstring">  @param msg: the text of the exception</tt> </tt>
+<a name="L395"></a><tt class="py-lineno">395</tt>  <tt class="py-line"><tt class="py-docstring">  @raise errors.BlockDeviceError</tt> </tt>
+<a name="L396"></a><tt class="py-lineno">396</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L397"></a><tt class="py-lineno">397</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L398"></a><tt class="py-lineno">398</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt id="link-30" class="py-name" targets="Variable script-cfgupgrade.args=script-cfgupgrade-module.html#args,Variable script-cfgupgrade12.args=script-cfgupgrade12-module.html#args"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-30', 'args', 'link-30');">args</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L399"></a><tt class="py-lineno">399</tt>  <tt class="py-line">    <tt class="py-name">msg</tt> <tt class="py-op">=</tt> <tt class="py-name">msg</tt> <tt class="py-op">%</tt> <tt id="link-31" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-31', 'args', 'link-30');">args</a></tt> </tt>
+<a name="L400"></a><tt class="py-lineno">400</tt>  <tt class="py-line">  <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
+<a name="L401"></a><tt class="py-lineno">401</tt>  <tt class="py-line">  <tt class="py-keyword">raise</tt> <tt id="link-32" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-32', 'errors', 'link-7');">errors</a></tt><tt class="py-op">.</tt><tt id="link-33" class="py-name" targets="Class ganeti.errors.BlockDeviceError=ganeti.errors.BlockDeviceError-class.html"><a title="ganeti.errors.BlockDeviceError" class="py-name" href="#" onclick="return doclink('link-33', 'BlockDeviceError', 'link-33');">BlockDeviceError</a></tt><tt class="py-op">(</tt><tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L402"></a><tt class="py-lineno">402</tt>  <tt class="py-line"> </tt>
+<a name="IgnoreError"></a><div id="IgnoreError-def"><a name="L403"></a><tt class="py-lineno">403</tt>  <tt class="py-line"> </tt>
+<a name="L404"></a><tt class="py-lineno">404</tt> <a class="py-toggle" href="#" id="IgnoreError-toggle" onclick="return toggle('IgnoreError');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.base-module.html#IgnoreError">IgnoreError</a><tt class="py-op">(</tt><tt class="py-param">fn</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IgnoreError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IgnoreError-expanded"><a name="L405"></a><tt class="py-lineno">405</tt>  <tt class="py-line">  <tt class="py-docstring">"""Executes the given function, ignoring BlockDeviceErrors.</tt> </tt>
+<a name="L406"></a><tt class="py-lineno">406</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L407"></a><tt class="py-lineno">407</tt>  <tt class="py-line"><tt class="py-docstring">  This is used in order to simplify the execution of cleanup or</tt> </tt>
+<a name="L408"></a><tt class="py-lineno">408</tt>  <tt class="py-line"><tt class="py-docstring">  rollback functions.</tt> </tt>
+<a name="L409"></a><tt class="py-lineno">409</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L410"></a><tt class="py-lineno">410</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: boolean</tt> </tt>
+<a name="L411"></a><tt class="py-lineno">411</tt>  <tt class="py-line"><tt class="py-docstring">  @return: True when fn didn't raise an exception, False otherwise</tt> </tt>
+<a name="L412"></a><tt class="py-lineno">412</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L413"></a><tt class="py-lineno">413</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L414"></a><tt class="py-lineno">414</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L415"></a><tt class="py-lineno">415</tt>  <tt class="py-line">    <tt class="py-name">fn</tt><tt class="py-op">(</tt><tt class="py-op">*</tt><tt id="link-34" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-34', 'args', 'link-30');">args</a></tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L416"></a><tt class="py-lineno">416</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+<a name="L417"></a><tt class="py-lineno">417</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt id="link-35" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-35', 'errors', 'link-7');">errors</a></tt><tt class="py-op">.</tt><tt id="link-36" class="py-name"><a title="ganeti.errors.BlockDeviceError" class="py-name" href="#" onclick="return doclink('link-36', 'BlockDeviceError', 'link-33');">BlockDeviceError</a></tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L418"></a><tt class="py-lineno">418</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">warning</tt><tt class="py-op">(</tt><tt class="py-string">"Caught BlockDeviceError but ignoring: %s"</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L419"></a><tt class="py-lineno">419</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L420"></a><tt class="py-lineno">420</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Jan 11 11:58:11 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

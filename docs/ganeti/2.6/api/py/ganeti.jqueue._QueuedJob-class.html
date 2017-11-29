@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.jqueue._QueuedJob</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.jqueue-module.html">Module&nbsp;jqueue</a> ::
+        Class&nbsp;_QueuedJob
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.jqueue._QueuedJob-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class _QueuedJob</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_ganeti_j_11" name="uml_class_diagram_for_ganeti_j_11">
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#end_timestamp" title="the timestamp for end of execution" alt="" coords="17,28,265,47"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#id" title="the job ID" alt="" coords="17,47,265,65"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#log_serial" title="holds the index for the next log entry" alt="" coords="17,65,265,84"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#ops" title="the list of _QueuedOpCode that constitute the job" alt="" coords="17,84,265,103"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#received_timestamp" title="the timestamp for when the job was received" alt="" coords="17,103,265,121"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#start_timestmap" title="the timestamp for start of execution" alt="" coords="17,121,265,140"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#writable" title="Whether the job is allowed to be modified" alt="" coords="17,140,265,159"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#__init__" title="Constructor for the _QueuedJob." alt="" coords="17,161,265,180"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#__repr__" title="repr(x)" alt="" coords="17,180,265,199"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#Restore" title="Restore a _QueuedJob from serialized state:" alt="" coords="17,199,265,217"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#Serialize" title="Serialize the _JobQueue instance." alt="" coords="17,217,265,236"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#CalcStatus" title="Compute the status of this job." alt="" coords="17,236,265,255"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#CalcPriority" title="Gets the current priority for this job." alt="" coords="17,255,265,273"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#GetLogEntries" title="Selectively returns the log entries." alt="" coords="17,273,265,292"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#GetInfo" title="Returns information about a job." alt="" coords="17,292,265,311"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#MarkUnfinishedOps" title="Mark unfinished opcodes with a given status and result." alt="" coords="17,311,265,329"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#Finalize" title="Marks the job as finalized." alt="" coords="17,329,265,348"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#Cancel" title="Marks job as canceled/&#45;ing if possible." alt="" coords="17,348,265,367"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html" title="In&#45;memory job representation." alt="" coords="16,11,267,368"/>
+<area shape="rect" href="ganeti.jqueue.JobQueue-class.html" title="Queue used to manage the jobs." alt="" coords="105,419,177,445"/>
+<area shape="poly" href="ganeti.jqueue._QueuedJob-class.html#queue" title="ganeti.jqueue._QueuedJob.queue" alt="" coords="144,368 144,405 139,405 139,368"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#queue" title="ganeti.jqueue._QueuedJob.queue" alt="" coords="137,364,145,372"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#queue" title="ganeti.jqueue._QueuedJob.queue" alt="" coords="137,415,145,423"/>
+<area shape="rect" href="ganeti.jqueue._QueuedJob-class.html#queue" title="queue" alt="" coords="141,385,176,402"/>
+</map>
+  <img src="uml_class_diagram_for_ganeti_j_11.gif" alt='' usemap="#uml_class_diagram_for_ganeti_j_11" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>In-memory job representation.</p>
+  <p>This is what we use to track the user-submitted jobs. Locking must be 
+  taken care of by users of this class.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">queue</span>,
+        <span class="summary-sig-arg">job_id</span>,
+        <span class="summary-sig-arg">ops</span>,
+        <span class="summary-sig-arg">writable</span>)</span><br />
+      Constructor for the _QueuedJob.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#__repr__" class="summary-sig-name">__repr__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      repr(x)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.__repr__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">dict</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#Serialize" class="summary-sig-name">Serialize</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Serialize the _JobQueue instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Serialize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#CalcStatus" class="summary-sig-name">CalcStatus</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Compute the status of this job.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.CalcStatus">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">int</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#CalcPriority" class="summary-sig-name">CalcPriority</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Gets the current priority for this job.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.CalcPriority">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#GetLogEntries" class="summary-sig-name">GetLogEntries</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">newer_than</span>)</span><br />
+      Selectively returns the log entries.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.GetLogEntries">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#GetInfo" class="summary-sig-name">GetInfo</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">fields</span>)</span><br />
+      Returns information about a job.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.GetInfo">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#MarkUnfinishedOps" class="summary-sig-name">MarkUnfinishedOps</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">status</span>,
+        <span class="summary-sig-arg">result</span>)</span><br />
+      Mark unfinished opcodes with a given status and result.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.MarkUnfinishedOps">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Finalize"></a><span class="summary-sig-name">Finalize</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Marks the job as finalized.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Finalize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">tuple; (bool, string)</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#Cancel" class="summary-sig-name">Cancel</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Marks job as canceled/-ing if possible.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Cancel">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS METHODS ==================== -->
+<a name="section-ClassMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">_JobQueue</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.jqueue._QueuedJob-class.html#Restore" class="summary-sig-name">Restore</a>(<span class="summary-sig-arg">cls</span>,
+        <span class="summary-sig-arg">queue</span>,
+        <span class="summary-sig-arg">state</span>,
+        <span class="summary-sig-arg">writable</span>)</span><br />
+      Restore a _QueuedJob from serialized state:</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Restore">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== STATIC METHODS ==================== -->
+<a name="section-StaticMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Static Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-StaticMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_InitInMemory"></a><span class="summary-sig-name">_InitInMemory</span>(<span class="summary-sig-arg">obj</span>,
+        <span class="summary-sig-arg">writable</span>)</span><br />
+      Initializes in-memory variables.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob._InitInMemory">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== INSTANCE VARIABLES ==================== -->
+<a name="section-InstanceVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="end_timestamp"></a><span class="summary-name">end_timestamp</span><br />
+      the timestamp for end of execution
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="id"></a><span class="summary-name">id</span><br />
+      the job ID
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">int</span>
+    </td><td class="summary">
+        <a name="log_serial"></a><span class="summary-name">log_serial</span><br />
+      holds the index for the next log entry
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+        <a name="ops"></a><span class="summary-name">ops</span><br />
+      the list of _QueuedOpCode that constitute the job
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="ganeti.jqueue.JobQueue-class.html" class="link">JobQueue</a></span>
+    </td><td class="summary">
+        <a name="queue"></a><span class="summary-name">queue</span><br />
+      the parent queue
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="received_timestamp"></a><span class="summary-name">received_timestamp</span><br />
+      the timestamp for when the job was received
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="start_timestmap"></a><span class="summary-name">start_timestmap</span><br />
+      the timestamp for start of execution
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="writable"></a><span class="summary-name">writable</span><br />
+      Whether the job is allowed to be modified
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">queue</span>,
+        <span class="sig-arg">job_id</span>,
+        <span class="sig-arg">ops</span>,
+        <span class="sig-arg">writable</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Constructor for the _QueuedJob.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>queue</code></strong> (<a href="ganeti.jqueue.JobQueue-class.html" 
+          class="link">JobQueue</a>) - our parent queue</li>
+        <li><strong class="pname"><code>job_id</code></strong> (job_id) - our job id</li>
+        <li><strong class="pname"><code>ops</code></strong> (list) - the list of opcodes we hold, which will be encapsulated in 
+          _QueuedOpCodes</li>
+        <li><strong class="pname"><code>writable</code></strong> (bool) - Whether job can be modified</li>
+    </ul></dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__repr__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__repr__</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">(Representation operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.__repr__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>repr(x)</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__repr__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Restore"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Restore</span>(<span class="sig-arg">cls</span>,
+        <span class="sig-arg">queue</span>,
+        <span class="sig-arg">state</span>,
+        <span class="sig-arg">writable</span>)</span>
+    <br /><em class="fname">Class Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Restore">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Restore a _QueuedJob from serialized state:</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>queue</code></strong> (<a href="ganeti.jqueue.JobQueue-class.html" 
+          class="link">JobQueue</a>) - to which queue the restored job belongs</li>
+        <li><strong class="pname"><code>state</code></strong> (dict) - the serialized state</li>
+        <li><strong class="pname"><code>writable</code></strong> (bool) - Whether job can be modified</li>
+    </ul></dd>
+    <dt>Returns: _JobQueue</dt>
+        <dd>the restored _JobQueue instance</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Serialize"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Serialize</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Serialize">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Serialize the _JobQueue instance.</p>
+  <dl class="fields">
+    <dt>Returns: dict</dt>
+        <dd>the serialized state</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CalcStatus"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CalcStatus</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.CalcStatus">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Compute the status of this job.</p>
+  <p>This function iterates over all the _QueuedOpCodes in the job and 
+  based on their status, computes the job status.</p>
+  <p>The algorithm is:</p>
+  <ul>
+    <li>
+      if we find a cancelled, or finished with error, the job status will 
+      be the same
+    </li>
+    <li>
+      otherwise, the last opcode with the status one of:
+      <ul>
+        <li>
+          waitlock
+        </li>
+        <li>
+          canceling
+        </li>
+        <li>
+          running
+        </li>
+      </ul>
+      <p>will determine the job status</p>
+    </li>
+    <li>
+      otherwise, it means either all opcodes are queued, or success, and 
+      the job status will be the same
+    </li>
+  </ul>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>the job status</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CalcPriority"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CalcPriority</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.CalcPriority">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets the current priority for this job.</p>
+  <p>Only unfinished opcodes are considered. When all are done, the default
+  priority is used.</p>
+  <dl class="fields">
+    <dt>Returns: int</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetLogEntries"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetLogEntries</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">newer_than</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.GetLogEntries">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Selectively returns the log entries.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>newer_than</code></strong> (None or int) - if this is None, return all log entries, otherwise return only 
+          the log entries with serial higher than this value</li>
+    </ul></dd>
+    <dt>Returns: list</dt>
+        <dd>the list of the log entries selected</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetInfo"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetInfo</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">fields</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.GetInfo">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns information about a job.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>fields</code></strong> (list) - names of fields to return</li>
+    </ul></dd>
+    <dt>Returns: list</dt>
+        <dd>list with one element for each field</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'><a href="ganeti.errors.OpExecError-class.html">errors.OpExecError</a></strong></code> - when an invalid field has been passed</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="MarkUnfinishedOps"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">MarkUnfinishedOps</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">status</span>,
+        <span class="sig-arg">result</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.MarkUnfinishedOps">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Mark unfinished opcodes with a given status and result.</p>
+  <p>This is an utility function for marking all running or waiting to be 
+  run opcodes with a given status. Opcodes which are already finalised are 
+  not changed.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>status</code></strong> - a given opcode status</li>
+        <li><strong class="pname"><code>result</code></strong> - the opcode result</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Cancel"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Cancel</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.jqueue-pysrc.html#_QueuedJob.Cancel">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Marks job as canceled/-ing if possible.</p>
+  <dl class="fields">
+    <dt>Returns: tuple; (bool, string)</dt>
+        <dd>Boolean describing whether job was successfully canceled or 
+          marked as canceling and a text message</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jan 18 10:09:45 2013
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

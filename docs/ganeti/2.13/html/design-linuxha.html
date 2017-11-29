@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Linux HA integration &mdash; Ganeti 2.13.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.13.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.13.3 documentation" href="index.html" />
+    <link rel="next" title="Submitting jobs from logical units" href="design-lu-generated-jobs.html" />
+    <link rel="prev" title="KVM daemon" href="design-kvmd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-lu-generated-jobs.html" title="Submitting jobs from logical units"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-kvmd.html" title="KVM daemon"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="linux-ha-integration">
+<h1><a class="toc-backref" href="#id2">Linux HA integration</a><a class="headerlink" href="#linux-ha-integration" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#linux-ha-integration" id="id2">Linux HA integration</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id3">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#ganeti-ocf-agents" id="id5">Ganeti OCF agents</a></li>
+<li><a class="reference internal" href="#master-role-agent" id="id6">Master role agent</a><ul>
+<li><a class="reference internal" href="#future-improvements" id="id7">Future improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-role-agent" id="id8">Node role agent</a><ul>
+<li><a class="reference internal" href="#id1" id="id9">Future improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#risks" id="id10">Risks</a></li>
+<li><a class="reference internal" href="#code-status" id="id11">Code status</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id12">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the integration of Ganeti and Linux HA.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id3">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti doesn&#8217;t currently support any self-healing or self-monitoring.</p>
+<p>We are now working on trying to improve the situation in this regard:</p>
+<ul class="simple">
+<li>The <a class="reference internal" href="design-autorepair.html"><em>autorepair system</em></a> will take care
+of self repairing a cluster in the presence of offline nodes.</li>
+<li>The <a class="reference internal" href="design-monitoring-agent.html"><em>monitoring agent</em></a> will take care
+of exporting data to monitoring.</li>
+</ul>
+<p>What is still missing is a way to self-detect &#8220;obvious&#8221; failures rapidly
+and to:</p>
+<ul class="simple">
+<li>Maintain the master role active.</li>
+<li>Offline resource that are obviously faulty so that the autorepair
+system can perform its work.</li>
+</ul>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id4">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>Linux-HA provides software that can be used to provide high availability
+of services through automatic failover of resources. In particular
+Pacemaker can be used together with Heartbeat or Corosync to make sure a
+resource is kept active on a self-monitoring cluster.</p>
+<div class="section" id="ganeti-ocf-agents">
+<h3><a class="toc-backref" href="#id5">Ganeti OCF agents</a><a class="headerlink" href="#ganeti-ocf-agents" title="Permalink to this headline">¶</a></h3>
+<p>The Ganeti agents will be slightly special in the HA world. The
+following will apply:</p>
+<ul class="simple">
+<li>The agents will be able to be configured cluster-wise by tags (which
+will be read on the nodes via ssconf_cluster_tags) and locally by
+files on the filesystem that will allow them to &#8220;simulate&#8221; a
+particular condition (eg. simulate a failure even if none is
+detected).</li>
+<li>The agents will be able to run in &#8220;full&#8221; or &#8220;partial&#8221; mode: in
+&#8220;partial&#8221; mode they will always succeed, and thus never fail a
+resource as long as a node is online, is running the linux HA software
+and is responding to the network. In &#8220;full&#8221; mode they will also check
+resources like the cluster master ip or master daemon, and act if they
+are missing</li>
+</ul>
+<p>Note that for what Ganeti does OCF agents are needed: simply relying on
+the LSB scripts will not work for the Ganeti service.</p>
+</div>
+<div class="section" id="master-role-agent">
+<h3><a class="toc-backref" href="#id6">Master role agent</a><a class="headerlink" href="#master-role-agent" title="Permalink to this headline">¶</a></h3>
+<p>This agent will manage the Ganeti master role. It needs to be configured
+as a sticky resource (you don&#8217;t want to flap the master role around, do
+you?) that is active on only one node. You can require quorum or fencing
+to protect your cluster from multiple masters.</p>
+<p>The agent will implement a stateless resource that considers itself
+&#8220;started&#8221; only the master node, &#8220;stopped&#8221; on all master candidates and
+in error mode for all other nodes.</p>
+<p>Note that if not all your nodes are master candidates this resource
+might have problems:</p>
+<ul class="simple">
+<li>if all nodes are configured to run the resource, heartbeat may decide
+to &#8220;fence&#8221; (aka stonith) all your non-master-candidate nodes if told
+to do so. This might not be what you want.</li>
+<li>if only master candidates are configured as nodes for the resource,
+beware of promotions and demotions, as nothing will update
+automatically pacemaker should a change happen at the Ganeti level.</li>
+</ul>
+<p>Other solutions, such as reporting the resource just as &#8220;stopped&#8221; on non
+master candidates as well might mean that pacemaker would choose the
+&#8220;wrong&#8221; node to promote to master, which is also a bad idea.</p>
+<div class="section" id="future-improvements">
+<h4><a class="toc-backref" href="#id7">Future improvements</a><a class="headerlink" href="#future-improvements" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Ability to work better with non-master-candidate nodes</li>
+<li>Stateful resource that can &#8220;safely&#8221; transfer the master role between
+online nodes (with queue drain and such)</li>
+<li>Implement &#8220;full&#8221; mode, with detection of the cluster IP and the master
+node daemon.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="node-role-agent">
+<h3><a class="toc-backref" href="#id8">Node role agent</a><a class="headerlink" href="#node-role-agent" title="Permalink to this headline">¶</a></h3>
+<p>This agent will manage the Ganeti node role. It needs to be configured
+as a cloned resource that is active on all nodes.</p>
+<p>In partial mode it will always return success (and thus trigger a
+failure only upon an HA level or network failure). Full mode, which
+initially will not be implemented, couls also check for the node daemon
+being unresponsive or other local conditions (TBD).</p>
+<p>When a failure happens the HA notification system will trigger on all
+other nodes, including the master. The master will then be able to
+offline the node. Any other work to restore instance availability should
+then be done by the autorepair system.</p>
+<p>The following cluster tags are supported:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">ocf:node-offline:use-powercycle</span></tt>: Try to powercycle a node using
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">powercycle</span></tt> when offlining.</li>
+<li><tt class="docutils literal"><span class="pre">ocf:node-offline:use-poweroff</span></tt>: Try to power off a node using
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">power</span> <span class="pre">off</span></tt> when offlining (requires OOB support).</li>
+</ul>
+<div class="section" id="id1">
+<h4><a class="toc-backref" href="#id9">Future improvements</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Handle draining differently than offlining</li>
+<li>Handle different modes of &#8220;stopping&#8221; the service</li>
+<li>Implement &#8220;full&#8221; mode</li>
+</ul>
+</div>
+</div>
+<div class="section" id="risks">
+<h3><a class="toc-backref" href="#id10">Risks</a><a class="headerlink" href="#risks" title="Permalink to this headline">¶</a></h3>
+<p>Running Ganeti with Pacemaker increases the risk of stability for your
+Ganeti Cluster. Events like:</p>
+<ul class="simple">
+<li>stopping heartbeat or corosync on a node</li>
+<li>corosync or heartbeat being killed for any reason</li>
+<li>temporary failure in a node&#8217;s networking</li>
+</ul>
+<p>will trigger potentially dangerous operations such as node offlining or
+master role failover. Moreover if the autorepair system will be working
+they will be able to also trigger instance failovers or migrations, and
+disk replaces.</p>
+<p>Also note that operations like: master-failover, or manual node-modify
+might interact badly with this setup depending on the way your HA system
+is configured (see below).</p>
+<p>This of course is an inherent problem with any Linux-HA installation,
+but is probably more visible with Ganeti given that our resources tend
+to be more heavyweight than many others managed in HA clusters (eg. an
+IP address).</p>
+</div>
+<div class="section" id="code-status">
+<h3><a class="toc-backref" href="#id11">Code status</a><a class="headerlink" href="#code-status" title="Permalink to this headline">¶</a></h3>
+<p>This code is heavily experimental, and Linux-HA is a very complex
+subsystem. <em>We might not be able to help you</em> if you decide to run this
+code: please make sure you understand fully high availability on your
+production machines. Ganeti only ships this code as an example but it
+might need customization or complex configurations on your side for it
+to run properly.</p>
+<p><em>Ganeti does not automate HA configuration for your cluster</em>. You need
+to do this job by hand. Good luck, don&#8217;t get it wrong.</p>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id12">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Integrate the agents better with the ganeti monitoring</li>
+<li>Add hooks for managing HA at node add/remove/modify/master-failover
+operations</li>
+<li>Provide a stonith system through Ganeti&#8217;s OOB system</li>
+<li>Provide an OOB system that does &#8220;shunning&#8221; of offline nodes, for
+emulating a real OOB, at least on all nodes</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Linux HA integration</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#ganeti-ocf-agents">Ganeti OCF agents</a></li>
+<li><a class="reference internal" href="#master-role-agent">Master role agent</a><ul>
+<li><a class="reference internal" href="#future-improvements">Future improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-role-agent">Node role agent</a><ul>
+<li><a class="reference internal" href="#id1">Future improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#risks">Risks</a></li>
+<li><a class="reference internal" href="#code-status">Code status</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-kvmd.html"
+                        title="previous chapter">KVM daemon</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-lu-generated-jobs.html"
+                        title="next chapter">Submitting jobs from logical units</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-linuxha.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-lu-generated-jobs.html" title="Submitting jobs from logical units"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-kvmd.html" title="KVM daemon"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

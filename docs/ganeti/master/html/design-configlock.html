@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Removal of the Config Lock Overhead &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="HTools support for multiple storage units per node" href="design-multi-storage-htools.html" />
+    <link rel="prev" title="Network Management (revised)" href="design-network2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-multi-storage-htools.html" title="HTools support for multiple storage units per node"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-network2.html" title="Network Management (revised)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="removal-of-the-config-lock-overhead">
+<h1><a class="toc-backref" href="#id1">Removal of the Config Lock Overhead</a><a class="headerlink" href="#removal-of-the-config-lock-overhead" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#removal-of-the-config-lock-overhead" id="id1">Removal of the Config Lock Overhead</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes-for-an-incremental-improvement" id="id3">Proposed changes for an incremental improvement</a><ul>
+<li><a class="reference internal" href="#unlocked-reads" id="id4">Unlocked Reads</a></li>
+<li><a class="reference internal" href="#cached-reads" id="id5">Cached Reads</a></li>
+<li><a class="reference internal" href="#set-and-release-action" id="id6">Set-and-release action</a></li>
+<li><a class="reference internal" href="#short-lived-configlock" id="id7">Short-lived <tt class="docutils literal"><span class="pre">ConfigLock</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#approaches-considered-but-not-working" id="id8">Approaches considered, but not working</a><ul>
+<li><a class="reference internal" href="#set-and-release-action-with-asynchronous-writes" id="id9">Set-and-release action with asynchronous writes</a><ul>
+<li><a class="reference internal" href="#approach" id="id10">Approach</a></li>
+<li><a class="reference internal" href="#problem" id="id11">Problem</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing how the adverse effect of
+the config lock can be removed in an incremental way.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>As a result of the <a class="reference internal" href="design-daemons.html"><em>Ganeti daemons refactoring</em></a>, the configuration is held
+in a proccess different from the processes carrying out the Ganeti
+jobs. Therefore, job processes have to contact WConfD in order to
+change the configuration. Of course, these modifications of the
+configuration need to be synchronised.</p>
+<p>The current form of synchronisation is via <tt class="docutils literal"><span class="pre">ConfigLock</span></tt>. Exclusive
+possession of this lock guarantees that no one else modifies the
+configuration. In other words, the current procedure for a job to
+update the configuration is to</p>
+<ul class="simple">
+<li>acquire the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt> from WConfD,</li>
+<li>read the configration,</li>
+<li>write the modified configuration, and</li>
+<li>release <tt class="docutils literal"><span class="pre">ConfigLock</span></tt>.</li>
+</ul>
+<p>The current procedure has some drawbacks. These also affect the
+overall throughput of jobs in a Ganeti cluster.</p>
+<ul class="simple">
+<li>At each configuration update, the whole configuration is
+transferred between the job and WConfD.</li>
+<li>More importantly, however, jobs can only release the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt> after
+the write; the write, in turn, is only confirmed once the configuration
+is written on disk. In particular, we can only have one update per
+configuration write. Also, having the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt> is only confirmed
+to the job, once the new lock status is written to disk.</li>
+</ul>
+<p>Additional overhead is caused by the fact that reads are synchronised over
+a shared config lock. This used to make sense when the configuration was
+modifiable in the same process to ensure consistent read. With the new
+structure, all access to the configuration via WConfD are consistent
+anyway, and local modifications by other jobs do not happen.</p>
+</div>
+<div class="section" id="proposed-changes-for-an-incremental-improvement">
+<h2><a class="toc-backref" href="#id3">Proposed changes for an incremental improvement</a><a class="headerlink" href="#proposed-changes-for-an-incremental-improvement" title="Permalink to this headline">¶</a></h2>
+<p>Ideally, jobs would just send patches for the configuration to WConfD
+that are applied by means of atomically updating the respective <tt class="docutils literal"><span class="pre">IORef</span></tt>.
+This, however, would require chaning all of Ganeti&#8217;s logical units in
+one big change. Therefore, we propose to keep the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt> and,
+step by step, reduce its impact till it eventually will be just used
+internally in the WConfD process.</p>
+<div class="section" id="unlocked-reads">
+<h3><a class="toc-backref" href="#id4">Unlocked Reads</a><a class="headerlink" href="#unlocked-reads" title="Permalink to this headline">¶</a></h3>
+<p>In a first step, all configuration operations that are synchronised over
+a shared config lock, and therefore necessarily read-only, will instead
+use WConfD&#8217;s <tt class="docutils literal"><span class="pre">readConfig</span></tt> used to obtain a snapshot of the configuration.
+This will be done without modifying the locks. It is sound, as reads to
+a Haskell <tt class="docutils literal"><span class="pre">IORef</span></tt> always yield a consistent value. From that snapshot
+the required view is computed locally. This saves two lock-configurtion
+write cycles per read and, additionally, does not block any concurrent
+modifications.</p>
+<p>In a second step, more specialised read functions will be added to <tt class="docutils literal"><span class="pre">WConfD</span></tt>.
+This will reduce the traffic for reads.</p>
+</div>
+<div class="section" id="cached-reads">
+<h3><a class="toc-backref" href="#id5">Cached Reads</a><a class="headerlink" href="#cached-reads" title="Permalink to this headline">¶</a></h3>
+<p>As jobs synchronize with each other by means of regular locks, the parts
+of the configuration relevant for a job can only change while a job waits
+for new locks. So, if a job has a copy of the configuration and not asked
+for locks afterwards, all read-only access can be done from that copy. While
+this will not affect the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt>, it saves traffic.</p>
+</div>
+<div class="section" id="set-and-release-action">
+<h3><a class="toc-backref" href="#id6">Set-and-release action</a><a class="headerlink" href="#set-and-release-action" title="Permalink to this headline">¶</a></h3>
+<p>As a typical pattern is to change the configuration and afterwards release
+the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt>. To avoid unnecessary RPC call overhead, WConfD will offer
+a combined call. To make that call retryable, it will do nothing if the the
+<tt class="docutils literal"><span class="pre">ConfigLock</span></tt> is not held by the caller; in the return value, it will indicate
+if the config lock was held when the call was made.</p>
+</div>
+<div class="section" id="short-lived-configlock">
+<h3><a class="toc-backref" href="#id7">Short-lived <tt class="docutils literal"><span class="pre">ConfigLock</span></tt></a><a class="headerlink" href="#short-lived-configlock" title="Permalink to this headline">¶</a></h3>
+<p>For a lot of operations, the regular locks already ensure that only
+one job can modify a certain part of the configuration. For example,
+only jobs with an exclusive lock on an instance will modify that
+instance. Therefore, it can update that entity atomically,
+without relying on the configuration lock to achive consistency.
+<tt class="docutils literal"><span class="pre">WConfD</span></tt> will provide such operations. To
+avoid interference with non-atomic operations that still take the
+config lock and write the configuration as a whole, this operation
+will only be carried out at times the config lock is not taken. To
+ensure this, the thread handling the request will take the config lock
+itself (hence no one else has it, if that succeeds) before the change
+and release afterwards; both operations will be done without
+triggering a writeout of the lock status.</p>
+<p>Note that the thread handling the request has to take the lock in its
+own name and not in that of the requesting job. A writeout of the lock
+status can still happen, triggered by other requests. Now, if
+<tt class="docutils literal"><span class="pre">WConfD</span></tt> gets restarted after the lock acquisition, if that happend
+in the name of the job, it would own a lock without knowing about it,
+and hence that lock would never get released.</p>
+</div>
+</div>
+<div class="section" id="approaches-considered-but-not-working">
+<h2><a class="toc-backref" href="#id8">Approaches considered, but not working</a><a class="headerlink" href="#approaches-considered-but-not-working" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="set-and-release-action-with-asynchronous-writes">
+<h3><a class="toc-backref" href="#id9">Set-and-release action with asynchronous writes</a><a class="headerlink" href="#set-and-release-action-with-asynchronous-writes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="approach">
+<h4><a class="toc-backref" href="#id10">Approach</a><a class="headerlink" href="#approach" title="Permalink to this headline">¶</a></h4>
+<p>As a typical pattern is to change the configuration and afterwards release
+the <tt class="docutils literal"><span class="pre">ConfigLock</span></tt>. To avoid unnecessary delay in this operation (the next
+modification of the configuration can already happen while the last change
+is written out), WConfD will offer a combined command that will</p>
+<ul class="simple">
+<li>set the configuration to the specified value,</li>
+<li>release the config lock,</li>
+<li>and only then wait for the configuration write to finish; it will not
+wait for confirmation of the lock-release write.</li>
+</ul>
+<p>If jobs use this combined command instead of the sequential set followed
+by release, new configuration changes can come in during writeout of the
+current change; in particular, a writeout can contain more than one change.</p>
+</div>
+<div class="section" id="problem">
+<h4><a class="toc-backref" href="#id11">Problem</a><a class="headerlink" href="#problem" title="Permalink to this headline">¶</a></h4>
+<p>This approach works fine, as long as always either <tt class="docutils literal"><span class="pre">WConfD</span></tt> can do an ordered
+shutdown or the calling process dies as well. If however, we allow random kill
+signals to be sent to individual daemons (e.g., by an out-of-memory killer),
+the following race occurs. A process can ask for a combined write-and-unlock
+operation; while the configuration is still written out, the write out of the
+updated lock status already finishes. Now, if <tt class="docutils literal"><span class="pre">WConfD</span></tt> forcefully gets killed
+in that very moment, a restarted <tt class="docutils literal"><span class="pre">WConfD</span></tt> will read the old configuration but
+the new lock status. This will make the calling process believe that its call,
+while it didn&#8217;t get an answer, succeeded nevertheless, thus resulting in a
+wrong configuration state.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Removal of the Config Lock Overhead</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes-for-an-incremental-improvement">Proposed changes for an incremental improvement</a><ul>
+<li><a class="reference internal" href="#unlocked-reads">Unlocked Reads</a></li>
+<li><a class="reference internal" href="#cached-reads">Cached Reads</a></li>
+<li><a class="reference internal" href="#set-and-release-action">Set-and-release action</a></li>
+<li><a class="reference internal" href="#short-lived-configlock">Short-lived <tt class="docutils literal"><span class="pre">ConfigLock</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#approaches-considered-but-not-working">Approaches considered, but not working</a><ul>
+<li><a class="reference internal" href="#set-and-release-action-with-asynchronous-writes">Set-and-release action with asynchronous writes</a><ul>
+<li><a class="reference internal" href="#approach">Approach</a></li>
+<li><a class="reference internal" href="#problem">Problem</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-network2.html"
+                        title="previous chapter">Network Management (revised)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-multi-storage-htools.html"
+                        title="next chapter">HTools support for multiple storage units per node</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-configlock.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-multi-storage-htools.html" title="HTools support for multiple storage units per node"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-network2.html" title="Network Management (revised)"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

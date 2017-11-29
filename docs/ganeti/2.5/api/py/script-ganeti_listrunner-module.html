@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>script-ganeti_listrunner</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Script&nbsp;ganeti_listrunner
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="script-ganeti_listrunner-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== SCRIPT DESCRIPTION ==================== -->
+<h1 class="epydoc">Script ganeti_listrunner</h1><p class="nomargin-top"></p>
+<p>Run an executable on a list of hosts.</p>
+  <p>Script to serially run an executable on a list of hosts via ssh with 
+  password auth as root. If the provided log dir does not yet exist, it 
+  will try to create it.</p>
+  <p>Implementation:</p>
+  <ul>
+    <li>
+      the main process spawns up to batch_size children, which:
+    </li>
+    <li>
+      connects to the remote host via ssh as root
+    </li>
+    <li>
+      uploads the executable with a random name to /tmp via sftp
+    </li>
+    <li>
+      chmod 500s it
+    </li>
+    <li>
+      via ssh: chdirs into the upload directory and runs the script
+    </li>
+    <li>
+      deletes it
+    </li>
+    <li>
+      writes status messages and all output to one logfile per host
+    </li>
+    <li>
+      the main process gathers then the status of the children and reports 
+      the success/failure ratio
+    </li>
+    <li>
+      entire script can be aborted with Ctrl-C
+    </li>
+  </ul>
+  <p>Security considerations:</p>
+  <ul>
+    <li>
+      the root password for the remote hosts is stored in memory for the 
+      runtime of the script
+    </li>
+    <li>
+      the executable to be run on the remote host is handled the following 
+      way:
+      <ul>
+        <li>
+          try to create a random directory with permissions 700 on the 
+          remote host, abort furter processing on this host if this failes
+        </li>
+        <li>
+          upload the executable with to a random filename in that directory
+        </li>
+        <li>
+          set executable permissions to 500
+        </li>
+        <li>
+          run the executable
+        </li>
+        <li>
+          delete the execuable and the directory on the remote host
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="LogDirUseable"></a><span class="summary-sig-name">LogDirUseable</span>(<span class="summary-sig-arg">logdir</span>)</span><br />
+      Ensure log file directory is available and usable.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#GetTimeStamp" class="summary-sig-name">GetTimeStamp</a>(<span class="summary-sig-arg">timestamp</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Return ISO8601 timestamp.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#PingByTcp" class="summary-sig-name">PingByTcp</a>(<span class="summary-sig-arg">target</span>,
+        <span class="summary-sig-arg">port</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">10</span>,
+        <span class="summary-sig-arg">live_port_needed</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">source</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Simple ping implementation using TCP connect(2).</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#GetHosts" class="summary-sig-name">GetHosts</a>(<span class="summary-sig-arg">hostsfile</span>)</span><br />
+      Return list of hosts from hostfile.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="WriteLog"></a><span class="summary-sig-name">WriteLog</span>(<span class="summary-sig-arg">message</span>,
+        <span class="summary-sig-arg">logfile</span>)</span><br />
+      Writes message, terminated by newline, to logfile.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="GetAgentKeys"></a><span class="summary-sig-name">GetAgentKeys</span>()</span><br />
+      Tries to get a list of ssh keys from an agent.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#SetupSshConnection" class="summary-sig-name">SetupSshConnection</a>(<span class="summary-sig-arg">host</span>,
+        <span class="summary-sig-arg">username</span>,
+        <span class="summary-sig-arg">password</span>,
+        <span class="summary-sig-arg">use_agent</span>,
+        <span class="summary-sig-arg">logfile</span>)</span><br />
+      Setup the ssh connection used for all later steps.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#UploadFiles" class="summary-sig-name">UploadFiles</a>(<span class="summary-sig-arg">connection</span>,
+        <span class="summary-sig-arg">executable</span>,
+        <span class="summary-sig-arg">filelist</span>,
+        <span class="summary-sig-arg">logfile</span>)</span><br />
+      Uploads the specified files via sftp.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="CleanupRemoteDir"></a><span class="summary-sig-name">CleanupRemoteDir</span>(<span class="summary-sig-arg">connection</span>,
+        <span class="summary-sig-arg">upload_dir</span>,
+        <span class="summary-sig-arg">filelist</span>,
+        <span class="summary-sig-arg">logfile</span>)</span><br />
+      Cleanes out and removes the remote work directory.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="RunRemoteCommand"></a><span class="summary-sig-name">RunRemoteCommand</span>(<span class="summary-sig-arg">connection</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">logfile</span>)</span><br />
+      Execute the command via ssh on the remote host.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#HostWorker" class="summary-sig-name">HostWorker</a>(<span class="summary-sig-arg">logdir</span>,
+        <span class="summary-sig-arg">username</span>,
+        <span class="summary-sig-arg">password</span>,
+        <span class="summary-sig-arg">use_agent</span>,
+        <span class="summary-sig-arg">hostname</span>,
+        <span class="summary-sig-arg">executable</span>,
+        <span class="summary-sig-arg">exec_args</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">filelist</span>)</span><br />
+      Per-host worker.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#LaunchWorker" class="summary-sig-name">LaunchWorker</a>(<span class="summary-sig-arg">child_pids</span>,
+        <span class="summary-sig-arg">logdir</span>,
+        <span class="summary-sig-arg">username</span>,
+        <span class="summary-sig-arg">password</span>,
+        <span class="summary-sig-arg">use_agent</span>,
+        <span class="summary-sig-arg">hostname</span>,
+        <span class="summary-sig-arg">executable</span>,
+        <span class="summary-sig-arg">exec_args</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">filelist</span>)</span><br />
+      Launch the per-host worker.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="script-ganeti_listrunner-module.html#ParseOptions" class="summary-sig-name">ParseOptions</a>()</span><br />
+      Parses the command line options.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="main"></a><span class="summary-sig-name">main</span>()</span><br />
+      main.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="REMOTE_PATH_BASE"></a><span class="summary-name">REMOTE_PATH_BASE</span> = <code title="&quot;/tmp/listrunner&quot;">&quot;/tmp/listrunner&quot;</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="script-ganeti_listrunner-module.html#USAGE" class="summary-name">USAGE</a> = <code title="&quot;%prog -l logdir {-c command | -x /path/to/file} [-b batch_size]&quot; &quot; {-\
+f hostfile|-h hosts} [-u username]&quot; &quot; [-p password_file | -A]&quot;">&quot;%prog -l logdir {-c command | -x /path/to/file} [-b b<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+</table>
+<p class="indent-wrapped-lines"><b>Imports:</b>
+  <span title="errno">errno</span>,
+  <span title="optparse">optparse</span>,
+  <span title="getpass">getpass</span>,
+  <span title="logging">logging</span>,
+  <span title="os">os</span>,
+  <span title="random">random</span>,
+  <span title="select">select</span>,
+  <span title="socket">socket</span>,
+  <span title="sys">sys</span>,
+  <span title="time">time</span>,
+  <span title="traceback">traceback</span>,
+  <span title="paramiko">paramiko</span>
+</p><br />
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="GetTimeStamp"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetTimeStamp</span>(<span class="sig-arg">timestamp</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return ISO8601 timestamp.</p>
+  <p>Returns ISO8601 timestamp, optionally expects a time.localtime() tuple
+  in timestamp, but will use the current time if this argument is not 
+  supplied.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="PingByTcp"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">PingByTcp</span>(<span class="sig-arg">target</span>,
+        <span class="sig-arg">port</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">10</span>,
+        <span class="sig-arg">live_port_needed</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">source</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Simple ping implementation using TCP connect(2).</p>
+  <p>Try to do a TCP connect(2) from an optional source IP to the specified
+  target IP and the specified target port. If the optional parameter 
+  live_port_needed is set to true, requires the remote end to accept the 
+  connection. The timeout is specified in seconds and defaults to 10 
+  seconds. If the source optional argument is not passed, the source 
+  address selection is left to the kernel, otherwise we try to connect 
+  using the passed address (failures to bind other than EADDRNOTAVAIL will 
+  be ignored).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetHosts"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetHosts</span>(<span class="sig-arg">hostsfile</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return list of hosts from hostfile.</p>
+  <p>Reads the hostslist file and returns a list of hosts. Expects the 
+  hostslist file to contain one hostname per line.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="SetupSshConnection"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">SetupSshConnection</span>(<span class="sig-arg">host</span>,
+        <span class="sig-arg">username</span>,
+        <span class="sig-arg">password</span>,
+        <span class="sig-arg">use_agent</span>,
+        <span class="sig-arg">logfile</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Setup the ssh connection used for all later steps.</p>
+  <p>This function sets up the ssh connection that will be used both for 
+  upload and remote command execution.</p>
+  <p>On success, it will return paramiko.Transport object with an already 
+  logged in session. On failure, False will be returned.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="UploadFiles"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">UploadFiles</span>(<span class="sig-arg">connection</span>,
+        <span class="sig-arg">executable</span>,
+        <span class="sig-arg">filelist</span>,
+        <span class="sig-arg">logfile</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Uploads the specified files via sftp.</p>
+  <p>Uploads the specified files to a random, freshly created directory 
+  with a temporary name under /tmp. All uploaded files are chmod 0400 after
+  upload with the exception of executable, with is chmod 500.</p>
+  <p>Upon success, returns the absolute path to the remote upload 
+  directory, but will return False upon failure.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="HostWorker"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">HostWorker</span>(<span class="sig-arg">logdir</span>,
+        <span class="sig-arg">username</span>,
+        <span class="sig-arg">password</span>,
+        <span class="sig-arg">use_agent</span>,
+        <span class="sig-arg">hostname</span>,
+        <span class="sig-arg">executable</span>,
+        <span class="sig-arg">exec_args</span>,
+        <span class="sig-arg">command</span>,
+        <span class="sig-arg">filelist</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Per-host worker.</p>
+  <p>This function does not return - it's the main code of the childs, 
+  which exit at the end of this function. The exit code 0 or 1 will be 
+  interpreted by the parent.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>logdir</code></strong> - the directory where the logfiles must be created</li>
+        <li><strong class="pname"><code>username</code></strong> - SSH username</li>
+        <li><strong class="pname"><code>password</code></strong> - SSH password</li>
+        <li><strong class="pname"><code>use_agent</code></strong> - whether we should instead use an agent</li>
+        <li><strong class="pname"><code>hostname</code></strong> - the hostname to connect to</li>
+        <li><strong class="pname"><code>executable</code></strong> - the executable to upload, if not None</li>
+        <li><strong class="pname"><code>exec_args</code></strong> - Additional arguments for executable</li>
+        <li><strong class="pname"><code>command</code></strong> - the command to run</li>
+        <li><strong class="pname"><code>filelist</code></strong> - auxiliary files to upload</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="LaunchWorker"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">LaunchWorker</span>(<span class="sig-arg">child_pids</span>,
+        <span class="sig-arg">logdir</span>,
+        <span class="sig-arg">username</span>,
+        <span class="sig-arg">password</span>,
+        <span class="sig-arg">use_agent</span>,
+        <span class="sig-arg">hostname</span>,
+        <span class="sig-arg">executable</span>,
+        <span class="sig-arg">exec_args</span>,
+        <span class="sig-arg">command</span>,
+        <span class="sig-arg">filelist</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Launch the per-host worker.</p>
+  <p>Arguments are the same as for HostWorker, except for child_pids, which
+  is a dictionary holding the pid-to-hostname mapping.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="ParseOptions"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ParseOptions</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Parses the command line options.</p>
+  <p>In case of command line errors, it will show the usage and exit the 
+  program.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>the options in a tuple</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="USAGE"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">USAGE</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+&quot;%prog -l logdir {-c command | -x /path/to/file} [-b batch_size]&quot; &quot; {-<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+f hostfile|-h hosts} [-u username]&quot; &quot; [-p password_file | -A]&quot;
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Jul 24 16:51:20 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

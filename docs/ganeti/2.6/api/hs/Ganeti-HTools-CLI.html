@@ -1,0 +1,3491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.CLI</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-CLI.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/CLI.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.CLI</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Constants
+</A
+></DT
+><DT
+><A HREF="#2"
+>Data types
+</A
+></DT
+><DT
+><A HREF="#3"
+>Helper functions
+</A
+></DT
+><DT
+><A HREF="#4"
+>Command line options
+</A
+></DT
+><DT
+><A HREF="#5"
+>Functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Implementation of command-line functions.
+</P
+><P
+>This module holds the common command-line related functions for the
+binaries, separated into this module since <A HREF="Ganeti-HTools-Utils.html"
+>Ganeti.HTools.Utils</A
+> is
+used in many other places and this is more IO oriented.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultLuxiSocket"
+>defaultLuxiSocket</A
+> :: FilePath</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AOptions"
+>Options</A
+>  = <A HREF="#v%3AOptions"
+>Options</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDataFile"
+>optDataFile</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDiskMoves"
+>optDiskMoves</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptInstMoves"
+>optInstMoves</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDiskTemplate"
+>optDiskTemplate</A
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptSpindleUse"
+>optSpindleUse</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDynuFile"
+>optDynuFile</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptEvacMode"
+>optEvacMode</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptExInst"
+>optExInst</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptExTags"
+>optExTags</A
+> :: Maybe [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptExecJobs"
+>optExecJobs</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptGroup"
+>optGroup</A
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3AGroupID"
+>GroupID</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptIAllocSrc"
+>optIAllocSrc</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptSelInst"
+>optSelInst</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptLuxi"
+>optLuxi</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMachineReadable"
+>optMachineReadable</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMaster"
+>optMaster</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMaxLength"
+>optMaxLength</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMcpu"
+>optMcpu</A
+> :: Maybe Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMdsk"
+>optMdsk</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMinGain"
+>optMinGain</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMinGainLim"
+>optMinGainLim</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptMinScore"
+>optMinScore</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptNoHeaders"
+>optNoHeaders</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptNoSimulation"
+>optNoSimulation</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptNodeSim"
+>optNodeSim</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptOffline"
+>optOffline</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptOutPath"
+>optOutPath</A
+> :: FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptSaveCluster"
+>optSaveCluster</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowCmds"
+>optShowCmds</A
+> :: Maybe FilePath</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowHelp"
+>optShowHelp</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowInsts"
+>optShowInsts</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowNodes"
+>optShowNodes</A
+> :: Maybe [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowVer"
+>optShowVer</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptStdSpec"
+>optStdSpec</A
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptTestCount"
+>optTestCount</A
+> :: Maybe Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptTieredSpec"
+>optTieredSpec</A
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptReplay"
+>optReplay</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptVerbose"
+>optVerbose</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultOptions"
+>defaultOptions</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AOptType"
+>OptType</A
+> = OptDescr (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseISpecString"
+>parseISpecString</A
+> :: String -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoDataFile"
+>oDataFile</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoDiskMoves"
+>oDiskMoves</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoDiskTemplate"
+>oDiskTemplate</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoSpindleUse"
+>oSpindleUse</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoSelInst"
+>oSelInst</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoInstMoves"
+>oInstMoves</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoDynuFile"
+>oDynuFile</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoEvacMode"
+>oEvacMode</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoExInst"
+>oExInst</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoExTags"
+>oExTags</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoExecJobs"
+>oExecJobs</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoGroup"
+>oGroup</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoIAllocSrc"
+>oIAllocSrc</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoLuxiSocket"
+>oLuxiSocket</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMachineReadable"
+>oMachineReadable</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMaxCpu"
+>oMaxCpu</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMaxSolLength"
+>oMaxSolLength</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMinDisk"
+>oMinDisk</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMinGain"
+>oMinGain</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMinGainLim"
+>oMinGainLim</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoMinScore"
+>oMinScore</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoNoHeaders"
+>oNoHeaders</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoNoSimulation"
+>oNoSimulation</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoNodeSim"
+>oNodeSim</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoOfflineNode"
+>oOfflineNode</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoOutputDir"
+>oOutputDir</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoPrintCommands"
+>oPrintCommands</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoPrintInsts"
+>oPrintInsts</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoPrintNodes"
+>oPrintNodes</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoQuiet"
+>oQuiet</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoRapiMaster"
+>oRapiMaster</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoSaveCluster"
+>oSaveCluster</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoShowHelp"
+>oShowHelp</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoShowVer"
+>oShowVer</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoStdSpec"
+>oStdSpec</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoTestCount"
+>oTestCount</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoTieredSpec"
+>oTieredSpec</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoReplay"
+>oReplay</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoVerbose"
+>oVerbose</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseYesNo"
+>parseYesNo</A
+> :: Bool -&gt; Maybe String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AusageHelp"
+>usageHelp</A
+> :: String -&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AversionInfo"
+>versionInfo</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseOpts"
+>parseOpts</A
+> :: [String] -&gt; String -&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>] -&gt; IO (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>, [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseOptsInner"
+>parseOptsInner</A
+> :: [String] -&gt; String -&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>] -&gt; Either (Int, String) (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>, [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshTemplate"
+>shTemplate</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybePrintNodes"
+>maybePrintNodes</A
+> :: Maybe [String] -&gt; String -&gt; ([String] -&gt; String) -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybePrintInsts"
+>maybePrintInsts</A
+> :: Bool -&gt; String -&gt; String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeShowWarnings"
+>maybeShowWarnings</A
+> :: [String] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintKeys"
+>printKeys</A
+> :: String -&gt; [(String, String)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintFinal"
+>printFinal</A
+> :: String -&gt; Bool -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetNodeOffline"
+>setNodeOffline</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetNodeStatus"
+>setNodeStatus</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Constants
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultLuxiSocket"
+><A NAME="v%3AdefaultLuxiSocket"
+></A
+></A
+><B
+>defaultLuxiSocket</B
+> :: FilePath</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#defaultLuxiSocket"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>The default value for the luxi socket.
+</P
+><P
+>This is re-exported from the <A HREF="Ganeti-Constants.html"
+>Ganeti.Constants</A
+> module.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Data types
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Options"
+><A NAME="t%3AOptions"
+></A
+></A
+><B
+>Options</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#Options"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Command line options structure.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Options"
+><A NAME="v%3AOptions"
+></A
+></A
+><B
+>Options</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDataFile"
+><A NAME="v%3AoptDataFile"
+></A
+></A
+><B
+>optDataFile</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>Path to the cluster data file
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDiskMoves"
+><A NAME="v%3AoptDiskMoves"
+></A
+></A
+><B
+>optDiskMoves</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Allow disk moves
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optInstMoves"
+><A NAME="v%3AoptInstMoves"
+></A
+></A
+><B
+>optInstMoves</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Allow instance moves
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDiskTemplate"
+><A NAME="v%3AoptDiskTemplate"
+></A
+></A
+><B
+>optDiskTemplate</B
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+><TD CLASS="rdoc"
+>Override for the disk template
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optSpindleUse"
+><A NAME="v%3AoptSpindleUse"
+></A
+></A
+><B
+>optSpindleUse</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+>Override for the spindle usage
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDynuFile"
+><A NAME="v%3AoptDynuFile"
+></A
+></A
+><B
+>optDynuFile</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>Optional file with dynamic use data
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optEvacMode"
+><A NAME="v%3AoptEvacMode"
+></A
+></A
+><B
+>optEvacMode</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Enable evacuation mode
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optExInst"
+><A NAME="v%3AoptExInst"
+></A
+></A
+><B
+>optExInst</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+>Instances to be excluded
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optExTags"
+><A NAME="v%3AoptExTags"
+></A
+></A
+><B
+>optExTags</B
+> :: Maybe [String]</TD
+><TD CLASS="rdoc"
+>Tags to use for exclusion
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optExecJobs"
+><A NAME="v%3AoptExecJobs"
+></A
+></A
+><B
+>optExecJobs</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Execute the commands via Luxi
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optGroup"
+><A NAME="v%3AoptGroup"
+></A
+></A
+><B
+>optGroup</B
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3AGroupID"
+>GroupID</A
+></TD
+><TD CLASS="rdoc"
+>The UUID of the group to process
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optIAllocSrc"
+><A NAME="v%3AoptIAllocSrc"
+></A
+></A
+><B
+>optIAllocSrc</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>The iallocation spec
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optSelInst"
+><A NAME="v%3AoptSelInst"
+></A
+></A
+><B
+>optSelInst</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+>Instances to be excluded
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optLuxi"
+><A NAME="v%3AoptLuxi"
+></A
+></A
+><B
+>optLuxi</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>Collect data from Luxi
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMachineReadable"
+><A NAME="v%3AoptMachineReadable"
+></A
+></A
+><B
+>optMachineReadable</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Output machine-readable format
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMaster"
+><A NAME="v%3AoptMaster"
+></A
+></A
+><B
+>optMaster</B
+> :: String</TD
+><TD CLASS="rdoc"
+>Collect data from RAPI
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMaxLength"
+><A NAME="v%3AoptMaxLength"
+></A
+></A
+><B
+>optMaxLength</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Stop after this many steps
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMcpu"
+><A NAME="v%3AoptMcpu"
+></A
+></A
+><B
+>optMcpu</B
+> :: Maybe Double</TD
+><TD CLASS="rdoc"
+>Override max cpu ratio for nodes
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMdsk"
+><A NAME="v%3AoptMdsk"
+></A
+></A
+><B
+>optMdsk</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Max disk usage ratio for nodes
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMinGain"
+><A NAME="v%3AoptMinGain"
+></A
+></A
+><B
+>optMinGain</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>Min gain we aim for in a step
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMinGainLim"
+><A NAME="v%3AoptMinGainLim"
+></A
+></A
+><B
+>optMinGainLim</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>Limit below which we apply mingain
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optMinScore"
+><A NAME="v%3AoptMinScore"
+></A
+></A
+><B
+>optMinScore</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>The minimum score we aim for
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optNoHeaders"
+><A NAME="v%3AoptNoHeaders"
+></A
+></A
+><B
+>optNoHeaders</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Do not show a header line
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optNoSimulation"
+><A NAME="v%3AoptNoSimulation"
+></A
+></A
+><B
+>optNoSimulation</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Skip the rebalancing dry-run
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optNodeSim"
+><A NAME="v%3AoptNodeSim"
+></A
+></A
+><B
+>optNodeSim</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+>Cluster simulation mode
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optOffline"
+><A NAME="v%3AoptOffline"
+></A
+></A
+><B
+>optOffline</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+>Names of offline nodes
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optOutPath"
+><A NAME="v%3AoptOutPath"
+></A
+></A
+><B
+>optOutPath</B
+> :: FilePath</TD
+><TD CLASS="rdoc"
+>Path to the output directory
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optSaveCluster"
+><A NAME="v%3AoptSaveCluster"
+></A
+></A
+><B
+>optSaveCluster</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>Save cluster state to this file
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowCmds"
+><A NAME="v%3AoptShowCmds"
+></A
+></A
+><B
+>optShowCmds</B
+> :: Maybe FilePath</TD
+><TD CLASS="rdoc"
+>Whether to show the command list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowHelp"
+><A NAME="v%3AoptShowHelp"
+></A
+></A
+><B
+>optShowHelp</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Just show the help
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowInsts"
+><A NAME="v%3AoptShowInsts"
+></A
+></A
+><B
+>optShowInsts</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Whether to show the instance map
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowNodes"
+><A NAME="v%3AoptShowNodes"
+></A
+></A
+><B
+>optShowNodes</B
+> :: Maybe [String]</TD
+><TD CLASS="rdoc"
+>Whether to show node status
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowVer"
+><A NAME="v%3AoptShowVer"
+></A
+></A
+><B
+>optShowVer</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Just show the program version
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optStdSpec"
+><A NAME="v%3AoptStdSpec"
+></A
+></A
+><B
+>optStdSpec</B
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+><TD CLASS="rdoc"
+>Requested standard specs
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optTestCount"
+><A NAME="v%3AoptTestCount"
+></A
+></A
+><B
+>optTestCount</B
+> :: Maybe Int</TD
+><TD CLASS="rdoc"
+>Optional test count override
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optTieredSpec"
+><A NAME="v%3AoptTieredSpec"
+></A
+></A
+><B
+>optTieredSpec</B
+> :: Maybe <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+><TD CLASS="rdoc"
+>Requested specs for tiered mode
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optReplay"
+><A NAME="v%3AoptReplay"
+></A
+></A
+><B
+>optReplay</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+>Unittests: RNG state
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optVerbose"
+><A NAME="v%3AoptVerbose"
+></A
+></A
+><B
+>optVerbose</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Verbosity level
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultOptions"
+><A NAME="v%3AdefaultOptions"
+></A
+></A
+><B
+>defaultOptions</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#defaultOptions"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Default values for the command line options.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:OptType"
+><A NAME="t%3AOptType"
+></A
+></A
+><B
+>OptType</B
+> = OptDescr (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#OptType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Abrreviation for the option type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Helper functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseISpecString"
+><A NAME="v%3AparseISpecString"
+></A
+></A
+><B
+>parseISpecString</B
+> :: String -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#parseISpecString"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Command line options
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oDataFile"
+><A NAME="v%3AoDataFile"
+></A
+></A
+><B
+>oDataFile</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oDataFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oDiskMoves"
+><A NAME="v%3AoDiskMoves"
+></A
+></A
+><B
+>oDiskMoves</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oDiskMoves"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oDiskTemplate"
+><A NAME="v%3AoDiskTemplate"
+></A
+></A
+><B
+>oDiskTemplate</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oDiskTemplate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oSpindleUse"
+><A NAME="v%3AoSpindleUse"
+></A
+></A
+><B
+>oSpindleUse</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oSpindleUse"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oSelInst"
+><A NAME="v%3AoSelInst"
+></A
+></A
+><B
+>oSelInst</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oSelInst"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oInstMoves"
+><A NAME="v%3AoInstMoves"
+></A
+></A
+><B
+>oInstMoves</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oInstMoves"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oDynuFile"
+><A NAME="v%3AoDynuFile"
+></A
+></A
+><B
+>oDynuFile</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oDynuFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oEvacMode"
+><A NAME="v%3AoEvacMode"
+></A
+></A
+><B
+>oEvacMode</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oEvacMode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oExInst"
+><A NAME="v%3AoExInst"
+></A
+></A
+><B
+>oExInst</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oExInst"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oExTags"
+><A NAME="v%3AoExTags"
+></A
+></A
+><B
+>oExTags</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oExTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oExecJobs"
+><A NAME="v%3AoExecJobs"
+></A
+></A
+><B
+>oExecJobs</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oExecJobs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oGroup"
+><A NAME="v%3AoGroup"
+></A
+></A
+><B
+>oGroup</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oIAllocSrc"
+><A NAME="v%3AoIAllocSrc"
+></A
+></A
+><B
+>oIAllocSrc</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oIAllocSrc"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oLuxiSocket"
+><A NAME="v%3AoLuxiSocket"
+></A
+></A
+><B
+>oLuxiSocket</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oLuxiSocket"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMachineReadable"
+><A NAME="v%3AoMachineReadable"
+></A
+></A
+><B
+>oMachineReadable</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMachineReadable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMaxCpu"
+><A NAME="v%3AoMaxCpu"
+></A
+></A
+><B
+>oMaxCpu</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMaxCpu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMaxSolLength"
+><A NAME="v%3AoMaxSolLength"
+></A
+></A
+><B
+>oMaxSolLength</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMaxSolLength"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMinDisk"
+><A NAME="v%3AoMinDisk"
+></A
+></A
+><B
+>oMinDisk</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMinDisk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMinGain"
+><A NAME="v%3AoMinGain"
+></A
+></A
+><B
+>oMinGain</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMinGain"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMinGainLim"
+><A NAME="v%3AoMinGainLim"
+></A
+></A
+><B
+>oMinGainLim</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMinGainLim"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oMinScore"
+><A NAME="v%3AoMinScore"
+></A
+></A
+><B
+>oMinScore</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oMinScore"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oNoHeaders"
+><A NAME="v%3AoNoHeaders"
+></A
+></A
+><B
+>oNoHeaders</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oNoHeaders"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oNoSimulation"
+><A NAME="v%3AoNoSimulation"
+></A
+></A
+><B
+>oNoSimulation</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oNoSimulation"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oNodeSim"
+><A NAME="v%3AoNodeSim"
+></A
+></A
+><B
+>oNodeSim</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oNodeSim"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oOfflineNode"
+><A NAME="v%3AoOfflineNode"
+></A
+></A
+><B
+>oOfflineNode</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oOfflineNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oOutputDir"
+><A NAME="v%3AoOutputDir"
+></A
+></A
+><B
+>oOutputDir</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oOutputDir"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oPrintCommands"
+><A NAME="v%3AoPrintCommands"
+></A
+></A
+><B
+>oPrintCommands</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oPrintCommands"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oPrintInsts"
+><A NAME="v%3AoPrintInsts"
+></A
+></A
+><B
+>oPrintInsts</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oPrintInsts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oPrintNodes"
+><A NAME="v%3AoPrintNodes"
+></A
+></A
+><B
+>oPrintNodes</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oPrintNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oQuiet"
+><A NAME="v%3AoQuiet"
+></A
+></A
+><B
+>oQuiet</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oQuiet"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oRapiMaster"
+><A NAME="v%3AoRapiMaster"
+></A
+></A
+><B
+>oRapiMaster</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oRapiMaster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oSaveCluster"
+><A NAME="v%3AoSaveCluster"
+></A
+></A
+><B
+>oSaveCluster</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oSaveCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oShowHelp"
+><A NAME="v%3AoShowHelp"
+></A
+></A
+><B
+>oShowHelp</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oShowHelp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oShowVer"
+><A NAME="v%3AoShowVer"
+></A
+></A
+><B
+>oShowVer</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oShowVer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oStdSpec"
+><A NAME="v%3AoStdSpec"
+></A
+></A
+><B
+>oStdSpec</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oStdSpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oTestCount"
+><A NAME="v%3AoTestCount"
+></A
+></A
+><B
+>oTestCount</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oTestCount"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oTieredSpec"
+><A NAME="v%3AoTieredSpec"
+></A
+></A
+><B
+>oTieredSpec</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oTieredSpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oReplay"
+><A NAME="v%3AoReplay"
+></A
+></A
+><B
+>oReplay</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oReplay"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oVerbose"
+><A NAME="v%3AoVerbose"
+></A
+></A
+><B
+>oVerbose</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#oVerbose"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>Functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseYesNo"
+><A NAME="v%3AparseYesNo"
+></A
+></A
+><B
+>parseYesNo</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#parseYesNo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Default value (when we get a <TT
+>Nothing</TT
+>)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Maybe String</TD
+><TD CLASS="rdoc"
+>Parameter value
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> Bool</TD
+><TD CLASS="rdoc"
+>Resulting boolean value
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Helper for parsing a yes/no command line flag.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:usageHelp"
+><A NAME="v%3AusageHelp"
+></A
+></A
+><B
+>usageHelp</B
+> :: String -&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#usageHelp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Usage info.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:versionInfo"
+><A NAME="v%3AversionInfo"
+></A
+></A
+><B
+>versionInfo</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#versionInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Show the program version info.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseOpts"
+><A NAME="v%3AparseOpts"
+></A
+></A
+><B
+>parseOpts</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#parseOpts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [String]</TD
+><TD CLASS="rdoc"
+>The command line arguments
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The program name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+><TD CLASS="rdoc"
+>The supported command line options
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>, [String])</TD
+><TD CLASS="rdoc"
+>The resulting options and leftover
+ arguments
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Command line parser, using the <TT
+><A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+></TT
+> structure.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseOptsInner"
+><A NAME="v%3AparseOptsInner"
+></A
+></A
+><B
+>parseOptsInner</B
+> :: [String] -&gt; String -&gt; [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>] -&gt; Either (Int, String) (<A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+>, [String])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#parseOptsInner"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Inner parse options. The arguments are similar to <TT
+><A HREF="Ganeti-HTools-CLI.html#v%3AparseOpts"
+>parseOpts</A
+></TT
+>,
+ but it returns either a <TT
+>Left</TT
+> composed of exit code and message,
+ or a <TT
+>Right</TT
+> for the success case.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:shTemplate"
+><A NAME="v%3AshTemplate"
+></A
+></A
+><B
+>shTemplate</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#shTemplate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A shell script template for autogenerated scripts.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybePrintNodes"
+><A NAME="v%3AmaybePrintNodes"
+></A
+></A
+><B
+>maybePrintNodes</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#maybePrintNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Maybe [String]</TD
+><TD CLASS="rdoc"
+>The field list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Informational message
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [String] -&gt; String</TD
+><TD CLASS="rdoc"
+>Function to generate the listing
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Optionally print the node list.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybePrintInsts"
+><A NAME="v%3AmaybePrintInsts"
+></A
+></A
+><B
+>maybePrintInsts</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#maybePrintInsts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether to print the instance list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Type of the instance map (e.g. initial)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The instance data
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Optionally print the instance list.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeShowWarnings"
+><A NAME="v%3AmaybeShowWarnings"
+></A
+></A
+><B
+>maybeShowWarnings</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#maybeShowWarnings"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [String]</TD
+><TD CLASS="rdoc"
+>The warning messages
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Function to display warning messages from parsing the cluster
+ state.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printKeys"
+><A NAME="v%3AprintKeys"
+></A
+></A
+><B
+>printKeys</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#printKeys"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Prefix to printed variables
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [(String, String)]</TD
+><TD CLASS="rdoc"
+>List of (key, value) pairs to be printed
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Format a list of key, value as a shell fragment.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printFinal"
+><A NAME="v%3AprintFinal"
+></A
+></A
+><B
+>printFinal</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#printFinal"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Prefix to printed variable
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Whether output should be machine readable
+ Note: if not, there is nothing to print
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Prints the final <TT
+>OK</TT
+> marker in machine readable output.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setNodeOffline"
+><A NAME="v%3AsetNodeOffline"
+></A
+></A
+><B
+>setNodeOffline</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#setNodeOffline"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Potentially set the node as offline based on passed offline list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setNodeStatus"
+><A NAME="v%3AsetNodeStatus"
+></A
+></A
+><B
+>setNodeStatus</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/CLI.html#setNodeStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Set node properties based on command line options.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

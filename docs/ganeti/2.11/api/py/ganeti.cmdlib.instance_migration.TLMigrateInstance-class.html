@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.cmdlib.instance_migration.TLMigrateInstance</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.cmdlib-module.html">Package&nbsp;cmdlib</a> ::
+        <a href="ganeti.cmdlib.instance_migration-module.html">Module&nbsp;instance_migration</a> ::
+        Class&nbsp;TLMigrateInstance
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class TLMigrateInstance</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_ganeti_c_74" name="uml_class_diagram_for_ganeti_c_74">
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#cleanup" title="Wheater we cleanup from a failed migration" alt="" coords="17,95,1000,113"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#failover" title="Whether operation results in failover or migration" alt="" coords="17,113,1000,132"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#fallback" title="Whether fallback to failover is allowed if migration not possible" alt="" coords="17,132,1000,151"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#iallocator" title="The iallocator used to determine target_node" alt="" coords="17,151,1000,169"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#ignore_consistency" title="Wheter we should ignore consistency between source and target node" alt="" coords="17,169,1000,188"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#ignore_ipolicy" title="If true, we can ignore instance policy when migrating" alt="" coords="17,188,1000,207"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#live" title="whether the migration will be done live or non&#45;live; this variable is &#160;initalized only after CheckPrereq has run" alt="" coords="17,207,1000,225"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#shutdown_timeout" title="In case of failover timeout of the shutdown" alt="" coords="17,225,1000,244"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#target_node_uuid" title="If given, the target node UUID to reallocate the instance to" alt="" coords="17,244,1000,263"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__" title="Initializes this class." alt="" coords="17,265,1000,284"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#CheckPrereq" title="Check prerequisites." alt="" coords="17,284,1000,303"/>
+<area shape="rect" id="node201" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#Exec" title="Perform the migration." alt="" coords="17,303,1000,321"/>
+<area shape="rect" id="node1" href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html" title="Tasklet class for instance migration." alt="" coords="5,70,1011,327"/>
+<area shape="rect" id="node2" href="ganeti.cmdlib.base.Tasklet-class.html" title="Tasklet base class." alt="" coords="457,6,561,50"/>
+</map>
+  <img src="uml_class_diagram_for_ganeti_c_74.gif" alt='' usemap="#uml_class_diagram_for_ganeti_c_74" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Tasklet class for instance migration.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">lu</span>,
+        <span class="summary-sig-arg">instance_uuid</span>,
+        <span class="summary-sig-arg">instance_name</span>,
+        <span class="summary-sig-arg">cleanup</span>,
+        <span class="summary-sig-arg">failover</span>,
+        <span class="summary-sig-arg">fallback</span>,
+        <span class="summary-sig-arg">ignore_consistency</span>,
+        <span class="summary-sig-arg">allow_runtime_changes</span>,
+        <span class="summary-sig-arg">shutdown_timeout</span>,
+        <span class="summary-sig-arg">ignore_ipolicy</span>)</span><br />
+      Initializes this class.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#CheckPrereq" class="summary-sig-name">CheckPrereq</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Check prerequisites.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.CheckPrereq">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_RunAllocator"></a><span class="summary-sig-name">_RunAllocator</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Run the allocator based on input opcode.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._RunAllocator">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#_WaitUntilSync" class="summary-sig-name" onclick="show_private();">_WaitUntilSync</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Poll with custom rpc for disk sync.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._WaitUntilSync">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_EnsureSecondary"></a><span class="summary-sig-name">_EnsureSecondary</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">node_uuid</span>)</span><br />
+      Demote a node to secondary.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._EnsureSecondary">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_GoStandalone"></a><span class="summary-sig-name">_GoStandalone</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Disconnect from the network.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._GoStandalone">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_GoReconnect"></a><span class="summary-sig-name">_GoReconnect</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">multimaster</span>)</span><br />
+      Reconnect to the network.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._GoReconnect">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#_ExecCleanup" class="summary-sig-name" onclick="show_private();">_ExecCleanup</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Try to cleanup after a failed migration.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecCleanup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_RevertDiskStatus"></a><span class="summary-sig-name">_RevertDiskStatus</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Try to revert the disk status after a failed migration.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._RevertDiskStatus">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_AbortMigration"></a><span class="summary-sig-name">_AbortMigration</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Call the hypervisor code to abort a started migration.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._AbortMigration">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#_ExecMigration" class="summary-sig-name" onclick="show_private();">_ExecMigration</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Migrate an instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecMigration">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#_ExecFailover" class="summary-sig-name" onclick="show_private();">_ExecFailover</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Failover an instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecFailover">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#Exec" class="summary-sig-name">Exec</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">feedback_fn</span>)</span><br />
+      Perform the migration.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.Exec">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_MIGRATION_POLL_INTERVAL"></a><span class="summary-name">_MIGRATION_POLL_INTERVAL</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_MIGRATION_FEEDBACK_INTERVAL"></a><span class="summary-name">_MIGRATION_FEEDBACK_INTERVAL</span> = <code title="10">10</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== INSTANCE VARIABLES ==================== -->
+<a name="section-InstanceVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+        <a name="cleanup"></a><span class="summary-name">cleanup</span><br />
+      Wheater we cleanup from a failed migration
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+        <a name="failover"></a><span class="summary-name">failover</span><br />
+      Whether operation results in failover or migration
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+        <a name="fallback"></a><span class="summary-name">fallback</span><br />
+      Whether fallback to failover is allowed if migration not possible
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+        <a name="iallocator"></a><span class="summary-name">iallocator</span><br />
+      The iallocator used to determine target_node
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+        <a name="ignore_consistency"></a><span class="summary-name">ignore_consistency</span><br />
+      Wheter we should ignore consistency between source and target node
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">bool</span>
+    </td><td class="summary">
+        <a name="ignore_ipolicy"></a><span class="summary-name">ignore_ipolicy</span><br />
+      If true, we can ignore instance policy when migrating
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+        <a name="live"></a><span class="summary-name">live</span><br />
+      whether the migration will be done live or non-live; this variable is
+      initalized only after CheckPrereq has run
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">int</span>
+    </td><td class="summary">
+        <a name="shutdown_timeout"></a><span class="summary-name">shutdown_timeout</span><br />
+      In case of failover timeout of the shutdown
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+        <a name="target_node_uuid"></a><span class="summary-name">target_node_uuid</span><br />
+      If given, the target node UUID to reallocate the instance to
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">lu</span>,
+        <span class="sig-arg">instance_uuid</span>,
+        <span class="sig-arg">instance_name</span>,
+        <span class="sig-arg">cleanup</span>,
+        <span class="sig-arg">failover</span>,
+        <span class="sig-arg">fallback</span>,
+        <span class="sig-arg">ignore_consistency</span>,
+        <span class="sig-arg">allow_runtime_changes</span>,
+        <span class="sig-arg">shutdown_timeout</span>,
+        <span class="sig-arg">ignore_ipolicy</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Initializes this class.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="CheckPrereq"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">CheckPrereq</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.CheckPrereq">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check prerequisites.</p>
+  <p>This checks that the instance is in the cluster.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="ganeti.cmdlib.base.Tasklet-class.html#CheckPrereq">base.Tasklet.CheckPrereq</a>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_WaitUntilSync"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_WaitUntilSync</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._WaitUntilSync">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Poll with custom rpc for disk sync.</p>
+  <p>This uses our own step-based rpc call.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_ExecCleanup"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ExecCleanup</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecCleanup">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Try to cleanup after a failed migration.</p>
+  <p>The cleanup is done by:</p>
+  <ul>
+    <li>
+      check that the instance is running only on one node (and update the 
+      config if needed)
+    </li>
+    <li>
+      change disks on its secondary node to secondary
+    </li>
+    <li>
+      wait until disks are fully synchronized
+    </li>
+    <li>
+      disconnect from the network
+    </li>
+    <li>
+      change disks into single-master mode
+    </li>
+    <li>
+      wait again until disks are fully synchronized
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_ExecMigration"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ExecMigration</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecMigration">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Migrate an instance.</p>
+  <p>The migrate is done by:</p>
+  <ul>
+    <li>
+      change the disks into dual-master mode
+    </li>
+    <li>
+      wait until disks are fully synchronized again
+    </li>
+    <li>
+      migrate the instance
+    </li>
+    <li>
+      change disks on the new secondary node (the old primary) to secondary
+    </li>
+    <li>
+      wait until disks are fully synchronized
+    </li>
+    <li>
+      change disks into single-master mode
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_ExecFailover"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ExecFailover</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance._ExecFailover">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Failover an instance.</p>
+  <p>The failover is done by shutting it down on its present node and 
+  starting it on the secondary.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="Exec"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">Exec</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">feedback_fn</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.cmdlib.instance_migration-pysrc.html#TLMigrateInstance.Exec">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Perform the migration.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="ganeti.cmdlib.base.Tasklet-class.html#Exec">base.Tasklet.Exec</a>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Jan 11 11:57:48 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

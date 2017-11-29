@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti-watcher &mdash; Ganeti 2.14.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.14.2 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="ganeti-wconfd" href="man-ganeti-wconfd.html" />
+    <link rel="prev" title="ganeti-rapi" href="man-ganeti-rapi.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-wconfd.html" title="ganeti-wconfd"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-rapi.html" title="ganeti-rapi"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-watcher">
+<h1>ganeti-watcher<a class="headerlink" href="#ganeti-watcher" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti-watcher - Ganeti cluster watcher</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>ganeti-watcher</strong> [&#8211;debug] [&#8211;job-age=*age* ] [&#8211;ignore-pause]
+[&#8211;rapi-ip=*IP*] [&#8211;no-verify-disks]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>ganeti-watcher</strong> is a periodically run script which is
+responsible for keeping the instances in the correct status. It has
+two separate functions, one for the master node and another one
+that runs on every node.</p>
+<p>If the watcher is disabled at cluster level (via the
+<strong>gnt-cluster watcher pause</strong> command), it will exit without doing
+anything. The cluster-level pause can be overridden via the
+<tt class="docutils literal"><span class="pre">--ignore-pause</span></tt> option, for example if during a maintenance the
+watcher needs to be disabled in general, but the administrator
+wants to run it just once.</p>
+<p>The <tt class="docutils literal"><span class="pre">--debug</span></tt> option will increase the verbosity of the watcher
+and also activate logging to the standard error.</p>
+<p>The <tt class="docutils literal"><span class="pre">--rapi-ip</span></tt> option needs to be set if the RAPI daemon was
+started with a particular IP (using the <tt class="docutils literal"><span class="pre">-b</span></tt> option). The two
+options need to be exactly the same to ensure that the watcher
+can reach the RAPI interface.</p>
+<div class="section" id="master-operations">
+<h3>Master operations<a class="headerlink" href="#master-operations" title="Permalink to this headline">¶</a></h3>
+<p>Its primary function is to try to keep running all instances which
+are marked as <em>up</em> in the configuration file, by trying to start
+them a limited number of times.</p>
+<p>Another function is to &#8220;repair&#8221; DRBD links by reactivating the
+block devices of instances which have secondaries on nodes that
+have been rebooted.</p>
+<p>Additionally, it will verify and repair degraded DRBD disks; this
+will not happen, if the <tt class="docutils literal"><span class="pre">--no-verify-disks</span></tt> option is given.</p>
+<p>The watcher will also archive old jobs (older than the age given
+via the <tt class="docutils literal"><span class="pre">--job-age</span></tt> option, which defaults to 6 hours), in order
+to keep the job queue manageable.</p>
+</div>
+<div class="section" id="node-operations">
+<h3>Node operations<a class="headerlink" href="#node-operations" title="Permalink to this headline">¶</a></h3>
+<p>The watcher will restart any down daemons that are appropriate for
+the current node.</p>
+<p>In addition, it will execute any scripts which exist under the
+&#8220;watcher&#8221; directory in the Ganeti hooks directory
+(<tt class="docutils literal"><span class="pre">/etc/ganeti/hooks</span></tt>). This should be used for lightweight
+actions, like starting any extra daemons.</p>
+<p>If the cluster parameter <tt class="docutils literal"><span class="pre">maintain_node_health</span></tt> is enabled, then the
+watcher will also shutdown instances and DRBD devices if the node is
+declared as offline by known master candidates.</p>
+<p>The watcher does synchronous queries but will submit jobs for
+executing the changes. Due to locking, it could be that the jobs
+execute much later than the watcher submits them.</p>
+</div>
+</div>
+<div class="section" id="files">
+<h2>FILES<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<p>The command has a set of state files (one per group) located at
+<tt class="docutils literal"><span class="pre">/var/lib/ganeti/watcher.GROUP-UUID.data</span></tt> (only used on the
+master) and a log file at
+<tt class="docutils literal"><span class="pre">/var/log/ganeti/watcher.log</span></tt>. Removal of either file(s)
+will not affect correct operation; the removal of the state file will
+just cause the restart counters for the instances to reset to zero, and
+mark nodes as freshly rebooted (so for example DRBD minors will be
+re-activated).</p>
+<p>In some cases, it&#8217;s even desirable to reset the watcher state, for
+example after maintenance actions, or when you want to simulate the
+reboot of all nodes, so in this case, you can remove all state files:</p>
+<div class="highlight-bash"><div class="highlight"><pre>rm -f /var/lib/ganeti/watcher.*.data
+rm -f /var/lib/ganeti/watcher.*.instance-status
+rm -f /var/lib/ganeti/instance-status
+</pre></div>
+</div>
+<p>And then re-run the watcher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti-watcher</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#master-operations">Master operations</a></li>
+<li><a class="reference internal" href="#node-operations">Node operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#files">FILES</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-rapi.html"
+                        title="previous chapter">ganeti-rapi</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-ganeti-wconfd.html"
+                        title="next chapter">ganeti-wconfd</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti-watcher.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-wconfd.html" title="ganeti-wconfd"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-rapi.html" title="ganeti-rapi"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

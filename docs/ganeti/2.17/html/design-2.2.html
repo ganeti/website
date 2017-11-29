@@ -1,0 +1,1084 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti 2.2 design &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti 2.3 design" href="design-2.3.html" />
+    <link rel="prev" title="Ganeti 2.1 design" href="design-2.1.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.3.html" title="Ganeti 2.3 design"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-2.1.html" title="Ganeti 2.1 design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-2-2-design">
+<h1><a class="toc-backref" href="#id10">Ganeti 2.2 design</a><a class="headerlink" href="#ganeti-2-2-design" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the major changes in Ganeti 2.2 compared to
+the 2.1 version.</p>
+<p>The 2.2 version will be a relatively small release. Its main aim is to
+avoid changing too much of the core code, while addressing issues and
+adding new features and improvements over 2.1, in a timely fashion.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-2-2-design" id="id10">Ganeti 2.2 design</a><ul>
+<li><a class="reference internal" href="#core-changes" id="id11">Core changes</a><ul>
+<li><a class="reference internal" href="#master-daemon-scaling-improvements" id="id12">Master Daemon Scaling improvements</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id13">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id14">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inter-cluster-instance-moves" id="id15">Inter-cluster instance moves</a><ul>
+<li><a class="reference internal" href="#id3" id="id16">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id4" id="id17">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#privilege-separation" id="id18">Privilege separation</a><ul>
+<li><a class="reference internal" href="#id5" id="id19">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#implementation" id="id20">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes" id="id21">Feature changes</a><ul>
+<li><a class="reference internal" href="#kvm-security" id="id22">KVM Security</a><ul>
+<li><a class="reference internal" href="#id6" id="id23">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id7" id="id24">Proposed changes</a></li>
+<li><a class="reference internal" href="#implementation-plan" id="id25">Implementation plan</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-os-states" id="id26">New OS states</a><ul>
+<li><a class="reference internal" href="#id8" id="id27">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id9" id="id28">Proposed changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-interface-changes" id="id29">External interface changes</a><ul>
+<li><a class="reference internal" href="#os-api" id="id30">OS API</a><ul>
+<li><a class="reference internal" href="#os-version" id="id31">OS version</a></li>
+<li><a class="reference internal" href="#parameters" id="id32">Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>As for 2.1 we divide the 2.2 design into three areas:</p>
+<ul class="simple">
+<li>core changes, which affect the master daemon/job queue/locking or
+all/most logical units</li>
+<li>logical unit/feature changes</li>
+<li>external interface changes (e.g. command line, OS API, hooks, ...)</li>
+</ul>
+<div class="section" id="core-changes">
+<h2><a class="toc-backref" href="#id11">Core changes</a><a class="headerlink" href="#core-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="master-daemon-scaling-improvements">
+<h3><a class="toc-backref" href="#id12">Master Daemon Scaling improvements</a><a class="headerlink" href="#master-daemon-scaling-improvements" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="current-state-and-shortcomings">
+<h4><a class="toc-backref" href="#id13">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h4>
+<p>Currently the Ganeti master daemon is based on four sets of threads:</p>
+<ul class="simple">
+<li>The main thread (1 thread) just accepts connections on the master
+socket</li>
+<li>The client worker pool (16 threads) handles those connections,
+one thread per connected socket, parses luxi requests, and sends data
+back to the clients</li>
+<li>The job queue worker pool (25 threads) executes the actual jobs
+submitted by the clients</li>
+<li>The rpc worker pool (10 threads) interacts with the nodes via
+http-based-rpc</li>
+</ul>
+<p>This means that every masterd currently runs 52 threads to do its job.
+Being able to reduce the number of thread sets would make the master&#8217;s
+architecture a lot simpler. Moreover having less threads can help
+decrease lock contention, log pollution and memory usage.
+Also, with the current architecture, masterd suffers from quite a few
+scalability issues:</p>
+<div class="section" id="core-daemon-connection-handling">
+<h5>Core daemon connection handling<a class="headerlink" href="#core-daemon-connection-handling" title="Permalink to this headline">¶</a></h5>
+<p>Since the 16 client worker threads handle one connection each, it&#8217;s very
+easy to exhaust them, by just connecting to masterd 16 times and not
+sending any data. While we could perhaps make those pools resizable,
+increasing the number of threads won&#8217;t help with lock contention nor
+with better handling long running operations making sure the client is
+informed that everything is proceeding, and doesn&#8217;t need to time out.</p>
+</div>
+<div class="section" id="wait-for-job-change">
+<h5>Wait for job change<a class="headerlink" href="#wait-for-job-change" title="Permalink to this headline">¶</a></h5>
+<p>The REQ_WAIT_FOR_JOB_CHANGE luxi operation makes the relevant client
+thread block on its job for a relative long time. This is another easy
+way to exhaust the 16 client threads, and a place where clients often
+time out, moreover this operation is negative for the job queue lock
+contention (see below).</p>
+</div>
+<div class="section" id="job-queue-lock">
+<h5>Job Queue lock<a class="headerlink" href="#job-queue-lock" title="Permalink to this headline">¶</a></h5>
+<p>The job queue lock is quite heavily contended, and certain easily
+reproducible workloads show that&#8217;s it&#8217;s very easy to put masterd in
+trouble: for example running ~15 background instance reinstall jobs,
+results in a master daemon that, even without having finished the
+client worker threads, can&#8217;t answer simple job list requests, or
+submit more jobs.</p>
+<p>Currently the job queue lock is an exclusive non-fair lock insulating
+the following job queue methods (called by the client workers).</p>
+<blockquote>
+<div><ul class="simple">
+<li>AddNode</li>
+<li>RemoveNode</li>
+<li>SubmitJob</li>
+<li>SubmitManyJobs</li>
+<li>WaitForJobChanges</li>
+<li>CancelJob</li>
+<li>ArchiveJob</li>
+<li>AutoArchiveJobs</li>
+<li>QueryJobs</li>
+<li>Shutdown</li>
+</ul>
+</div></blockquote>
+<p>Moreover the job queue lock is acquired outside of the job queue in two
+other classes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>jqueue._JobQueueWorker (in RunTask) before executing the opcode, after
+finishing its executing and when handling an exception.</li>
+<li>jqueue._OpExecCallbacks (in NotifyStart and Feedback) when the
+processor (mcpu.Processor) is about to start working on the opcode
+(after acquiring the necessary locks) and when any data is sent back
+via the feedback function.</li>
+</ul>
+</div></blockquote>
+<p>Of those the major critical points are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Submit[Many]Job, QueryJobs, WaitForJobChanges, which can easily slow
+down and block client threads up to making the respective clients
+time out.</li>
+<li>The code paths in NotifyStart, Feedback, and RunTask, which slow
+down job processing between clients and otherwise non-related jobs.</li>
+</ul>
+</div></blockquote>
+<p>To increase the pain:</p>
+<blockquote>
+<div><ul class="simple">
+<li>WaitForJobChanges is a bad offender because it&#8217;s implemented with a
+notified condition which awakes waiting threads, who then try to
+acquire the global lock again</li>
+<li>Many should-be-fast code paths are slowed down by replicating the
+change to remote nodes, and thus waiting, with the lock held, on
+remote rpcs to complete (starting, finishing, and submitting jobs)</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="proposed-changes">
+<h4><a class="toc-backref" href="#id14">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h4>
+<p>In order to be able to interact with the master daemon even when it&#8217;s
+under heavy load, and  to make it simpler to add core functionality
+(such as an asynchronous rpc client) we propose three subsequent levels
+of changes to the master core architecture.</p>
+<p>After making this change we&#8217;ll be able to re-evaluate the size of our
+thread pool, if we see that we can make most threads in the client
+worker pool always idle. In the future we should also investigate making
+the rpc client asynchronous as well, so that we can make masterd a lot
+smaller in number of threads, and memory size, and thus also easier to
+understand, debug, and scale.</p>
+<div class="section" id="connection-handling">
+<h5>Connection handling<a class="headerlink" href="#connection-handling" title="Permalink to this headline">¶</a></h5>
+<p>We&#8217;ll move the main thread of ganeti-masterd to asyncore, so that it can
+share the mainloop code with all other Ganeti daemons. Then all luxi
+clients will be asyncore clients, and I/O to/from them will be handled
+by the master thread asynchronously. Data will be read from the client
+sockets as it becomes available, and kept in a buffer, then when a
+complete message is found, it&#8217;s passed to a client worker thread for
+parsing and processing. The client worker thread is responsible for
+serializing the reply, which can then be sent asynchronously by the main
+thread on the socket.</p>
+</div>
+<div class="section" id="id1">
+<h5>Wait for job change<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h5>
+<p>The REQ_WAIT_FOR_JOB_CHANGE luxi request is changed to be
+subscription-based, so that the executing thread doesn&#8217;t have to be
+waiting for the changes to arrive. Threads producing messages (job queue
+executors) will make sure that when there is a change another thread is
+awaken and delivers it to the waiting clients. This can be either a
+dedicated &#8220;wait for job changes&#8221; thread or pool, or one of the client
+workers, depending on what&#8217;s easier to implement. In either case the
+main asyncore thread will only be involved in pushing of the actual
+data, and not in fetching/serializing it.</p>
+<p>Other features to look at, when implementing this code are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Possibility not to need the job lock to know which updates to push:
+if the thread producing the data pushed a copy of the update for the
+waiting clients, the thread sending it won&#8217;t need to acquire the
+lock again to fetch the actual data.</li>
+<li>Possibility to signal clients about to time out, when no update has
+been received, not to despair and to keep waiting (luxi level
+keepalive).</li>
+<li>Possibility to defer updates if they are too frequent, providing
+them at a maximum rate (lower priority).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h5>Job Queue lock<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<p>In order to decrease the job queue lock contention, we will change the
+code paths in the following ways, initially:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A per-job lock will be introduced. All operations affecting only one
+job (for example feedback, starting/finishing notifications,
+subscribing to or watching a job) will only require the job lock.
+This should be a leaf lock, but if a situation arises in which it
+must be acquired together with the global job queue lock the global
+one must always be acquired last (for the global section).</li>
+<li>The locks will be converted to a sharedlock. Any read-only operation
+will be able to proceed in parallel.</li>
+<li>During remote update (which happens already per-job) we&#8217;ll drop the
+job lock level to shared mode, so that activities reading the lock
+(for example job change notifications or QueryJobs calls) will be
+able to proceed in parallel.</li>
+<li>The wait for job changes improvements proposed above will be
+implemented.</li>
+</ul>
+</div></blockquote>
+<p>In the future other improvements may include splitting off some of the
+work (eg replication of a job to remote nodes) to a separate thread pool
+or asynchronous thread, not tied with the code path for answering client
+requests or the one executing the &#8220;real&#8221; work. This can be discussed
+again after we used the more granular job queue in production and tested
+its benefits.</p>
+</div>
+</div>
+</div>
+<div class="section" id="inter-cluster-instance-moves">
+<h3><a class="toc-backref" href="#id15">Inter-cluster instance moves</a><a class="headerlink" href="#inter-cluster-instance-moves" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id16">Current state and shortcomings</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>With the current design of Ganeti, moving whole instances between
+different clusters involves a lot of manual work. There are several ways
+to move instances, one of them being to export the instance, manually
+copying all data to the new cluster before importing it again. Manual
+changes to the instances configuration, such as the IP address, may be
+necessary in the new environment. The goal is to improve and automate
+this process in Ganeti 2.2.</p>
+</div>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id17">Proposed changes</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="authorization-authentication-and-security">
+<h5>Authorization, Authentication and Security<a class="headerlink" href="#authorization-authentication-and-security" title="Permalink to this headline">¶</a></h5>
+<p>Until now, each Ganeti cluster was a self-contained entity and wouldn&#8217;t
+talk to other Ganeti clusters. Nodes within clusters only had to trust
+the other nodes in the same cluster and the network used for replication
+was trusted, too (hence the ability the use a separate, local network
+for replication).</p>
+<p>For inter-cluster instance transfers this model must be weakened. Nodes
+in one cluster will have to talk to nodes in other clusters, sometimes
+in other locations and, very important, via untrusted network
+connections.</p>
+<p>Various option have been considered for securing and authenticating the
+data transfer from one machine to another. To reduce the risk of
+accidentally overwriting data due to software bugs, authenticating the
+arriving data was considered critical. Eventually we decided to use
+socat&#8217;s OpenSSL options (<tt class="docutils literal"><span class="pre">OPENSSL:</span></tt>, <tt class="docutils literal"><span class="pre">OPENSSL-LISTEN:</span></tt> et al), which
+provide us with encryption, authentication and authorization when used
+with separate keys and certificates.</p>
+<p>Combinations of OpenSSH, GnuPG and Netcat were deemed too complex to set
+up from within Ganeti. Any solution involving OpenSSH would require a
+dedicated user with a home directory and likely automated modifications
+to the user&#8217;s <tt class="docutils literal"><span class="pre">$HOME/.ssh/authorized_keys</span></tt> file. When using Netcat,
+GnuPG or another encryption method would be necessary to transfer the
+data over an untrusted network. socat combines both in one program and
+is already a dependency.</p>
+<p>Each of the two clusters will have to generate an RSA key. The public
+parts are exchanged between the clusters by a third party, such as an
+administrator or a system interacting with Ganeti via the remote API
+(&#8220;third party&#8221; from here on). After receiving each other&#8217;s public key,
+the clusters can start talking to each other.</p>
+<p>All encrypted connections must be verified on both sides. Neither side
+may accept unverified certificates. The generated certificate should
+only be valid for the time necessary to move the instance.</p>
+<p>For additional protection of the instance data, the two clusters can
+verify the certificates and destination information exchanged via the
+third party by checking an HMAC signature using a key shared among the
+involved clusters. By default this secret key will be a random string
+unique to the cluster, generated by running SHA1 over 20 bytes read from
+<tt class="docutils literal"><span class="pre">/dev/urandom</span></tt> and the administrator must synchronize the secrets
+between clusters before instances can be moved. If the third party does
+not know the secret, it can&#8217;t forge the certificates or redirect the
+data. Unless disabled by a new cluster parameter, verifying the HMAC
+signatures must be mandatory. The HMAC signature for X509 certificates
+will be prepended to the certificate similar to an <span class="target" id="index-0"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc822.html"><strong>RFC 822</strong></a> header and
+only covers the certificate (from <tt class="docutils literal"><span class="pre">-----BEGIN</span> <span class="pre">CERTIFICATE-----</span></tt> to
+<tt class="docutils literal"><span class="pre">-----END</span> <span class="pre">CERTIFICATE-----</span></tt>). The header name will be
+<tt class="docutils literal"><span class="pre">X-Ganeti-Signature</span></tt> and its value will have the format
+<tt class="docutils literal"><span class="pre">$salt/$hash</span></tt> (salt and hash separated by slash). The salt may only
+contain characters in the range <tt class="docutils literal"><span class="pre">[a-zA-Z0-9]</span></tt>.</p>
+<p>On the web, the destination cluster would be equivalent to an HTTPS
+server requiring verifiable client certificates. The browser would be
+equivalent to the source cluster and must verify the server&#8217;s
+certificate while providing a client certificate to the server.</p>
+</div>
+<div class="section" id="copying-data">
+<h5>Copying data<a class="headerlink" href="#copying-data" title="Permalink to this headline">¶</a></h5>
+<p>To simplify the implementation, we decided to operate at a block-device
+level only, allowing us to easily support non-DRBD instance moves.</p>
+<p>Intra-cluster instance moves will re-use the existing export and import
+scripts supplied by instance OS definitions. Unlike simply copying the
+raw data, this allows one to use filesystem-specific utilities to dump
+only used parts of the disk and to exclude certain disks from the move.
+Compression should be used to further reduce the amount of data
+transferred.</p>
+<p>The export scripts writes all data to stdout and the import script reads
+it from stdin again. To avoid copying data and reduce disk space
+consumption, everything is read from the disk and sent over the network
+directly, where it&#8217;ll be written to the new block device directly again.</p>
+</div>
+<div class="section" id="workflow">
+<h5>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h5>
+<ol class="arabic simple">
+<li>Third party tells source cluster to shut down instance, asks for the
+instance specification and for the public part of an encryption key<ul>
+<li>Instance information can already be retrieved using an existing API
+(<tt class="docutils literal"><span class="pre">OpInstanceQueryData</span></tt>).</li>
+<li>An RSA encryption key and a corresponding self-signed X509
+certificate is generated using the &#8220;openssl&#8221; command. This key will
+be used to encrypt the data sent to the destination cluster.<ul>
+<li>Private keys never leave the cluster.</li>
+<li>The public part (the X509 certificate) is signed using HMAC with
+salting and a secret shared between Ganeti clusters.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Third party tells destination cluster to create an instance with the
+same specifications as on source cluster and to prepare for an
+instance move with the key received from the source cluster and
+receives the public part of the destination&#8217;s encryption key<ul>
+<li>The current API to create instances (<tt class="docutils literal"><span class="pre">OpInstanceCreate</span></tt>) will be
+extended to support an import from a remote cluster.</li>
+<li>A valid, unexpired X509 certificate signed with the destination
+cluster&#8217;s secret will be required. By verifying the signature, we
+know the third party didn&#8217;t modify the certificate.<ul>
+<li>The private keys never leave their cluster, hence the third party
+can not decrypt or intercept the instance&#8217;s data by modifying the
+IP address or port sent by the destination cluster.</li>
+</ul>
+</li>
+<li>The destination cluster generates another key and certificate,
+signs and sends it to the third party, who will have to pass it to
+the API for exporting an instance (<tt class="docutils literal"><span class="pre">OpBackupExport</span></tt>). This
+certificate is used to ensure we&#8217;re sending the disk data to the
+correct destination cluster.</li>
+<li>Once a disk can be imported, the API sends the destination
+information (IP address and TCP port) together with an HMAC
+signature to the third party.</li>
+</ul>
+</li>
+<li>Third party hands public part of the destination&#8217;s encryption key
+together with all necessary information to source cluster and tells
+it to start the move<ul>
+<li>The existing API for exporting instances (<tt class="docutils literal"><span class="pre">OpBackupExport</span></tt>)
+will be extended to export instances to remote clusters.</li>
+</ul>
+</li>
+<li>Source cluster connects to destination cluster for each disk and
+transfers its data using the instance OS definition&#8217;s export and
+import scripts<ul>
+<li>Before starting, the source cluster must verify the HMAC signature
+of the certificate and destination information (IP address and TCP
+port).</li>
+<li>When connecting to the remote machine, strong certificate checks
+must be employed.</li>
+</ul>
+</li>
+<li>Due to the asynchronous nature of the whole process, the destination
+cluster checks whether all disks have been transferred every time
+after transferring a single disk; if so, it destroys the encryption
+key</li>
+<li>After sending all disks, the source cluster destroys its key</li>
+<li>Destination cluster runs OS definition&#8217;s rename script to adjust
+instance settings if needed (e.g. IP address)</li>
+<li>Destination cluster starts the instance if requested at the beginning
+by the third party</li>
+<li>Source cluster removes the instance if requested</li>
+</ol>
+</div>
+<div class="section" id="instance-move-in-pseudo-code">
+<h5>Instance move in pseudo code<a class="headerlink" href="#instance-move-in-pseudo-code" title="Permalink to this headline">¶</a></h5>
+<p>The following pseudo code describes a script moving instances between
+clusters and what happens on both clusters.</p>
+<ol class="arabic">
+<li><p class="first">Script is started, gets the instance name and destination cluster:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">instance_name</span><span class="p">,</span> <span class="n">dest_cluster_name</span><span class="p">)</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+<span class="c"># Get destination cluster object</span>
+<span class="n">dest_cluster</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">FindCluster</span><span class="p">(</span><span class="n">dest_cluster_name</span><span class="p">)</span>
+
+<span class="c"># Use database to find source cluster</span>
+<span class="n">src_cluster</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">FindClusterByInstance</span><span class="p">(</span><span class="n">instance_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Script tells source cluster to stop instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Stop instance</span>
+<span class="n">src_cluster</span><span class="o">.</span><span class="n">StopInstance</span><span class="p">(</span><span class="n">instance_name</span><span class="p">)</span>
+
+<span class="c"># Get instance specification (memory, disk, etc.)</span>
+<span class="n">inst_spec</span> <span class="o">=</span> <span class="n">src_cluster</span><span class="o">.</span><span class="n">GetInstanceInfo</span><span class="p">(</span><span class="n">instance_name</span><span class="p">)</span>
+
+<span class="p">(</span><span class="n">src_key_name</span><span class="p">,</span> <span class="n">src_cert</span><span class="p">)</span> <span class="o">=</span> <span class="n">src_cluster</span><span class="o">.</span><span class="n">CreateX509Certificate</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">CreateX509Certificate</span></tt> on source cluster:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">key_file</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">()</span>
+<span class="n">cert_file</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.cert&quot;</span> <span class="o">%</span> <span class="n">key_file</span>
+<span class="n">RunCmd</span><span class="p">([</span><span class="s">&quot;/usr/bin/openssl&quot;</span><span class="p">,</span> <span class="s">&quot;req&quot;</span><span class="p">,</span> <span class="s">&quot;-new&quot;</span><span class="p">,</span>
+         <span class="s">&quot;-newkey&quot;</span><span class="p">,</span> <span class="s">&quot;rsa:1024&quot;</span><span class="p">,</span> <span class="s">&quot;-days&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">,</span>
+         <span class="s">&quot;-nodes&quot;</span><span class="p">,</span> <span class="s">&quot;-x509&quot;</span><span class="p">,</span> <span class="s">&quot;-batch&quot;</span><span class="p">,</span>
+         <span class="s">&quot;-keyout&quot;</span><span class="p">,</span> <span class="n">key_file</span><span class="p">,</span> <span class="s">&quot;-out&quot;</span><span class="p">,</span> <span class="n">cert_file</span><span class="p">])</span>
+
+<span class="n">plain_cert</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">cert_file</span><span class="p">)</span>
+
+<span class="c"># HMAC sign using secret key, this adds a &quot;X-Ganeti-Signature&quot;</span>
+<span class="c"># header to the beginning of the certificate</span>
+<span class="n">signed_cert</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">SignX509Certificate</span><span class="p">(</span><span class="n">plain_cert</span><span class="p">,</span>
+  <span class="n">utils</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">X509_SIGNKEY_FILE</span><span class="p">))</span>
+
+<span class="c"># The certificate now looks like the following:</span>
+<span class="c">#</span>
+<span class="c">#   X-Ganeti-Signature: $1234$28676f0516c6ab68062b[…]</span>
+<span class="c">#   -----BEGIN CERTIFICATE-----</span>
+<span class="c">#   MIICsDCCAhmgAwIBAgI[…]</span>
+<span class="c">#   -----END CERTIFICATE-----</span>
+
+<span class="c"># Return name of key file and signed certificate in PEM format</span>
+<span class="k">return</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key_file</span><span class="p">),</span> <span class="n">signed_cert</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Script creates instance on destination cluster and waits for move to
+finish:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dest_cluster</span><span class="o">.</span><span class="n">CreateInstance</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">REMOTE_IMPORT</span><span class="p">,</span>
+                            <span class="n">spec</span><span class="o">=</span><span class="n">inst_spec</span><span class="p">,</span>
+                            <span class="n">source_cert</span><span class="o">=</span><span class="n">src_cert</span><span class="p">)</span>
+
+<span class="c"># Wait until destination cluster gives us its certificate</span>
+<span class="n">dest_cert</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">disk_info</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dest_cert</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">disk_info</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">inst_spec</span><span class="o">.</span><span class="n">disks</span><span class="p">)):</span>
+  <span class="n">tmp</span> <span class="o">=</span> <span class="n">dest_cluster</span><span class="o">.</span><span class="n">WaitOutput</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="n">Certificate</span><span class="p">:</span>
+    <span class="n">dest_cert</span> <span class="o">=</span> <span class="n">tmp</span>
+  <span class="k">elif</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="n">DiskInfo</span><span class="p">:</span>
+    <span class="c"># DiskInfo contains destination address and port</span>
+    <span class="n">disk_info</span><span class="p">[</span><span class="n">tmp</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+
+<span class="c"># Tell source cluster to export disks</span>
+<span class="k">for</span> <span class="n">disk</span> <span class="ow">in</span> <span class="n">disk_info</span><span class="p">:</span>
+  <span class="n">src_cluster</span><span class="o">.</span><span class="n">ExportDisk</span><span class="p">(</span><span class="n">instance_name</span><span class="p">,</span> <span class="n">disk</span><span class="o">=</span><span class="n">disk</span><span class="p">,</span>
+                         <span class="n">key_name</span><span class="o">=</span><span class="n">src_key_name</span><span class="p">,</span>
+                         <span class="n">dest_cert</span><span class="o">=</span><span class="n">dest_cert</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="s">&quot;Instance </span><span class="si">%s</span><span class="s"> sucessfully moved to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+       <span class="p">(</span><span class="n">instance_name</span><span class="p">,</span> <span class="n">dest_cluster</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">CreateInstance</span></tt> on destination cluster:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># …</span>
+
+<span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">constants</span><span class="o">.</span><span class="n">REMOTE_IMPORT</span><span class="p">:</span>
+  <span class="c"># Make sure certificate was not modified since it was generated by</span>
+  <span class="c"># source cluster (which must use the same secret)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">VerifySignedX509Cert</span><span class="p">(</span><span class="n">source_cert</span><span class="p">,</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">X509_SIGNKEY_FILE</span><span class="p">))):</span>
+    <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;Certificate not signed with this cluster&#39;s secret&quot;</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">CheckExpiredX509Cert</span><span class="p">(</span><span class="n">source_cert</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;X509 certificate is expired&quot;</span><span class="p">)</span>
+
+  <span class="n">source_cert_file</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">WriteTempFile</span><span class="p">(</span><span class="n">source_cert</span><span class="p">)</span>
+
+  <span class="c"># See above for X509 certificate generation and signing</span>
+  <span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">signed_cert</span><span class="p">)</span> <span class="o">=</span> <span class="n">CreateSignedX509Certificate</span><span class="p">()</span>
+
+  <span class="n">SendToClient</span><span class="p">(</span><span class="s">&quot;x509-cert&quot;</span><span class="p">,</span> <span class="n">signed_cert</span><span class="p">)</span>
+
+  <span class="k">for</span> <span class="n">disk</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">disks</span><span class="p">:</span>
+    <span class="c"># Start socat</span>
+    <span class="n">RunCmd</span><span class="p">((</span><span class="s">&quot;socat&quot;</span>
+            <span class="s">&quot; OPENSSL-LISTEN:</span><span class="si">%s</span><span class="s">,…,key=</span><span class="si">%s</span><span class="s">,cert=</span><span class="si">%s</span><span class="s">,cafile=</span><span class="si">%s</span><span class="s">,verify=1&quot;</span>
+            <span class="s">&quot; stdout &gt; /dev/disk…&quot;</span><span class="p">)</span> <span class="o">%</span>
+           <span class="n">port</span><span class="p">,</span> <span class="n">GetRsaKeyPath</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">private</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+           <span class="n">GetRsaKeyPath</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">private</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span> <span class="n">src_cert_file</span><span class="p">)</span>
+    <span class="n">SendToClient</span><span class="p">(</span><span class="s">&quot;send-disk-to&quot;</span><span class="p">,</span> <span class="n">disk</span><span class="p">,</span> <span class="n">ip_address</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+  <span class="n">DestroyX509Cert</span><span class="p">(</span><span class="n">key_name</span><span class="p">)</span>
+
+  <span class="n">RunRenameScript</span><span class="p">(</span><span class="n">instance_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ExportDisk</span></tt> on source cluster:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Make sure certificate was not modified since it was generated by</span>
+<span class="c"># destination cluster (which must use the same secret)</span>
+<span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">VerifySignedX509Cert</span><span class="p">(</span><span class="n">cert_pem</span><span class="p">,</span>
+      <span class="n">utils</span><span class="o">.</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">X509_SIGNKEY_FILE</span><span class="p">))):</span>
+  <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;Certificate not signed with this cluster&#39;s secret&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">CheckExpiredX509Cert</span><span class="p">(</span><span class="n">cert_pem</span><span class="p">):</span>
+  <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s">&quot;X509 certificate is expired&quot;</span><span class="p">)</span>
+
+<span class="n">dest_cert_file</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">WriteTempFile</span><span class="p">(</span><span class="n">cert_pem</span><span class="p">)</span>
+
+<span class="c"># Start socat</span>
+<span class="n">RunCmd</span><span class="p">((</span><span class="s">&quot;socat stdin&quot;</span>
+        <span class="s">&quot; OPENSSL:</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">,…,key=</span><span class="si">%s</span><span class="s">,cert=</span><span class="si">%s</span><span class="s">,cafile=</span><span class="si">%s</span><span class="s">,verify=1&quot;</span>
+        <span class="s">&quot; &lt; /dev/disk…&quot;</span><span class="p">)</span> <span class="o">%</span>
+       <span class="n">disk</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">disk</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+       <span class="n">GetRsaKeyPath</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">private</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+       <span class="n">GetRsaKeyPath</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">private</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span> <span class="n">dest_cert_file</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">all_disks_done</span><span class="p">:</span>
+  <span class="n">DestroyX509Cert</span><span class="p">(</span><span class="n">key_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="miscellaneous-notes">
+<h5>Miscellaneous notes<a class="headerlink" href="#miscellaneous-notes" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li>A very similar system could also be used for instance exports within
+the same cluster. Currently OpenSSH is being used, but could be
+replaced by socat and SSL/TLS.</li>
+<li>During the design of intra-cluster instance moves we also discussed
+encrypting instance exports using GnuPG.</li>
+<li>While most instances should have exactly the same configuration as
+on the source cluster, setting them up with a different disk layout
+might be helpful in some use-cases.</li>
+<li>A cleanup operation, similar to the one available for failed instance
+migrations, should be provided.</li>
+<li><tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> should remove instances pending a move from another
+cluster after a certain amount of time. This takes care of failures
+somewhere in the process.</li>
+<li>RSA keys can be generated using the existing
+<tt class="docutils literal"><span class="pre">bootstrap.GenerateSelfSignedSslCert</span></tt> function, though it might be
+useful to not write both parts into a single file, requiring small
+changes to the function. The public part always starts with
+<tt class="docutils literal"><span class="pre">-----BEGIN</span> <span class="pre">CERTIFICATE-----</span></tt> and ends with <tt class="docutils literal"><span class="pre">-----END</span>
+<span class="pre">CERTIFICATE-----</span></tt>.</li>
+<li>The source and destination cluster might be different when it comes
+to available hypervisors, kernels, etc. The destination cluster should
+refuse to accept an instance move if it can&#8217;t fulfill an instance&#8217;s
+requirements.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="privilege-separation">
+<h3><a class="toc-backref" href="#id18">Privilege separation</a><a class="headerlink" href="#privilege-separation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id19">Current state and shortcomings</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>All Ganeti daemons are run under the user root. This is not ideal from a
+security perspective as for possible exploitation of any daemon the user
+has full access to the system.</p>
+<p>In order to overcome this situation we&#8217;ll allow Ganeti to run its daemon
+under different users and a dedicated group. This also will allow some
+side effects, like letting the user run some <tt class="docutils literal"><span class="pre">gnt-*</span></tt> commands if one
+is in the same group.</p>
+</div>
+<div class="section" id="implementation">
+<h4><a class="toc-backref" href="#id20">Implementation</a><a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h4>
+<p>For Ganeti 2.2 the implementation will be focused on a the RAPI daemon
+only. This involves changes to <tt class="docutils literal"><span class="pre">daemons.py</span></tt> so it&#8217;s possible to drop
+privileges on daemonize the process. Though, this will be a short term
+solution which will be replaced by a privilege drop already on daemon
+startup in Ganeti 2.3.</p>
+<p>It also needs changes in the master daemon to create the socket with new
+permissions/owners to allow RAPI access. There will be no other
+permission/owner changes in the file structure as the RAPI daemon is
+started with root permission. In that time it will read all needed files
+and then drop privileges before contacting the master daemon.</p>
+</div>
+</div>
+</div>
+<div class="section" id="feature-changes">
+<h2><a class="toc-backref" href="#id21">Feature changes</a><a class="headerlink" href="#feature-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="kvm-security">
+<h3><a class="toc-backref" href="#id22">KVM Security</a><a class="headerlink" href="#kvm-security" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h4><a class="toc-backref" href="#id23">Current state and shortcomings</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<p>Currently all kvm processes run as root. Taking ownership of the
+hypervisor process, from inside a virtual machine, would mean a full
+compromise of the whole Ganeti cluster, knowledge of all Ganeti
+authentication secrets, full access to all running instances, and the
+option of subverting other basic services on the cluster (eg: ssh).</p>
+</div>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id24">Proposed changes</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>We would like to decrease the surface of attack available if an
+hypervisor is compromised. We can do so adding different features to
+Ganeti, which will allow restricting the broken hypervisor
+possibilities, in the absence of a local privilege escalation attack, to
+subvert the node.</p>
+<div class="section" id="dropping-privileges-in-kvm-to-a-single-user-easy">
+<h5>Dropping privileges in kvm to a single user (easy)<a class="headerlink" href="#dropping-privileges-in-kvm-to-a-single-user-easy" title="Permalink to this headline">¶</a></h5>
+<p>By passing the <tt class="docutils literal"><span class="pre">-runas</span></tt> option to kvm, we can make it drop privileges.
+The user can be chosen by an hypervisor parameter, so that each instance
+can have its own user, but by default they will all run under the same
+one. It should be very easy to implement, and can easily be backported
+to 2.1.X.</p>
+<p>This mode protects the Ganeti cluster from a subverted hypervisor, but
+doesn&#8217;t protect the instances between each other, unless care is taken
+to specify a different user for each. This would prevent the worst
+attacks, including:</p>
+<ul class="simple">
+<li>logging in to other nodes</li>
+<li>administering the Ganeti cluster</li>
+<li>subverting other services</li>
+</ul>
+<p>But the following would remain an option:</p>
+<ul class="simple">
+<li>terminate other VMs (but not start them again, as that requires root
+privileges to set up networking) (unless different users are used)</li>
+<li>trace other VMs, and probably subvert them and access their data
+(unless different users are used)</li>
+<li>send network traffic from the node</li>
+<li>read unprotected data on the node filesystem</li>
+</ul>
+</div>
+<div class="section" id="running-kvm-in-a-chroot-slightly-harder">
+<h5>Running kvm in a chroot (slightly harder)<a class="headerlink" href="#running-kvm-in-a-chroot-slightly-harder" title="Permalink to this headline">¶</a></h5>
+<p>By passing the <tt class="docutils literal"><span class="pre">-chroot</span></tt> option to kvm, we can restrict the kvm
+process in its own (possibly empty) root directory. We need to set this
+area up so that the instance disks and control sockets are accessible,
+so it would require slightly more work at the Ganeti level.</p>
+<p>Breaking out in a chroot would mean:</p>
+<ul class="simple">
+<li>a lot less options to find a local privilege escalation vector</li>
+<li>the impossibility to write local data, if the chroot is set up
+correctly</li>
+<li>the impossibility to read filesystem data on the host</li>
+</ul>
+<p>It would still be possible though to:</p>
+<ul class="simple">
+<li>terminate other VMs</li>
+<li>trace other VMs, and possibly subvert them (if a tracer can be
+installed in the chroot)</li>
+<li>send network traffic from the node</li>
+</ul>
+</div>
+<div class="section" id="running-kvm-with-a-pool-of-users-slightly-harder">
+<h5>Running kvm with a pool of users (slightly harder)<a class="headerlink" href="#running-kvm-with-a-pool-of-users-slightly-harder" title="Permalink to this headline">¶</a></h5>
+<p>If rather than passing a single user as an hypervisor parameter, we have
+a pool of useable ones, we can dynamically choose a free one to use and
+thus guarantee that each machine will be separate from the others,
+without putting the burden of this on the cluster administrator.</p>
+<p>This would mean interfering between machines would be impossible, and
+can still be combined with the chroot benefits.</p>
+</div>
+<div class="section" id="running-iptables-rules-to-limit-network-interaction-easy">
+<h5>Running iptables rules to limit network interaction (easy)<a class="headerlink" href="#running-iptables-rules-to-limit-network-interaction-easy" title="Permalink to this headline">¶</a></h5>
+<p>These don&#8217;t need to be handled by Ganeti, but we can ship examples. If
+the users used to run VMs would be blocked from sending some or all
+network traffic, it would become impossible for a broken into hypervisor
+to send arbitrary data on the node network, which is especially useful
+when the instance and the node network are separated (using ganeti-nbma
+or a separate set of network interfaces), or when a separate replication
+network is maintained. We need to experiment to see how much restriction
+we can properly apply, without limiting the instance legitimate traffic.</p>
+</div>
+<div class="section" id="running-kvm-inside-a-container-even-harder">
+<h5>Running kvm inside a container (even harder)<a class="headerlink" href="#running-kvm-inside-a-container-even-harder" title="Permalink to this headline">¶</a></h5>
+<p>Recent linux kernels support different process namespaces through
+control groups. PIDs, users, filesystems and even network interfaces can
+be separated. If we can set up ganeti to run kvm in a separate container
+we could insulate all the host process from being even visible if the
+hypervisor gets broken into. Most probably separating the network
+namespace would require one extra hop in the host, through a veth
+interface, thus reducing performance, so we may want to avoid that, and
+just rely on iptables.</p>
+</div>
+</div>
+<div class="section" id="implementation-plan">
+<h4><a class="toc-backref" href="#id25">Implementation plan</a><a class="headerlink" href="#implementation-plan" title="Permalink to this headline">¶</a></h4>
+<p>We will first implement dropping privileges for kvm processes as a
+single user, and most probably backport it to 2.1. Then we&#8217;ll ship
+example iptables rules to show how the user can be limited in its
+network activities.  After that we&#8217;ll implement chroot restriction for
+kvm processes, and extend the user limitation to use a user pool.</p>
+<p>Finally we&#8217;ll look into namespaces and containers, although that might
+slip after the 2.2 release.</p>
+</div>
+</div>
+<div class="section" id="new-os-states">
+<h3><a class="toc-backref" href="#id26">New OS states</a><a class="headerlink" href="#new-os-states" title="Permalink to this headline">¶</a></h3>
+<p>Separate from the OS external changes, described below, we&#8217;ll add some
+internal changes to the OS.</p>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id27">Current state and shortcomings</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>There are two issues related to the handling of the OSes.</p>
+<p>First, it&#8217;s impossible to disable an OS for new instances, since that
+will also break reinstallations and renames of existing instances. To
+phase out an OS definition, without actually having to modify the OS
+scripts, it would be ideal to be able to restrict new installations but
+keep the rest of the functionality available.</p>
+<p>Second, <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">reinstall</span> <span class="pre">--select-os</span></tt> shows all the OSes
+available on the clusters. Some OSes might exist only for debugging and
+diagnose, and not for end-user availability. For this, it would be
+useful to &#8220;hide&#8221; a set of OSes, but keep it otherwise functional.</p>
+</div>
+<div class="section" id="id9">
+<h4><a class="toc-backref" href="#id28">Proposed changes</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>Two new cluster-level attributes will be added, holding the list of OSes
+hidden from the user and respectively the list of OSes which are
+blacklisted from new installations.</p>
+<p>These lists will be modifiable via <tt class="docutils literal"><span class="pre">gnt-os</span> <span class="pre">modify</span></tt> (implemented via
+<tt class="docutils literal"><span class="pre">OpClusterSetParams</span></tt>), such that even not-yet-existing OSes can be
+preseeded into a given state.</p>
+<p>For the hidden OSes, they are fully functional except that they are not
+returned in the default OS list (as computed via <tt class="docutils literal"><span class="pre">OpOsDiagnose</span></tt>),
+unless the hidden state is requested.</p>
+<p>For the blacklisted OSes, they are also not shown (unless the
+blacklisted state is requested), and they are also prevented from
+installation via <tt class="docutils literal"><span class="pre">OpInstanceCreate</span></tt> (in create mode).</p>
+<p>Both these attributes are per-OS, not per-variant. Thus they apply to
+all of an OS&#8217; variants, and it&#8217;s impossible to blacklist or hide just
+one variant. Further improvements might allow a given OS variant to be
+blacklisted, as opposed to whole OSes.</p>
+</div>
+</div>
+</div>
+<div class="section" id="external-interface-changes">
+<h2><a class="toc-backref" href="#id29">External interface changes</a><a class="headerlink" href="#external-interface-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="os-api">
+<h3><a class="toc-backref" href="#id30">OS API</a><a class="headerlink" href="#os-api" title="Permalink to this headline">¶</a></h3>
+<p>The OS variants implementation in Ganeti 2.1 didn&#8217;t prove to be useful
+enough to alleviate the need to hack around the Ganeti API in order to
+provide flexible OS parameters.</p>
+<p>As such, for Ganeti 2.2 we will provide support for arbitrary OS
+parameters. However, since OSes are not registered in Ganeti, but
+instead discovered at runtime, the interface is not entirely
+straightforward.</p>
+<p>Furthermore, to support the system administrator in keeping OSes
+properly in sync across the nodes of a cluster, Ganeti will also verify
+(if existing) the consistence of a new <tt class="docutils literal"><span class="pre">os_version</span></tt> file.</p>
+<p>These changes to the OS API will bump the API version to 20.</p>
+<div class="section" id="os-version">
+<h4><a class="toc-backref" href="#id31">OS version</a><a class="headerlink" href="#os-version" title="Permalink to this headline">¶</a></h4>
+<p>A new <tt class="docutils literal"><span class="pre">os_version</span></tt> file will be supported by Ganeti. This file is not
+required, but if existing, its contents will be checked for consistency
+across nodes. The file should hold only one line of text (any extra data
+will be discarded), and its contents will be shown in the OS information
+and diagnose commands.</p>
+<p>It is recommended that OS authors increase the contents of this file for
+any changes; at a minimum, modifications that change the behaviour of
+import/export scripts must increase the version, since they break
+intra-cluster migration.</p>
+</div>
+<div class="section" id="parameters">
+<h4><a class="toc-backref" href="#id32">Parameters</a><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h4>
+<p>The interface between Ganeti and the OS scripts will be based on
+environment variables, and as such the parameters and their values will
+need to be valid in this context.</p>
+<div class="section" id="names">
+<h5>Names<a class="headerlink" href="#names" title="Permalink to this headline">¶</a></h5>
+<p>The parameter names will be declared in a new file, <tt class="docutils literal"><span class="pre">parameters.list</span></tt>,
+together with a one-line documentation (whitespace-separated). Example:</p>
+<div class="highlight-text"><div class="highlight"><pre>$ cat parameters.list
+ns1    Specifies the first name server to add to /etc/resolv.conf
+extra_packages  Specifies additional packages to install
+rootfs_size     Specifies the root filesystem size (the rest will be left unallocated)
+track  Specifies the distribution track, one of &#39;stable&#39;, &#39;testing&#39; or &#39;unstable&#39;
+</pre></div>
+</div>
+<p>As seen above, the documentation can be separate via multiple
+spaces/tabs from the names.</p>
+<p>The parameter names as read from the file will be used for the command
+line interface in lowercased form; as such, there shouldn&#8217;t be any two
+parameters which differ in case only.</p>
+</div>
+<div class="section" id="values">
+<h5>Values<a class="headerlink" href="#values" title="Permalink to this headline">¶</a></h5>
+<p>The values of the parameters are, from Ganeti&#8217;s point of view,
+completely freeform. If a given parameter has, from the OS&#8217; point of
+view, a fixed set of valid values, these should be documented as such
+and verified by the OS, but Ganeti will not handle such parameters
+specially.</p>
+<p>An empty value must be handled identically as a missing parameter. In
+other words, the validation script should only test for non-empty
+values, and not for declared versus undeclared parameters.</p>
+<p>Furthermore, each parameter should have an (internal to the OS) default
+value, that will be used if not passed from Ganeti. More precisely, it
+should be possible for any parameter to specify a value that will have
+the same effect as not passing the parameter, and no in no case should
+the absence of a parameter be treated as an exceptional case (outside
+the value space).</p>
+<div class="section" id="environment-variables">
+<h6>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h6>
+<p>The parameters will be exposed in the environment upper-case and
+prefixed with the string <tt class="docutils literal"><span class="pre">OSP_</span></tt>. For example, a parameter declared in
+the &#8216;parameters&#8217; file as <tt class="docutils literal"><span class="pre">ns1</span></tt> will appear in the environment as the
+variable <tt class="docutils literal"><span class="pre">OSP_NS1</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="validation">
+<h5>Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h5>
+<p>For the purpose of parameter name/value validation, the OS scripts
+<em>must</em> provide an additional script, named <tt class="docutils literal"><span class="pre">verify</span></tt>. This script will
+be called with the argument <tt class="docutils literal"><span class="pre">parameters</span></tt>, and all the parameters will
+be passed in via environment variables, as described above.</p>
+<p>The script should signify result/failure based on its exit code, and
+show explanatory messages either on its standard output or standard
+error. These messages will be passed on to the master, and stored as in
+the OpCode result/error message.</p>
+<p>The parameters must be constructed to be independent of the instance
+specifications. In general, the validation script will only be called
+with the parameter variables set, but not with the normal per-instance
+variables, in order for Ganeti to be able to validate default parameters
+too, when they change. Validation will only be performed on one cluster
+node, and it will be up to the ganeti administrator to keep the OS
+scripts in sync between all nodes.</p>
+</div>
+<div class="section" id="instance-operations">
+<h5>Instance operations<a class="headerlink" href="#instance-operations" title="Permalink to this headline">¶</a></h5>
+<p>The parameters will be passed, as described above, to all the other
+instance operations (creation, import, export). Ideally, these scripts
+will not abort with parameter validation errors, if the <tt class="docutils literal"><span class="pre">verify</span></tt>
+script has verified them correctly.</p>
+<p>Note: when changing an instance&#8217;s OS type, any OS parameters defined at
+instance level will be kept as-is. If the parameters differ between the
+new and the old OS, the user should manually remove/update them as
+needed.</p>
+</div>
+<div class="section" id="declaration-and-modification">
+<h5>Declaration and modification<a class="headerlink" href="#declaration-and-modification" title="Permalink to this headline">¶</a></h5>
+<p>Since the OSes are not registered in Ganeti, we will only make a &#8216;weak&#8217;
+link between the parameters as declared in Ganeti and the actual OSes
+existing on the cluster.</p>
+<p>It will be possible to declare parameters either globally, per cluster
+(where they are indexed per OS/variant), or individually, per
+instance. The declaration of parameters will not be tied to current
+existing OSes. When specifying a parameter, if the OS exists, it will be
+validated; if not, then it will simply be stored as-is.</p>
+<p>A special note is that it will not be possible to &#8216;unset&#8217; at instance
+level a parameter that is declared globally. Instead, at instance level
+the parameter should be given an explicit value, or the default value as
+explained above.</p>
+</div>
+<div class="section" id="cli-interface">
+<h5>CLI interface<a class="headerlink" href="#cli-interface" title="Permalink to this headline">¶</a></h5>
+<p>The modification of global (default) parameters will be done via the
+<tt class="docutils literal"><span class="pre">gnt-os</span></tt> command, and the per-instance parameters via the
+<tt class="docutils literal"><span class="pre">gnt-instance</span></tt> command. Both these commands will take an addition
+<tt class="docutils literal"><span class="pre">--os-parameters</span></tt> or <tt class="docutils literal"><span class="pre">-O</span></tt> flag that specifies the parameters in the
+familiar comma-separated, key=value format. For removing a parameter, a
+<tt class="docutils literal"><span class="pre">-key</span></tt> syntax will be used, e.g.:</p>
+<div class="highlight-text"><div class="highlight"><pre># initial modification
+$ gnt-instance modify -O use_dchp=true instance1
+# later revert (to the cluster default, or the OS default if not
+# defined at cluster level)
+$ gnt-instance modify -O -use_dhcp instance1
+</pre></div>
+</div>
+</div>
+<div class="section" id="internal-storage">
+<h5>Internal storage<a class="headerlink" href="#internal-storage" title="Permalink to this headline">¶</a></h5>
+<p>Internally, the OS parameters will be stored in a new <tt class="docutils literal"><span class="pre">osparams</span></tt>
+attribute. The global parameters will be stored on the cluster object,
+and the value of this attribute will be a dictionary indexed by OS name
+(this also accepts an OS+variant name, which will override a simple OS
+name, see below), and for values the key/name dictionary. For the
+instances, the value will be directly the key/name dictionary.</p>
+</div>
+<div class="section" id="overriding-rules">
+<h5>Overriding rules<a class="headerlink" href="#overriding-rules" title="Permalink to this headline">¶</a></h5>
+<p>Any instance-specific parameters will override any variant-specific
+parameters, which in turn will override any global parameters. The
+global parameters, in turn, override the built-in defaults (of the OS
+scripts).</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti 2.2 design</a><ul>
+<li><a class="reference internal" href="#core-changes">Core changes</a><ul>
+<li><a class="reference internal" href="#master-daemon-scaling-improvements">Master Daemon Scaling improvements</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a><ul>
+<li><a class="reference internal" href="#core-daemon-connection-handling">Core daemon connection handling</a></li>
+<li><a class="reference internal" href="#wait-for-job-change">Wait for job change</a></li>
+<li><a class="reference internal" href="#job-queue-lock">Job Queue lock</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#connection-handling">Connection handling</a></li>
+<li><a class="reference internal" href="#id1">Wait for job change</a></li>
+<li><a class="reference internal" href="#id2">Job Queue lock</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inter-cluster-instance-moves">Inter-cluster instance moves</a><ul>
+<li><a class="reference internal" href="#id3">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#authorization-authentication-and-security">Authorization, Authentication and Security</a></li>
+<li><a class="reference internal" href="#copying-data">Copying data</a></li>
+<li><a class="reference internal" href="#workflow">Workflow</a></li>
+<li><a class="reference internal" href="#instance-move-in-pseudo-code">Instance move in pseudo code</a></li>
+<li><a class="reference internal" href="#miscellaneous-notes">Miscellaneous notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#privilege-separation">Privilege separation</a><ul>
+<li><a class="reference internal" href="#id5">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes">Feature changes</a><ul>
+<li><a class="reference internal" href="#kvm-security">KVM Security</a><ul>
+<li><a class="reference internal" href="#id6">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id7">Proposed changes</a><ul>
+<li><a class="reference internal" href="#dropping-privileges-in-kvm-to-a-single-user-easy">Dropping privileges in kvm to a single user (easy)</a></li>
+<li><a class="reference internal" href="#running-kvm-in-a-chroot-slightly-harder">Running kvm in a chroot (slightly harder)</a></li>
+<li><a class="reference internal" href="#running-kvm-with-a-pool-of-users-slightly-harder">Running kvm with a pool of users (slightly harder)</a></li>
+<li><a class="reference internal" href="#running-iptables-rules-to-limit-network-interaction-easy">Running iptables rules to limit network interaction (easy)</a></li>
+<li><a class="reference internal" href="#running-kvm-inside-a-container-even-harder">Running kvm inside a container (even harder)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-plan">Implementation plan</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#new-os-states">New OS states</a><ul>
+<li><a class="reference internal" href="#id8">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id9">Proposed changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-interface-changes">External interface changes</a><ul>
+<li><a class="reference internal" href="#os-api">OS API</a><ul>
+<li><a class="reference internal" href="#os-version">OS version</a></li>
+<li><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li><a class="reference internal" href="#names">Names</a></li>
+<li><a class="reference internal" href="#values">Values</a><ul>
+<li><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validation">Validation</a></li>
+<li><a class="reference internal" href="#instance-operations">Instance operations</a></li>
+<li><a class="reference internal" href="#declaration-and-modification">Declaration and modification</a></li>
+<li><a class="reference internal" href="#cli-interface">CLI interface</a></li>
+<li><a class="reference internal" href="#internal-storage">Internal storage</a></li>
+<li><a class="reference internal" href="#overriding-rules">Overriding rules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-2.1.html"
+                        title="previous chapter">Ganeti 2.1 design</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-2.3.html"
+                        title="next chapter">Ganeti 2.3 design</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-2.2.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-2.3.html" title="Ganeti 2.3 design"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-2.1.html" title="Ganeti 2.1 design"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

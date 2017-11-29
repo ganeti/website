@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OVF converter &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti remote API" href="rapi.html" />
+    <link rel="prev" title="News" href="news.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="rapi.html" title="Ganeti remote API"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="news.html" title="News"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ovf-converter">
+<h1>OVF converter<a class="headerlink" href="#ovf-converter" title="Permalink to this headline">¶</a></h1>
+<p>Using <tt class="docutils literal"><span class="pre">ovfconverter</span></tt> from the <tt class="docutils literal"><span class="pre">tools</span></tt> directory, one can easily
+convert previously exported Ganeti instance into OVF package, supported
+by VMWare, VirtualBox and some other virtualization software. It is
+also possible to use instance exported from such a tool and convert it
+to Ganeti config file, used by <tt class="docutils literal"><span class="pre">gnt-backup</span> <span class="pre">import</span></tt> command.</p>
+<p>For the internal design of the converter and more detailed description,
+including listing of available command line options, please refer to
+<a class="reference internal" href="design-ovf-support.html"><em>Ganeti Instance Import/Export using Open Virtualization Format</em></a></p>
+<p>As the amount of Ganeti-specific details, that need to be provided in
+order to import an external instance, is rather large, we will present
+here some examples of importing instances from different sources.
+It is also worth noting that there are some limitations regarding
+support for different hardware.</p>
+<div class="section" id="limitations-on-import">
+<h2>Limitations on import<a class="headerlink" href="#limitations-on-import" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="network">
+<h3>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h3>
+<p>Available modes for the network include <tt class="docutils literal"><span class="pre">bridged</span></tt> and <tt class="docutils literal"><span class="pre">routed</span></tt>.
+There is no <tt class="docutils literal"><span class="pre">NIC</span></tt> mode, which is typically used e.g. by VirtualBox.
+For most usecases this should not be of any effect, since if
+<tt class="docutils literal"><span class="pre">NetworkSection</span></tt> contains any networks which are not discovered as
+<tt class="docutils literal"><span class="pre">bridged</span></tt> or <tt class="docutils literal"><span class="pre">routed</span></tt>, the network mode is assigned automatically,
+using Ganeti&#8217;s cluster defaults.</p>
+</div>
+<div class="section" id="backend">
+<h3>Backend<a class="headerlink" href="#backend" title="Permalink to this headline">¶</a></h3>
+<p>The only values that are taken into account regarding Virtual Hardware
+(described in <tt class="docutils literal"><span class="pre">VirtualHardwareSection</span></tt> of the <tt class="docutils literal"><span class="pre">.ovf</span></tt> file) are:</p>
+<ul class="simple">
+<li>number of virtual CPUs</li>
+<li>RAM memory</li>
+<li>hard disks</li>
+<li>networks</li>
+</ul>
+<p>Neither USB nor CD-ROM drive are used in Ganeti. We decided to simply
+ignore unused elements of this section, so their presence won&#8217;t raise
+any warnings.</p>
+</div>
+<div class="section" id="operating-system">
+<h3>Operating System<a class="headerlink" href="#operating-system" title="Permalink to this headline">¶</a></h3>
+<p>List of operating systems available on a cluster is viewable using
+<tt class="docutils literal"><span class="pre">gnt-os</span> <span class="pre">list</span></tt> command. When importing from external source, providing
+OS type in a command line (<tt class="docutils literal"><span class="pre">--os-type=...</span></tt>) is <strong>required</strong>. This is
+because even if the type is given in OVF description, it is not detailed
+enough for Ganeti to know which os-specific scripts to use.
+Please note, that instance containing disks may only be imported using
+OS script that supports raw disk images.</p>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<p>Files listed in <tt class="docutils literal"><span class="pre">ovf:References</span></tt> section cannot be hyperlinks.</p>
+</div>
+</div>
+<div class="section" id="limitations-on-export">
+<h2>Limitations on export<a class="headerlink" href="#limitations-on-export" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disk-content">
+<h3>Disk content<a class="headerlink" href="#disk-content" title="Permalink to this headline">¶</a></h3>
+<p>Most Ganeti instances do not contain grub. This results in some
+problems when importing to virtualization software that does expect it.
+Examples of such software include VirtualBox and VMWare.</p>
+<p>To avoid trouble, please install grub inside the instance before
+exporting it.</p>
+</div>
+<div class="section" id="import-to-virtualbox">
+<h3>Import to VirtualBox<a class="headerlink" href="#import-to-virtualbox" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">format</span></tt> option should be set to <tt class="docutils literal"><span class="pre">vmdk</span></tt> in order for instance to be
+importable by VirtualBox.</p>
+<p>Tests using existing versions of VirtualBox (3.16) suggest, that
+VirtualBox does not support disk compression or OVA packaging. In future
+versions this might change.</p>
+</div>
+<div class="section" id="import-to-vmware">
+<h3>Import to VMWare<a class="headerlink" href="#import-to-vmware" title="Permalink to this headline">¶</a></h3>
+<p>Importing Ganeti instance to VMWare was tested using <tt class="docutils literal"><span class="pre">ovftool</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">format</span></tt> option should be set to <tt class="docutils literal"><span class="pre">vmdk</span></tt> in order for instance to be
+importable by VMWare.</p>
+<p>Presence of Ganeti section does seem to cause some problems and
+therefore it is recommended to use <tt class="docutils literal"><span class="pre">--external</span></tt> option on export.</p>
+<p>Import of compressed disks generated by ovfconverter was impossible in
+current version of <tt class="docutils literal"><span class="pre">ovftool</span></tt> (2.1.0). This seems to be related to old
+<tt class="docutils literal"><span class="pre">vmdk</span></tt> version. Since the conversion to <tt class="docutils literal"><span class="pre">vmdk</span></tt> format is done using
+<tt class="docutils literal"><span class="pre">qemu-img</span></tt>, it is possible and in fact expected, that future versions
+of the latter tool will resolve this problem.</p>
+</div>
+</div>
+<div class="section" id="import-examples">
+<h2>Import examples<a class="headerlink" href="#import-examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ganeti-s-ovf">
+<h3>Ganeti&#8217;s OVF<a class="headerlink" href="#ganeti-s-ovf" title="Permalink to this headline">¶</a></h3>
+<p>If you are importing instance created using <tt class="docutils literal"><span class="pre">ovfconverter</span> <span class="pre">export</span></tt> &#8211;
+you most probably will not have to provide any additional information.
+In that case, the following is all you need (unless you wish to change
+some configuration options):</p>
+<div class="highlight-python"><pre>ovfconverter import ganeti.ovf
+[...]
+gnt-instance import -n &lt;node&gt; &lt;instance name&gt;</pre>
+</div>
+</div>
+<div class="section" id="virtualbox-vmware-and-other-external-sources">
+<h3>Virtualbox, VMWare and other external sources<a class="headerlink" href="#virtualbox-vmware-and-other-external-sources" title="Permalink to this headline">¶</a></h3>
+<p>In case of importing from external source, you will most likely have to
+provide the following details:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">os-type</span></tt> can be any operating system listed on <tt class="docutils literal"><span class="pre">gnt-os</span> <span class="pre">list</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">name</span></tt> that has to be resolvable, as it will be used as instance
+name (even if your external instance has a name, it most probably is
+not resolvable to an IP address)</li>
+</ul>
+<p>These are not the only options, but the recommended ones. For the
+complete list of available options please refer to
+<cite>Command Line description &lt;design-ovf-support.rst&gt;</cite></p>
+<p>Minimalistic but complete example of importing Virtualbox&#8217;s OVF
+instance may look like:</p>
+<div class="highlight-python"><pre>ovfconverter virtualbox.ovf --os-type=lenny-image \
+  --name=xen.test.i1 --disk-template=diskless
+[...]
+gnt-instance import -n node1.xen xen.test.i1</pre>
+</div>
+</div>
+</div>
+<div class="section" id="export-example">
+<h2>Export example<a class="headerlink" href="#export-example" title="Permalink to this headline">¶</a></h2>
+<p>Exporting instance into <tt class="docutils literal"><span class="pre">.ovf</span></tt> format is pretty streightforward and
+requires little - if any - explanation. The only compulsory detail is
+the required disk format, provided using the <tt class="docutils literal"><span class="pre">--format</span></tt> option.</p>
+<div class="section" id="export-to-another-ganeti-instance">
+<h3>Export to another Ganeti instance<a class="headerlink" href="#export-to-another-ganeti-instance" title="Permalink to this headline">¶</a></h3>
+<p>If for some reason it is convenient for you to use <tt class="docutils literal"><span class="pre">ovfconverter</span></tt> to
+move instance between clusters (e.g. because of the disk compression),
+the complete example of export may look like this:</p>
+<div class="highlight-python"><pre>gnt-backup export -n node1.xen xen.test.i1
+[...]
+ovfconverter export --format=vmdk --ova \
+  /srv/ganeti/export/xen.i1.node1.xen/config.ini
+[...]</pre>
+</div>
+<p>The result is then in
+<tt class="docutils literal"><span class="pre">/srv/ganeti/export/xen.i1.node1.xen/xen.test.i1.ova</span></tt></p>
+</div>
+<div class="section" id="export-to-virtualbox-vmware-other-external-tool">
+<h3>Export to Virtualbox/VMWare/other external tool<a class="headerlink" href="#export-to-virtualbox-vmware-other-external-tool" title="Permalink to this headline">¶</a></h3>
+<p>Typically, when exporting to external tool we do not want
+Ganeti-specific configuration to be saved. In that case, simply use the
+<tt class="docutils literal"><span class="pre">--external</span></tt> option:</p>
+<div class="highlight-python"><pre>gnt-backup export -n node1.xen xen.test.i1
+[...]
+ovfconverter export --external --output-dir ~/ganeti-instance/ \
+  /srv/ganeti/export/xen.i1.node1.xen/config.ini</pre>
+</div>
+</div>
+</div>
+<div class="section" id="known-issues">
+<h2>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="conversion-errors">
+<h3>Conversion errors<a class="headerlink" href="#conversion-errors" title="Permalink to this headline">¶</a></h3>
+<p>If you are encountering trouble when converting the disk, please ensure
+that you have newest <tt class="docutils literal"><span class="pre">qemu-img</span></tt> version.</p>
+</div>
+<div class="section" id="ova-and-compression">
+<h3>OVA and compression<a class="headerlink" href="#ova-and-compression" title="Permalink to this headline">¶</a></h3>
+<p>The compressed disks and OVA packaging do not work correctly in either
+VirtualBox (old version) or VMWare.</p>
+<p>VirtualBox (3.16 OSE) does not seem to support those two, so there is
+very little we can do about this.</p>
+<p>As for VMWare, the reason behind it not accepting compressed or packed
+instances created by ovfconverter seems to be related to the old vmdk
+version.</p>
+</div>
+<div class="section" id="problems-on-newest-virtualbox">
+<h3>Problems on newest VirtualBox<a class="headerlink" href="#problems-on-newest-virtualbox" title="Permalink to this headline">¶</a></h3>
+<p>In Oracle VM Virtualbox 4.0+ there seems to be a problem when importing
+any OVF instance created by ovfconverter. Reasons are again unknown,
+this will be investigated.</p>
+</div>
+<div class="section" id="disk-space">
+<h3>Disk space<a class="headerlink" href="#disk-space" title="Permalink to this headline">¶</a></h3>
+<p>The disk space requirements for both import and export are at the moment
+very large - we require free space up to about 3-4 times the size of
+disks. This will most likely be changed in future versions.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OVF converter</a><ul>
+<li><a class="reference internal" href="#limitations-on-import">Limitations on import</a><ul>
+<li><a class="reference internal" href="#network">Network</a></li>
+<li><a class="reference internal" href="#backend">Backend</a></li>
+<li><a class="reference internal" href="#operating-system">Operating System</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#limitations-on-export">Limitations on export</a><ul>
+<li><a class="reference internal" href="#disk-content">Disk content</a></li>
+<li><a class="reference internal" href="#import-to-virtualbox">Import to VirtualBox</a></li>
+<li><a class="reference internal" href="#import-to-vmware">Import to VMWare</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#import-examples">Import examples</a><ul>
+<li><a class="reference internal" href="#ganeti-s-ovf">Ganeti&#8217;s OVF</a></li>
+<li><a class="reference internal" href="#virtualbox-vmware-and-other-external-sources">Virtualbox, VMWare and other external sources</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#export-example">Export example</a><ul>
+<li><a class="reference internal" href="#export-to-another-ganeti-instance">Export to another Ganeti instance</a></li>
+<li><a class="reference internal" href="#export-to-virtualbox-vmware-other-external-tool">Export to Virtualbox/VMWare/other external tool</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#known-issues">Known issues</a><ul>
+<li><a class="reference internal" href="#conversion-errors">Conversion errors</a></li>
+<li><a class="reference internal" href="#ova-and-compression">OVA and compression</a></li>
+<li><a class="reference internal" href="#problems-on-newest-virtualbox">Problems on newest VirtualBox</a></li>
+<li><a class="reference internal" href="#disk-space">Disk space</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="news.html"
+                        title="previous chapter">News</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rapi.html"
+                        title="next chapter">Ganeti remote API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ovfconverter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="rapi.html" title="Ganeti remote API"
+             >next</a></li>
+        <li class="right" >
+          <a href="news.html" title="News"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

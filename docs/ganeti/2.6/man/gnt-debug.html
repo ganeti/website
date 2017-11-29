@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>gnt-debug(8) Ganeti | Version 2.6.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">gnt-debug(8) Ganeti | Version 2.6.2</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >gnt-debug - Debug commands</p
+  ></div
+><div id="synopsis"
+><h1
+  >Synopsis</h1
+  ><p
+  ><strong
+    >gnt-debug</strong
+    > {command} [arguments...]</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The <strong
+    >gnt-debug</strong
+    > is used for debugging the Ganeti system.</p
+  ></div
+><div id="commands"
+><h1
+  >COMMANDS</h1
+  ><div id="iallocator"
+  ><h2
+    >IALLOCATOR</h2
+    ><p
+    ><strong
+      >iallocator</strong
+      > [--debug] [--dir <em
+      >DIRECTION</em
+      >] {--algorithm <em
+      >ALLOCATOR</em
+      > } [--mode <em
+      >MODE</em
+      >] [--mem <em
+      >MEMORY</em
+      >] [--disks <em
+      >DISKS</em
+      >] [--disk-template <em
+      >TEMPLATE</em
+      >] [--nics <em
+      >NICS</em
+      >] [--os-type <em
+      >OS</em
+      >] [--vcpus <em
+      >VCPUS</em
+      >] [--tags <em
+      >TAGS</em
+      >] {<em
+      >instance</em
+      >}</p
+    ><p
+    >Executes a test run of the <em
+      >iallocator</em
+      > framework.</p
+    ><p
+    >The command will build input for a given iallocator script (named with the <code
+      >--algorithm</code
+      > option), and either show this input data (if <em
+      >DIRECTION</em
+      > is <code
+      >in</code
+      >) or run the iallocator script and show its output (if <em
+      >DIRECTION</em
+      > is <code
+      >out</code
+      >).</p
+    ><p
+    >If the <em
+      >MODE</em
+      > is <code
+      >allocate</code
+      >, then an instance definition is built from the other arguments and sent to the script, otherwise (<em
+      >MODE</em
+      > is <code
+      >relocate</code
+      >) an existing instance name must be passed as the first argument.</p
+    ><p
+    >This build of Ganeti will look for iallocator scripts in the following directories: /usr/lib/ganeti/iallocators; for more details about this framework, see the HTML or PDF documentation.</p
+    ></div
+  ><div id="delay"
+  ><h2
+    >DELAY</h2
+    ><p
+    ><strong
+      >delay</strong
+      > [--debug] [--no-master] [-n <em
+      >NODE</em
+      >...] {<em
+      >duration</em
+      >}</p
+    ><p
+    >Run a test opcode (a sleep) on the master and on selected nodes (via an RPC call). This serves no other purpose but to execute a test operation.</p
+    ><p
+    >The <code
+      >-n</code
+      > option can be given multiple times to select the nodes for the RPC call. By default, the delay will also be executed on the master, unless the <code
+      >--no-master</code
+      > option is passed.</p
+    ><p
+    >The <em
+      >delay</em
+      > argument will be interpreted as a floating point number.</p
+    ></div
+  ><div id="submit-job"
+  ><h2
+    >SUBMIT-JOB</h2
+    ><p
+    ><strong
+      >submit-job</strong
+      > [--verbose] [--timing-stats] [--job-repeat <em
+      >N</em
+      >] [--op-repeat <em
+      >N</em
+      >] [--each] {opcodes_file...}</p
+    ><p
+    >This command builds a list of opcodes from files in JSON format and submits a job per file to the master daemon. It can be used to test options that are not available via command line.</p
+    ><p
+    >The <code
+      >verbose</code
+      > option will additionally display the corresponding job IDs and the progress in waiting for the jobs; the <code
+      >timing-stats</code
+      > option will show some overall statistics inluding the number of total opcodes, jobs submitted and time spent in each stage (submit, exec, total).</p
+    ><p
+    >The <code
+      >job-repeat</code
+      > and <code
+      >op-repeat</code
+      > options allow to submit multiple copies of the passed arguments; job-repeat will cause N copies of each job (input file) to be submitted (equivalent to passing the arguments N times) while op-repeat will cause N copies of each of the opcodes in the file to be executed (equivalent to each file containing N copies of the opcodes).</p
+    ><p
+    >The <code
+      >each</code
+      > option allow to submit each job separately (using <code
+      >N</code
+      > SubmitJob LUXI requests instead of one SubmitManyJobs request).</p
+    ></div
+  ><div id="test-jobqueue"
+  ><h2
+    >TEST-JOBQUEUE</h2
+    ><p
+    ><strong
+      >test-jobqueue</strong
+      ></p
+    ><p
+    >Executes a few tests on the job queue. This command might generate failed jobs deliberately.</p
+    ></div
+  ><div id="locks"
+  ><h2
+    >LOCKS</h2
+    ><p
+    ><strong
+      >locks</strong
+      > [--no-headers] [--separator=<em
+      >SEPARATOR</em
+      >] [-v]<br
+       />[-o <em
+      >[+]FIELD,...</em
+      >] [--interval=<em
+      >SECONDS</em
+      >]</p
+    ><p
+    >Shows a list of locks in the master daemon.</p
+    ><p
+    >The <code
+      >--no-headers</code
+      > option will skip the initial header line. The <code
+      >--separator</code
+      > option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p
+    ><p
+    >The <code
+      >-v</code
+      > option activates verbose mode, which changes the display of special field states (see <strong
+      >ganeti(7)</strong
+      >).</p
+    ><p
+    >The <code
+      >-o</code
+      > option takes a comma-separated list of output fields. The available fields and their meaning are:</p
+    ><dl
+    ><dt
+      ><code
+	>mode</code
+	></dt
+      ><dd
+      ><p
+	>Mode in which the lock is currently acquired (exclusive or shared)</p
+	></dd
+      ><dt
+      ><code
+	>name</code
+	></dt
+      ><dd
+      ><p
+	>Lock name</p
+	></dd
+      ><dt
+      ><code
+	>owner</code
+	></dt
+      ><dd
+      ><p
+	>Current lock owner(s)</p
+	></dd
+      ><dt
+      ><code
+	>pending</code
+	></dt
+      ><dd
+      ><p
+	>Threads waiting for the lock</p
+	></dd
+      ></dl
+    ><p
+    >If the value of the option starts with the character <code
+      >+</code
+      >, the new fields will be added to the default list. This allows one to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p
+    ><p
+    >Use <code
+      >--interval</code
+      > to repeat the listing. A delay specified by the option value in seconds is inserted.</p
+    ></div
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters), <strong
+    >hinfo</strong
+    >(1) (cluster information printer).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

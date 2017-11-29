@@ -1,0 +1,573 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>HTOOLS(1) Ganeti | Version 2.6.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">HTOOLS(1) Ganeti | Version 2.6.2</h1>
+<div id="name"
+><h1
+  >NAME</h1
+  ><p
+  >htools - Cluster allocation and placement tools for Ganeti</p
+  ></div
+><div id="synopsis"
+><h1
+  >SYNOPSIS</h1
+  ><dl
+  ><dt
+    ><strong
+      >hbal</strong
+      ></dt
+    ><dd
+    ><p
+      >cluster balancer</p
+      ></dd
+    ><dt
+    ><strong
+      >hcheck</strong
+      ></dt
+    ><dd
+    ><p
+      >cluster checker</p
+      ></dd
+    ><dt
+    ><strong
+      >hspace</strong
+      ></dt
+    ><dd
+    ><p
+      >cluster capacity computation</p
+      ></dd
+    ><dt
+    ><strong
+      >hail</strong
+      ></dt
+    ><dd
+    ><p
+      >IAllocator plugin</p
+      ></dd
+    ><dt
+    ><strong
+      >hscan</strong
+      ></dt
+    ><dd
+    ><p
+      >saves cluster state for later reuse</p
+      ></dd
+    ><dt
+    ><strong
+      >hinfo</strong
+      ></dt
+    ><dd
+    ><p
+      >cluster information printer</p
+      ></dd
+    ></dl
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  ><code
+    >htools</code
+    > is a suite of tools designed to help with allocation/movement of instances and balancing of Ganeti clusters. <code
+    >htools</code
+    > is also the generic binary that must be symlinked or hardlinked under each tool's name in order to perform the different functions. Alternatively, the environment variable HTOOLS can be used to set the desired role.</p
+  ><p
+  >Installed as <code
+    >hbal</code
+    >, it computes and optionally executes a suite of instance moves in order to balance the cluster.</p
+  ><p
+  >Installed as <code
+    >hcheck</code
+    >, it preforms cluster checks and optionally simulates rebalancing with all the <code
+    >hbal</code
+    > options available.</p
+  ><p
+  >Installed as <code
+    >hspace</code
+    >, it computes how many additional instances can be fit on a cluster, while maintaining N+1 status. It can run on models of existing clusters or of simulated clusters.</p
+  ><p
+  >Installed as <code
+    >hail</code
+    >, it acts as an IAllocator plugin, i.e. it is used by Ganeti to compute new instance allocations and instance moves.</p
+  ><p
+  >Installed as <code
+    >hscan</code
+    >, it scans the local or remote cluster state and saves it to files which can later be reused by the other roles.</p
+  ><p
+  >Installed as <code
+    >hinfo</code
+    >, it prints information about the current cluster state.</p
+  ></div
+><div id="common-options"
+><h1
+  >COMMON OPTIONS</h1
+  ><p
+  >Options behave the same in all program modes, but not all program modes support all options. Some common options are:</p
+  ><dl
+  ><dt
+    >-p, --print-nodes</dt
+    ><dd
+    ><p
+      >Prints the node status, in a format designed to allow the user to understand the node's most important parameters. If the command in question makes a cluster transition (e.g. balancing or allocation), then usually both the initial and final node status is printed.</p
+      ><p
+      >It is possible to customise the listed information by passing a comma-separated list of field names to this option (the field list is currently undocumented), or to extend the default field list by prefixing the additional field list with a plus sign. By default, the node list will contain the following information:</p
+      ><dl
+      ><dt
+	>F</dt
+	><dd
+	><p
+	  >a character denoting the status of the node, with '-' meaning an offline node, '*' meaning N+1 failure and blank meaning a good node</p
+	  ></dd
+	><dt
+	>Name</dt
+	><dd
+	><p
+	  >the node name</p
+	  ></dd
+	><dt
+	>t_mem</dt
+	><dd
+	><p
+	  >the total node memory</p
+	  ></dd
+	><dt
+	>n_mem</dt
+	><dd
+	><p
+	  >the memory used by the node itself</p
+	  ></dd
+	><dt
+	>i_mem</dt
+	><dd
+	><p
+	  >the memory used by instances</p
+	  ></dd
+	><dt
+	>x_mem</dt
+	><dd
+	><p
+	  >amount memory which seems to be in use but cannot be determined why or by which instance; usually this means that the hypervisor has some overhead or that there are other reporting errors</p
+	  ></dd
+	><dt
+	>f_mem</dt
+	><dd
+	><p
+	  >the free node memory</p
+	  ></dd
+	><dt
+	>r_mem</dt
+	><dd
+	><p
+	  >the reserved node memory, which is the amount of free memory needed for N+1 compliance</p
+	  ></dd
+	><dt
+	>t_dsk</dt
+	><dd
+	><p
+	  >total disk</p
+	  ></dd
+	><dt
+	>f_dsk</dt
+	><dd
+	><p
+	  >free disk</p
+	  ></dd
+	><dt
+	>pcpu</dt
+	><dd
+	><p
+	  >the number of physical cpus on the node</p
+	  ></dd
+	><dt
+	>vcpu</dt
+	><dd
+	><p
+	  >the number of virtual cpus allocated to primary instances</p
+	  ></dd
+	><dt
+	>pcnt</dt
+	><dd
+	><p
+	  >number of primary instances</p
+	  ></dd
+	><dt
+	>scnt</dt
+	><dd
+	><p
+	  >number of secondary instances</p
+	  ></dd
+	><dt
+	>p_fmem</dt
+	><dd
+	><p
+	  >percent of free memory</p
+	  ></dd
+	><dt
+	>p_fdsk</dt
+	><dd
+	><p
+	  >percent of free disk</p
+	  ></dd
+	><dt
+	>r_cpu</dt
+	><dd
+	><p
+	  >ratio of virtual to physical cpus</p
+	  ></dd
+	><dt
+	>lCpu</dt
+	><dd
+	><p
+	  >the dynamic CPU load (if the information is available)</p
+	  ></dd
+	><dt
+	>lMem</dt
+	><dd
+	><p
+	  >the dynamic memory load (if the information is available)</p
+	  ></dd
+	><dt
+	>lDsk</dt
+	><dd
+	><p
+	  >the dynamic disk load (if the information is available)</p
+	  ></dd
+	><dt
+	>lNet</dt
+	><dd
+	><p
+	  >the dynamic net load (if the information is available)</p
+	  ></dd
+	></dl
+      ></dd
+    ><dt
+    >-t <em
+      >datafile</em
+      >, --text-data=<em
+      >datafile</em
+      ></dt
+    ><dd
+    ><p
+      >Backend specification: the name of the file holding node and instance information (if not collecting via RAPI or LUXI). This or one of the other backends must be selected. The option is described in the man page <strong
+	>htools</strong
+	>(1).</p
+      ><p
+      >The file should contain text data, line-based, with two empty lines separating sections. The lines themselves are column-based, with the pipe symbol (<code
+	>|</code
+	>) acting as separator.</p
+      ><p
+      >The first section contains group data, with two columns:</p
+      ><ul
+      ><li
+	>group name</li
+	><li
+	>group uuid</li
+	></ul
+      ><p
+      >The second sections contains node data, with the following columns:</p
+      ><ul
+      ><li
+	>node name</li
+	><li
+	>node total memory</li
+	><li
+	>node free memory</li
+	><li
+	>node total disk</li
+	><li
+	>node free disk</li
+	><li
+	>node physical cores</li
+	><li
+	>offline field (as <code
+	  >Y</code
+	  > or <code
+	  >N</code
+	  >)</li
+	><li
+	>group UUID</li
+	><li
+	>node spindle count</li
+	></ul
+      ><p
+      >The third section contains instance data, with the fields:</p
+      ><ul
+      ><li
+	>instance name</li
+	><li
+	>instance memory</li
+	><li
+	>instance disk size</li
+	><li
+	>instance vcpus</li
+	><li
+	>instance status (in Ganeti's format, e.g. <code
+	  >running</code
+	  > or <code
+	  >ERROR_down</code
+	  >)</li
+	><li
+	>instance <code
+	  >auto_balance</code
+	  > flag (see man page <strong
+	  >gnt-instance</strong
+	  > (7))</li
+	><li
+	>instance primary node</li
+	><li
+	>instance secondary node(s), if any</li
+	><li
+	>instance disk type (e.g. <code
+	  >plain</code
+	  > or <code
+	  >drbd</code
+	  >)</li
+	><li
+	>instance tags</li
+	></ul
+      ><p
+      >The fourth section contains the cluster tags, with one tag per line (no columns/no column processing).</p
+      ><p
+      >The fifth section contains the ipolicies of the cluster and the node groups, in the following format (separated by <code
+	>|</code
+	>):</p
+      ><ul
+      ><li
+	>owner (empty if cluster, group name otherwise)</li
+	><li
+	>standard, min, max instance specs, containing the following values separated by commas:<ul
+	  ><li
+	    >memory size</li
+	    ><li
+	    >cpu count</li
+	    ><li
+	    >disk size</li
+	    ><li
+	    >disk count</li
+	    ></ul
+	  >- nic count</li
+	><li
+	>disk templates</li
+	><li
+	>vcpu ratio</li
+	><li
+	>spindle ratio</li
+	></ul
+      ></dd
+    ><dt
+    >-m <em
+      >cluster</em
+      ></dt
+    ><dd
+    ><p
+      >Backend specification: collect data directly from the <em
+	>cluster</em
+	> given as an argument via RAPI. If the argument doesn't contain a colon (:), then it is converted into a fully-built URL via prepending <code
+	>https://</code
+	> and appending the default RAPI port, otherwise it is considered a fully-specified URL and used as-is.</p
+      ></dd
+    ><dt
+    >-L [<em
+      >path</em
+      >]</dt
+    ><dd
+    ><p
+      >Backend specification: collect data directly from the master daemon, which is to be contacted via LUXI (an internal Ganeti protocol). An optional <em
+	>path</em
+	> argument is interpreted as the path to the unix socket on which the master daemon listens; otherwise, the default path used by Ganeti (configured at build time) is used.</p
+      ></dd
+    ><dt
+    >-I|--ialloc-src <em
+      >path</em
+      ></dt
+    ><dd
+    ><p
+      >Backend specification: load data directly from an iallocator request (as produced by Ganeti when doing an iallocator call). The iallocator request is read from specified path.</p
+      ></dd
+    ><dt
+    >--simulate <em
+      >description</em
+      ></dt
+    ><dd
+    ><p
+      >Backend specification: instead of using actual data, build an empty cluster given a node description. The <em
+	>description</em
+	> parameter must be a comma-separated list of five elements, describing in order:</p
+      ><ul
+      ><li
+	>the allocation policy for this node group (<em
+	  >preferred</em
+	  >, <em
+	  >allocable</em
+	  > or <em
+	  >unallocable</em
+	  >, or alternatively the short forms <em
+	  >p</em
+	  >, <em
+	  >a</em
+	  > or <em
+	  >u</em
+	  >)</li
+	><li
+	>the number of nodes in the cluster</li
+	><li
+	>the disk size of the nodes (default in mebibytes, units can be used)</li
+	><li
+	>the memory size of the nodes (default in mebibytes, units can be used)</li
+	><li
+	>the cpu core count for the nodes</li
+	><li
+	>the spindle count for the nodes</li
+	></ul
+      ><p
+      >An example description would be <strong
+	>preferred,20,100G,16g,4,2</strong
+	> describing a 20-node cluster where each node has 100GB of disk space, 16GiB of memory, 4 CPU cores and 2 disk spindles. Note that all nodes must have the same specs currently.</p
+      ><p
+      >This option can be given multiple times, and each new use defines a new node group. Hence different node groups can have different allocation policies and node count/specifications.</p
+      ></dd
+    ><dt
+    >-v, --verbose</dt
+    ><dd
+    ><p
+      >Increase the output verbosity. Each usage of this option will increase the verbosity (currently more than 2 doesn't make sense) from the default of one.</p
+      ></dd
+    ><dt
+    >-q, --quiet</dt
+    ><dd
+    ><p
+      >Decrease the output verbosity. Each usage of this option will decrease the verbosity (less than zero doesn't make sense) from the default of one.</p
+      ></dd
+    ><dt
+    >-V, --version</dt
+    ><dd
+    ><p
+      >Just show the program version and exit.</p
+      ></dd
+    ></dl
+  ><div id="units"
+  ><h2
+    >UNITS</h2
+    ><p
+    >Some options accept not simply numerical values, but numerical values together with a unit. By default, such unit-accepting options use mebibytes. Using the lower-case letters of <em
+      >m</em
+      >, <em
+      >g</em
+      > and <em
+      >t</em
+      > (or their longer equivalents of <em
+      >mib</em
+      >, <em
+      >gib</em
+      >, <em
+      >tib</em
+      >, for which case doesn't matter) explicit binary units can be selected. Units in the SI system can be selected using the upper-case letters of <em
+      >M</em
+      >, <em
+      >G</em
+      > and <em
+      >T</em
+      > (or their longer equivalents of <em
+      >MB</em
+      >, <em
+      >GB</em
+      >, <em
+      >TB</em
+      >, for which case doesn't matter).</p
+    ><p
+    >More details about the difference between the SI and binary systems can be read in the <em
+      >units(7)</em
+      > man page.</p
+    ></div
+  ></div
+><div id="environment"
+><h1
+  >ENVIRONMENT</h1
+  ><p
+  >The environment variable <code
+    >HTOOLS</code
+    > can be used instead of renaming/symlinking the programs; simply set it to the desired role and then the name of the program is no longer used.</p
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters), <strong
+    >hinfo</strong
+    >(1) (cluster information printer).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

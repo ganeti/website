@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.tools.ssl_update</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.tools-module.html">Package&nbsp;tools</a> ::
+        Module&nbsp;ssl_update
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.tools.ssl_update-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.tools.ssl_update-module.html">Module ganeti.tools.ssl_update</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2015 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">"""Script to recreate and sign the client SSL certificates.</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">optparse</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.cli=ganeti.cli-module.html"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-1', 'cli', 'link-1');">cli</a></tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-3', 'constants', 'link-3');">constants</a></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-5', 'errors', 'link-5');">errors</a></tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Package ganeti.utils=ganeti.utils-module.html"><a title="ganeti.utils" class="py-name" href="#" onclick="return doclink('link-7', 'utils', 'link-7');">utils</a></tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-8" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-8', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Module ganeti.ht=ganeti.ht-module.html"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-9', 'ht', 'link-9');">ht</a></tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-10" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-10', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-11" class="py-name" targets="Module ganeti.pathutils=ganeti.pathutils-module.html"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-11', 'pathutils', 'link-11');">pathutils</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-12" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-12', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Package ganeti.tools=ganeti.tools-module.html"><a title="ganeti.tools" class="py-name" href="#" onclick="return doclink('link-13', 'tools', 'link-13');">tools</a></tt> <tt class="py-keyword">import</tt> <tt id="link-14" class="py-name" targets="Module ganeti.cmdlib.common=ganeti.cmdlib.common-module.html,Module ganeti.tools.common=ganeti.tools.common-module.html"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-14', 'common', 'link-14');">common</a></tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"><tt id="link-15" class="py-name" targets="Variable ganeti.tools.node_daemon_setup._DATA_CHECK=ganeti.tools.node_daemon_setup-module.html#_DATA_CHECK,Variable ganeti.tools.prepare_node_join._DATA_CHECK=ganeti.tools.prepare_node_join-module.html#_DATA_CHECK,Variable ganeti.tools.ssl_update._DATA_CHECK=ganeti.tools.ssl_update-module.html#_DATA_CHECK"><a title="ganeti.tools.node_daemon_setup._DATA_CHECK
+ganeti.tools.prepare_node_join._DATA_CHECK
+ganeti.tools.ssl_update._DATA_CHECK" class="py-name" href="#" onclick="return doclink('link-15', '_DATA_CHECK', 'link-15');">_DATA_CHECK</a></tt> <tt class="py-op">=</tt> <tt id="link-16" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-16', 'ht', 'link-9');">ht</a></tt><tt class="py-op">.</tt><tt id="link-17" class="py-name" targets="Function ganeti.ht.TStrictDict()=ganeti.ht-module.html#TStrictDict"><a title="ganeti.ht.TStrictDict" class="py-name" href="#" onclick="return doclink('link-17', 'TStrictDict', 'link-17');">TStrictDict</a></tt><tt class="py-op">(</tt><tt class="py-name">False</tt><tt class="py-op">,</tt> <tt class="py-name">True</tt><tt class="py-op">,</tt> <tt class="py-op">{</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">  <tt id="link-18" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-18', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Variable ganeti._constants.NDS_CLUSTER_NAME=ganeti._constants-module.html#NDS_CLUSTER_NAME"><a title="ganeti._constants.NDS_CLUSTER_NAME" class="py-name" href="#" onclick="return doclink('link-19', 'NDS_CLUSTER_NAME', 'link-19');">NDS_CLUSTER_NAME</a></tt><tt class="py-op">:</tt> <tt id="link-20" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-20', 'ht', 'link-9');">ht</a></tt><tt class="py-op">.</tt><tt id="link-21" class="py-name" targets="Variable ganeti.ht.TNonEmptyString=ganeti.ht-module.html#TNonEmptyString"><a title="ganeti.ht.TNonEmptyString" class="py-name" href="#" onclick="return doclink('link-21', 'TNonEmptyString', 'link-21');">TNonEmptyString</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">  <tt id="link-22" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-22', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Variable ganeti._constants.NDS_NODE_DAEMON_CERTIFICATE=ganeti._constants-module.html#NDS_NODE_DAEMON_CERTIFICATE"><a title="ganeti._constants.NDS_NODE_DAEMON_CERTIFICATE" class="py-name" href="#" onclick="return doclink('link-23', 'NDS_NODE_DAEMON_CERTIFICATE', 'link-23');">NDS_NODE_DAEMON_CERTIFICATE</a></tt><tt class="py-op">:</tt> <tt id="link-24" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-24', 'ht', 'link-9');">ht</a></tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="ganeti.ht.TNonEmptyString" class="py-name" href="#" onclick="return doclink('link-25', 'TNonEmptyString', 'link-21');">TNonEmptyString</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">  <tt id="link-26" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-26', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Variable ganeti._constants.NDS_NODE_NAME=ganeti._constants-module.html#NDS_NODE_NAME"><a title="ganeti._constants.NDS_NODE_NAME" class="py-name" href="#" onclick="return doclink('link-27', 'NDS_NODE_NAME', 'link-27');">NDS_NODE_NAME</a></tt><tt class="py-op">:</tt> <tt id="link-28" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-28', 'ht', 'link-9');">ht</a></tt><tt class="py-op">.</tt><tt id="link-29" class="py-name"><a title="ganeti.ht.TNonEmptyString" class="py-name" href="#" onclick="return doclink('link-29', 'TNonEmptyString', 'link-21');">TNonEmptyString</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">  <tt id="link-30" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-30', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name" targets="Variable ganeti._constants.NDS_ACTION=ganeti._constants-module.html#NDS_ACTION"><a title="ganeti._constants.NDS_ACTION" class="py-name" href="#" onclick="return doclink('link-31', 'NDS_ACTION', 'link-31');">NDS_ACTION</a></tt><tt class="py-op">:</tt> <tt id="link-32" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-32', 'ht', 'link-9');">ht</a></tt><tt class="py-op">.</tt><tt id="link-33" class="py-name"><a title="ganeti.ht.TNonEmptyString" class="py-name" href="#" onclick="return doclink('link-33', 'TNonEmptyString', 'link-21');">TNonEmptyString</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">  <tt class="py-op">}</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="SslSetupError"></a><div id="SslSetupError-def"><a name="L57"></a><tt class="py-lineno"> 57</tt> <a class="py-toggle" href="#" id="SslSetupError-toggle" onclick="return toggle('SslSetupError');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.tools.ssl_update.SslSetupError-class.html">SslSetupError</a><tt class="py-op">(</tt><tt class="py-base-class">errors</tt><tt class="py-op">.</tt><tt class="py-base-class">GenericError</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="SslSetupError-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="SslSetupError-expanded"><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">  <tt class="py-docstring">"""Local class for reporting errors.</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+</div><a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"> </tt>
+<a name="ParseOptions"></a><div id="ParseOptions-def"><a name="L63"></a><tt class="py-lineno"> 63</tt> <a class="py-toggle" href="#" id="ParseOptions-toggle" onclick="return toggle('ParseOptions');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.tools.ssl_update-module.html#ParseOptions">ParseOptions</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ParseOptions-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ParseOptions-expanded"><a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">  <tt class="py-docstring">"""Parses the options passed to the program.</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">  @return: Options and arguments</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">  <tt class="py-name">parser</tt> <tt class="py-op">=</tt> <tt class="py-name">optparse</tt><tt class="py-op">.</tt><tt class="py-name">OptionParser</tt><tt class="py-op">(</tt><tt class="py-name">usage</tt><tt class="py-op">=</tt><tt class="py-string">"%prog [--dry-run]"</tt><tt class="py-op">,</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">                                 <tt class="py-name">prog</tt><tt class="py-op">=</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">basename</tt><tt class="py-op">(</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">argv</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">  <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">add_option</tt><tt class="py-op">(</tt><tt id="link-34" class="py-name"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-34', 'cli', 'link-1');">cli</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Variable ganeti.cli.DEBUG_OPT=ganeti.cli-module.html#DEBUG_OPT"><a title="ganeti.cli.DEBUG_OPT" class="py-name" href="#" onclick="return doclink('link-35', 'DEBUG_OPT', 'link-35');">DEBUG_OPT</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">  <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">add_option</tt><tt class="py-op">(</tt><tt id="link-36" class="py-name"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-36', 'cli', 'link-1');">cli</a></tt><tt class="py-op">.</tt><tt id="link-37" class="py-name" targets="Variable ganeti.cli.VERBOSE_OPT=ganeti.cli-module.html#VERBOSE_OPT"><a title="ganeti.cli.VERBOSE_OPT" class="py-name" href="#" onclick="return doclink('link-37', 'VERBOSE_OPT', 'link-37');">VERBOSE_OPT</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">  <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">add_option</tt><tt class="py-op">(</tt><tt id="link-38" class="py-name"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-38', 'cli', 'link-1');">cli</a></tt><tt class="py-op">.</tt><tt id="link-39" class="py-name" targets="Variable ganeti.cli.DRY_RUN_OPT=ganeti.cli-module.html#DRY_RUN_OPT"><a title="ganeti.cli.DRY_RUN_OPT" class="py-name" href="#" onclick="return doclink('link-39', 'DRY_RUN_OPT', 'link-39');">DRY_RUN_OPT</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">  <tt class="py-op">(</tt><tt class="py-name">opts</tt><tt class="py-op">,</tt> <tt id="link-40" class="py-name" targets="Variable script-cfgupgrade.args=script-cfgupgrade-module.html#args,Variable script-cfgupgrade12.args=script-cfgupgrade12-module.html#args"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-40', 'args', 'link-40');">args</a></tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">parse_args</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-41" class="py-name"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-41', 'common', 'link-14');">common</a></tt><tt class="py-op">.</tt><tt id="link-42" class="py-name" targets="Function ganeti.tools.common.VerifyOptions()=ganeti.tools.common-module.html#VerifyOptions,Function ganeti.tools.node_cleanup.VerifyOptions()=ganeti.tools.node_cleanup-module.html#VerifyOptions,Function ganeti.tools.node_daemon_setup.VerifyOptions()=ganeti.tools.node_daemon_setup-module.html#VerifyOptions,Function script-import_export.VerifyOptions()=script-import_export-module.html#VerifyOptions"><a title="ganeti.tools.common.VerifyOptions
+ganeti.tools.node_cleanup.VerifyOptions
+ganeti.tools.node_daemon_setup.VerifyOptions
+script-import_export.VerifyOptions" class="py-name" href="#" onclick="return doclink('link-42', 'VerifyOptions', 'link-42');">VerifyOptions</a></tt><tt class="py-op">(</tt><tt class="py-name">parser</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">,</tt> <tt id="link-43" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-43', 'args', 'link-40');">args</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"> </tt>
+<a name="DeleteClientCertificate"></a><div id="DeleteClientCertificate-def"><a name="L80"></a><tt class="py-lineno"> 80</tt> <a class="py-toggle" href="#" id="DeleteClientCertificate-toggle" onclick="return toggle('DeleteClientCertificate');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.tools.ssl_update-module.html#DeleteClientCertificate">DeleteClientCertificate</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="DeleteClientCertificate-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="DeleteClientCertificate-expanded"><a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">  <tt class="py-docstring">"""Deleting the client certificate. This is necessary for downgrades."""</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">(</tt><tt id="link-44" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-44', 'pathutils', 'link-11');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Variable ganeti.pathutils.NODED_CLIENT_CERT_FILE=ganeti.pathutils-module.html#NODED_CLIENT_CERT_FILE"><a title="ganeti.pathutils.NODED_CLIENT_CERT_FILE" class="py-name" href="#" onclick="return doclink('link-45', 'NODED_CLIENT_CERT_FILE', 'link-45');">NODED_CLIENT_CERT_FILE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">    <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">remove</tt><tt class="py-op">(</tt><tt id="link-46" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-46', 'pathutils', 'link-11');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-47" class="py-name"><a title="ganeti.pathutils.NODED_CLIENT_CERT_FILE" class="py-name" href="#" onclick="return doclink('link-47', 'NODED_CLIENT_CERT_FILE', 'link-45');">NODED_CLIENT_CERT_FILE</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Trying to delete the client certificate '%s' which did not"</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">                  <tt class="py-string">" exist."</tt><tt class="py-op">,</tt> <tt id="link-48" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-48', 'pathutils', 'link-11');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-49" class="py-name"><a title="ganeti.pathutils.NODED_CLIENT_CERT_FILE" class="py-name" href="#" onclick="return doclink('link-49', 'NODED_CLIENT_CERT_FILE', 'link-45');">NODED_CLIENT_CERT_FILE</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"> </tt>
+<a name="ClearMasterCandidateSsconfList"></a><div id="ClearMasterCandidateSsconfList-def"><a name="L89"></a><tt class="py-lineno"> 89</tt> <a class="py-toggle" href="#" id="ClearMasterCandidateSsconfList-toggle" onclick="return toggle('ClearMasterCandidateSsconfList');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.tools.ssl_update-module.html#ClearMasterCandidateSsconfList">ClearMasterCandidateSsconfList</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ClearMasterCandidateSsconfList-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ClearMasterCandidateSsconfList-expanded"><a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">  <tt class="py-docstring">"""Clear the ssconf list of master candidate certs.</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">  This is necessary when deleting the client certificates for a downgrade,</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">  because otherwise the master cannot distribute the configuration to the</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">  nodes via RPC during a downgrade anymore.</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">  <tt class="py-name">ssconf_file</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">    <tt id="link-50" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-50', 'pathutils', 'link-11');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-51" class="py-name" targets="Variable ganeti.pathutils.DATA_DIR=ganeti.pathutils-module.html#DATA_DIR"><a title="ganeti.pathutils.DATA_DIR" class="py-name" href="#" onclick="return doclink('link-51', 'DATA_DIR', 'link-51');">DATA_DIR</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">    <tt class="py-string">"%s%s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt id="link-52" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-52', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-53" class="py-name" targets="Variable ganeti._constants.SSCONF_FILEPREFIX=ganeti._constants-module.html#SSCONF_FILEPREFIX"><a title="ganeti._constants.SSCONF_FILEPREFIX" class="py-name" href="#" onclick="return doclink('link-53', 'SSCONF_FILEPREFIX', 'link-53');">SSCONF_FILEPREFIX</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">              <tt id="link-54" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-54', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-55" class="py-name" targets="Variable ganeti._constants.SS_MASTER_CANDIDATES_CERTS=ganeti._constants-module.html#SS_MASTER_CANDIDATES_CERTS"><a title="ganeti._constants.SS_MASTER_CANDIDATES_CERTS" class="py-name" href="#" onclick="return doclink('link-55', 'SS_MASTER_CANDIDATES_CERTS', 'link-55');">SS_MASTER_CANDIDATES_CERTS</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">:</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">    <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">remove</tt><tt class="py-op">(</tt><tt class="py-name">ssconf_file</tt><tt class="py-op">)</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Trying to delete the ssconf file '%s' which does not"</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">                  <tt class="py-string">" exist."</tt><tt class="py-op">,</tt> <tt class="py-name">ssconf_file</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line"><tt class="py-comment"># pylint: disable=E1103</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"><tt class="py-comment"># This pyling message complains about 'data' as 'bool' not having a get</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-comment"># member, but obviously the type is wrongly inferred.</tt> </tt>
+<a name="Main"></a><div id="Main-def"><a name="L111"></a><tt class="py-lineno">111</tt> <a class="py-toggle" href="#" id="Main-toggle" onclick="return toggle('Main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.tools.ssl_update-module.html#Main">Main</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Main-expanded"><a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">  <tt class="py-docstring">"""Main routine.</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">  <tt class="py-name">opts</tt> <tt class="py-op">=</tt> <tt id="link-56" class="py-name" targets="Method ganeti.tools.burnin.Burner.ParseOptions()=ganeti.tools.burnin.Burner-class.html#ParseOptions,Function ganeti.tools.ensure_dirs.ParseOptions()=ganeti.tools.ensure_dirs-module.html#ParseOptions,Function ganeti.tools.node_cleanup.ParseOptions()=ganeti.tools.node_cleanup-module.html#ParseOptions,Function ganeti.tools.node_daemon_setup.ParseOptions()=ganeti.tools.node_daemon_setup-module.html#ParseOptions,Function ganeti.tools.prepare_node_join.ParseOptions()=ganeti.tools.prepare_node_join-module.html#ParseOptions,Function ganeti.tools.ssl_update.ParseOptions()=ganeti.tools.ssl_update-module.html#ParseOptions,Function ganeti.watcher.ParseOptions()=ganeti.watcher-module.html#ParseOptions,Function script-cfgshell.ParseOptions()=script-cfgshell-module.html#ParseOptions,Method script-confd_client.TestClient.ParseOptions()=script-confd_client.TestClient-class.html#ParseOptions,Function script-ganeti_listrunner.ParseOptions()=script-ganeti_listrunner-module.html#ParseOptions,Function script-import_export.ParseOptions()=script-import_export-module.html#ParseOptions,Function script-lvmstrap.ParseOptions()=script-lvmstrap-module.html#ParseOptions,Function script-move_instance.ParseOptions()=script-move_instance-module.html#ParseOptions,Function script-ovfconverter.ParseOptions()=script-ovfconverter-module.html#ParseOptions"><a title="ganeti.tools.burnin.Burner.ParseOptions
+ganeti.tools.ensure_dirs.ParseOptions
+ganeti.tools.node_cleanup.ParseOptions
+ganeti.tools.node_daemon_setup.ParseOptions
+ganeti.tools.prepare_node_join.ParseOptions
+ganeti.tools.ssl_update.ParseOptions
+ganeti.watcher.ParseOptions
+script-cfgshell.ParseOptions
+script-confd_client.TestClient.ParseOptions
+script-ganeti_listrunner.ParseOptions
+script-import_export.ParseOptions
+script-lvmstrap.ParseOptions
+script-move_instance.ParseOptions
+script-ovfconverter.ParseOptions" class="py-name" href="#" onclick="return doclink('link-56', 'ParseOptions', 'link-56');">ParseOptions</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">  <tt id="link-57" class="py-name"><a title="ganeti.utils" class="py-name" href="#" onclick="return doclink('link-57', 'utils', 'link-7');">utils</a></tt><tt class="py-op">.</tt><tt id="link-58" class="py-name" targets="Function ganeti.utils.log.SetupToolLogging()=ganeti.utils.log-module.html#SetupToolLogging"><a title="ganeti.utils.log.SetupToolLogging" class="py-name" href="#" onclick="return doclink('link-58', 'SetupToolLogging', 'link-58');">SetupToolLogging</a></tt><tt class="py-op">(</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">verbose</tt><tt class="py-op">)</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">    <tt class="py-name">data</tt> <tt class="py-op">=</tt> <tt id="link-59" class="py-name"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-59', 'common', 'link-14');">common</a></tt><tt class="py-op">.</tt><tt id="link-60" class="py-name" targets="Function ganeti.tools.common.LoadData()=ganeti.tools.common-module.html#LoadData,Function ganeti.tools.node_daemon_setup.LoadData()=ganeti.tools.node_daemon_setup-module.html#LoadData"><a title="ganeti.tools.common.LoadData
+ganeti.tools.node_daemon_setup.LoadData" class="py-name" href="#" onclick="return doclink('link-60', 'LoadData', 'link-60');">LoadData</a></tt><tt class="py-op">(</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">stdin</tt><tt class="py-op">.</tt><tt class="py-name">read</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt id="link-61" class="py-name"><a title="ganeti.tools.node_daemon_setup._DATA_CHECK
+ganeti.tools.prepare_node_join._DATA_CHECK
+ganeti.tools.ssl_update._DATA_CHECK" class="py-name" href="#" onclick="return doclink('link-61', '_DATA_CHECK', 'link-15');">_DATA_CHECK</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">    <tt id="link-62" class="py-name"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-62', 'common', 'link-14');">common</a></tt><tt class="py-op">.</tt><tt id="link-63" class="py-name" targets="Function ganeti.ssconf.VerifyClusterName()=ganeti.ssconf-module.html#VerifyClusterName,Function ganeti.tools.common.VerifyClusterName()=ganeti.tools.common-module.html#VerifyClusterName,Function ganeti.tools.node_daemon_setup.VerifyClusterName()=ganeti.tools.node_daemon_setup-module.html#VerifyClusterName"><a title="ganeti.ssconf.VerifyClusterName
+ganeti.tools.common.VerifyClusterName
+ganeti.tools.node_daemon_setup.VerifyClusterName" class="py-name" href="#" onclick="return doclink('link-63', 'VerifyClusterName', 'link-63');">VerifyClusterName</a></tt><tt class="py-op">(</tt><tt class="py-name">data</tt><tt class="py-op">,</tt> <tt id="link-64" class="py-name" targets="Class ganeti.tools.ssl_update.SslSetupError=ganeti.tools.ssl_update.SslSetupError-class.html"><a title="ganeti.tools.ssl_update.SslSetupError" class="py-name" href="#" onclick="return doclink('link-64', 'SslSetupError', 'link-64');">SslSetupError</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">    <tt class="py-comment"># Verifies whether the server certificate of the caller</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">    <tt class="py-comment"># is the same as on this node.</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt id="link-65" class="py-name"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-65', 'common', 'link-14');">common</a></tt><tt class="py-op">.</tt><tt id="link-66" class="py-name" targets="Function ganeti.tools.common.VerifyCertificate()=ganeti.tools.common-module.html#VerifyCertificate,Function ganeti.tools.node_daemon_setup.VerifyCertificate()=ganeti.tools.node_daemon_setup-module.html#VerifyCertificate,Function ganeti.tools.prepare_node_join.VerifyCertificate()=ganeti.tools.prepare_node_join-module.html#VerifyCertificate,Function ganeti.utils.security.VerifyCertificate()=ganeti.utils.security-module.html#VerifyCertificate"><a title="ganeti.tools.common.VerifyCertificate
+ganeti.tools.node_daemon_setup.VerifyCertificate
+ganeti.tools.prepare_node_join.VerifyCertificate
+ganeti.utils.security.VerifyCertificate" class="py-name" href="#" onclick="return doclink('link-66', 'VerifyCertificate', 'link-66');">VerifyCertificate</a></tt><tt class="py-op">(</tt><tt class="py-name">data</tt><tt class="py-op">,</tt> <tt id="link-67" class="py-name"><a title="ganeti.tools.ssl_update.SslSetupError" class="py-name" href="#" onclick="return doclink('link-67', 'SslSetupError', 'link-64');">SslSetupError</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">    <tt class="py-name">action</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt><tt class="py-op">.</tt><tt id="link-68" class="py-name" targets="Method ganeti.objects.SerializableConfigParser.get()=ganeti.objects.SerializableConfigParser-class.html#get,Method ganeti.ovf.ConfigParserWithDefaults.get()=ganeti.ovf.ConfigParserWithDefaults-class.html#get"><a title="ganeti.objects.SerializableConfigParser.get
+ganeti.ovf.ConfigParserWithDefaults.get" class="py-name" href="#" onclick="return doclink('link-68', 'get', 'link-68');">get</a></tt><tt class="py-op">(</tt><tt id="link-69" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-69', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-70" class="py-name"><a title="ganeti._constants.NDS_ACTION" class="py-name" href="#" onclick="return doclink('link-70', 'NDS_ACTION', 'link-31');">NDS_ACTION</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">action</tt><tt class="py-op">:</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-71" class="py-name"><a title="ganeti.tools.ssl_update.SslSetupError" class="py-name" href="#" onclick="return doclink('link-71', 'SslSetupError', 'link-64');">SslSetupError</a></tt><tt class="py-op">(</tt><tt class="py-string">"No Action specified."</tt><tt class="py-op">)</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">action</tt> <tt class="py-op">==</tt> <tt id="link-72" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-72', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-73" class="py-name" targets="Variable ganeti._constants.CRYPTO_ACTION_CREATE=ganeti._constants-module.html#CRYPTO_ACTION_CREATE"><a title="ganeti._constants.CRYPTO_ACTION_CREATE" class="py-name" href="#" onclick="return doclink('link-73', 'CRYPTO_ACTION_CREATE', 'link-73');">CRYPTO_ACTION_CREATE</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">      <tt id="link-74" class="py-name"><a title="ganeti.cmdlib.common
+ganeti.tools.common" class="py-name" href="#" onclick="return doclink('link-74', 'common', 'link-14');">common</a></tt><tt class="py-op">.</tt><tt id="link-75" class="py-name" targets="Function ganeti.tools.common.GenerateClientCertificate()=ganeti.tools.common-module.html#GenerateClientCertificate"><a title="ganeti.tools.common.GenerateClientCertificate" class="py-name" href="#" onclick="return doclink('link-75', 'GenerateClientCertificate', 'link-75');">GenerateClientCertificate</a></tt><tt class="py-op">(</tt><tt class="py-name">data</tt><tt class="py-op">,</tt> <tt id="link-76" class="py-name"><a title="ganeti.tools.ssl_update.SslSetupError" class="py-name" href="#" onclick="return doclink('link-76', 'SslSetupError', 'link-64');">SslSetupError</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">    <tt class="py-keyword">elif</tt> <tt class="py-name">action</tt> <tt class="py-op">==</tt> <tt id="link-77" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-77', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-78" class="py-name" targets="Variable ganeti._constants.CRYPTO_ACTION_DELETE=ganeti._constants-module.html#CRYPTO_ACTION_DELETE"><a title="ganeti._constants.CRYPTO_ACTION_DELETE" class="py-name" href="#" onclick="return doclink('link-78', 'CRYPTO_ACTION_DELETE', 'link-78');">CRYPTO_ACTION_DELETE</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">      <tt id="link-79" class="py-name" targets="Function ganeti.tools.ssl_update.DeleteClientCertificate()=ganeti.tools.ssl_update-module.html#DeleteClientCertificate"><a title="ganeti.tools.ssl_update.DeleteClientCertificate" class="py-name" href="#" onclick="return doclink('link-79', 'DeleteClientCertificate', 'link-79');">DeleteClientCertificate</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">      <tt id="link-80" class="py-name" targets="Function ganeti.tools.ssl_update.ClearMasterCandidateSsconfList()=ganeti.tools.ssl_update-module.html#ClearMasterCandidateSsconfList"><a title="ganeti.tools.ssl_update.ClearMasterCandidateSsconfList" class="py-name" href="#" onclick="return doclink('link-80', 'ClearMasterCandidateSsconfList', 'link-80');">ClearMasterCandidateSsconfList</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-81" class="py-name"><a title="ganeti.tools.ssl_update.SslSetupError" class="py-name" href="#" onclick="return doclink('link-81', 'SslSetupError', 'link-64');">SslSetupError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unsupported action: %s."</tt> <tt class="py-op">%</tt> <tt class="py-name">action</tt><tt class="py-op">)</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> <tt class="py-comment"># pylint: disable=W0703</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Caught unhandled exception"</tt><tt class="py-op">,</tt> <tt class="py-name">exc_info</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">    <tt class="py-op">(</tt><tt class="py-name">retcode</tt><tt class="py-op">,</tt> <tt id="link-82" class="py-name" targets="Variable ganeti.http.HttpException.message=ganeti.http.HttpException-class.html#message"><a title="ganeti.http.HttpException.message" class="py-name" href="#" onclick="return doclink('link-82', 'message', 'link-82');">message</a></tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt id="link-83" class="py-name"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-83', 'cli', 'link-1');">cli</a></tt><tt class="py-op">.</tt><tt id="link-84" class="py-name" targets="Function ganeti.cli.FormatError()=ganeti.cli-module.html#FormatError"><a title="ganeti.cli.FormatError" class="py-name" href="#" onclick="return doclink('link-84', 'FormatError', 'link-84');">FormatError</a></tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt id="link-85" class="py-name"><a title="ganeti.http.HttpException.message" class="py-name" href="#" onclick="return doclink('link-85', 'message', 'link-82');">message</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">retcode</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-86" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-86', 'constants', 'link-3');">constants</a></tt><tt class="py-op">.</tt><tt id="link-87" class="py-name" targets="Variable ganeti._constants.EXIT_SUCCESS=ganeti._constants-module.html#EXIT_SUCCESS"><a title="ganeti._constants.EXIT_SUCCESS" class="py-name" href="#" onclick="return doclink('link-87', 'EXIT_SUCCESS', 'link-87');">EXIT_SUCCESS</a></tt> </tt>
+</div><a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Jan 12 17:29:11 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

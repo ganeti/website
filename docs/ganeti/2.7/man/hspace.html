@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>HSPACE(1) Ganeti | Version 2.7.2</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">HSPACE(1) Ganeti | Version 2.7.2</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#options">OPTIONS</a><ul>
+<li><a href="#units">UNITS</a></li>
+</ul></li>
+<li><a href="#exit-status">EXIT STATUS</a></li>
+<li><a href="#bugs">BUGS</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>hspace - Cluster space analyzer for Ganeti</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>hspace</strong> {backend options...} [algorithm options...] [request options...] [output options...] [-v... | -q]</p>
+<p><strong>hspace</strong> --version</p>
+<p>Backend options:</p>
+<p>{ <strong>-m</strong> <em>cluster</em> | <strong>-L[</strong> <em>path</em> <strong>] [-X]</strong> | <strong>-t</strong> <em>data-file</em> | <strong>--simulate</strong> <em>spec</em> | <strong>-I</strong> <em>path</em> }</p>
+<p>Algorithm options:</p>
+<p><strong>[ --max-cpu <em>cpu-ratio</em> ]</strong> <strong>[ --min-disk <em>disk-ratio</em> ]</strong> <strong>[ -O <em>name...</em> ]</strong></p>
+<p>Request options:</p>
+<p><strong>[--disk-template</strong> <em>template</em> <strong>]</strong></p>
+<p><strong>[--standard-alloc</strong> <em>disk,ram,cpu</em> <strong>]</strong></p>
+<p><strong>[--tiered-alloc</strong> <em>disk,ram,cpu</em> <strong>]</strong></p>
+<p>Output options:</p>
+<p><strong>[--machine-readable</strong>[=<em>CHOICE</em>] <strong>]</strong> <strong>[-p</strong>[<em>fields</em>]<strong>]</strong></p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>hspace computes how many additional instances can be fit on a cluster, while maintaining N+1 status.</p>
+<p>The program will try to place instances, all of the same size, on the cluster, until the point where we don't have any N+1 possible allocation. It uses the exact same allocation algorithm as the hail iallocator plugin in <em>allocate</em> mode.</p>
+<p>The output of the program is designed either for human consumption (the default) or, when enabled with the <code>--machine-readable</code> option (described further below), for machine consumption. In the latter case, it is intended to interpreted as a shell fragment (or parsed as a <em>key=value</em> file). Options which extend the output (e.g. -p, -v) will output the additional information on stderr (such that the stdout is still parseable).</p>
+<p>By default, the instance specifications will be read from the cluster; the options <code>--standard-alloc</code> and <code>--tiered-alloc</code> can be used to override them.</p>
+<p>The following keys are available in the machine-readable output of the script (all prefixed with <em>HTS_</em>):</p>
+<dl>
+<dt>SPEC_MEM, SPEC_DSK, SPEC_CPU, SPEC_RQN, SPEC_DISK_TEMPLATE</dt>
+<dd><p>These represent the specifications of the instance model used for allocation (the memory, disk, cpu, requested nodes, disk template).</p>
+</dd>
+<dt>TSPEC_INI_MEM, TSPEC_INI_DSK, TSPEC_INI_CPU, ...</dt>
+<dd><p>Only defined when the tiered mode allocation is enabled, these are similar to the above specifications but show the initial starting spec for tiered allocation.</p>
+</dd>
+<dt>CLUSTER_MEM, CLUSTER_DSK, CLUSTER_CPU, CLUSTER_NODES</dt>
+<dd><p>These represent the total memory, disk, CPU count and total nodes in the cluster.</p>
+</dd>
+<dt>INI_SCORE, FIN_SCORE</dt>
+<dd><p>These are the initial (current) and final cluster score (see the hbal man page for details about the scoring algorithm).</p>
+</dd>
+<dt>INI_INST_CNT, FIN_INST_CNT</dt>
+<dd><p>The initial and final instance count.</p>
+</dd>
+<dt>INI_MEM_FREE, FIN_MEM_FREE</dt>
+<dd><p>The initial and final total free memory in the cluster (but this doesn't necessarily mean available for use).</p>
+</dd>
+<dt>INI_MEM_AVAIL, FIN_MEM_AVAIL</dt>
+<dd><p>The initial and final total available memory for allocation in the cluster. If allocating redundant instances, new instances could increase the reserved memory so it doesn't necessarily mean the entirety of this memory can be used for new instance allocations.</p>
+</dd>
+<dt>INI_MEM_RESVD, FIN_MEM_RESVD</dt>
+<dd><p>The initial and final reserved memory (for redundancy/N+1 purposes).</p>
+</dd>
+<dt>INI_MEM_INST, FIN_MEM_INST</dt>
+<dd><p>The initial and final memory used for instances (actual runtime used RAM).</p>
+</dd>
+<dt>INI_MEM_OVERHEAD, FIN_MEM_OVERHEAD</dt>
+<dd><p>The initial and final memory overhead, i.e. memory used for the node itself and unaccounted memory (e.g. due to hypervisor overhead).</p>
+</dd>
+<dt>INI_MEM_EFF, HTS_INI_MEM_EFF</dt>
+<dd><p>The initial and final memory efficiency, represented as instance memory divided by total memory.</p>
+</dd>
+<dt>INI_DSK_FREE, INI_DSK_AVAIL, INI_DSK_RESVD, INI_DSK_INST, INI_DSK_EFF</dt>
+<dd><p>Initial disk stats, similar to the memory ones.</p>
+</dd>
+<dt>FIN_DSK_FREE, FIN_DSK_AVAIL, FIN_DSK_RESVD, FIN_DSK_INST, FIN_DSK_EFF</dt>
+<dd><p>Final disk stats, similar to the memory ones.</p>
+</dd>
+<dt>INI_CPU_INST, FIN_CPU_INST</dt>
+<dd><p>Initial and final number of virtual CPUs used by instances.</p>
+</dd>
+<dt>INI_CPU_EFF, FIN_CPU_EFF</dt>
+<dd><p>The initial and final CPU efficiency, represented as the count of virtual instance CPUs divided by the total physical CPU count.</p>
+</dd>
+<dt>INI_MNODE_MEM_AVAIL, FIN_MNODE_MEM_AVAIL</dt>
+<dd><p>The initial and final maximum per-node available memory. This is not very useful as a metric but can give an impression of the status of the nodes; as an example, this value restricts the maximum instance size that can be still created on the cluster.</p>
+</dd>
+<dt>INI_MNODE_DSK_AVAIL, FIN_MNODE_DSK_AVAIL</dt>
+<dd><p>Like the above but for disk.</p>
+</dd>
+<dt>TSPEC</dt>
+<dd><p>This parameter holds the pairs of specifications and counts of instances that can be created in the <em>tiered allocation</em> mode. The value of the key is a space-separated list of values; each value is of the form <em>memory,disk,vcpu=count</em> where the memory, disk and vcpu are the values for the current spec, and count is how many instances of this spec can be created. A complete value for this variable could be: <strong>4096,102400,2=225 2560,102400,2=20 512,102400,2=21</strong>.</p>
+</dd>
+<dt>KM_USED_CPU, KM_USED_NPU, KM_USED_MEM, KM_USED_DSK</dt>
+<dd><p>These represents the metrics of used resources at the start of the computation (only for tiered allocation mode). The NPU value is &quot;normalized&quot; CPU count, i.e. the number of virtual CPUs divided by the maximum ratio of the virtual to physical CPUs.</p>
+</dd>
+<dt>KM_POOL_CPU, KM_POOL_NPU, KM_POOL_MEM, KM_POOL_DSK</dt>
+<dd><p>These represents the total resources allocated during the tiered allocation process. In effect, they represent how much is readily available for allocation.</p>
+</dd>
+<dt>KM_UNAV_CPU, KM_POOL_NPU, KM_UNAV_MEM, KM_UNAV_DSK</dt>
+<dd><p>These represents the resources left over (either free as in unallocable or allocable on their own) after the tiered allocation has been completed. They represent better the actual unallocable resources, because some other resource has been exhausted. For example, the cluster might still have 100GiB disk free, but with no memory left for instances, we cannot allocate another instance, so in effect the disk space is unallocable. Note that the CPUs here represent instance virtual CPUs, and in case the <em>--max-cpu</em> option hasn't been specified this will be -1.</p>
+</dd>
+<dt>ALLOC_USAGE</dt>
+<dd><p>The current usage represented as initial number of instances divided per final number of instances.</p>
+</dd>
+<dt>ALLOC_COUNT</dt>
+<dd><p>The number of instances allocated (delta between FIN_INST_CNT and INI_INST_CNT).</p>
+</dd>
+<dt>ALLOC_FAIL*_CNT</dt>
+<dd><p>For the last attemp at allocations (which would have increased FIN_INST_CNT with one, if it had succeeded), this is the count of the failure reasons per failure type; currently defined are FAILMEM, FAILDISK and FAILCPU which represent errors due to not enough memory, disk and CPUs, and FAILN1 which represents a non N+1 compliant cluster on which we can't allocate instances at all.</p>
+</dd>
+<dt>ALLOC_FAIL_REASON</dt>
+<dd><p>The reason for most of the failures, being one of the above FAIL* strings.</p>
+</dd>
+<dt>OK</dt>
+<dd><p>A marker representing the successful end of the computation, and having value &quot;1&quot;. If this key is not present in the output it means that the computation failed and any values present should not be relied upon.</p>
+</dd>
+</dl>
+<p>Many of the <code>INI_</code>/<code>FIN_</code> metrics will be also displayed with a <code>TRL_</code> prefix, and denote the cluster status at the end of the tiered allocation run.</p>
+<p>The human output format should be self-explanatory, so it is not described further.</p>
+<h1 id="options"><a href="#TOC">OPTIONS</a></h1>
+<p>The options that can be passed to the program are as follows:</p>
+<dl>
+<dt>--disk-template <em>template</em></dt>
+<dd><p>Overrides the disk template for the instance read from the cluster; one of the Ganeti disk templates (e.g. plain, drbd, so on) should be passed in.</p>
+</dd>
+<dt>--spindle-use <em>spindles</em></dt>
+<dd><p>Override the spindle use for the instance read from the cluster. The value can be 0 (for example for instances that use very low I/O), but not negative. For shared storage the value is ignored.</p>
+</dd>
+<dt>--max-cpu=<em>cpu-ratio</em></dt>
+<dd><p>The maximum virtual to physical cpu ratio, as a floating point number greater than or equal to one. For example, specifying <em>cpu-ratio</em> as <strong>2.5</strong> means that, for a 4-cpu machine, a maximum of 10 virtual cpus should be allowed to be in use for primary instances. A value of exactly one means there will be no over-subscription of CPU (except for the CPU time used by the node itself), and values below one do not make sense, as that means other resources (e.g. disk) won't be fully utilised due to CPU restrictions.</p>
+</dd>
+<dt>--min-disk=<em>disk-ratio</em></dt>
+<dd><p>The minimum amount of free disk space remaining, as a floating point number. For example, specifying <em>disk-ratio</em> as <strong>0.25</strong> means that at least one quarter of disk space should be left free on nodes.</p>
+</dd>
+<dt>-l <em>rounds</em>, --max-length=<em>rounds</em></dt>
+<dd><p>Restrict the number of instance allocations to this length. This is not very useful in practice, but can be used for testing hspace itself, or to limit the runtime for very big clusters.</p>
+</dd>
+<dt>-p, --print-nodes</dt>
+<dd><p>Prints the before and after node status, in a format designed to allow the user to understand the node's most important parameters. See the man page <strong>htools</strong>(1) for more details about this option.</p>
+</dd>
+<dt>-O <em>name</em></dt>
+<dd><p>This option (which can be given multiple times) will mark nodes as being <em>offline</em>. This means a couple of things:</p>
+<ul>
+<li>instances won't be placed on these nodes, not even temporarily; e.g. the <em>replace primary</em> move is not available if the secondary node is offline, since this move requires a failover.</li>
+<li>these nodes will not be included in the score calculation (except for the percentage of instances on offline nodes)</li>
+</ul>
+<p>Note that the algorithm will also mark as offline any nodes which are reported by RAPI as such, or that have &quot;?&quot; in file-based input in any numeric fields.</p>
+</dd>
+<dt>-S <em>filename</em>, --save-cluster=<em>filename</em></dt>
+<dd><p>If given, the state of the cluster at the end of the allocation is saved to a file named <em>filename.alloc</em>, and if tiered allocation is enabled, the state after tiered allocation will be saved to <em>filename.tiered</em>. This allows re-feeding the cluster state to either hspace itself (with different parameters) or for example hbal, via the <code>-t</code> option.</p>
+</dd>
+<dt>-t <em>datafile</em>, --text-data=<em>datafile</em></dt>
+<dd><p>Backend specification: the name of the file holding node and instance information (if not collecting via RAPI or LUXI). This or one of the other backends must be selected. The option is described in the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>-m <em>cluster</em></dt>
+<dd><p>Backend specification: collect data directly from the <em>cluster</em> given as an argument via RAPI. The option is described in the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>-L [<em>path</em>]</dt>
+<dd><p>Backend specification: collect data directly from the master daemon, which is to be contacted via LUXI (an internal Ganeti protocol). The option is described in the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>--simulate <em>description</em></dt>
+<dd><p>Backend specification: similar to the <strong>-t</strong> option, this allows overriding the cluster data with a simulated cluster. For details about the description, see the man page <strong>htools</strong>(1).</p>
+</dd>
+<dt>--standard-alloc <em>disk,ram,cpu</em></dt>
+<dd><p>This option overrides the instance size read from the cluster for the <em>standard</em> allocation mode, where we simply allocate instances of the same, fixed size until the cluster runs out of space.</p>
+<p>The specification given is similar to the <em>--simulate</em> option and it holds:</p>
+<ul>
+<li>the disk size of the instance (units can be used)</li>
+<li>the memory size of the instance (units can be used)</li>
+<li>the vcpu count for the insance</li>
+</ul>
+<p>An example description would be <em>100G,4g,2</em> describing an instance specification of 100GB of disk space, 4GiB of memory and 2 VCPUs.</p>
+</dd>
+<dt>--tiered-alloc <em>disk,ram,cpu</em></dt>
+<dd><p>This option overrides the instance size for the <em>tiered</em> allocation mode. In this mode, the algorithm starts from the given specification and allocates until there is no more space; then it decreases the specification and tries the allocation again. The decrease is done on the metric that last failed during allocation. The argument should have the same format as for <code>--standard-alloc</code>.</p>
+<p>Also note that the normal allocation and the tiered allocation are independent, and both start from the initial cluster state; as such, the instance count for these two modes are not related one to another.</p>
+</dd>
+<dt>--machine-readable[=<em>choice</em>]</dt>
+<dd><p>By default, the output of the program is in &quot;human-readable&quot; format, i.e. text descriptions. By passing this flag you can either enable (<code>--machine-readable</code> or <code>--machine-readable=yes</code>) or explicitly disable (<code>--machine-readable=no</code>) the machine readable format described above.</p>
+</dd>
+<dt>-v, --verbose</dt>
+<dd><p>Increase the output verbosity. Each usage of this option will increase the verbosity (currently more than 2 doesn't make sense) from the default of one.</p>
+</dd>
+<dt>-q, --quiet</dt>
+<dd><p>Decrease the output verbosity. Each usage of this option will decrease the verbosity (less than zero doesn't make sense) from the default of one.</p>
+</dd>
+<dt>-V, --version</dt>
+<dd><p>Just show the program version and exit.</p>
+</dd>
+</dl>
+<h2 id="units"><a href="#TOC">UNITS</a></h2>
+<p>By default, all unit-accepting options use mebibytes. Using the lower-case letters of <em>m</em>, <em>g</em> and <em>t</em> (or their longer equivalents of <em>mib</em>, <em>gib</em>, <em>tib</em>, for which case doesn't matter) explicit binary units can be selected. Units in the SI system can be selected using the upper-case letters of <em>M</em>, <em>G</em> and <em>T</em> (or their longer equivalents of <em>MB</em>, <em>GB</em>, <em>TB</em>, for which case doesn't matter).</p>
+<p>More details about the difference between the SI and binary systems can be read in the <strong>units</strong>(7) man page.</p>
+<h1 id="exit-status"><a href="#TOC">EXIT STATUS</a></h1>
+<p>The exist status of the command will be zero, unless for some reason the algorithm fatally failed (e.g. wrong node or instance data).</p>
+<h1 id="bugs"><a href="#TOC">BUGS</a></h1>
+<p>The algorithm is highly dependent on the number of nodes; its runtime grows exponentially with this number, and as such is impractical for really big clusters.</p>
+<p>The algorithm doesn't rebalance the cluster or try to get the optimal fit; it just allocates in the best place for the current step, without taking into consideration the impact on future placements.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p>
+</body>
+</html>

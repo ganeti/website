@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HRoller tool &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="next" title="HSqueeze tool" href="design-hsqueeze.html" />
+    <link rel="prev" title="Ganeti file-based disks ownership" href="design-file-based-disks-ownership.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hsqueeze.html" title="HSqueeze tool"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-file-based-disks-ownership.html" title="Ganeti file-based disks ownership"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="hroller-tool">
+<h1><a class="toc-backref" href="#id1">HRoller tool</a><a class="headerlink" href="#hroller-tool" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#hroller-tool" id="id1">HRoller tool</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#new-options" id="id4">New options</a></li>
+<li><a class="reference internal" href="#calculating-rolling-maintenances" id="id5">Calculating rolling maintenances</a><ul>
+<li><a class="reference internal" href="#down-instances" id="id6">Down instances</a></li>
+<li><a class="reference internal" href="#drbd" id="id7">DRBD</a></li>
+<li><a class="reference internal" href="#non-drbd" id="id8">Non-DRBD</a></li>
+<li><a class="reference internal" href="#full-evacuation" id="id9">Full-Evacuation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id10">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the cluster maintenance scheduler,
+HRoller.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>To enable automating cluster-wide reboots a new htool, called HRoller,
+was added to Ganeti starting from version 2.7. This tool helps
+parallelizing cluster offline maintenances by calculating which nodes
+are not both primary and secondary for a DRBD instance, and thus can be
+rebooted at the same time, when all instances are down.</p>
+<p>The way this is done is documented in the <a class="reference internal" href="man-hroller.html"><em>hroller(1)</em></a> manpage.</p>
+<p>We would now like to perform online maintenance on the cluster by
+rebooting nodes after evacuating their primary instances (rolling
+reboots).</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-options">
+<h3><a class="toc-backref" href="#id4">New options</a><a class="headerlink" href="#new-options" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>HRoller should be able to operate on single nodegroups (-G flag) or
+select its target node through some other mean (eg. via a tag, or a
+regexp). (Note that individual node selection is already possible via
+the -O flag, that makes hroller ignore a node altogether).</li>
+<li>HRoller should handle non redundant instances: currently these are
+ignored but there should be a way to select its behavior between &#8220;it&#8217;s
+ok to reboot a node when a non-redundant instance is on it&#8221; or &#8220;skip
+nodes with non-redundant instances&#8221;. This will only be selectable
+globally, and not per instance.</li>
+<li>Hroller will make sure to keep any instance which is up in its current
+state, via live migrations, unless explicitly overridden. The
+algorithm that will be used calculate the rolling reboot with live
+migrations is described below, and any override on considering the
+instance status will only be possible on the whole run, and not
+per-instance.</li>
+</ul>
+</div>
+<div class="section" id="calculating-rolling-maintenances">
+<h3><a class="toc-backref" href="#id5">Calculating rolling maintenances</a><a class="headerlink" href="#calculating-rolling-maintenances" title="Permalink to this headline">¶</a></h3>
+<p>In order to perform rolling maintenance we need to migrate instances off
+the nodes before a reboot. How this can be done depends on the
+instance&#8217;s disk template and status:</p>
+<div class="section" id="down-instances">
+<h4><a class="toc-backref" href="#id6">Down instances</a><a class="headerlink" href="#down-instances" title="Permalink to this headline">¶</a></h4>
+<p>If an instance was shutdown when the maintenance started it will be
+considered for avoiding contemporary reboot of its primary and secondary
+nodes, but will <em>not</em> be considered as a target for the node evacuation.
+This allows avoiding needlessly moving its primary around, since it
+won&#8217;t suffer a downtime anyway.</p>
+<p>Note that a node with non-redundant instances will only ever be
+considered good for rolling-reboot if these are down (or the checking of
+status is overridden) <em>and</em> an explicit option to allow it is set.</p>
+</div>
+<div class="section" id="drbd">
+<h4><a class="toc-backref" href="#id7">DRBD</a><a class="headerlink" href="#drbd" title="Permalink to this headline">¶</a></h4>
+<p>Each node must migrate all instances off to their secondaries, and then
+can either be rebooted, or the secondaries can be evacuated as well.</p>
+<p>Since currently doing a <tt class="docutils literal"><span class="pre">replace-disks</span></tt> on DRBD breaks redundancy,
+it&#8217;s not any safer than temporarily rebooting a node with secondaries on
+them (citation needed). As such we&#8217;ll implement for now just the
+&#8220;migrate+reboot&#8221; mode, and focus later on replace-disks as well.</p>
+<p>In order to do that we can use the following algorithm:</p>
+<ol class="arabic simple">
+<li>Compute node sets that don&#8217;t contain both the primary and the
+secondary of any instance, and also don&#8217;t contain the primary
+nodes of two instances that have the same node as secondary. These
+can be obtained by computing a coloring of the graph with nodes
+as vertexes and an edge between two nodes, if either condition
+prevents simultaneous maintenance. (This is the current algorithm of
+<a class="reference internal" href="man-hroller.html"><em>hroller(1)</em></a> with the extension that the graph to be colored
+has additional edges between the primary nodes of two instances sharing
+their secondary node.)</li>
+<li>It is then possible to migrate in parallel all nodes in a set
+created at step 1, and then reboot/perform maintenance on them, and
+migrate back their original primaries, which allows the computation
+above to be reused for each following set without N+1 failures
+being triggered, if none were present before. See below about the
+actual execution of the maintenance.</li>
+</ol>
+</div>
+<div class="section" id="non-drbd">
+<h4><a class="toc-backref" href="#id8">Non-DRBD</a><a class="headerlink" href="#non-drbd" title="Permalink to this headline">¶</a></h4>
+<p>All non-DRBD disk templates that can be migrated have no &#8220;secondary&#8221;
+concept. As such instances can be migrated to any node (in the same
+nodegroup). In order to do the job we can either:</p>
+<ul class="simple">
+<li>Perform migrations on one node at a time, perform the maintenance on
+that node, and proceed (the node will then be targeted again to host
+instances automatically, as hail chooses targets for the instances
+between all nodes in a group. Nodes in different nodegroups can be
+handled in parallel.</li>
+<li>Perform migrations on one node at a time, but without waiting for the
+first node to come back before proceeding. This allows us to continue,
+restricting the cluster, until no more capacity in the nodegroup is
+available, and then having to wait for some nodes to come back so that
+capacity is available again for the last few nodes.</li>
+<li>Pre-Calculate sets of nodes that can be migrated together (probably
+with a greedy algorithm) and parallelize between them, with the
+migrate-back approach discussed for DRBD to perform the calculation
+only once.</li>
+</ul>
+<p>Note that for non-DRBD disks that still use local storage (eg. RBD and
+plain) redundancy might break anyway, and nothing except the first
+algorithm might be safe. This perhaps would be a good reason to consider
+managing better RBD pools, if those are implemented on top of nodes
+storage, rather than on dedicated storage machines.</p>
+</div>
+<div class="section" id="full-evacuation">
+<h4><a class="toc-backref" href="#id9">Full-Evacuation</a><a class="headerlink" href="#full-evacuation" title="Permalink to this headline">¶</a></h4>
+<p>If full evacuation of the nodes to be rebooted is desired, a simple
+migration is not enough for the DRBD instances. To keep the number of
+disk operations small, we restrict moves to <tt class="docutils literal"><span class="pre">migrate,</span> <span class="pre">replace-secondary</span></tt>.
+That is, after migrating instances out of the nodes to be rebooted,
+replacement secondaries are searched for, for all instances that have
+their then secondary on one of the rebooted nodes. This is done by a
+greedy algorithm, refining the initial reboot partition, if necessary.</p>
+</div>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id10">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<p>Hroller should become able to execute rolling maintenances, rather than
+just calculate them. For this to succeed properly one of the following
+must happen:</p>
+<ul class="simple">
+<li>HRoller handles rolling maintenances that happen at the same time as
+unrelated cluster jobs, and thus recalculates the maintenance at each
+step</li>
+<li>HRoller can selectively drain the cluster so it&#8217;s sure that only the
+rolling maintenance can be going on</li>
+</ul>
+<p>DRBD nodes&#8217; <tt class="docutils literal"><span class="pre">replace-disks</span></tt>&#8216; functionality should be implemented. Note
+that when we will support a DRBD version that allows multi-secondary
+this can be done safely, without losing replication at any time, by
+adding a temporary secondary and only when the sync is finished dropping
+the previous one.</p>
+<p>Non-redundant (plain or file) instances should have a way to be moved
+off as well via plain storage live migration or <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">move</span></tt>
+(which requires downtime).</p>
+<p>If/when RBD pools can be managed inside Ganeti, care can be taken so
+that the pool is evacuated as well from a node before it&#8217;s put into
+maintenance. This is equivalent to evacuating DRBD secondaries.</p>
+<p>Master failovers during the maintenance should be performed by hroller.
+This requires RPC/RAPI support for master failover. Hroller should also
+be modified to better support running on the master itself and
+continuing on the new master.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HRoller tool</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#new-options">New options</a></li>
+<li><a class="reference internal" href="#calculating-rolling-maintenances">Calculating rolling maintenances</a><ul>
+<li><a class="reference internal" href="#down-instances">Down instances</a></li>
+<li><a class="reference internal" href="#drbd">DRBD</a></li>
+<li><a class="reference internal" href="#non-drbd">Non-DRBD</a></li>
+<li><a class="reference internal" href="#full-evacuation">Full-Evacuation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-file-based-disks-ownership.html"
+                        title="previous chapter">Ganeti file-based disks ownership</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-hsqueeze.html"
+                        title="next chapter">HSqueeze tool</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-hroller.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-hsqueeze.html" title="HSqueeze tool"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-file-based-disks-ownership.html" title="Ganeti file-based disks ownership"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

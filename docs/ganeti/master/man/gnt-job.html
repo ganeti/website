@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-job(8) Ganeti | Version 2.18.0~alpha1</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-job(8) Ganeti | Version 2.18.0~alpha1</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#archive">ARCHIVE</a></li>
+<li><a href="#autoarchive">AUTOARCHIVE</a></li>
+<li><a href="#cancel">CANCEL</a></li>
+<li><a href="#change-priority">CHANGE-PRIORITY</a></li>
+<li><a href="#info">INFO</a></li>
+<li><a href="#list">LIST</a></li>
+<li><a href="#list-fields">LIST-FIELDS</a></li>
+<li><a href="#wait">WAIT</a></li>
+<li><a href="#watch">WATCH</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-job - Job commands</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-job</strong> {command} [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-job</strong> is used for examining and manipulating the job queue.</p>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="archive"><a href="#TOC">ARCHIVE</a></h2>
+<p><strong>archive</strong> {id...}</p>
+<p>This command can be used to archive job by their IDs. Only jobs that have finished execution (i.e either <em>success</em>, <em>error</em> or <em>canceled</em> jobs).</p>
+<h2 id="autoarchive"><a href="#TOC">AUTOARCHIVE</a></h2>
+<p><strong>autoarchive</strong> {<em>age</em> | <code>all</code>}</p>
+<p>Archive jobs by their age. This command can archive jobs older than <em>age</em> seconds, or alternatively all finished jobs can be archived if the string all is passed.</p>
+<h2 id="cancel"><a href="#TOC">CANCEL</a></h2>
+<p><strong>cancel</strong><br />{[--force] [--kill] {--pending | --queued | --waiting} |<br /> <em>job-id</em> ...}</p>
+<p>Cancel the job(s) identified by the given <em>job id</em>. Only jobs that have not yet started to run can be canceled; that is, jobs in either the <em>queued</em> or <em>waiting</em> state. To skip a confirmation, pass <code>--force</code>. <code>--queued</code> and <code>waiting</code> can be used to cancel all jobs in the respective state, <code>--pending</code> includes both.</p>
+<p>If the <code>--kill</code> option is given, jobs will be killed, even if in <em>running</em> state, using SIGKILL in the latter case. This is dangerous, as the job will not have the chance to do any clean up; so it will most likely leave any objects it touched in an inconsistent state.</p>
+<h2 id="change-priority"><a href="#TOC">CHANGE-PRIORITY</a></h2>
+<p><strong>change-priority</strong> --priority {low | normal | high}<br />{[--force] {--pending | --queued | --waiting} |<br /> <em>job-id</em> ...}</p>
+<p>Changes the priority of one or multiple pending jobs. Jobs currently running have only the priority of remaining opcodes changed. <code>--priority</code> must be specified. <code>--queued</code> and <code>waiting</code> can be used to re-prioritize all jobs in the respective state, <code>--pending</code> includes both. To skip a confirmation, pass <code>--force</code>.</p>
+<h2 id="info"><a href="#TOC">INFO</a></h2>
+<p><strong>info</strong> {<em>id</em>...}</p>
+<p>Show detailed information about the given job id(s). If no job id is given, all jobs are examined (warning, this is a lot of information).</p>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--no-headers] [--separator=<em>SEPARATOR</em>]<br />[-o <em>[+]FIELD,...</em>] [--filter] [job-id...]</p>
+<p>Lists the jobs and their status. By default, the job id, job status, and a small job description is listed, but additional parameters can be selected.</p>
+<p>The <code>--no-headers</code> option will skip the initial header line. The <code>--separator</code> option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p>
+<p>The <code>-o</code> option takes a comma-separated list of output fields. The available fields and their meaning are:</p>
+<dl>
+<dt><code>archived</code></dt>
+<dd><p>Whether job is archived</p>
+</dd>
+<dt><code>end_ts</code></dt>
+<dd><p>Timestamp of job end (tuple containing seconds and microseconds)</p>
+</dd>
+<dt><code>id</code></dt>
+<dd><p>Job ID</p>
+</dd>
+<dt><code>opend</code></dt>
+<dd><p>List of opcode execution end timestamps</p>
+</dd>
+<dt><code>opexec</code></dt>
+<dd><p>List of opcode execution start timestamps (after acquiring locks)</p>
+</dd>
+<dt><code>oplog</code></dt>
+<dd><p>List of opcode output logs</p>
+</dd>
+<dt><code>oppriority</code></dt>
+<dd><p>List of opcode priorities</p>
+</dd>
+<dt><code>opresult</code></dt>
+<dd><p>List of opcodes results</p>
+</dd>
+<dt><code>ops</code></dt>
+<dd><p>List of all opcodes</p>
+</dd>
+<dt><code>opstart</code></dt>
+<dd><p>List of opcode start timestamps (before acquiring locks)</p>
+</dd>
+<dt><code>opstatus</code></dt>
+<dd><p>List of opcodes status</p>
+</dd>
+<dt><code>priority</code></dt>
+<dd><p>Current job priority (19 to -20)</p>
+</dd>
+<dt><code>received_ts</code></dt>
+<dd><p>Timestamp of when job was received (tuple containing seconds and microseconds)</p>
+</dd>
+<dt><code>start_ts</code></dt>
+<dd><p>Timestamp of job start (tuple containing seconds and microseconds)</p>
+</dd>
+<dt><code>status</code></dt>
+<dd><p>Job status</p>
+</dd>
+<dt><code>summary</code></dt>
+<dd><p>List of per-opcode summaries</p>
+</dd>
+</dl>
+<p>If the value of the option starts with the character <code>+</code>, the new fields will be added to the default list. This allows one to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p>
+<p>To include archived jobs in the list the <code>--archived</code> option can be used.</p>
+<p>The following options can be used to show only specific jobs:</p>
+<dl>
+<dt><code>--pending</code></dt>
+<dd><p>Show only jobs pending execution.</p>
+</dd>
+<dt><code>--running</code></dt>
+<dd><p>Show jobs currently running only.</p>
+</dd>
+<dt><code>--error</code></dt>
+<dd><p>Show failed jobs only.</p>
+</dd>
+<dt><code>--finished</code></dt>
+<dd><p>Show finished jobs only.</p>
+</dd>
+</dl>
+<p>If exactly one argument is given and it appears to be a query filter (see <strong>ganeti</strong>(7)), the query result is filtered accordingly. For ambiguous cases (e.g. a single field name as a filter) the <code>--filter</code> (<code>-F</code>) option forces the argument to be treated as a filter.</p>
+<h2 id="list-fields"><a href="#TOC">LIST-FIELDS</a></h2>
+<p><strong>list-fields</strong> [field...]</p>
+<p>Lists available fields for jobs.</p>
+<h2 id="wait"><a href="#TOC">WAIT</a></h2>
+<p><strong>wait</strong> {id}</p>
+<p>Wait for the job by the given <em>id</em> to finish; do not produce any output.</p>
+<h2 id="watch"><a href="#TOC">WATCH</a></h2>
+<p><strong>watch</strong> {id}</p>
+<p>This command follows the output of the job by the given <em>id</em> and prints it.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

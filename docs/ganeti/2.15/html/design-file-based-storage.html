@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>File-based Storage &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="next" title="Ganeti file-based disks ownership" href="design-file-based-disks-ownership.html" />
+    <link rel="prev" title="Disks" href="design-disks.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-disks-ownership.html" title="Ganeti file-based disks ownership"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-disks.html" title="Disks"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="file-based-storage">
+<h1>File-based Storage<a class="headerlink" href="#file-based-storage" title="Permalink to this headline">¶</a></h1>
+<p>This page describes the proposed file-based storage for the 2.0 version
+of Ganeti. The project consists in extending Ganeti in order to support
+a filesystem image as Virtual Block Device (VBD) in Dom0 as the primary
+storage for a VM.</p>
+<div class="section" id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>Goals:</p>
+<ul class="simple">
+<li>file-based storage for virtual machines running in a Xen-based
+Ganeti cluster</li>
+<li>failover of file-based virtual machines between cluster-nodes</li>
+<li>export/import file-based virtual machines</li>
+<li>reuse existing image files</li>
+<li>allow Ganeti to initialize the cluster without checking for a volume
+group (e.g. xenvg)</li>
+</ul>
+<p>Non Goals:</p>
+<ul class="simple">
+<li>any kind of data mirroring between clusters for file-based instances
+(this should be achieved by using shared storage)</li>
+<li>special support for live-migration</li>
+<li>encryption of VBDs</li>
+<li>compression of VBDs</li>
+</ul>
+</div>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti is a virtual server management software tool built on top of Xen
+VM monitor and other Open Source software.</p>
+<p>Since Ganeti currently supports only block devices as storage backend
+for virtual machines, the wish came up to provide a file-based backend.
+Using this file-based option provides the possibility to store the VBDs
+on basically every filesystem and therefore allows to deploy external
+data storages (e.g. SAN, NAS, etc.) in clusters.</p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="introduction">
+<h3>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h3>
+<p>Xen (and other hypervisors) provide(s) the possibility to use a file as
+the primary storage for a VM. One file represents one VBD.</p>
+</div>
+<div class="section" id="advantages-disadvantages">
+<h3>Advantages/Disadvantages<a class="headerlink" href="#advantages-disadvantages" title="Permalink to this headline">¶</a></h3>
+<p>Advantages of file-backed VBD:</p>
+<ul class="simple">
+<li>support of sparse allocation</li>
+<li>easy from a management/backup point of view (e.g. you can just copy
+the files around)</li>
+<li>external storage (e.g. SAN, NAS) can be used to store VMs</li>
+</ul>
+<p>Disadvantages of file-backed VBD:
+* possible performance loss for I/O-intensive workloads</p>
+<ul class="simple">
+<li>using sparse files requires care to ensure the sparseness is
+preserved when copying, and there is no header in which metadata
+relating back to the VM can be stored</li>
+</ul>
+</div>
+<div class="section" id="xen-related-specifications">
+<h3>Xen-related specifications<a class="headerlink" href="#xen-related-specifications" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="driver">
+<h4>Driver<a class="headerlink" href="#driver" title="Permalink to this headline">¶</a></h4>
+<p>There are several ways to realize the required functionality with an
+underlying Xen hypervisor.</p>
+<div class="section" id="loopback-driver">
+<h5>1) loopback driver<a class="headerlink" href="#loopback-driver" title="Permalink to this headline">¶</a></h5>
+<p>Advantages:
+* available in most precompiled kernels
+* stable, since it is in kernel tree for a long time
+* easy to set up</p>
+<p>Disadvantages:</p>
+<ul class="simple">
+<li>buffer writes very aggressively, which can affect guest filesystem
+correctness in the event of a host crash</li>
+<li>can even cause out-of-memory kernel crashes in Dom0 under heavy
+write load</li>
+<li>substantial slowdowns under heavy I/O workloads</li>
+<li>the default number of supported loopdevices is only 8</li>
+<li>doesn&#8217;t support QCOW files</li>
+</ul>
+</div>
+<div class="section" id="blktap-driver">
+<h5><tt class="docutils literal"><span class="pre">blktap</span></tt> driver<a class="headerlink" href="#blktap-driver" title="Permalink to this headline">¶</a></h5>
+<p>Advantages:</p>
+<ul class="simple">
+<li>higher performance than loopback driver</li>
+<li>more scalable</li>
+<li>better safety properties for VBD data</li>
+<li>Xen-team strongly encourages use</li>
+<li>already in Xen tree</li>
+<li>supports QCOW files</li>
+<li>asynchronous driver (i.e. high performance)</li>
+</ul>
+<p>Disadvantages:</p>
+<ul class="simple">
+<li>not enabled in most precompiled kernels</li>
+<li>stable, but not as much tested as loopback driver</li>
+</ul>
+</div>
+<div class="section" id="ubklback-driver">
+<h5>3) ubklback driver<a class="headerlink" href="#ubklback-driver" title="Permalink to this headline">¶</a></h5>
+<p>The Xen Roadmap states &#8220;Work is well under way to implement a
+<tt class="docutils literal"><span class="pre">ublkback</span></tt> driver that supports all of the various qemu file format
+plugins&#8221;.</p>
+<p>Furthermore, the Roadmap includes the following:</p>
+<blockquote>
+<div>&#8221;... A special high-performance qcow plugin is also under
+development, that supports better metadata caching, asynchronous IO,
+and allows request reordering with appropriate safety barriers to
+enforce correctness. It remains both forward and backward compatible
+with existing qcow disk images, but makes adjustments to qemu&#8217;s
+default allocation policy when creating new disks such as to
+optimize performance.&#8221;</div></blockquote>
+</div>
+</div>
+<div class="section" id="file-types">
+<h4>File types<a class="headerlink" href="#file-types" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="raw-disk-image-file">
+<h5>Raw disk image file<a class="headerlink" href="#raw-disk-image-file" title="Permalink to this headline">¶</a></h5>
+<p>Advantages:
+* Resizing supported
+* Sparse file (filesystem dependend)
+* simple and easily exportable</p>
+<p>Disadvantages:</p>
+<ul class="simple">
+<li>Underlying filesystem needs to support sparse files (most
+filesystems do, though)</li>
+</ul>
+</div>
+<div class="section" id="qcow-disk-image-file">
+<h5>QCOW disk image file<a class="headerlink" href="#qcow-disk-image-file" title="Permalink to this headline">¶</a></h5>
+<p>Advantages:</p>
+<ul class="simple">
+<li>Smaller file size, even on filesystems which don&#8217;t support holes
+(i.e. sparse files)</li>
+<li>Snapshot support, where the image only represents changes made to an
+underlying disk image</li>
+<li>Optional zlib based compression</li>
+<li>Optional AES encryption</li>
+</ul>
+<p>Disadvantages:
+* Resizing not supported yet (it&#8217;s on the way)</p>
+</div>
+<div class="section" id="vmdk-disk-image-file">
+<h5>VMDK disk image file<a class="headerlink" href="#vmdk-disk-image-file" title="Permalink to this headline">¶</a></h5>
+<p>This file format is directly based on the qemu vmdk driver, which is
+synchronous and thus slow.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="detailed-design">
+<h2>Detailed Design<a class="headerlink" href="#detailed-design" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="terminology">
+<h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>VBD</strong> (Virtual Block Device): Persistent storage available to a
+virtual machine, providing the abstraction of an actual block
+storage device. VBDs may be actual block devices, filesystem images,
+or remote/network storage.</li>
+<li><strong>Dom0</strong> (Domain 0): The first domain to be started on a Xen
+machine.  Domain 0 is responsible for managing the system.</li>
+<li><strong>VM</strong> (Virtual Machine): The environment in which a hosted
+operating system runs, providing the abstraction of a dedicated
+machine. A VM may be identical to the underlying hardware (as in
+full virtualization, or it may differ, as in paravirtualization). In
+the case of Xen the domU (unprivileged domain) instance is meant.</li>
+<li><strong>QCOW</strong>: QEMU (a processor emulator) image format.</li>
+</ul>
+</div>
+<div class="section" id="implementation">
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="managing-file-based-instances">
+<h4>Managing file-based instances<a class="headerlink" href="#managing-file-based-instances" title="Permalink to this headline">¶</a></h4>
+<p>The option for file-based storage will be added to the &#8216;gnt-instance&#8217;
+utility.</p>
+<div class="section" id="add-instance">
+<h5>Add Instance<a class="headerlink" href="#add-instance" title="Permalink to this headline">¶</a></h5>
+<p>Example:</p>
+<blockquote>
+<div>gnt-instance add -t <a class="reference external" href="file:[path">file:[path</a>=[,driver=loop[,reuse[,...]]]] &#8211;disk 0:size=5G &#8211;disk 1:size=10G -n node -o debian-etch instance2</div></blockquote>
+<p>This will create a file-based instance with e.g. the following files:
+* <tt class="docutils literal"><span class="pre">/sda</span></tt> -&gt; 5GB
+* <tt class="docutils literal"><span class="pre">/sdb</span></tt> -&gt; 10GB</p>
+<p>The default directory where files will be stored is
+<tt class="docutils literal"><span class="pre">/srv/ganeti/file-storage/</span></tt>. This can be changed by setting the
+<tt class="docutils literal"><span class="pre">&lt;path&gt;</span></tt> option. This option denotes the full path to the directory
+where the files are stored. The filetype will be &#8220;raw&#8221; for the first
+release of Ganeti 2.0. However, the code will be extensible to more
+file types, since Ganeti will store information about the file type of
+each image file. Internally Ganeti will keep track of the used driver,
+the file-type and the full path to the file for every VBD. Example:
+&#8220;logical_id&#8221; : <tt class="docutils literal"><span class="pre">[FD_LOOP,</span> <span class="pre">FT_RAW,</span> <span class="pre">&quot;/instance1/sda&quot;]</span></tt> If the
+<tt class="docutils literal"><span class="pre">--reuse</span></tt> flag is set, Ganeti checks for existing files in the
+corresponding directory (e.g. <tt class="docutils literal"><span class="pre">/xen/instance2/</span></tt>). If one or more
+files in this directory are present and correctly named (the naming
+conventions will be defined in Ganeti version 2.0) Ganeti will set a
+VM up with these. If no file can be found or the names or invalid the
+operation will be aborted.</p>
+</div>
+<div class="section" id="remove-instance">
+<h5>Remove instance<a class="headerlink" href="#remove-instance" title="Permalink to this headline">¶</a></h5>
+<p>The instance removal will just differ from the actual one by deleting
+the VBD-files instead of the corresponding block device (e.g. a logical
+volume).</p>
+</div>
+<div class="section" id="starting-stopping-instance">
+<h5>Starting/Stopping Instance<a class="headerlink" href="#starting-stopping-instance" title="Permalink to this headline">¶</a></h5>
+<p>Here nothing has to be changed, as the xen tools don&#8217;t differentiate
+between file-based or blockdevice-based instances in this case.</p>
+</div>
+<div class="section" id="export-import-instance">
+<h5>Export/Import instance<a class="headerlink" href="#export-import-instance" title="Permalink to this headline">¶</a></h5>
+<p>Provided &#8220;dump/restore&#8221; is used in the &#8220;export&#8221; and &#8220;import&#8221; guest-os
+scripts, there are no modifications needed when file-based instances are
+exported/imported. If any other backup-tool (which requires access to
+the mounted file-system) is used then the image file can be temporarily
+mounted. This can be done in different ways:</p>
+<p>Mount a raw image file via loopback driver:</p>
+<div class="highlight-python"><pre>mount -o loop /srv/ganeti/file-storage/instance1/sda1 /mnt/disk\</pre>
+</div>
+<p>Mount a raw image file via blkfront driver (Dom0 kernel needs this
+module to do the following operation):</p>
+<div class="highlight-python"><pre>xm block-attach 0 tap:aio:/srv/ganeti/file-storage/instance1/sda1 /dev/xvda1 w 0\
+
+mount /dev/xvda1 /mnt/disk</pre>
+</div>
+<p>Mount a qcow image file via blkfront driver (Dom0 kernel needs this
+module to do the following operation)</p>
+<blockquote>
+<div><p>xm block-attach 0 tap:qcow:/srv/ganeti/file-storage/instance1/sda1 /dev/xvda1 w 0</p>
+<p>mount /dev/xvda1 /mnt/disk</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="high-availability-features-with-file-based-instances">
+<h4>High availability features with file-based instances<a class="headerlink" href="#high-availability-features-with-file-based-instances" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="failing-over-an-instance">
+<h5>Failing over an instance<a class="headerlink" href="#failing-over-an-instance" title="Permalink to this headline">¶</a></h5>
+<p>Failover is done in the same way as with block device backends. The
+instance gets stopped on the primary node and started on the secondary.
+The roles of primary and secondary get swapped. Note: If a failover is
+done, Ganeti will assume that the corresponding VBD(s) location (i.e.
+directory) is the same on the source and destination node. In case one
+or more corresponding file(s) are not present on the destination node,
+Ganeti will abort the operation.</p>
+</div>
+<div class="section" id="replacing-an-instance-disks">
+<h5>Replacing an instance disks<a class="headerlink" href="#replacing-an-instance-disks" title="Permalink to this headline">¶</a></h5>
+<p>Since there is no data mirroring for file-backed VM there is no such
+operation.</p>
+</div>
+<div class="section" id="evacuation-of-a-node">
+<h5>Evacuation of a node<a class="headerlink" href="#evacuation-of-a-node" title="Permalink to this headline">¶</a></h5>
+<p>Since there is no data mirroring for file-backed VMs there is no such
+operation.</p>
+</div>
+<div class="section" id="live-migration">
+<h5>Live migration<a class="headerlink" href="#live-migration" title="Permalink to this headline">¶</a></h5>
+<p>Live migration is possible using file-backed VBDs. However, the
+administrator has to make sure that the corresponding files are exactly
+the same on the source and destination node.</p>
+</div>
+</div>
+</div>
+<div class="section" id="xen-setup">
+<h3>Xen Setup<a class="headerlink" href="#xen-setup" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="file-creation">
+<h4>File creation<a class="headerlink" href="#file-creation" title="Permalink to this headline">¶</a></h4>
+<p>Creation of a raw file is simple. Example of creating a sparse file of 2
+Gigabytes. The option &#8220;seek&#8221; instructs &#8220;dd&#8221; to create a sparse file:</p>
+<div class="highlight-python"><pre>dd if=/dev/zero of=vm1disk bs=1k seek=2048k count=1</pre>
+</div>
+<p>Creation of QCOW image files can be done with the &#8220;qemu-img&#8221; utility (in
+debian it comes with the &#8220;qemu&#8221; package).</p>
+</div>
+<div class="section" id="config-file">
+<h4>Config file<a class="headerlink" href="#config-file" title="Permalink to this headline">¶</a></h4>
+<p>The Xen config file will have the following modification if one chooses
+the file-based disk-template.</p>
+<div class="section" id="loopback-driver-and-raw-file">
+<h5>1) loopback driver and raw file<a class="headerlink" href="#loopback-driver-and-raw-file" title="Permalink to this headline">¶</a></h5>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">disk</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file:&lt;/path/to/file&gt;,sda1,w&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="blktap-driver-and-raw-file">
+<h5>2) blktap driver and raw file<a class="headerlink" href="#blktap-driver-and-raw-file" title="Permalink to this headline">¶</a></h5>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">disk</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;tap:aio:,sda1,w&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="blktap-driver-and-qcow-file">
+<h5>3) blktap driver and qcow file<a class="headerlink" href="#blktap-driver-and-qcow-file" title="Permalink to this headline">¶</a></h5>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">disk</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;tap:qcow:,sda1,w&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="other-hypervisors">
+<h3>Other hypervisors<a class="headerlink" href="#other-hypervisors" title="Permalink to this headline">¶</a></h3>
+<p>Other hypervisors have mostly differnet ways to make storage available
+to their virtual instances/machines. This is beyond the scope of this
+document.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">File-based Storage</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#advantages-disadvantages">Advantages/Disadvantages</a></li>
+<li><a class="reference internal" href="#xen-related-specifications">Xen-related specifications</a><ul>
+<li><a class="reference internal" href="#driver">Driver</a><ul>
+<li><a class="reference internal" href="#loopback-driver">1) loopback driver</a></li>
+<li><a class="reference internal" href="#blktap-driver"><tt class="docutils literal"><span class="pre">blktap</span></tt> driver</a></li>
+<li><a class="reference internal" href="#ubklback-driver">3) ubklback driver</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#file-types">File types</a><ul>
+<li><a class="reference internal" href="#raw-disk-image-file">Raw disk image file</a></li>
+<li><a class="reference internal" href="#qcow-disk-image-file">QCOW disk image file</a></li>
+<li><a class="reference internal" href="#vmdk-disk-image-file">VMDK disk image file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#detailed-design">Detailed Design</a><ul>
+<li><a class="reference internal" href="#terminology">Terminology</a></li>
+<li><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li><a class="reference internal" href="#managing-file-based-instances">Managing file-based instances</a><ul>
+<li><a class="reference internal" href="#add-instance">Add Instance</a></li>
+<li><a class="reference internal" href="#remove-instance">Remove instance</a></li>
+<li><a class="reference internal" href="#starting-stopping-instance">Starting/Stopping Instance</a></li>
+<li><a class="reference internal" href="#export-import-instance">Export/Import instance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#high-availability-features-with-file-based-instances">High availability features with file-based instances</a><ul>
+<li><a class="reference internal" href="#failing-over-an-instance">Failing over an instance</a></li>
+<li><a class="reference internal" href="#replacing-an-instance-disks">Replacing an instance disks</a></li>
+<li><a class="reference internal" href="#evacuation-of-a-node">Evacuation of a node</a></li>
+<li><a class="reference internal" href="#live-migration">Live migration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#xen-setup">Xen Setup</a><ul>
+<li><a class="reference internal" href="#file-creation">File creation</a></li>
+<li><a class="reference internal" href="#config-file">Config file</a><ul>
+<li><a class="reference internal" href="#loopback-driver-and-raw-file">1) loopback driver and raw file</a></li>
+<li><a class="reference internal" href="#blktap-driver-and-raw-file">2) blktap driver and raw file</a></li>
+<li><a class="reference internal" href="#blktap-driver-and-qcow-file">3) blktap driver and qcow file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-hypervisors">Other hypervisors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-disks.html"
+                        title="previous chapter">Disks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-file-based-disks-ownership.html"
+                        title="next chapter">Ganeti file-based disks ownership</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-file-based-storage.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-disks-ownership.html" title="Ganeti file-based disks ownership"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-disks.html" title="Disks"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

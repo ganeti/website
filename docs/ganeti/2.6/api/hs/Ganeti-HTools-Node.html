@@ -1,0 +1,3264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Node</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Node.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Node.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Node</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Type declarations
+</A
+></DT
+><DT
+><A HREF="#2"
+>Helper functions
+</A
+></DT
+><DT
+><A HREF="#3"
+>Initialization functions
+</A
+></DT
+><DT
+><A HREF="#4"
+>Update functions
+</A
+></DT
+><DT
+><A HREF="#5"
+>Stats functions
+</A
+></DT
+><DT
+><A HREF="#6"
+>Display functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Module describing a node.
+</P
+><P
+>All updates are functional (copy-based) and return a new node with
+    updated value.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3ATagMap"
+>TagMap</A
+> = Map String Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ANode"
+>Node</A
+>  = <A HREF="#v%3ANode"
+>Node</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aname"
+>name</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aalias"
+>alias</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtMem"
+>tMem</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AnMem"
+>nMem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfMem"
+>fMem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AxMem"
+>xMem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtDsk"
+>tDsk</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfDsk"
+>fDsk</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtCpu"
+>tCpu</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AuCpu"
+>uCpu</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AspindleCount"
+>spindleCount</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApList"
+>pList</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AsList"
+>sList</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aidx"
+>idx</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Apeers"
+>peers</A
+> :: <A HREF="Ganeti-HTools-PeerMap.html#t%3APeerMap"
+>PeerMap</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfailN1"
+>failN1</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ArMem"
+>rMem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApMem"
+>pMem</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApDsk"
+>pDsk</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApRem"
+>pRem</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApCpu"
+>pCpu</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AmDsk"
+>mDsk</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AloDsk"
+>loDsk</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AhiCpu"
+>hiCpu</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AhiSpindles"
+>hiSpindles</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AinstSpindles"
+>instSpindles</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aoffline"
+>offline</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AutilPool"
+>utilPool</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AutilLoad"
+>utilLoad</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApTags"
+>pTags</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Agroup"
+>group</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AiPolicy"
+>iPolicy</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AAssocList"
+>AssocList</A
+> = [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AList"
+>List</A
+> = <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AAllocElement"
+>AllocElement</A
+> = (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>, [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>], <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnoSecondary"
+>noSecondary</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddTag"
+>addTag</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddTags"
+>addTags</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdelTag"
+>delTag</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdelTags"
+>delTags</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArejectAddTags"
+>rejectAddTags</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconflictingPrimaries"
+>conflictingPrimaries</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AincIf"
+>incIf</A
+> :: Num a =&gt; Bool -&gt; a -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdecIf"
+>decIf</A
+> :: Num a =&gt; Bool -&gt; a -&gt; a -&gt; a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Acreate"
+>create</A
+> :: String -&gt; Double -&gt; Int -&gt; Int -&gt; Double -&gt; Int -&gt; Double -&gt; Bool -&gt; Int -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmDskToloDsk"
+>mDskToloDsk</A
+> :: Double -&gt; Double -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmCpuTohiCpu"
+>mCpuTohiCpu</A
+> :: Double -&gt; Double -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcomputeHiSpindles"
+>computeHiSpindles</A
+> :: Double -&gt; Int -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetIdx"
+>setIdx</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetAlias"
+>setAlias</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetOffline"
+>setOffline</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetXmem"
+>setXmem</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetMdsk"
+>setMdsk</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetMcpu"
+>setMcpu</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetPolicy"
+>setPolicy</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcomputeMaxRes"
+>computeMaxRes</A
+> :: <A HREF="Ganeti-HTools-PeerMap.html#t%3APeerMap"
+>PeerMap</A
+> -&gt; <A HREF="Ganeti-HTools-PeerMap.html#t%3AElem"
+>Elem</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildPeers"
+>buildPeers</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcalcSpindleUse"
+>calcSpindleUse</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetPri"
+>setPri</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetSec"
+>setSec</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcomputePDsk"
+>computePDsk</A
+> :: Int -&gt; Double -&gt; Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetFmem"
+>setFmem</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AremovePri"
+>removePri</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AremoveSec"
+>removeSec</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddPri"
+>addPri</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddPriEx"
+>addPriEx</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddSec"
+>addSec</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddSecEx"
+>addSecEx</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AavailDisk"
+>availDisk</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AiDsk"
+>iDsk</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AavailMem"
+>availMem</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AavailCpu"
+>availCpu</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AiMem"
+>iMem</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowField"
+>showField</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowHeader"
+>showHeader</A
+> :: String -&gt; (String, Bool)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Alist"
+>list</A
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultFields"
+>defaultFields</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcomputeGroups"
+>computeGroups</A
+> :: [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+>, [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>])]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Type declarations
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:TagMap"
+><A NAME="t%3ATagMap"
+></A
+></A
+><B
+>TagMap</B
+> = Map String Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#TagMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The tag map type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Node"
+><A NAME="t%3ANode"
+></A
+></A
+><B
+>Node</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#Node"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The node type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Node"
+><A NAME="v%3ANode"
+></A
+></A
+><B
+>Node</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:name"
+><A NAME="v%3Aname"
+></A
+></A
+><B
+>name</B
+> :: String</TD
+><TD CLASS="rdoc"
+>The node name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:alias"
+><A NAME="v%3Aalias"
+></A
+></A
+><B
+>alias</B
+> :: String</TD
+><TD CLASS="rdoc"
+>The shortened name (for display purposes)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tMem"
+><A NAME="v%3AtMem"
+></A
+></A
+><B
+>tMem</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Total memory (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:nMem"
+><A NAME="v%3AnMem"
+></A
+></A
+><B
+>nMem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Node memory (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fMem"
+><A NAME="v%3AfMem"
+></A
+></A
+><B
+>fMem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Free memory (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:xMem"
+><A NAME="v%3AxMem"
+></A
+></A
+><B
+>xMem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Unaccounted memory (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tDsk"
+><A NAME="v%3AtDsk"
+></A
+></A
+><B
+>tDsk</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Total disk space (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fDsk"
+><A NAME="v%3AfDsk"
+></A
+></A
+><B
+>fDsk</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Free disk space (MiB)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tCpu"
+><A NAME="v%3AtCpu"
+></A
+></A
+><B
+>tCpu</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Total CPU count
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:uCpu"
+><A NAME="v%3AuCpu"
+></A
+></A
+><B
+>uCpu</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Used VCPU count
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:spindleCount"
+><A NAME="v%3AspindleCount"
+></A
+></A
+><B
+>spindleCount</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Node spindles (spindle_count node parameter)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pList"
+><A NAME="v%3ApList"
+></A
+></A
+><B
+>pList</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>]</TD
+><TD CLASS="rdoc"
+>List of primary instance indices
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:sList"
+><A NAME="v%3AsList"
+></A
+></A
+><B
+>sList</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>]</TD
+><TD CLASS="rdoc"
+>List of secondary instance indices
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:idx"
+><A NAME="v%3Aidx"
+></A
+></A
+><B
+>idx</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>Internal index for book-keeping
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:peers"
+><A NAME="v%3Apeers"
+></A
+></A
+><B
+>peers</B
+> :: <A HREF="Ganeti-HTools-PeerMap.html#t%3APeerMap"
+>PeerMap</A
+></TD
+><TD CLASS="rdoc"
+>Pnode to instance mapping
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:failN1"
+><A NAME="v%3AfailN1"
+></A
+></A
+><B
+>failN1</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Whether the node has failed n1
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:rMem"
+><A NAME="v%3ArMem"
+></A
+></A
+><B
+>rMem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Maximum memory needed for failover by
+ primaries of this node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pMem"
+><A NAME="v%3ApMem"
+></A
+></A
+><B
+>pMem</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Percent of free memory
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pDsk"
+><A NAME="v%3ApDsk"
+></A
+></A
+><B
+>pDsk</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Percent of free disk
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pRem"
+><A NAME="v%3ApRem"
+></A
+></A
+><B
+>pRem</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Percent of reserved memory
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pCpu"
+><A NAME="v%3ApCpu"
+></A
+></A
+><B
+>pCpu</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Ratio of virtual to physical CPUs
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:mDsk"
+><A NAME="v%3AmDsk"
+></A
+></A
+><B
+>mDsk</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Minimum free disk ratio
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:loDsk"
+><A NAME="v%3AloDsk"
+></A
+></A
+><B
+>loDsk</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Autocomputed from mDsk low disk
+ threshold
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:hiCpu"
+><A NAME="v%3AhiCpu"
+></A
+></A
+><B
+>hiCpu</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Autocomputed from mCpu high cpu
+ threshold
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:hiSpindles"
+><A NAME="v%3AhiSpindles"
+></A
+></A
+><B
+>hiSpindles</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Auto-computed from policy spindle_ratio
+ and the node spindle count
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:instSpindles"
+><A NAME="v%3AinstSpindles"
+></A
+></A
+><B
+>instSpindles</B
+> :: Double</TD
+><TD CLASS="rdoc"
+>Spindles used by instances
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:offline"
+><A NAME="v%3Aoffline"
+></A
+></A
+><B
+>offline</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Whether the node should not be used for
+ allocations and skipped from score
+ computations
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:utilPool"
+><A NAME="v%3AutilPool"
+></A
+></A
+><B
+>utilPool</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+><TD CLASS="rdoc"
+>Total utilisation capacity
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:utilLoad"
+><A NAME="v%3AutilLoad"
+></A
+></A
+><B
+>utilLoad</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+><TD CLASS="rdoc"
+>Sum of instance utilisation
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pTags"
+><A NAME="v%3ApTags"
+></A
+></A
+><B
+>pTags</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+><TD CLASS="rdoc"
+>Map of primary instance tags and their count
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:group"
+><A NAME="v%3Agroup"
+></A
+></A
+><B
+>group</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+></TD
+><TD CLASS="rdoc"
+>The node's group (index)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:iPolicy"
+><A NAME="v%3AiPolicy"
+></A
+></A
+><B
+>iPolicy</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+></TD
+><TD CLASS="rdoc"
+>The instance policy (of the node's group)
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:AssocList"
+><A NAME="t%3AAssocList"
+></A
+></A
+><B
+>AssocList</B
+> = [(<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#AssocList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A simple name for the int, node association list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:List"
+><A NAME="t%3AList"
+></A
+></A
+><B
+>List</B
+> = <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#List"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A simple name for a node map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:AllocElement"
+><A NAME="t%3AAllocElement"
+></A
+></A
+><B
+>AllocElement</B
+> = (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>, [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>], <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#AllocElement"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A simple name for an allocation element (here just for logistic
+ reasons).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:noSecondary"
+><A NAME="v%3AnoSecondary"
+></A
+></A
+><B
+>noSecondary</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#noSecondary"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constant node index for a non-moveable instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Helper functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addTag"
+><A NAME="v%3AaddTag"
+></A
+></A
+><B
+>addTag</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addTag"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Add a tag to a tagmap.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addTags"
+><A NAME="v%3AaddTags"
+></A
+></A
+><B
+>addTags</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Add multiple tags.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:delTag"
+><A NAME="v%3AdelTag"
+></A
+></A
+><B
+>delTag</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#delTag"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Adjust or delete a tag from a tagmap.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:delTags"
+><A NAME="v%3AdelTags"
+></A
+></A
+><B
+>delTags</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#delTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Remove multiple tags.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:rejectAddTags"
+><A NAME="v%3ArejectAddTags"
+></A
+></A
+><B
+>rejectAddTags</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ATagMap"
+>TagMap</A
+> -&gt; [String] -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#rejectAddTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check if we can add a list of tags to a tagmap.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:conflictingPrimaries"
+><A NAME="v%3AconflictingPrimaries"
+></A
+></A
+><B
+>conflictingPrimaries</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#conflictingPrimaries"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check how many primary instances have conflicting tags. The
+ algorithm to compute this is to sum the count of all tags, then
+ subtract the size of the tag map (since each tag has at least one,
+ non-conflicting instance); this is equivalent to summing the
+ values in the tag map minus one.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:incIf"
+><A NAME="v%3AincIf"
+></A
+></A
+><B
+>incIf</B
+> :: Num a =&gt; Bool -&gt; a -&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#incIf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function to increment a base value depending on the passed
+ boolean argument.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:decIf"
+><A NAME="v%3AdecIf"
+></A
+></A
+><B
+>decIf</B
+> :: Num a =&gt; Bool -&gt; a -&gt; a -&gt; a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#decIf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function to decrement a base value depending on the passed
+ boolean argument.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Initialization functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:create"
+><A NAME="v%3Acreate"
+></A
+></A
+><B
+>create</B
+> :: String -&gt; Double -&gt; Int -&gt; Int -&gt; Double -&gt; Int -&gt; Double -&gt; Bool -&gt; Int -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#create"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Create a new node.
+</P
+><P
+>The index and the peers maps are empty, and will be need to be
+ update later via the <TT
+><A HREF="Ganeti-HTools-Node.html#v%3AsetIdx"
+>setIdx</A
+></TT
+> and <TT
+><A HREF="Ganeti-HTools-Node.html#v%3AbuildPeers"
+>buildPeers</A
+></TT
+> functions.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:mDskToloDsk"
+><A NAME="v%3AmDskToloDsk"
+></A
+></A
+><B
+>mDskToloDsk</B
+> :: Double -&gt; Double -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#mDskToloDsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Conversion formula from mDsk/tDsk to loDsk.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:mCpuTohiCpu"
+><A NAME="v%3AmCpuTohiCpu"
+></A
+></A
+><B
+>mCpuTohiCpu</B
+> :: Double -&gt; Double -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#mCpuTohiCpu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Conversion formula from mCpu/tCpu to hiCpu.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:computeHiSpindles"
+><A NAME="v%3AcomputeHiSpindles"
+></A
+></A
+><B
+>computeHiSpindles</B
+> :: Double -&gt; Int -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#computeHiSpindles"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Conversiojn formula from spindles and spindle ratio to hiSpindles.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setIdx"
+><A NAME="v%3AsetIdx"
+></A
+></A
+><B
+>setIdx</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setIdx"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Changes the index.
+</P
+><P
+>This is used only during the building of the data structures.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setAlias"
+><A NAME="v%3AsetAlias"
+></A
+></A
+><B
+>setAlias</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setAlias"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Changes the alias.
+</P
+><P
+>This is used only during the building of the data structures.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setOffline"
+><A NAME="v%3AsetOffline"
+></A
+></A
+><B
+>setOffline</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setOffline"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the offline attribute.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setXmem"
+><A NAME="v%3AsetXmem"
+></A
+></A
+><B
+>setXmem</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setXmem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the unnaccounted memory.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setMdsk"
+><A NAME="v%3AsetMdsk"
+></A
+></A
+><B
+>setMdsk</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setMdsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the max disk usage ratio.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setMcpu"
+><A NAME="v%3AsetMcpu"
+></A
+></A
+><B
+>setMcpu</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setMcpu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the max cpu usage ratio. This will update the node's
+ ipolicy, losing sharing (but it should be a seldomly done operation).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setPolicy"
+><A NAME="v%3AsetPolicy"
+></A
+></A
+><B
+>setPolicy</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setPolicy"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the policy.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:computeMaxRes"
+><A NAME="v%3AcomputeMaxRes"
+></A
+></A
+><B
+>computeMaxRes</B
+> :: <A HREF="Ganeti-HTools-PeerMap.html#t%3APeerMap"
+>PeerMap</A
+> -&gt; <A HREF="Ganeti-HTools-PeerMap.html#t%3AElem"
+>Elem</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#computeMaxRes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the maximum reserved memory for peers from a peer map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildPeers"
+><A NAME="v%3AbuildPeers"
+></A
+></A
+><B
+>buildPeers</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#buildPeers"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Builds the peer map for a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:calcSpindleUse"
+><A NAME="v%3AcalcSpindleUse"
+></A
+></A
+><B
+>calcSpindleUse</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#calcSpindleUse"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Calculate the new spindle usage
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setPri"
+><A NAME="v%3AsetPri"
+></A
+></A
+><B
+>setPri</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setPri"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Assigns an instance to a node as primary and update the used VCPU
+ count, utilisation data and tags map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setSec"
+><A NAME="v%3AsetSec"
+></A
+></A
+><B
+>setSec</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setSec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Assigns an instance to a node as secondary without other updates.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:computePDsk"
+><A NAME="v%3AcomputePDsk"
+></A
+></A
+><B
+>computePDsk</B
+> :: Int -&gt; Double -&gt; Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#computePDsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the new <TT
+><A HREF="Ganeti-HTools-Node.html#v%3ApDsk"
+>pDsk</A
+></TT
+> value, handling nodes without local disk
+ storage (we consider all their disk used).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Update functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setFmem"
+><A NAME="v%3AsetFmem"
+></A
+></A
+><B
+>setFmem</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#setFmem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the free memory.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:removePri"
+><A NAME="v%3AremovePri"
+></A
+></A
+><B
+>removePri</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#removePri"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Removes a primary instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:removeSec"
+><A NAME="v%3AremoveSec"
+></A
+></A
+><B
+>removeSec</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#removeSec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Removes a secondary instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addPri"
+><A NAME="v%3AaddPri"
+></A
+></A
+><B
+>addPri</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addPri"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Adds a primary instance (basic version).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addPriEx"
+><A NAME="v%3AaddPriEx"
+></A
+></A
+><B
+>addPriEx</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addPriEx"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether to override the N+1 and
+ other <EM
+>soft</EM
+> checks, useful if we
+ come from a worse status
+ (e.g. offline)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="rdoc"
+>The target node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The instance to add
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="rdoc"
+>The result of the operation,
+ either the new version of the node
+ or a failure mode
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Adds a primary instance (extended version).
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addSec"
+><A NAME="v%3AaddSec"
+></A
+></A
+><B
+>addSec</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addSec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Adds a secondary instance (basic version).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addSecEx"
+><A NAME="v%3AaddSecEx"
+></A
+></A
+><B
+>addSecEx</B
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#addSecEx"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Adds a secondary instance (extended version).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>Stats functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:availDisk"
+><A NAME="v%3AavailDisk"
+></A
+></A
+><B
+>availDisk</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#availDisk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the amount of available disk on a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:iDsk"
+><A NAME="v%3AiDsk"
+></A
+></A
+><B
+>iDsk</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#iDsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the amount of used disk on a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:availMem"
+><A NAME="v%3AavailMem"
+></A
+></A
+><B
+>availMem</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#availMem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the amount of available memory on a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:availCpu"
+><A NAME="v%3AavailCpu"
+></A
+></A
+><B
+>availCpu</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#availCpu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the amount of available memory on a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:iMem"
+><A NAME="v%3AiMem"
+></A
+></A
+><B
+>iMem</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#iMem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The memory used by instances on a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="6"
+><A NAME="6"
+>Display functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:showField"
+><A NAME="v%3AshowField"
+></A
+></A
+><B
+>showField</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#showField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="rdoc"
+>Node which we're querying
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Field name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Field value as string
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Return a field for a given node.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:showHeader"
+><A NAME="v%3AshowHeader"
+></A
+></A
+><B
+>showHeader</B
+> :: String -&gt; (String, Bool)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#showHeader"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the header and numeric propery of a field.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:list"
+><A NAME="v%3Alist"
+></A
+></A
+><B
+>list</B
+> :: [String] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#list"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>String converter for the node list functionality.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultFields"
+><A NAME="v%3AdefaultFields"
+></A
+></A
+><B
+>defaultFields</B
+> :: [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#defaultFields"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constant holding the fields we're displaying by default.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:computeGroups"
+><A NAME="v%3AcomputeGroups"
+></A
+></A
+><B
+>computeGroups</B
+> :: [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>] -&gt; [(<A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+>, [<A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>])]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Node.html#computeGroups"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Split a list of nodes into a list of (node group UUID, list of
+ associated nodes).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.cmdlib.query</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.cmdlib-module.html">Package&nbsp;cmdlib</a> ::
+        Module&nbsp;query
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.cmdlib.query-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.cmdlib.query-module.html">Module ganeti.cmdlib.query</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""Logical units for queries."""</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-3', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module ganeti.cmdlib.query=ganeti.cmdlib.query-module.html,Module ganeti.query=ganeti.query-module.html"><a title="ganeti.cmdlib.query
+ganeti.query" class="py-name" href="#" onclick="return doclink('link-5', 'query', 'link-5');">query</a></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-7" class="py-name" targets="Package ganeti.cmdlib=ganeti.cmdlib-module.html"><a title="ganeti.cmdlib" class="py-name" href="#" onclick="return doclink('link-7', 'cmdlib', 'link-7');">cmdlib</a></tt><tt class="py-op">.</tt><tt id="link-8" class="py-name" targets="Module ganeti.client.base=ganeti.client.base-module.html,Module ganeti.cmdlib.base=ganeti.cmdlib.base-module.html,Module ganeti.storage.base=ganeti.storage.base-module.html"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-8', 'base', 'link-8');">base</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Class ganeti.cmdlib.base.NoHooksLU=ganeti.cmdlib.base.NoHooksLU-class.html"><a title="ganeti.cmdlib.base.NoHooksLU" class="py-name" href="#" onclick="return doclink('link-9', 'NoHooksLU', 'link-9');">NoHooksLU</a></tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-10" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-10', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="ganeti.cmdlib" class="py-name" href="#" onclick="return doclink('link-11', 'cmdlib', 'link-7');">cmdlib</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Module ganeti.cmdlib.cluster=ganeti.cmdlib.cluster-module.html"><a title="ganeti.cmdlib.cluster" class="py-name" href="#" onclick="return doclink('link-12', 'cluster', 'link-12');">cluster</a></tt> <tt class="py-keyword">import</tt> <tt id="link-13" class="py-name" targets="Class ganeti.cmdlib.cluster.ClusterQuery=ganeti.cmdlib.cluster.ClusterQuery-class.html"><a title="ganeti.cmdlib.cluster.ClusterQuery" class="py-name" href="#" onclick="return doclink('link-13', 'ClusterQuery', 'link-13');">ClusterQuery</a></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-14" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-14', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="ganeti.cmdlib" class="py-name" href="#" onclick="return doclink('link-15', 'cmdlib', 'link-7');">cmdlib</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Module ganeti.cmdlib.misc=ganeti.cmdlib.misc-module.html"><a title="ganeti.cmdlib.misc" class="py-name" href="#" onclick="return doclink('link-16', 'misc', 'link-16');">misc</a></tt> <tt class="py-keyword">import</tt> <tt id="link-17" class="py-name" targets="Class ganeti.cmdlib.misc.ExtStorageQuery=ganeti.cmdlib.misc.ExtStorageQuery-class.html"><a title="ganeti.cmdlib.misc.ExtStorageQuery" class="py-name" href="#" onclick="return doclink('link-17', 'ExtStorageQuery', 'link-17');">ExtStorageQuery</a></tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-18" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-18', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="ganeti.cmdlib" class="py-name" href="#" onclick="return doclink('link-19', 'cmdlib', 'link-7');">cmdlib</a></tt><tt class="py-op">.</tt><tt id="link-20" class="py-name" targets="Module ganeti.cmdlib.operating_system=ganeti.cmdlib.operating_system-module.html"><a title="ganeti.cmdlib.operating_system" class="py-name" href="#" onclick="return doclink('link-20', 'operating_system', 'link-20');">operating_system</a></tt> <tt class="py-keyword">import</tt> <tt id="link-21" class="py-name" targets="Class ganeti.cmdlib.operating_system.OsQuery=ganeti.cmdlib.operating_system.OsQuery-class.html"><a title="ganeti.cmdlib.operating_system.OsQuery" class="py-name" href="#" onclick="return doclink('link-21', 'OsQuery', 'link-21');">OsQuery</a></tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-comment">#: Query type implementations</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt id="link-22" class="py-name" targets="Variable ganeti.cmdlib.query._QUERY_IMPL=ganeti.cmdlib.query-module.html#_QUERY_IMPL"><a title="ganeti.cmdlib.query._QUERY_IMPL" class="py-name" href="#" onclick="return doclink('link-22', '_QUERY_IMPL', 'link-22');">_QUERY_IMPL</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">  <tt id="link-23" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-23', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Variable ganeti._constants.QR_CLUSTER=ganeti._constants-module.html#QR_CLUSTER"><a title="ganeti._constants.QR_CLUSTER" class="py-name" href="#" onclick="return doclink('link-24', 'QR_CLUSTER', 'link-24');">QR_CLUSTER</a></tt><tt class="py-op">:</tt> <tt id="link-25" class="py-name"><a title="ganeti.cmdlib.cluster.ClusterQuery" class="py-name" href="#" onclick="return doclink('link-25', 'ClusterQuery', 'link-13');">ClusterQuery</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">  <tt id="link-26" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-26', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Variable ganeti._constants.QR_OS=ganeti._constants-module.html#QR_OS"><a title="ganeti._constants.QR_OS" class="py-name" href="#" onclick="return doclink('link-27', 'QR_OS', 'link-27');">QR_OS</a></tt><tt class="py-op">:</tt> <tt id="link-28" class="py-name"><a title="ganeti.cmdlib.operating_system.OsQuery" class="py-name" href="#" onclick="return doclink('link-28', 'OsQuery', 'link-21');">OsQuery</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">  <tt id="link-29" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-29', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-30" class="py-name" targets="Variable ganeti._constants.QR_EXTSTORAGE=ganeti._constants-module.html#QR_EXTSTORAGE"><a title="ganeti._constants.QR_EXTSTORAGE" class="py-name" href="#" onclick="return doclink('link-30', 'QR_EXTSTORAGE', 'link-30');">QR_EXTSTORAGE</a></tt><tt class="py-op">:</tt> <tt id="link-31" class="py-name"><a title="ganeti.cmdlib.misc.ExtStorageQuery" class="py-name" href="#" onclick="return doclink('link-31', 'ExtStorageQuery', 'link-17');">ExtStorageQuery</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">  <tt class="py-op">}</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"><tt class="py-keyword">assert</tt> <tt class="py-name">set</tt><tt class="py-op">(</tt><tt id="link-32" class="py-name"><a title="ganeti.cmdlib.query._QUERY_IMPL" class="py-name" href="#" onclick="return doclink('link-32', '_QUERY_IMPL', 'link-22');">_QUERY_IMPL</a></tt><tt class="py-op">.</tt><tt class="py-name">keys</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt id="link-33" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-33', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-34" class="py-name" targets="Variable ganeti._constants.QR_VIA_OP=ganeti._constants-module.html#QR_VIA_OP"><a title="ganeti._constants.QR_VIA_OP" class="py-name" href="#" onclick="return doclink('link-34', 'QR_VIA_OP', 'link-34');">QR_VIA_OP</a></tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="_GetQueryImplementation"></a><div id="_GetQueryImplementation-def"><a name="L52"></a><tt class="py-lineno"> 52</tt> <a class="py-toggle" href="#" id="_GetQueryImplementation-toggle" onclick="return toggle('_GetQueryImplementation');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query-module.html#_GetQueryImplementation">_GetQueryImplementation</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_GetQueryImplementation-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_GetQueryImplementation-expanded"><a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">  <tt class="py-docstring">"""Returns the implementation for a query type.</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-docstring">  @param name: Query type, must be one of L{constants.QR_VIA_OP}</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-35" class="py-name"><a title="ganeti.cmdlib.query._QUERY_IMPL" class="py-name" href="#" onclick="return doclink('link-35', '_QUERY_IMPL', 'link-22');">_QUERY_IMPL</a></tt><tt class="py-op">[</tt><tt id="link-36" class="py-name" targets="Variable ganeti.build.shell_example_lexer.ShellExampleLexer.name=ganeti.build.shell_example_lexer.ShellExampleLexer-class.html#name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-36', 'name', 'link-36');">name</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt class="py-name">KeyError</tt><tt class="py-op">:</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-37" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-37', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-38" class="py-name" targets="Class ganeti.errors.OpPrereqError=ganeti.errors.OpPrereqError-class.html"><a title="ganeti.errors.OpPrereqError" class="py-name" href="#" onclick="return doclink('link-38', 'OpPrereqError', 'link-38');">OpPrereqError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unknown query resource '%s'"</tt> <tt class="py-op">%</tt> <tt id="link-39" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-39', 'name', 'link-36');">name</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">                               <tt id="link-40" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-40', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-41" class="py-name" targets="Variable ganeti.errors.ECODE_INVAL=ganeti.errors-module.html#ECODE_INVAL,Variable ganeti.rapi.client.ECODE_INVAL=ganeti.rapi.client-module.html#ECODE_INVAL"><a title="ganeti.errors.ECODE_INVAL
+ganeti.rapi.client.ECODE_INVAL" class="py-name" href="#" onclick="return doclink('link-41', 'ECODE_INVAL', 'link-41');">ECODE_INVAL</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"> </tt>
+<a name="LUQuery"></a><div id="LUQuery-def"><a name="L65"></a><tt class="py-lineno"> 65</tt> <a class="py-toggle" href="#" id="LUQuery-toggle" onclick="return toggle('LUQuery');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQuery-class.html">LUQuery</a><tt class="py-op">(</tt><tt class="py-base-class">NoHooksLU</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQuery-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LUQuery-expanded"><a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">  <tt class="py-docstring">"""Query for resources/items of a certain kind.</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">  <tt class="py-comment"># pylint: disable=W0142</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">  <tt id="link-42" class="py-name" targets="Variable ganeti.cmdlib.backup.LUBackupExport.REQ_BGL=ganeti.cmdlib.backup.LUBackupExport-class.html#REQ_BGL,Variable ganeti.cmdlib.backup.LUBackupPrepare.REQ_BGL=ganeti.cmdlib.backup.LUBackupPrepare-class.html#REQ_BGL,Variable ganeti.cmdlib.backup.LUBackupRemove.REQ_BGL=ganeti.cmdlib.backup.LUBackupRemove-class.html#REQ_BGL,Variable ganeti.cmdlib.base.LogicalUnit.REQ_BGL=ganeti.cmdlib.base.LogicalUnit-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterConfigQuery.REQ_BGL=ganeti.cmdlib.cluster.LUClusterConfigQuery-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterQuery.REQ_BGL=ganeti.cmdlib.cluster.LUClusterQuery-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterRedistConf.REQ_BGL=ganeti.cmdlib.cluster.LUClusterRedistConf-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterRenewCrypto.REQ_BGL=ganeti.cmdlib.cluster.LUClusterRenewCrypto-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.REQ_BGL=ganeti.cmdlib.cluster.LUClusterRepairDiskSizes-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterSetParams.REQ_BGL=ganeti.cmdlib.cluster.LUClusterSetParams-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterVerify.REQ_BGL=ganeti.cmdlib.cluster.LUClusterVerify-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterVerifyConfig.REQ_BGL=ganeti.cmdlib.cluster.LUClusterVerifyConfig-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterVerifyDisks.REQ_BGL=ganeti.cmdlib.cluster.LUClusterVerifyDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.cluster.LUClusterVerifyGroup.REQ_BGL=ganeti.cmdlib.cluster.LUClusterVerifyGroup-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupAdd.REQ_BGL=ganeti.cmdlib.group.LUGroupAdd-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupAssignNodes.REQ_BGL=ganeti.cmdlib.group.LUGroupAssignNodes-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupEvacuate.REQ_BGL=ganeti.cmdlib.group.LUGroupEvacuate-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupRemove.REQ_BGL=ganeti.cmdlib.group.LUGroupRemove-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupRename.REQ_BGL=ganeti.cmdlib.group.LUGroupRename-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupSetParams.REQ_BGL=ganeti.cmdlib.group.LUGroupSetParams-class.html#REQ_BGL,Variable ganeti.cmdlib.group.LUGroupVerifyDisks.REQ_BGL=ganeti.cmdlib.group.LUGroupVerifyDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceChangeGroup.REQ_BGL=ganeti.cmdlib.instance.LUInstanceChangeGroup-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceCreate.REQ_BGL=ganeti.cmdlib.instance.LUInstanceCreate-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceMove.REQ_BGL=ganeti.cmdlib.instance.LUInstanceMove-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceMultiAlloc.REQ_BGL=ganeti.cmdlib.instance.LUInstanceMultiAlloc-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceRemove.REQ_BGL=ganeti.cmdlib.instance.LUInstanceRemove-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceRename.REQ_BGL=ganeti.cmdlib.instance.LUInstanceRename-class.html#REQ_BGL,Variable ganeti.cmdlib.instance.LUInstanceSetParams.REQ_BGL=ganeti.cmdlib.instance.LUInstanceSetParams-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_migration.LUInstanceFailover.REQ_BGL=ganeti.cmdlib.instance_migration.LUInstanceFailover-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_migration.LUInstanceMigrate.REQ_BGL=ganeti.cmdlib.instance_migration.LUInstanceMigrate-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_operation.LUInstanceConsole.REQ_BGL=ganeti.cmdlib.instance_operation.LUInstanceConsole-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_operation.LUInstanceReboot.REQ_BGL=ganeti.cmdlib.instance_operation.LUInstanceReboot-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_operation.LUInstanceReinstall.REQ_BGL=ganeti.cmdlib.instance_operation.LUInstanceReinstall-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_operation.LUInstanceShutdown.REQ_BGL=ganeti.cmdlib.instance_operation.LUInstanceShutdown-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_operation.LUInstanceStartup.REQ_BGL=ganeti.cmdlib.instance_operation.LUInstanceStartup-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_query.LUInstanceQueryData.REQ_BGL=ganeti.cmdlib.instance_query.LUInstanceQueryData-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.REQ_BGL=ganeti.cmdlib.instance_storage.LUInstanceActivateDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.REQ_BGL=ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.REQ_BGL=ganeti.cmdlib.instance_storage.LUInstanceGrowDisk-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.REQ_BGL=ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.REQ_BGL=ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks-class.html#REQ_BGL,Variable ganeti.cmdlib.misc.LUExtStorageDiagnose.REQ_BGL=ganeti.cmdlib.misc.LUExtStorageDiagnose-class.html#REQ_BGL,Variable ganeti.cmdlib.misc.LUOobCommand.REQ_BGL=ganeti.cmdlib.misc.LUOobCommand-class.html#REQ_BGL,Variable ganeti.cmdlib.misc.LURestrictedCommand.REQ_BGL=ganeti.cmdlib.misc.LURestrictedCommand-class.html#REQ_BGL,Variable ganeti.cmdlib.network.LUNetworkAdd.REQ_BGL=ganeti.cmdlib.network.LUNetworkAdd-class.html#REQ_BGL,Variable ganeti.cmdlib.network.LUNetworkConnect.REQ_BGL=ganeti.cmdlib.network.LUNetworkConnect-class.html#REQ_BGL,Variable ganeti.cmdlib.network.LUNetworkDisconnect.REQ_BGL=ganeti.cmdlib.network.LUNetworkDisconnect-class.html#REQ_BGL,Variable ganeti.cmdlib.network.LUNetworkRemove.REQ_BGL=ganeti.cmdlib.network.LUNetworkRemove-class.html#REQ_BGL,Variable ganeti.cmdlib.network.LUNetworkSetParams.REQ_BGL=ganeti.cmdlib.network.LUNetworkSetParams-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeEvacuate.REQ_BGL=ganeti.cmdlib.node.LUNodeEvacuate-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeMigrate.REQ_BGL=ganeti.cmdlib.node.LUNodeMigrate-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeModifyStorage.REQ_BGL=ganeti.cmdlib.node.LUNodeModifyStorage-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodePowercycle.REQ_BGL=ganeti.cmdlib.node.LUNodePowercycle-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeQueryStorage.REQ_BGL=ganeti.cmdlib.node.LUNodeQueryStorage-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeQueryvols.REQ_BGL=ganeti.cmdlib.node.LUNodeQueryvols-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LUNodeSetParams.REQ_BGL=ganeti.cmdlib.node.LUNodeSetParams-class.html#REQ_BGL,Variable ganeti.cmdlib.node.LURepairNodeStorage.REQ_BGL=ganeti.cmdlib.node.LURepairNodeStorage-class.html#REQ_BGL,Variable ganeti.cmdlib.operating_system.LUOsDiagnose.REQ_BGL=ganeti.cmdlib.operating_system.LUOsDiagnose-class.html#REQ_BGL,Variable ganeti.cmdlib.query.LUQuery.REQ_BGL=ganeti.cmdlib.query.LUQuery-class.html#REQ_BGL,Variable ganeti.cmdlib.query.LUQueryFields.REQ_BGL=ganeti.cmdlib.query.LUQueryFields-class.html#REQ_BGL,Variable ganeti.cmdlib.tags.LUTagsDel.REQ_BGL=ganeti.cmdlib.tags.LUTagsDel-class.html#REQ_BGL,Variable ganeti.cmdlib.tags.LUTagsGet.REQ_BGL=ganeti.cmdlib.tags.LUTagsGet-class.html#REQ_BGL,Variable ganeti.cmdlib.tags.LUTagsSearch.REQ_BGL=ganeti.cmdlib.tags.LUTagsSearch-class.html#REQ_BGL,Variable ganeti.cmdlib.tags.LUTagsSet.REQ_BGL=ganeti.cmdlib.tags.LUTagsSet-class.html#REQ_BGL,Variable ganeti.cmdlib.test.LUTestDelay.REQ_BGL=ganeti.cmdlib.test.LUTestDelay-class.html#REQ_BGL,Variable ganeti.cmdlib.test.LUTestJqueue.REQ_BGL=ganeti.cmdlib.test.LUTestJqueue-class.html#REQ_BGL"><a title="ganeti.cmdlib.backup.LUBackupExport.REQ_BGL
+ganeti.cmdlib.backup.LUBackupPrepare.REQ_BGL
+ganeti.cmdlib.backup.LUBackupRemove.REQ_BGL
+ganeti.cmdlib.base.LogicalUnit.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterConfigQuery.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterQuery.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRedistConf.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRenewCrypto.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterSetParams.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerify.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyConfig.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyDisks.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyGroup.REQ_BGL
+ganeti.cmdlib.group.LUGroupAdd.REQ_BGL
+ganeti.cmdlib.group.LUGroupAssignNodes.REQ_BGL
+ganeti.cmdlib.group.LUGroupEvacuate.REQ_BGL
+ganeti.cmdlib.group.LUGroupRemove.REQ_BGL
+ganeti.cmdlib.group.LUGroupRename.REQ_BGL
+ganeti.cmdlib.group.LUGroupSetParams.REQ_BGL
+ganeti.cmdlib.group.LUGroupVerifyDisks.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceChangeGroup.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceCreate.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceMove.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceMultiAlloc.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceRemove.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceRename.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceSetParams.REQ_BGL
+ganeti.cmdlib.instance_migration.LUInstanceFailover.REQ_BGL
+ganeti.cmdlib.instance_migration.LUInstanceMigrate.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceConsole.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceReboot.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceReinstall.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceShutdown.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceStartup.REQ_BGL
+ganeti.cmdlib.instance_query.LUInstanceQueryData.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.REQ_BGL
+ganeti.cmdlib.misc.LUExtStorageDiagnose.REQ_BGL
+ganeti.cmdlib.misc.LUOobCommand.REQ_BGL
+ganeti.cmdlib.misc.LURestrictedCommand.REQ_BGL
+ganeti.cmdlib.network.LUNetworkAdd.REQ_BGL
+ganeti.cmdlib.network.LUNetworkConnect.REQ_BGL
+ganeti.cmdlib.network.LUNetworkDisconnect.REQ_BGL
+ganeti.cmdlib.network.LUNetworkRemove.REQ_BGL
+ganeti.cmdlib.network.LUNetworkSetParams.REQ_BGL
+ganeti.cmdlib.node.LUNodeEvacuate.REQ_BGL
+ganeti.cmdlib.node.LUNodeMigrate.REQ_BGL
+ganeti.cmdlib.node.LUNodeModifyStorage.REQ_BGL
+ganeti.cmdlib.node.LUNodePowercycle.REQ_BGL
+ganeti.cmdlib.node.LUNodeQueryStorage.REQ_BGL
+ganeti.cmdlib.node.LUNodeQueryvols.REQ_BGL
+ganeti.cmdlib.node.LUNodeSetParams.REQ_BGL
+ganeti.cmdlib.node.LURepairNodeStorage.REQ_BGL
+ganeti.cmdlib.operating_system.LUOsDiagnose.REQ_BGL
+ganeti.cmdlib.query.LUQuery.REQ_BGL
+ganeti.cmdlib.query.LUQueryFields.REQ_BGL
+ganeti.cmdlib.tags.LUTagsDel.REQ_BGL
+ganeti.cmdlib.tags.LUTagsGet.REQ_BGL
+ganeti.cmdlib.tags.LUTagsSearch.REQ_BGL
+ganeti.cmdlib.tags.LUTagsSet.REQ_BGL
+ganeti.cmdlib.test.LUTestDelay.REQ_BGL
+ganeti.cmdlib.test.LUTestJqueue.REQ_BGL" class="py-name" href="#" onclick="return doclink('link-42', 'REQ_BGL', 'link-42');">REQ_BGL</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="LUQuery.CheckArguments"></a><div id="LUQuery.CheckArguments-def"><a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="LUQuery.CheckArguments-toggle" onclick="return toggle('LUQuery.CheckArguments');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQuery-class.html#CheckArguments">CheckArguments</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQuery.CheckArguments-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQuery.CheckArguments-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-name">qcls</tt> <tt class="py-op">=</tt> <tt id="link-43" class="py-name" targets="Function ganeti.cmdlib.query._GetQueryImplementation()=ganeti.cmdlib.query-module.html#_GetQueryImplementation"><a title="ganeti.cmdlib.query._GetQueryImplementation" class="py-name" href="#" onclick="return doclink('link-43', '_GetQueryImplementation', 'link-43');">_GetQueryImplementation</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">what</tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">impl</tt> <tt class="py-op">=</tt> <tt class="py-name">qcls</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">qfilter</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">fields</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">use_locking</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"> </tt>
+<a name="LUQuery.ExpandNames"></a><div id="LUQuery.ExpandNames-def"><a name="L77"></a><tt class="py-lineno"> 77</tt> <a class="py-toggle" href="#" id="LUQuery.ExpandNames-toggle" onclick="return toggle('LUQuery.ExpandNames');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQuery-class.html#ExpandNames">ExpandNames</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQuery.ExpandNames-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQuery.ExpandNames-expanded"><a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">impl</tt><tt class="py-op">.</tt><tt id="link-44" class="py-name" targets="Method ganeti.cmdlib.backup.LUBackupExport.ExpandNames()=ganeti.cmdlib.backup.LUBackupExport-class.html#ExpandNames,Method ganeti.cmdlib.backup.LUBackupPrepare.ExpandNames()=ganeti.cmdlib.backup.LUBackupPrepare-class.html#ExpandNames,Method ganeti.cmdlib.backup.LUBackupRemove.ExpandNames()=ganeti.cmdlib.backup.LUBackupRemove-class.html#ExpandNames,Method ganeti.cmdlib.base.LogicalUnit.ExpandNames()=ganeti.cmdlib.base.LogicalUnit-class.html#ExpandNames,Method ganeti.cmdlib.base.QueryBase.ExpandNames()=ganeti.cmdlib.base.QueryBase-class.html#ExpandNames,Method ganeti.cmdlib.cluster.ClusterQuery.ExpandNames()=ganeti.cmdlib.cluster.ClusterQuery-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterConfigQuery.ExpandNames()=ganeti.cmdlib.cluster.LUClusterConfigQuery-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterQuery.ExpandNames()=ganeti.cmdlib.cluster.LUClusterQuery-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterRedistConf.ExpandNames()=ganeti.cmdlib.cluster.LUClusterRedistConf-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterRenewCrypto.ExpandNames()=ganeti.cmdlib.cluster.LUClusterRenewCrypto-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.ExpandNames()=ganeti.cmdlib.cluster.LUClusterRepairDiskSizes-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterSetParams.ExpandNames()=ganeti.cmdlib.cluster.LUClusterSetParams-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterVerify.ExpandNames()=ganeti.cmdlib.cluster.LUClusterVerify-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterVerifyConfig.ExpandNames()=ganeti.cmdlib.cluster.LUClusterVerifyConfig-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterVerifyDisks.ExpandNames()=ganeti.cmdlib.cluster.LUClusterVerifyDisks-class.html#ExpandNames,Method ganeti.cmdlib.cluster.LUClusterVerifyGroup.ExpandNames()=ganeti.cmdlib.cluster.LUClusterVerifyGroup-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupAdd.ExpandNames()=ganeti.cmdlib.group.LUGroupAdd-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupAssignNodes.ExpandNames()=ganeti.cmdlib.group.LUGroupAssignNodes-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupEvacuate.ExpandNames()=ganeti.cmdlib.group.LUGroupEvacuate-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupRemove.ExpandNames()=ganeti.cmdlib.group.LUGroupRemove-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupRename.ExpandNames()=ganeti.cmdlib.group.LUGroupRename-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupSetParams.ExpandNames()=ganeti.cmdlib.group.LUGroupSetParams-class.html#ExpandNames,Method ganeti.cmdlib.group.LUGroupVerifyDisks.ExpandNames()=ganeti.cmdlib.group.LUGroupVerifyDisks-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceChangeGroup.ExpandNames()=ganeti.cmdlib.instance.LUInstanceChangeGroup-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceCreate.ExpandNames()=ganeti.cmdlib.instance.LUInstanceCreate-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceMove.ExpandNames()=ganeti.cmdlib.instance.LUInstanceMove-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceMultiAlloc.ExpandNames()=ganeti.cmdlib.instance.LUInstanceMultiAlloc-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceRemove.ExpandNames()=ganeti.cmdlib.instance.LUInstanceRemove-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceRename.ExpandNames()=ganeti.cmdlib.instance.LUInstanceRename-class.html#ExpandNames,Method ganeti.cmdlib.instance.LUInstanceSetParams.ExpandNames()=ganeti.cmdlib.instance.LUInstanceSetParams-class.html#ExpandNames,Method ganeti.cmdlib.instance_migration.LUInstanceFailover.ExpandNames()=ganeti.cmdlib.instance_migration.LUInstanceFailover-class.html#ExpandNames,Method ganeti.cmdlib.instance_migration.LUInstanceMigrate.ExpandNames()=ganeti.cmdlib.instance_migration.LUInstanceMigrate-class.html#ExpandNames,Method ganeti.cmdlib.instance_operation.LUInstanceConsole.ExpandNames()=ganeti.cmdlib.instance_operation.LUInstanceConsole-class.html#ExpandNames,Method ganeti.cmdlib.instance_operation.LUInstanceReboot.ExpandNames()=ganeti.cmdlib.instance_operation.LUInstanceReboot-class.html#ExpandNames,Method ganeti.cmdlib.instance_operation.LUInstanceReinstall.ExpandNames()=ganeti.cmdlib.instance_operation.LUInstanceReinstall-class.html#ExpandNames,Method ganeti.cmdlib.instance_operation.LUInstanceShutdown.ExpandNames()=ganeti.cmdlib.instance_operation.LUInstanceShutdown-class.html#ExpandNames,Method ganeti.cmdlib.instance_operation.LUInstanceStartup.ExpandNames()=ganeti.cmdlib.instance_operation.LUInstanceStartup-class.html#ExpandNames,Method ganeti.cmdlib.instance_query.LUInstanceQueryData.ExpandNames()=ganeti.cmdlib.instance_query.LUInstanceQueryData-class.html#ExpandNames,Method ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.ExpandNames()=ganeti.cmdlib.instance_storage.LUInstanceActivateDisks-class.html#ExpandNames,Method ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.ExpandNames()=ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks-class.html#ExpandNames,Method ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.ExpandNames()=ganeti.cmdlib.instance_storage.LUInstanceGrowDisk-class.html#ExpandNames,Method ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.ExpandNames()=ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks-class.html#ExpandNames,Method ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.ExpandNames()=ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks-class.html#ExpandNames,Method ganeti.cmdlib.misc.ExtStorageQuery.ExpandNames()=ganeti.cmdlib.misc.ExtStorageQuery-class.html#ExpandNames,Method ganeti.cmdlib.misc.LUExtStorageDiagnose.ExpandNames()=ganeti.cmdlib.misc.LUExtStorageDiagnose-class.html#ExpandNames,Method ganeti.cmdlib.misc.LUOobCommand.ExpandNames()=ganeti.cmdlib.misc.LUOobCommand-class.html#ExpandNames,Method ganeti.cmdlib.misc.LURestrictedCommand.ExpandNames()=ganeti.cmdlib.misc.LURestrictedCommand-class.html#ExpandNames,Method ganeti.cmdlib.network.LUNetworkAdd.ExpandNames()=ganeti.cmdlib.network.LUNetworkAdd-class.html#ExpandNames,Method ganeti.cmdlib.network.LUNetworkConnect.ExpandNames()=ganeti.cmdlib.network.LUNetworkConnect-class.html#ExpandNames,Method ganeti.cmdlib.network.LUNetworkDisconnect.ExpandNames()=ganeti.cmdlib.network.LUNetworkDisconnect-class.html#ExpandNames,Method ganeti.cmdlib.network.LUNetworkRemove.ExpandNames()=ganeti.cmdlib.network.LUNetworkRemove-class.html#ExpandNames,Method ganeti.cmdlib.network.LUNetworkSetParams.ExpandNames()=ganeti.cmdlib.network.LUNetworkSetParams-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeEvacuate.ExpandNames()=ganeti.cmdlib.node.LUNodeEvacuate-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeMigrate.ExpandNames()=ganeti.cmdlib.node.LUNodeMigrate-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeModifyStorage.ExpandNames()=ganeti.cmdlib.node.LUNodeModifyStorage-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodePowercycle.ExpandNames()=ganeti.cmdlib.node.LUNodePowercycle-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeQueryStorage.ExpandNames()=ganeti.cmdlib.node.LUNodeQueryStorage-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeQueryvols.ExpandNames()=ganeti.cmdlib.node.LUNodeQueryvols-class.html#ExpandNames,Method ganeti.cmdlib.node.LUNodeSetParams.ExpandNames()=ganeti.cmdlib.node.LUNodeSetParams-class.html#ExpandNames,Method ganeti.cmdlib.node.LURepairNodeStorage.ExpandNames()=ganeti.cmdlib.node.LURepairNodeStorage-class.html#ExpandNames,Method ganeti.cmdlib.operating_system.LUOsDiagnose.ExpandNames()=ganeti.cmdlib.operating_system.LUOsDiagnose-class.html#ExpandNames,Method ganeti.cmdlib.operating_system.OsQuery.ExpandNames()=ganeti.cmdlib.operating_system.OsQuery-class.html#ExpandNames,Method ganeti.cmdlib.query.LUQuery.ExpandNames()=ganeti.cmdlib.query.LUQuery-class.html#ExpandNames,Method ganeti.cmdlib.query.LUQueryFields.ExpandNames()=ganeti.cmdlib.query.LUQueryFields-class.html#ExpandNames,Method ganeti.cmdlib.tags.LUTagsGet.ExpandNames()=ganeti.cmdlib.tags.LUTagsGet-class.html#ExpandNames,Method ganeti.cmdlib.tags.LUTagsSearch.ExpandNames()=ganeti.cmdlib.tags.LUTagsSearch-class.html#ExpandNames,Method ganeti.cmdlib.tags.TagsLU.ExpandNames()=ganeti.cmdlib.tags.TagsLU-class.html#ExpandNames,Method ganeti.cmdlib.test.LUTestDelay.ExpandNames()=ganeti.cmdlib.test.LUTestDelay-class.html#ExpandNames,Method ganeti.cmdlib.test.LUTestJqueue.ExpandNames()=ganeti.cmdlib.test.LUTestJqueue-class.html#ExpandNames"><a title="ganeti.cmdlib.backup.LUBackupExport.ExpandNames
+ganeti.cmdlib.backup.LUBackupPrepare.ExpandNames
+ganeti.cmdlib.backup.LUBackupRemove.ExpandNames
+ganeti.cmdlib.base.LogicalUnit.ExpandNames
+ganeti.cmdlib.base.QueryBase.ExpandNames
+ganeti.cmdlib.cluster.ClusterQuery.ExpandNames
+ganeti.cmdlib.cluster.LUClusterConfigQuery.ExpandNames
+ganeti.cmdlib.cluster.LUClusterQuery.ExpandNames
+ganeti.cmdlib.cluster.LUClusterRedistConf.ExpandNames
+ganeti.cmdlib.cluster.LUClusterRenewCrypto.ExpandNames
+ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.ExpandNames
+ganeti.cmdlib.cluster.LUClusterSetParams.ExpandNames
+ganeti.cmdlib.cluster.LUClusterVerify.ExpandNames
+ganeti.cmdlib.cluster.LUClusterVerifyConfig.ExpandNames
+ganeti.cmdlib.cluster.LUClusterVerifyDisks.ExpandNames
+ganeti.cmdlib.cluster.LUClusterVerifyGroup.ExpandNames
+ganeti.cmdlib.group.LUGroupAdd.ExpandNames
+ganeti.cmdlib.group.LUGroupAssignNodes.ExpandNames
+ganeti.cmdlib.group.LUGroupEvacuate.ExpandNames
+ganeti.cmdlib.group.LUGroupRemove.ExpandNames
+ganeti.cmdlib.group.LUGroupRename.ExpandNames
+ganeti.cmdlib.group.LUGroupSetParams.ExpandNames
+ganeti.cmdlib.group.LUGroupVerifyDisks.ExpandNames
+ganeti.cmdlib.instance.LUInstanceChangeGroup.ExpandNames
+ganeti.cmdlib.instance.LUInstanceCreate.ExpandNames
+ganeti.cmdlib.instance.LUInstanceMove.ExpandNames
+ganeti.cmdlib.instance.LUInstanceMultiAlloc.ExpandNames
+ganeti.cmdlib.instance.LUInstanceRemove.ExpandNames
+ganeti.cmdlib.instance.LUInstanceRename.ExpandNames
+ganeti.cmdlib.instance.LUInstanceSetParams.ExpandNames
+ganeti.cmdlib.instance_migration.LUInstanceFailover.ExpandNames
+ganeti.cmdlib.instance_migration.LUInstanceMigrate.ExpandNames
+ganeti.cmdlib.instance_operation.LUInstanceConsole.ExpandNames
+ganeti.cmdlib.instance_operation.LUInstanceReboot.ExpandNames
+ganeti.cmdlib.instance_operation.LUInstanceReinstall.ExpandNames
+ganeti.cmdlib.instance_operation.LUInstanceShutdown.ExpandNames
+ganeti.cmdlib.instance_operation.LUInstanceStartup.ExpandNames
+ganeti.cmdlib.instance_query.LUInstanceQueryData.ExpandNames
+ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.ExpandNames
+ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.ExpandNames
+ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.ExpandNames
+ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.ExpandNames
+ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.ExpandNames
+ganeti.cmdlib.misc.ExtStorageQuery.ExpandNames
+ganeti.cmdlib.misc.LUExtStorageDiagnose.ExpandNames
+ganeti.cmdlib.misc.LUOobCommand.ExpandNames
+ganeti.cmdlib.misc.LURestrictedCommand.ExpandNames
+ganeti.cmdlib.network.LUNetworkAdd.ExpandNames
+ganeti.cmdlib.network.LUNetworkConnect.ExpandNames
+ganeti.cmdlib.network.LUNetworkDisconnect.ExpandNames
+ganeti.cmdlib.network.LUNetworkRemove.ExpandNames
+ganeti.cmdlib.network.LUNetworkSetParams.ExpandNames
+ganeti.cmdlib.node.LUNodeEvacuate.ExpandNames
+ganeti.cmdlib.node.LUNodeMigrate.ExpandNames
+ganeti.cmdlib.node.LUNodeModifyStorage.ExpandNames
+ganeti.cmdlib.node.LUNodePowercycle.ExpandNames
+ganeti.cmdlib.node.LUNodeQueryStorage.ExpandNames
+ganeti.cmdlib.node.LUNodeQueryvols.ExpandNames
+ganeti.cmdlib.node.LUNodeSetParams.ExpandNames
+ganeti.cmdlib.node.LURepairNodeStorage.ExpandNames
+ganeti.cmdlib.operating_system.LUOsDiagnose.ExpandNames
+ganeti.cmdlib.operating_system.OsQuery.ExpandNames
+ganeti.cmdlib.query.LUQuery.ExpandNames
+ganeti.cmdlib.query.LUQueryFields.ExpandNames
+ganeti.cmdlib.tags.LUTagsGet.ExpandNames
+ganeti.cmdlib.tags.LUTagsSearch.ExpandNames
+ganeti.cmdlib.tags.TagsLU.ExpandNames
+ganeti.cmdlib.test.LUTestDelay.ExpandNames
+ganeti.cmdlib.test.LUTestJqueue.ExpandNames" class="py-name" href="#" onclick="return doclink('link-44', 'ExpandNames', 'link-44');">ExpandNames</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"> </tt>
+<a name="LUQuery.DeclareLocks"></a><div id="LUQuery.DeclareLocks-def"><a name="L80"></a><tt class="py-lineno"> 80</tt> <a class="py-toggle" href="#" id="LUQuery.DeclareLocks-toggle" onclick="return toggle('LUQuery.DeclareLocks');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQuery-class.html#DeclareLocks">DeclareLocks</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">level</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQuery.DeclareLocks-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQuery.DeclareLocks-expanded"><a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">impl</tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Method ganeti.cmdlib.backup.LUBackupExport.DeclareLocks()=ganeti.cmdlib.backup.LUBackupExport-class.html#DeclareLocks,Method ganeti.cmdlib.base.LogicalUnit.DeclareLocks()=ganeti.cmdlib.base.LogicalUnit-class.html#DeclareLocks,Method ganeti.cmdlib.base.QueryBase.DeclareLocks()=ganeti.cmdlib.base.QueryBase-class.html#DeclareLocks,Method ganeti.cmdlib.cluster.ClusterQuery.DeclareLocks()=ganeti.cmdlib.cluster.ClusterQuery-class.html#DeclareLocks,Method ganeti.cmdlib.cluster.LUClusterConfigQuery.DeclareLocks()=ganeti.cmdlib.cluster.LUClusterConfigQuery-class.html#DeclareLocks,Method ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.DeclareLocks()=ganeti.cmdlib.cluster.LUClusterRepairDiskSizes-class.html#DeclareLocks,Method ganeti.cmdlib.cluster.LUClusterVerifyGroup.DeclareLocks()=ganeti.cmdlib.cluster.LUClusterVerifyGroup-class.html#DeclareLocks,Method ganeti.cmdlib.group.LUGroupAssignNodes.DeclareLocks()=ganeti.cmdlib.group.LUGroupAssignNodes-class.html#DeclareLocks,Method ganeti.cmdlib.group.LUGroupEvacuate.DeclareLocks()=ganeti.cmdlib.group.LUGroupEvacuate-class.html#DeclareLocks,Method ganeti.cmdlib.group.LUGroupSetParams.DeclareLocks()=ganeti.cmdlib.group.LUGroupSetParams-class.html#DeclareLocks,Method ganeti.cmdlib.group.LUGroupVerifyDisks.DeclareLocks()=ganeti.cmdlib.group.LUGroupVerifyDisks-class.html#DeclareLocks,Method ganeti.cmdlib.instance.LUInstanceChangeGroup.DeclareLocks()=ganeti.cmdlib.instance.LUInstanceChangeGroup-class.html#DeclareLocks,Method ganeti.cmdlib.instance.LUInstanceMove.DeclareLocks()=ganeti.cmdlib.instance.LUInstanceMove-class.html#DeclareLocks,Method ganeti.cmdlib.instance.LUInstanceRemove.DeclareLocks()=ganeti.cmdlib.instance.LUInstanceRemove-class.html#DeclareLocks,Method ganeti.cmdlib.instance.LUInstanceSetParams.DeclareLocks()=ganeti.cmdlib.instance.LUInstanceSetParams-class.html#DeclareLocks,Method ganeti.cmdlib.instance_migration.LUInstanceFailover.DeclareLocks()=ganeti.cmdlib.instance_migration.LUInstanceFailover-class.html#DeclareLocks,Method ganeti.cmdlib.instance_migration.LUInstanceMigrate.DeclareLocks()=ganeti.cmdlib.instance_migration.LUInstanceMigrate-class.html#DeclareLocks,Method ganeti.cmdlib.instance_operation.LUInstanceStartup.DeclareLocks()=ganeti.cmdlib.instance_operation.LUInstanceStartup-class.html#DeclareLocks,Method ganeti.cmdlib.instance_query.LUInstanceQueryData.DeclareLocks()=ganeti.cmdlib.instance_query.LUInstanceQueryData-class.html#DeclareLocks,Method ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.DeclareLocks()=ganeti.cmdlib.instance_storage.LUInstanceActivateDisks-class.html#DeclareLocks,Method ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.DeclareLocks()=ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks-class.html#DeclareLocks,Method ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.DeclareLocks()=ganeti.cmdlib.instance_storage.LUInstanceGrowDisk-class.html#DeclareLocks,Method ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.DeclareLocks()=ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks-class.html#DeclareLocks,Method ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.DeclareLocks()=ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks-class.html#DeclareLocks,Method ganeti.cmdlib.misc.ExtStorageQuery.DeclareLocks()=ganeti.cmdlib.misc.ExtStorageQuery-class.html#DeclareLocks,Method ganeti.cmdlib.network.LUNetworkConnect.DeclareLocks()=ganeti.cmdlib.network.LUNetworkConnect-class.html#DeclareLocks,Method ganeti.cmdlib.network.LUNetworkDisconnect.DeclareLocks()=ganeti.cmdlib.network.LUNetworkDisconnect-class.html#DeclareLocks,Method ganeti.cmdlib.node.LUNodeEvacuate.DeclareLocks()=ganeti.cmdlib.node.LUNodeEvacuate-class.html#DeclareLocks,Method ganeti.cmdlib.operating_system.OsQuery.DeclareLocks()=ganeti.cmdlib.operating_system.OsQuery-class.html#DeclareLocks,Method ganeti.cmdlib.query.LUQuery.DeclareLocks()=ganeti.cmdlib.query.LUQuery-class.html#DeclareLocks"><a title="ganeti.cmdlib.backup.LUBackupExport.DeclareLocks
+ganeti.cmdlib.base.LogicalUnit.DeclareLocks
+ganeti.cmdlib.base.QueryBase.DeclareLocks
+ganeti.cmdlib.cluster.ClusterQuery.DeclareLocks
+ganeti.cmdlib.cluster.LUClusterConfigQuery.DeclareLocks
+ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.DeclareLocks
+ganeti.cmdlib.cluster.LUClusterVerifyGroup.DeclareLocks
+ganeti.cmdlib.group.LUGroupAssignNodes.DeclareLocks
+ganeti.cmdlib.group.LUGroupEvacuate.DeclareLocks
+ganeti.cmdlib.group.LUGroupSetParams.DeclareLocks
+ganeti.cmdlib.group.LUGroupVerifyDisks.DeclareLocks
+ganeti.cmdlib.instance.LUInstanceChangeGroup.DeclareLocks
+ganeti.cmdlib.instance.LUInstanceMove.DeclareLocks
+ganeti.cmdlib.instance.LUInstanceRemove.DeclareLocks
+ganeti.cmdlib.instance.LUInstanceSetParams.DeclareLocks
+ganeti.cmdlib.instance_migration.LUInstanceFailover.DeclareLocks
+ganeti.cmdlib.instance_migration.LUInstanceMigrate.DeclareLocks
+ganeti.cmdlib.instance_operation.LUInstanceStartup.DeclareLocks
+ganeti.cmdlib.instance_query.LUInstanceQueryData.DeclareLocks
+ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.DeclareLocks
+ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.DeclareLocks
+ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.DeclareLocks
+ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.DeclareLocks
+ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.DeclareLocks
+ganeti.cmdlib.misc.ExtStorageQuery.DeclareLocks
+ganeti.cmdlib.network.LUNetworkConnect.DeclareLocks
+ganeti.cmdlib.network.LUNetworkDisconnect.DeclareLocks
+ganeti.cmdlib.node.LUNodeEvacuate.DeclareLocks
+ganeti.cmdlib.operating_system.OsQuery.DeclareLocks
+ganeti.cmdlib.query.LUQuery.DeclareLocks" class="py-name" href="#" onclick="return doclink('link-45', 'DeclareLocks', 'link-45');">DeclareLocks</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"> </tt>
+<a name="LUQuery.Exec"></a><div id="LUQuery.Exec-def"><a name="L83"></a><tt class="py-lineno"> 83</tt> <a class="py-toggle" href="#" id="LUQuery.Exec-toggle" onclick="return toggle('LUQuery.Exec');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQuery-class.html#Exec">Exec</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">feedback_fn</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQuery.Exec-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQuery.Exec-expanded"><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">impl</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name" targets="Method ganeti.cmdlib.base.QueryBase.NewStyleQuery()=ganeti.cmdlib.base.QueryBase-class.html#NewStyleQuery"><a title="ganeti.cmdlib.base.QueryBase.NewStyleQuery" class="py-name" href="#" onclick="return doclink('link-46', 'NewStyleQuery', 'link-46');">NewStyleQuery</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"> </tt>
+<a name="LUQueryFields"></a><div id="LUQueryFields-def"><a name="L87"></a><tt class="py-lineno"> 87</tt> <a class="py-toggle" href="#" id="LUQueryFields-toggle" onclick="return toggle('LUQueryFields');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQueryFields-class.html">LUQueryFields</a><tt class="py-op">(</tt><tt class="py-base-class">NoHooksLU</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQueryFields-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LUQueryFields-expanded"><a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">  <tt class="py-docstring">"""Query for resources/items of a certain kind.</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">  <tt class="py-comment"># pylint: disable=W0142</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">  <tt id="link-47" class="py-name"><a title="ganeti.cmdlib.backup.LUBackupExport.REQ_BGL
+ganeti.cmdlib.backup.LUBackupPrepare.REQ_BGL
+ganeti.cmdlib.backup.LUBackupRemove.REQ_BGL
+ganeti.cmdlib.base.LogicalUnit.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterConfigQuery.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterQuery.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRedistConf.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRenewCrypto.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterRepairDiskSizes.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterSetParams.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerify.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyConfig.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyDisks.REQ_BGL
+ganeti.cmdlib.cluster.LUClusterVerifyGroup.REQ_BGL
+ganeti.cmdlib.group.LUGroupAdd.REQ_BGL
+ganeti.cmdlib.group.LUGroupAssignNodes.REQ_BGL
+ganeti.cmdlib.group.LUGroupEvacuate.REQ_BGL
+ganeti.cmdlib.group.LUGroupRemove.REQ_BGL
+ganeti.cmdlib.group.LUGroupRename.REQ_BGL
+ganeti.cmdlib.group.LUGroupSetParams.REQ_BGL
+ganeti.cmdlib.group.LUGroupVerifyDisks.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceChangeGroup.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceCreate.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceMove.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceMultiAlloc.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceRemove.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceRename.REQ_BGL
+ganeti.cmdlib.instance.LUInstanceSetParams.REQ_BGL
+ganeti.cmdlib.instance_migration.LUInstanceFailover.REQ_BGL
+ganeti.cmdlib.instance_migration.LUInstanceMigrate.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceConsole.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceReboot.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceReinstall.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceShutdown.REQ_BGL
+ganeti.cmdlib.instance_operation.LUInstanceStartup.REQ_BGL
+ganeti.cmdlib.instance_query.LUInstanceQueryData.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceActivateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceDeactivateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceGrowDisk.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceRecreateDisks.REQ_BGL
+ganeti.cmdlib.instance_storage.LUInstanceReplaceDisks.REQ_BGL
+ganeti.cmdlib.misc.LUExtStorageDiagnose.REQ_BGL
+ganeti.cmdlib.misc.LUOobCommand.REQ_BGL
+ganeti.cmdlib.misc.LURestrictedCommand.REQ_BGL
+ganeti.cmdlib.network.LUNetworkAdd.REQ_BGL
+ganeti.cmdlib.network.LUNetworkConnect.REQ_BGL
+ganeti.cmdlib.network.LUNetworkDisconnect.REQ_BGL
+ganeti.cmdlib.network.LUNetworkRemove.REQ_BGL
+ganeti.cmdlib.network.LUNetworkSetParams.REQ_BGL
+ganeti.cmdlib.node.LUNodeEvacuate.REQ_BGL
+ganeti.cmdlib.node.LUNodeMigrate.REQ_BGL
+ganeti.cmdlib.node.LUNodeModifyStorage.REQ_BGL
+ganeti.cmdlib.node.LUNodePowercycle.REQ_BGL
+ganeti.cmdlib.node.LUNodeQueryStorage.REQ_BGL
+ganeti.cmdlib.node.LUNodeQueryvols.REQ_BGL
+ganeti.cmdlib.node.LUNodeSetParams.REQ_BGL
+ganeti.cmdlib.node.LURepairNodeStorage.REQ_BGL
+ganeti.cmdlib.operating_system.LUOsDiagnose.REQ_BGL
+ganeti.cmdlib.query.LUQuery.REQ_BGL
+ganeti.cmdlib.query.LUQueryFields.REQ_BGL
+ganeti.cmdlib.tags.LUTagsDel.REQ_BGL
+ganeti.cmdlib.tags.LUTagsGet.REQ_BGL
+ganeti.cmdlib.tags.LUTagsSearch.REQ_BGL
+ganeti.cmdlib.tags.LUTagsSet.REQ_BGL
+ganeti.cmdlib.test.LUTestDelay.REQ_BGL
+ganeti.cmdlib.test.LUTestJqueue.REQ_BGL" class="py-name" href="#" onclick="return doclink('link-47', 'REQ_BGL', 'link-42');">REQ_BGL</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"> </tt>
+<a name="LUQueryFields.CheckArguments"></a><div id="LUQueryFields.CheckArguments-def"><a name="L94"></a><tt class="py-lineno"> 94</tt> <a class="py-toggle" href="#" id="LUQueryFields.CheckArguments-toggle" onclick="return toggle('LUQueryFields.CheckArguments');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQueryFields-class.html#CheckArguments">CheckArguments</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQueryFields.CheckArguments-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQueryFields.CheckArguments-expanded"><a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">qcls</tt> <tt class="py-op">=</tt> <tt id="link-48" class="py-name"><a title="ganeti.cmdlib.query._GetQueryImplementation" class="py-name" href="#" onclick="return doclink('link-48', '_GetQueryImplementation', 'link-43');">_GetQueryImplementation</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">what</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="LUQueryFields.ExpandNames"></a><div id="LUQueryFields.ExpandNames-def"><a name="L97"></a><tt class="py-lineno"> 97</tt> <a class="py-toggle" href="#" id="LUQueryFields.ExpandNames-toggle" onclick="return toggle('LUQueryFields.ExpandNames');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQueryFields-class.html#ExpandNames">ExpandNames</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQueryFields.ExpandNames-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQueryFields.ExpandNames-expanded"><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">needed_locks</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+</div><a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"> </tt>
+<a name="LUQueryFields.Exec"></a><div id="LUQueryFields.Exec-def"><a name="L100"></a><tt class="py-lineno">100</tt> <a class="py-toggle" href="#" id="LUQueryFields.Exec-toggle" onclick="return toggle('LUQueryFields.Exec');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.cmdlib.query.LUQueryFields-class.html#Exec">Exec</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">feedback_fn</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LUQueryFields.Exec-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="LUQueryFields.Exec-expanded"><a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-49" class="py-name"><a title="ganeti.cmdlib.query
+ganeti.query" class="py-name" href="#" onclick="return doclink('link-49', 'query', 'link-5');">query</a></tt><tt class="py-op">.</tt><tt id="link-50" class="py-name" targets="Method ganeti.luxi.Client.QueryFields()=ganeti.luxi.Client-class.html#QueryFields,Function ganeti.query.QueryFields()=ganeti.query-module.html#QueryFields,Method ganeti.rapi.client.GanetiRapiClient.QueryFields()=ganeti.rapi.client.GanetiRapiClient-class.html#QueryFields"><a title="ganeti.luxi.Client.QueryFields
+ganeti.query.QueryFields
+ganeti.rapi.client.GanetiRapiClient.QueryFields" class="py-name" href="#" onclick="return doclink('link-50', 'QueryFields', 'link-50');">QueryFields</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">qcls</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name" targets="Variable ganeti.cmdlib.base.QueryBase.FIELDS=ganeti.cmdlib.base.QueryBase-class.html#FIELDS,Variable ganeti.cmdlib.cluster.ClusterQuery.FIELDS=ganeti.cmdlib.cluster.ClusterQuery-class.html#FIELDS,Variable ganeti.cmdlib.misc.ExtStorageQuery.FIELDS=ganeti.cmdlib.misc.ExtStorageQuery-class.html#FIELDS,Variable ganeti.cmdlib.operating_system.OsQuery.FIELDS=ganeti.cmdlib.operating_system.OsQuery-class.html#FIELDS"><a title="ganeti.cmdlib.base.QueryBase.FIELDS
+ganeti.cmdlib.cluster.ClusterQuery.FIELDS
+ganeti.cmdlib.misc.ExtStorageQuery.FIELDS
+ganeti.cmdlib.operating_system.OsQuery.FIELDS" class="py-name" href="#" onclick="return doclink('link-51', 'FIELDS', 'link-51');">FIELDS</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">op</tt><tt class="py-op">.</tt><tt class="py-name">fields</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Aug 22 10:43:59 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

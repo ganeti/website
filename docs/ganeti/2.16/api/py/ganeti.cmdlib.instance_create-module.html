@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.cmdlib.instance_create</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.cmdlib-module.html">Package&nbsp;cmdlib</a> ::
+        Module&nbsp;instance_create
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.cmdlib.instance_create-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module instance_create</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.cmdlib.instance_create-pysrc.html">source&nbsp;code</a></span></p>
+<p>Logical unit for creating a single instance.</p>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.cmdlib.instance_create.LUInstanceCreate-class.html" class="summary-name">LUInstanceCreate</a><br />
+      Create an instance.
+    </td>
+  </tr>
+</table>
+<p class="indent-wrapped-lines"><b>Imports:</b>
+  <span title="OpenSSL">OpenSSL</span>,
+  <span title="logging">logging</span>,
+  <span title="os">os</span>,
+  <a href="ganeti.compat-module.html" title="ganeti.compat">compat</a>,
+  <a href="ganeti.constants-module.html" title="ganeti.constants">constants</a>,
+  <a href="ganeti.errors-module.html" title="ganeti.errors">errors</a>,
+  <a href="ganeti.hypervisor-module.html" title="ganeti.hypervisor">hypervisor</a>,
+  <a href="ganeti.locking-module.html" title="ganeti.locking">locking</a>,
+  <a href="ganeti.masterd.iallocator-module.html" title="ganeti.masterd.iallocator">iallocator</a>,
+  <a href="ganeti.masterd-module.html" title="ganeti.masterd">masterd</a>,
+  <a href="ganeti.netutils-module.html" title="ganeti.netutils">netutils</a>,
+  <a href="ganeti.objects-module.html" title="ganeti.objects">objects</a>,
+  <a href="ganeti.pathutils-module.html" title="ganeti.pathutils">pathutils</a>,
+  <a href="ganeti.utils-module.html" title="ganeti.utils">utils</a>,
+  <a href="ganeti.serializer-module.html" title="ganeti.serializer">serializer</a>,
+  <a href="ganeti.cmdlib.base.LogicalUnit-class.html" title="ganeti.cmdlib.base.LogicalUnit">LogicalUnit</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckNodeOnline" title="ganeti.cmdlib.common.CheckNodeOnline">CheckNodeOnline</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckParamsNotGlobal" title="ganeti.cmdlib.common.CheckParamsNotGlobal">CheckParamsNotGlobal</a>,
+  <a href="ganeti.cmdlib.common-module.html#IsExclusiveStorageEnabledNode" title="ganeti.cmdlib.common.IsExclusiveStorageEnabledNode">IsExclusiveStorageEnabledNode</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckHVParams" title="ganeti.cmdlib.common.CheckHVParams">CheckHVParams</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckOSParams" title="ganeti.cmdlib.common.CheckOSParams">CheckOSParams</a>,
+  <a href="ganeti.cmdlib.common-module.html#ExpandNodeUuidAndName" title="ganeti.cmdlib.common.ExpandNodeUuidAndName">ExpandNodeUuidAndName</a>,
+  <a href="ganeti.cmdlib.common-module.html#IsValidDiskAccessModeCombination" title="ganeti.cmdlib.common.IsValidDiskAccessModeCombination">IsValidDiskAccessModeCombination</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckDiskTemplateEnabled" title="ganeti.cmdlib.common.CheckDiskTemplateEnabled">CheckDiskTemplateEnabled</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckIAllocatorOrNode" title="ganeti.cmdlib.common.CheckIAllocatorOrNode">CheckIAllocatorOrNode</a>,
+  <a href="ganeti.cmdlib.common-module.html#CheckOSImage" title="ganeti.cmdlib.common.CheckOSImage">CheckOSImage</a>,
+  <a href="ganeti.cmdlib.instance_helpervm-module.html#RunWithHelperVM" title="ganeti.cmdlib.instance_helpervm.RunWithHelperVM">RunWithHelperVM</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CalculateFileStorageDir" title="ganeti.cmdlib.instance_storage.CalculateFileStorageDir">CalculateFileStorageDir</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CheckNodesFreeDiskPerVG" title="ganeti.cmdlib.instance_storage.CheckNodesFreeDiskPerVG">CheckNodesFreeDiskPerVG</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CheckRADOSFreeSpace" title="ganeti.cmdlib.instance_storage.CheckRADOSFreeSpace">CheckRADOSFreeSpace</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CheckSpindlesExclusiveStorage" title="ganeti.cmdlib.instance_storage.CheckSpindlesExclusiveStorage">CheckSpindlesExclusiveStorage</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#ComputeDiskSizePerVG" title="ganeti.cmdlib.instance_storage.ComputeDiskSizePerVG">ComputeDiskSizePerVG</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CreateDisks" title="ganeti.cmdlib.instance_storage.CreateDisks">CreateDisks</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#GenerateDiskTemplate" title="ganeti.cmdlib.instance_storage.GenerateDiskTemplate">GenerateDiskTemplate</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#CommitDisks" title="ganeti.cmdlib.instance_storage.CommitDisks">CommitDisks</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#WaitForSync" title="ganeti.cmdlib.instance_storage.WaitForSync">WaitForSync</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#ComputeDisks" title="ganeti.cmdlib.instance_storage.ComputeDisks">ComputeDisks</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#ImageDisks" title="ganeti.cmdlib.instance_storage.ImageDisks">ImageDisks</a>,
+  <a href="ganeti.cmdlib.instance_storage-module.html#WipeDisks" title="ganeti.cmdlib.instance_storage.WipeDisks">WipeDisks</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckNodeNotDrained" title="ganeti.cmdlib.instance_utils.CheckNodeNotDrained">CheckNodeNotDrained</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CopyLockList" title="ganeti.cmdlib.instance_utils.CopyLockList">CopyLockList</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#ReleaseLocks" title="ganeti.cmdlib.instance_utils.ReleaseLocks">ReleaseLocks</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckNodeVmCapable" title="ganeti.cmdlib.instance_utils.CheckNodeVmCapable">CheckNodeVmCapable</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#RemoveDisks" title="ganeti.cmdlib.instance_utils.RemoveDisks">RemoveDisks</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckNodeFreeMemory" title="ganeti.cmdlib.instance_utils.CheckNodeFreeMemory">CheckNodeFreeMemory</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#UpdateMetadata" title="ganeti.cmdlib.instance_utils.UpdateMetadata">UpdateMetadata</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckForConflictingIp" title="ganeti.cmdlib.instance_utils.CheckForConflictingIp">CheckForConflictingIp</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#ComputeInstanceCommunicationNIC" title="ganeti.cmdlib.instance_utils.ComputeInstanceCommunicationNIC">ComputeInstanceCommunicationNIC</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#ComputeIPolicyInstanceSpecViolation" title="ganeti.cmdlib.instance_utils.ComputeIPolicyInstanceSpecViolation">ComputeIPolicyInstanceSpecViolation</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckHostnameSane" title="ganeti.cmdlib.instance_utils.CheckHostnameSane">CheckHostnameSane</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckOpportunisticLocking" title="ganeti.cmdlib.instance_utils.CheckOpportunisticLocking">CheckOpportunisticLocking</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#ComputeFullBeParams" title="ganeti.cmdlib.instance_utils.ComputeFullBeParams">ComputeFullBeParams</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#ComputeNics" title="ganeti.cmdlib.instance_utils.ComputeNics">ComputeNics</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#GetClusterDomainSecret" title="ganeti.cmdlib.instance_utils.GetClusterDomainSecret">GetClusterDomainSecret</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckInstanceExistence" title="ganeti.cmdlib.instance_utils.CheckInstanceExistence">CheckInstanceExistence</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CreateInstanceAllocRequest" title="ganeti.cmdlib.instance_utils.CreateInstanceAllocRequest">CreateInstanceAllocRequest</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#BuildInstanceHookEnv" title="ganeti.cmdlib.instance_utils.BuildInstanceHookEnv">BuildInstanceHookEnv</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#NICListToTuple" title="ganeti.cmdlib.instance_utils.NICListToTuple">NICListToTuple</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckNicsBridgesExist" title="ganeti.cmdlib.instance_utils.CheckNicsBridgesExist">CheckNicsBridgesExist</a>,
+  <a href="ganeti.cmdlib.instance_utils-module.html#CheckCompressionTool" title="ganeti.cmdlib.instance_utils.CheckCompressionTool">CheckCompressionTool</a>,
+  <a href="ganeti-module.html" title="ganeti">ganeti</a>
+</p><br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Apr 12 13:38:34 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

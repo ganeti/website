@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti-confd &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="ganeti-extstorage-interface" href="man-ganeti-extstorage-interface.html" />
+    <link rel="prev" title="ganeti-cleaner" href="man-ganeti-cleaner.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-extstorage-interface.html" title="ganeti-extstorage-interface"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-cleaner.html" title="ganeti-cleaner"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-confd">
+<h1>ganeti-confd<a class="headerlink" href="#ganeti-confd" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti-confd - Ganeti conf daemon</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>ganeti-confd</strong> [-f] [-d]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><strong>ganeti-confd</strong> is a daemon used to answer queries related to the
+configuration of a Ganeti cluster.</p>
+<p>For testing purposes, you can give the <tt class="docutils literal"><span class="pre">-f</span></tt> option and the
+program won&#8217;t detach from the running terminal.</p>
+<p>Debug-level message can be activated by giving the <tt class="docutils literal"><span class="pre">-d</span></tt> option.</p>
+<p>Logging to syslog, rather than its own log file, can be enabled by
+passing in the <tt class="docutils literal"><span class="pre">--syslog</span></tt> option.</p>
+<p>The <strong>ganeti-confd</strong> daemon listens to port 1814 UDP, on all interfaces,
+by default. The port can be overridden by an entry the services database
+(usually <tt class="docutils literal"><span class="pre">/etc/services</span></tt>) or by passing the <tt class="docutils literal"><span class="pre">-p</span></tt> option.  The <tt class="docutils literal"><span class="pre">-b</span></tt>
+option can be used to specify the address to bind to (defaults to
+<tt class="docutils literal"><span class="pre">0.0.0.0</span></tt>).</p>
+<p>The daemon will refuse to start if the user and group do not match the
+one defined at build time; this behaviour can be overridden by the
+<tt class="docutils literal"><span class="pre">--no-user-checks</span></tt> option.</p>
+<div class="section" id="role">
+<h3>ROLE<a class="headerlink" href="#role" title="Permalink to this headline">¶</a></h3>
+<p>The role of the conf daemon is to make sure we have a highly available
+and very fast way to query cluster configuration values.  This daemon
+is automatically active on all master candidates, and so has no single
+point of failure. It communicates via UDP so each query can easily be
+sent to multiple servers, and it answers queries from a cached copy of
+the config it keeps in memory, so no disk access is required to get an
+answer.</p>
+<p>The config is reloaded from disk automatically when it changes, with a
+rate limit of once per second.</p>
+<p>If the conf daemon is stopped on all nodes, its clients won&#8217;t be able
+to get query answers.</p>
+</div>
+<div class="section" id="communication-protocol">
+<h3>COMMUNICATION PROTOCOL<a class="headerlink" href="#communication-protocol" title="Permalink to this headline">¶</a></h3>
+<p>The confd protocol is an HMAC authenticated json-encoded custom
+format, over UDP. A client library is provided to make it easy to
+write software to query confd. More information can be found in the
+Ganeti 2.1 design doc, and an example usage can be seen in the
+(external) NBMA daemon for Ganeti.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti-confd</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#role">ROLE</a></li>
+<li><a class="reference internal" href="#communication-protocol">COMMUNICATION PROTOCOL</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-cleaner.html"
+                        title="previous chapter">ganeti-cleaner</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-ganeti-extstorage-interface.html"
+                        title="next chapter">ganeti-extstorage-interface</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti-confd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-extstorage-interface.html" title="ganeti-extstorage-interface"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-cleaner.html" title="ganeti-cleaner"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

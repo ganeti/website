@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Ganeti.Kvmd</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Ganeti-Kvmd.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="Ganeti/Kvmd.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">ganeti</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>Safe-Infered</td></tr></table><p class="caption">Ganeti.Kvmd</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">Utils
+</a></li><li><a href="#g:2">Monitors for Qmp sockets
+</a></li><li><a href="#g:3">Directory and file watching
+</a></li><li><a href="#g:4">Starting point
+</a></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>KVM daemon
+</p><p>The KVM daemon is responsible for determining whether a given KVM
+instance was shutdown by an administrator or a user.  For more
+information read the design document on the KVM daemon.
+</p><p>The KVM daemon design is split in 2 parts, namely, monitors for Qmp
+sockets and directory/file watching.
+</p><p>The monitors are spawned in lightweight Haskell threads and are
+reponsible for handling the communication between the KVM daemon and
+the KVM instance using the Qmp protocol.  During the communcation, the
+monitor parses the Qmp messages and if powerdown or shutdown is
+received, then the shutdown file is written in the KVM control
+directory.  Otherwise, when the communication terminates, that same
+file is removed.  The communication terminates when the KVM instance
+stops or crashes.
+</p><p>The directory and file watching uses inotify to track down events on
+the KVM control directory and its parents.  There is a directory
+crawler that will try to add a watch to the KVM control directory if
+available or its parents, thus replacing watches until the KVM control
+directory becomes available.  When this happens, a monitor for the Qmp
+socket is spawned.  Given that the KVM daemon might stop or crash, the
+directory watching also simulates events for the Qmp sockets that
+already exist in the KVM control directory when the KVM daemon starts.
+</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><span class="keyword">type</span> <a href="#t:Lock">Lock</a> = MVar ()</li><li class="src short"><span class="keyword">type</span> <a href="#t:Monitors">Monitors</a> = MVar (Set FilePath)</li><li class="src short"><a href="#v:isPrefixPath">isPrefixPath</a> :: FilePath -&gt; FilePath -&gt; Bool</li><li class="src short"><a href="#v:monitorGreeting">monitorGreeting</a> :: String</li><li class="src short"><a href="#v:monitorDir">monitorDir</a> :: String</li><li class="src short"><a href="#v:monitorExtension">monitorExtension</a> :: String</li><li class="src short"><a href="#v:isMonitorPath">isMonitorPath</a> :: FilePath -&gt; Bool</li><li class="src short"><a href="#v:shutdownExtension">shutdownExtension</a> :: String</li><li class="src short"><a href="#v:shutdownPath">shutdownPath</a> :: String -&gt; String</li><li class="src short"><a href="#v:touchFile">touchFile</a> :: FilePath -&gt; IO ()</li><li class="src short"><a href="#v:parseQmp">parseQmp</a> :: Bool -&gt; Bool -&gt; Bool -&gt; String -&gt; (Bool, Bool, Bool)</li><li class="src short"><a href="#v:receiveQmp">receiveQmp</a> :: Handle -&gt; IO Bool</li><li class="src short"><a href="#v:detectMonitor">detectMonitor</a> :: FilePath -&gt; Handle -&gt; IO ()</li><li class="src short"><a href="#v:runMonitor">runMonitor</a> :: FilePath -&gt; IO ()</li><li class="src short"><a href="#v:ensureMonitor">ensureMonitor</a> :: <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; FilePath -&gt; IO ()</li><li class="src short"><a href="#v:handleGenericEvent">handleGenericEvent</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; String -&gt; String -&gt; Event -&gt; IO ()</li><li class="src short"><a href="#v:handleTargetEvent">handleTargetEvent</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; String -&gt; Event -&gt; IO ()</li><li class="src short"><a href="#v:handleDir">handleDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; String -&gt; String -&gt; Event -&gt; IO ()</li><li class="src short"><a href="#v:recapDir">recapDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; FilePath -&gt; IO ()</li><li class="src short"><a href="#v:watchDir">watchDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; FilePath -&gt; INotify -&gt; IO ()</li><li class="src short"><a href="#v:rewatchDir">rewatchDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; FilePath -&gt; INotify -&gt; IO ()</li><li class="src short"><a href="#v:startWith">startWith</a> :: FilePath -&gt; IO ()</li><li class="src short"><a href="#v:start">start</a> :: IO ()</li></ul></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src"><span class="keyword">type</span> <a name="t:Lock" class="def">Lock</a> = MVar ()<a href="Ganeti/Kvmd.html#Lock" class="link">Source</a></p></div><div class="top"><p class="src"><span class="keyword">type</span> <a name="t:Monitors" class="def">Monitors</a> = MVar (Set FilePath)<a href="Ganeti/Kvmd.html#Monitors" class="link">Source</a></p></div><h1 id="g:1">Utils
+</h1><div class="top"><p class="src"><a name="v:isPrefixPath" class="def">isPrefixPath</a> :: FilePath -&gt; FilePath -&gt; Bool<a href="Ganeti/Kvmd.html#isPrefixPath" class="link">Source</a></p><div class="doc"><p><code>isPrefixPath x y</code> determines whether <code>x</code> is a <code>FilePath</code> prefix
+ of <code>FilePath</code> <code>y</code>.
+</p></div></div><div class="top"><p class="src"><a name="v:monitorGreeting" class="def">monitorGreeting</a> :: String<a href="Ganeti/Kvmd.html#monitorGreeting" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:monitorDir" class="def">monitorDir</a> :: String<a href="Ganeti/Kvmd.html#monitorDir" class="link">Source</a></p><div class="doc"><p>KVM control directory containing the Qmp sockets.
+</p></div></div><div class="top"><p class="src"><a name="v:monitorExtension" class="def">monitorExtension</a> :: String<a href="Ganeti/Kvmd.html#monitorExtension" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:isMonitorPath" class="def">isMonitorPath</a> :: FilePath -&gt; Bool<a href="Ganeti/Kvmd.html#isMonitorPath" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:shutdownExtension" class="def">shutdownExtension</a> :: String<a href="Ganeti/Kvmd.html#shutdownExtension" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:shutdownPath" class="def">shutdownPath</a> :: String -&gt; String<a href="Ganeti/Kvmd.html#shutdownPath" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:touchFile" class="def">touchFile</a> :: FilePath -&gt; IO ()<a href="Ganeti/Kvmd.html#touchFile" class="link">Source</a></p></div><h1 id="g:2">Monitors for Qmp sockets
+</h1><div class="top"><p class="src"><a name="v:parseQmp" class="def">parseQmp</a> :: Bool -&gt; Bool -&gt; Bool -&gt; String -&gt; (Bool, Bool, Bool)<a href="Ganeti/Kvmd.html#parseQmp" class="link">Source</a></p><div class="doc"><p><code>parseQmp isPowerdown isShutdown isStop str</code> parses the packet
+ <code>str</code> and returns whether a powerdown, shutdown, or stop event is
+ contained in that packet, defaulting to the values <code>isPowerdown</code>,
+ <code>isShutdown</code>, and <code>isStop</code>, otherwise.
+</p></div></div><div class="top"><p class="src"><a name="v:receiveQmp" class="def">receiveQmp</a> :: Handle -&gt; IO Bool<a href="Ganeti/Kvmd.html#receiveQmp" class="link">Source</a></p><div class="doc"><p><code>receiveQmp handle</code> listens for Qmp events on <code>handle</code> and, when
+ <code>handle</code> is closed, it returns <code>True</code> if a user shutdown event was
+ received, and <code>False</code> otherwise.
+</p></div></div><div class="top"><p class="src"><a name="v:detectMonitor" class="def">detectMonitor</a> :: FilePath -&gt; Handle -&gt; IO ()<a href="Ganeti/Kvmd.html#detectMonitor" class="link">Source</a></p><div class="doc"><p><code>detectMonitor monitorFile handle</code> listens for Qmp events on
+ <code>handle</code> for Qmp socket <code>monitorFile</code> and, when communcation
+ terminates, it either creates the shutdown file, if a user shutdown
+ was detected, or it deletes that same file, if an administrator
+ shutdown was detected.
+</p></div></div><div class="top"><p class="src"><a name="v:runMonitor" class="def">runMonitor</a> :: FilePath -&gt; IO ()<a href="Ganeti/Kvmd.html#runMonitor" class="link">Source</a></p><div class="doc"><p><code>runMonitor monitorFile</code> creates a monitor for the Qmp socket
+ <code>monitorFile</code> and calls <code><a href="Ganeti-Kvmd.html#v:detectMonitor">detectMonitor</a></code>.
+</p></div></div><div class="top"><p class="src"><a name="v:ensureMonitor" class="def">ensureMonitor</a> :: <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; FilePath -&gt; IO ()<a href="Ganeti/Kvmd.html#ensureMonitor" class="link">Source</a></p><div class="doc"><p><code>ensureMonitor monitors monitorFile</code> ensures that there is
+ exactly one monitor running for the Qmp socket <code>monitorFile</code>, given
+ the existing set of monitors <code>monitors</code>.
+</p></div></div><h1 id="g:3">Directory and file watching
+</h1><div class="top"><p class="src"><a name="v:handleGenericEvent" class="def">handleGenericEvent</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; String -&gt; String -&gt; Event -&gt; IO ()<a href="Ganeti/Kvmd.html#handleGenericEvent" class="link">Source</a></p><div class="doc"><p>Handles an inotify event outside the target directory.
+</p><p>Tracks events on the parent directory of the KVM control directory
+ until one of its parents becomes available.
+</p></div></div><div class="top"><p class="src"><a name="v:handleTargetEvent" class="def">handleTargetEvent</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; String -&gt; Event -&gt; IO ()<a href="Ganeti/Kvmd.html#handleTargetEvent" class="link">Source</a></p><div class="doc"><p>Handles an inotify event in the target directory.
+</p><p>Upon a create or open event inside the KVM control directory, it
+ ensures that there is a monitor running for the new Qmp socket.
+</p></div></div><div class="top"><p class="src"><a name="v:handleDir" class="def">handleDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; String -&gt; String -&gt; Event -&gt; IO ()<a href="Ganeti/Kvmd.html#handleDir" class="link">Source</a></p><div class="doc"><p>Dispatches inotify events depending on the directory they occur in.
+</p></div></div><div class="top"><p class="src"><a name="v:recapDir" class="def">recapDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; <a href="Ganeti-Kvmd.html#t:Monitors">Monitors</a> -&gt; FilePath -&gt; IO ()<a href="Ganeti/Kvmd.html#recapDir" class="link">Source</a></p><div class="doc"><p>Simulates file creation events for the Qmp sockets that already
+ exist in <code>dir</code>.
+</p></div></div><div class="top"><p class="src"><a name="v:watchDir" class="def">watchDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; FilePath -&gt; INotify -&gt; IO ()<a href="Ganeti/Kvmd.html#watchDir" class="link">Source</a></p><div class="doc"><p>Crawls <code>tarDir</code>, or its parents until <code>tarDir</code> becomes available,
+ always listening for inotify events.
+</p><p>Used for crawling the KVM control directory and its parents, as
+ well as simulating file creation events.
+</p></div></div><div class="top"><p class="src"><a name="v:rewatchDir" class="def">rewatchDir</a> :: <a href="Ganeti-Kvmd.html#t:Lock">Lock</a> -&gt; FilePath -&gt; INotify -&gt; IO ()<a href="Ganeti/Kvmd.html#rewatchDir" class="link">Source</a></p></div><h1 id="g:4">Starting point
+</h1><div class="top"><p class="src"><a name="v:startWith" class="def">startWith</a> :: FilePath -&gt; IO ()<a href="Ganeti/Kvmd.html#startWith" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:start" class="def">start</a> :: IO ()<a href="Ganeti/Kvmd.html#start" class="link">Source</a></p></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.10.0</p></div></body></html>

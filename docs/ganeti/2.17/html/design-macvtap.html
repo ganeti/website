@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MacVTap support &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="KVM + SCSI" href="design-scsi-kvm.html" />
+    <link rel="prev" title="HTools support for multiple storage units per node" href="design-multi-storage-htools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-scsi-kvm.html" title="KVM + SCSI"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-multi-storage-htools.html" title="HTools support for multiple storage units per node"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="macvtap-support">
+<h1><a class="toc-backref" href="#id1">MacVTap support</a><a class="headerlink" href="#macvtap-support" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#macvtap-support" id="id1">MacVTap support</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#background" id="id3">Background</a><ul>
+<li><a class="reference internal" href="#macvtap-modes-of-operation" id="id4">MacVTap modes of operation</a></li>
+<li><a class="reference internal" href="#macvtap-internals" id="id5">MacVTap internals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#proposed-changes" id="id6">Proposed changes</a><ul>
+<li><a class="reference internal" href="#configuration-changes" id="id7">Configuration changes</a></li>
+<li><a class="reference internal" href="#hypervisor-changes" id="id8">Hypervisor changes</a></li>
+<li><a class="reference internal" href="#tools-changes" id="id9">Tools changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the implementation of <cite>MacVTap</cite>
+support in Ganeti. The initial implementation targets the KVM
+hypervisor, but it is intended to be ported to the XEN hypervisor as
+well.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, Ganeti provides a number of options for networking a virtual
+machine, that are the <tt class="docutils literal"><span class="pre">bridged</span></tt>, <tt class="docutils literal"><span class="pre">routed</span></tt>, and <tt class="docutils literal"><span class="pre">openvswitch</span></tt>
+modes.  <tt class="docutils literal"><span class="pre">MacVTap</span></tt>, is another virtual network interface in Linux, that
+is not supported by Ganeti and that could be added to the currently
+supported solutions. It is an interface that acts as a regular TUN/TAP
+device, and thus it is transparently supported by QEMU. Because of its
+design, it can greatly simplify Ganeti setups using bridged instances.</p>
+<p>In brief, the MacVTap interface is based on the <tt class="docutils literal"><span class="pre">MacVLan</span></tt> Linux
+driver, which basically allows a single physical interface to be
+associated with multiple IPs and MAC addresses. It is meant to replace
+the combination of the TUN/TAP and bridge drivers with a more
+lightweight setup that doesn&#8217;t require any extra configuration on the
+host. MacVTap driver is supposed to be more efficient than using a
+regular bridge.  Unlike bridges, it doesn&#8217;t need to do STP or to
+discover/learn MAC addresses of other connected devices on a given
+domain, as it it knows every MAC address it can receive. In fact, it
+introduces a bridge-like behavior for virtual machines but without the
+need to have a real bridge setup on the host. Instead, each virtual
+interface extends an existing network device by attaching directly to
+it, having its own MAC address, and providing a separate virtual
+interface to be used by the userspace processes. The MacVTap MAC address
+is used on the external network and the guest OS cannot spoof or change
+that address.</p>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id3">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>This section provides some extra information for the MacVTap interface,
+that we took into account for the rest of this design document.</p>
+<div class="section" id="macvtap-modes-of-operation">
+<h3><a class="toc-backref" href="#id4">MacVTap modes of operation</a><a class="headerlink" href="#macvtap-modes-of-operation" title="Permalink to this headline">¶</a></h3>
+<p>A MacVTap device can operate in one of four modes, just like the MacVLan
+driver does. These modes determine how the tap endpoints communicate
+between each other providing various levels of isolation between them.
+Those modes are the following:</p>
+<ul class="simple">
+<li><cite>VEPA (Virtual Ethernet Port Aggregator) mode</cite>: The default mode that
+is compatible with virtualization-enabled switches. The communication
+between endpoints on the same lower device, happens through the
+external switch.</li>
+<li><cite>Bridge mode</cite>: It works almost like a traditional bridge, connecting
+all endpoints directly to each other.</li>
+<li><cite>Private mode</cite>: An endpoint in this mode can never communicate to any
+other endpoint on the same lower device.</li>
+<li><cite>Passthru mode</cite>: This mode was added later to work on some limitations
+on MacVLans (more details <a class="reference external" href="http://thread.gmane.org/gmane.comp.emulators.kvm.devel/61824/)">here</a>).</li>
+</ul>
+</div>
+<div class="section" id="macvtap-internals">
+<h3><a class="toc-backref" href="#id5">MacVTap internals</a><a class="headerlink" href="#macvtap-internals" title="Permalink to this headline">¶</a></h3>
+<p>The creation of a MacVTap device is <em>not</em> done by opening the
+<cite>/dev/net/tun</cite> device and issuing a corresponding <cite>ioctl()</cite> to register
+a network device as happens in tap devices. Instead, there are two ways
+to create a MacVTap device. The first one is using the <cite>rtnetlink(7)</cite>
+interface directly, just like the <cite>libvirt</cite> or the <cite>iproute2</cite> utilities
+do, and the second one is to use the high-level <cite>ip-link</cite> command. Since
+creating a MacVTap interface programmatically using the netlink protocol
+is a bit more complicated than creating a normal TUN/TAP device, we
+propose using the ip-link tool for the MacVTap handling, which it is
+much simpler and straightforward in use, and also fulfills all our
+needs. Additionally, since Ganeti already depends on <cite>iproute2</cite> being
+installed in the system, this does not introduces an extra dependency.</p>
+<p>The following example, creates a MacVTap device using the <cite>ip-link</cite>
+tool, named <cite>macvtap0</cite>, operating in <cite>bridge</cite> mode, and which is using
+<cite>eth0</cite> as its lower device:</p>
+<div class="highlight-python"><pre>ip link add link eth0 name macvtap0 address 1a:36:1b:aa:b3:77 type macvtap mode bridge</pre>
+</div>
+<p>Once a MacVTap interface is created, an actual character device appears
+under <cite>/dev</cite>, called <tt class="docutils literal"><span class="pre">/dev/tapXX</span></tt>, where <tt class="docutils literal"><span class="pre">XX</span></tt> is the interface index
+of the device.</p>
+</div>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id6">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>In order to be able to create instances using the MacVTap device driver,
+we propose some modifications that affect the <tt class="docutils literal"><span class="pre">nicparams</span></tt> slot of the
+Ganeti&#8217;s configuration <tt class="docutils literal"><span class="pre">NIC</span></tt> object, and also the code part regarding
+to the KVM hypervisor, as detailed in the following sections.</p>
+<div class="section" id="configuration-changes">
+<h3><a class="toc-backref" href="#id7">Configuration changes</a><a class="headerlink" href="#configuration-changes" title="Permalink to this headline">¶</a></h3>
+<p>The nicparams <tt class="docutils literal"><span class="pre">mode</span></tt> attribute will be extended to support the
+<tt class="docutils literal"><span class="pre">macvtap</span></tt> mode. When using the MacVTap mode, the <tt class="docutils literal"><span class="pre">link</span></tt> attribute
+will specify the network device where the MacVTap interfaces will be
+attached to, the <em>lower device</em>. Note that the lower device should
+exists, otherwise the operation will fail. If no link is specified, the
+cluster-wide default NIC <cite>link</cite> param will be used instead.</p>
+<p>We propose the MacVTap mode to be configurable, and so the nicparams
+object will be extended with an extra slot named <tt class="docutils literal"><span class="pre">mvtap_mode</span></tt>. This
+parameter will only be used if the network mode is set to MacVTap since
+it does not make sense in other modes, similarly to the <cite>vlan</cite> slot of
+the <cite>openvswitch</cite> mode.</p>
+<p>Below there is a snippet of some of the <tt class="docutils literal"><span class="pre">gnt-network</span></tt> commands&#8217;
+output:</p>
+<div class="section" id="network-connection">
+<h4>Network connection<a class="headerlink" href="#network-connection" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>gnt-network connect -N mode=macvtap,link=eth0,mvtap_mode=bridge vtap-net vtap_group</pre>
+</div>
+</div>
+<div class="section" id="network-listing">
+<h4>Network listing<a class="headerlink" href="#network-listing" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>gnt-network list
+
+Network  Subnet           Gateway       MacPrefix GroupList
+br-net   10.48.1.0/24     10.48.1.254   -         default (bridged, br0, , )
+vtap-net 192.168.100.0/24 192.168.100.1 -         vtap_group (macvtap, eth0, , bridge)</pre>
+</div>
+</div>
+<div class="section" id="network-information">
+<h4>Network information<a class="headerlink" href="#network-information" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><pre>gnt-network info
+
+Network name: vtap-net
+UUID: 4f139b48-3f08-46b1-911f-d37de7e12dcf
+Serial number: 1
+Subnet: 192.168.100.0/28
+Gateway: 192.168.100.1
+IPv6 Subnet: 2001:db8:2ffc::/64
+IPv6 Gateway: 2001:db8:2ffc::1
+Mac Prefix: None
+size: 16
+free: 10 (62.50%)
+usage map:
+      0 XXXXX..........X                                   63
+       (X) used    (.) free
+externally reserved IPs:
+  192.168.100.0, 192.168.100.1, 192.168.100.15
+connected to node groups:
+  vtap_group (mode:macvtap link:eth0 vlan: mvtap_mode:bridge)
+used by 2 instances:
+  inst1.example.com: 0:192.168.100.2
+  inst2.example.com: 0:192.168.100.3</pre>
+</div>
+</div>
+</div>
+<div class="section" id="hypervisor-changes">
+<h3><a class="toc-backref" href="#id8">Hypervisor changes</a><a class="headerlink" href="#hypervisor-changes" title="Permalink to this headline">¶</a></h3>
+<p>A new method will be introduced in the KVM&#8217;s <cite>netdev.py</cite> module, named
+<tt class="docutils literal"><span class="pre">OpenVTap</span></tt>, similar to the <tt class="docutils literal"><span class="pre">OpenTap</span></tt> method, that will be
+responsible for creating a MacVTap device using the <cite>ip-link</cite> command,
+and returning its file descriptor. The <tt class="docutils literal"><span class="pre">OpenVtap</span></tt> method will receive
+as arguments the network&#8217;s <cite>link</cite>, the mode of the MacVTap device
+(<tt class="docutils literal"><span class="pre">mvtap_mode</span></tt>), and also the <tt class="docutils literal"><span class="pre">interface</span> <span class="pre">name</span></tt> of the device to be
+created, otherwise we will not be able to retrieve it, and so opening
+the created device.</p>
+<p>Since we want the names among the MacVTap devices to be unique on the
+same node, we will make use of the existing <tt class="docutils literal"><span class="pre">_GenerateKvmTapName</span></tt>
+method to generate device names but with some modifications, to be
+adapted to our needs. This method is actually a wrapper over the
+<tt class="docutils literal"><span class="pre">GenerateTapName</span></tt> method which currently is being used to generate TAP
+interface names for NICs meant to be used in instance communication
+using the <tt class="docutils literal"><span class="pre">gnt.com</span></tt> prefix. We propose extending this method to
+generate names for the MacVTap interface too, using the <tt class="docutils literal"><span class="pre">vtap</span></tt> prefix.
+To do so, we could add an extra boolean argument in that method, named
+<cite>inst_comm</cite>, to differentiate the two cases, so that the method will
+return the appropriate name depending on its usage. This argument will
+be optional and defaulted to <cite>True</cite>, to not affect the existing API.</p>
+<p>Currently, the <cite>OpenTap</cite> method handles the <cite>vhost-net</cite>, <cite>mq</cite>, and the
+<cite>vnet_hdr</cite> features. The <cite>vhost-net</cite> feature will be normally supported
+for the MacVTap devices too, and so is the <cite>multiqueue</cite> feature, which
+can be enabled using the <cite>numrxqueues</cite> and <cite>numtxqueues</cite> parameters of
+the <cite>ip-link</cite> command. The only drawback seems to be the <cite>vnet_hdr</cite>
+feature modification. For a MacVTap device this flag is enabled by
+default, and it can not be disabled if a user requests to.</p>
+<p>A last hypervisor change will be the introduction of a new method named
+<tt class="docutils literal"><span class="pre">_RemoveStaleMacvtapDevs</span></tt> that will remove any remaining MacVTap
+devices, and which is detailed in the following section.</p>
+</div>
+<div class="section" id="tools-changes">
+<h3><a class="toc-backref" href="#id9">Tools changes</a><a class="headerlink" href="#tools-changes" title="Permalink to this headline">¶</a></h3>
+<p>Some of the Ganeti tools should also be extended to support MacVTap
+devices. Those are the <tt class="docutils literal"><span class="pre">kvm-ifup</span></tt> and <tt class="docutils literal"><span class="pre">net-common</span></tt> scripts. These
+modifications will include a new method named <tt class="docutils literal"><span class="pre">setup_macvtap</span></tt> that
+will simply change the device status to <cite>UP</cite> just before and instance is
+started:</p>
+<div class="highlight-python"><pre>ip link set $INTERFACE up</pre>
+</div>
+<p>As mentioned in the <cite>Background</cite> section, MacVTap devices are
+persistent. So, we have to manually delete the MacVTap device after an
+instance shutdown. To do so, we propose creating a <tt class="docutils literal"><span class="pre">kvm-ifdown</span></tt>
+script, that will be invoked after an instance shutdown in order to
+remove the relevant MacVTap devices. The <tt class="docutils literal"><span class="pre">kvm-ifdown</span></tt> script should
+explicitly call the following commands and currently will be functional
+for MacVTap NICs only:</p>
+<div class="highlight-python"><pre>ip link set $INTERFACE down
+ip link delete $INTERFACE</pre>
+</div>
+<p>To be able to call the <cite>kvm-ifdown</cite> script we should extend the KVM&#8217;s
+<tt class="docutils literal"><span class="pre">_ConfigureNIC</span></tt> method with an extra argument that is the name of the
+script to be invoked, instead of calling by default the <cite>kvm-ifup</cite>
+script, as it currently happens.</p>
+<p>The invocation of the <cite>kvm-ifdown</cite> script will be made through a
+separate method that we will create, named <tt class="docutils literal"><span class="pre">_RemoveStaleMacvtapDevs</span></tt>.
+This method will read the NIC runtime files of an instance and will
+remove any devices using the MacVTap interface. This method will be
+included in the <tt class="docutils literal"><span class="pre">CleanupInstance</span></tt> method in order to cover all the
+cases where an instance using MacVTap NICs needs to be cleaned up.</p>
+<p>Besides the instance shutdown, there are a couple of cases where the
+MacVTap NICs will need to be cleaned up too. In case of an internal
+instance shutdown, where the <tt class="docutils literal"><span class="pre">kvmd</span></tt> is not enabled, the instance will
+be in <tt class="docutils literal"><span class="pre">ERROR_DOWN</span></tt> state. In that case, when the instance is started
+either by the <cite>ganeti-watcher</cite> or by the admin, the <tt class="docutils literal"><span class="pre">CleanupInstance</span></tt>
+method, and consequently the <cite>kvm-ifdown</cite> script, will not be called and
+so the MacVTap NICs will have to manually be deleted. Otherwise starting
+the instance will result in more than one MacVTap devices using the same
+MAC address. An instance migration is another case where deleting an
+instance will keep stale MacVTap devices on the source node.  In order
+to solve those potential issues, we will explicitly call the
+<tt class="docutils literal"><span class="pre">_RemoveStaleMacvtapDevs</span></tt> method after a successful instance migration
+on the source node, and also before creating a new device for a NIC that
+is using the MacVTap interface to remove any stale devices.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">MacVTap support</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#background">Background</a><ul>
+<li><a class="reference internal" href="#macvtap-modes-of-operation">MacVTap modes of operation</a></li>
+<li><a class="reference internal" href="#macvtap-internals">MacVTap internals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#configuration-changes">Configuration changes</a><ul>
+<li><a class="reference internal" href="#network-connection">Network connection</a></li>
+<li><a class="reference internal" href="#network-listing">Network listing</a></li>
+<li><a class="reference internal" href="#network-information">Network information</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hypervisor-changes">Hypervisor changes</a></li>
+<li><a class="reference internal" href="#tools-changes">Tools changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-multi-storage-htools.html"
+                        title="previous chapter">HTools support for multiple storage units per node</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-scsi-kvm.html"
+                        title="next chapter">KVM + SCSI</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-macvtap.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-scsi-kvm.html" title="KVM + SCSI"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-multi-storage-htools.html" title="HTools support for multiple storage units per node"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

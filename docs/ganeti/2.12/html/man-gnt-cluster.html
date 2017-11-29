@@ -1,0 +1,1128 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gnt-cluster &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-debug" href="man-gnt-debug.html" />
+    <link rel="prev" title="gnt-backup" href="man-gnt-backup.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-debug.html" title="gnt-debug"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-gnt-backup.html" title="gnt-backup"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gnt-cluster">
+<h1>gnt-cluster<a class="headerlink" href="#gnt-cluster" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>gnt-cluster - Ganeti administration, cluster-wide</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>gnt-cluster</strong> {command} [arguments...]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>gnt-cluster</strong> is used for cluster-wide administration in the
+Ganeti system.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="activate-master-ip">
+<h3>ACTIVATE-MASTER-IP<a class="headerlink" href="#activate-master-ip" title="Permalink to this headline">¶</a></h3>
+<p><strong>activate-master-ip</strong></p>
+<p>Activates the master IP on the master node.</p>
+</div>
+<div class="section" id="command">
+<h3>COMMAND<a class="headerlink" href="#command" title="Permalink to this headline">¶</a></h3>
+<p><strong>command</strong> [-n <em>node</em>] [-g <em>group</em>] [-M] {<em>command</em>}</p>
+<p>Executes a command on all nodes. This command is designed for simple
+usage. For more complex use cases the commands <strong>dsh</strong>(1) or <strong>cssh</strong>(1)
+should be used instead.</p>
+<p>If the option <tt class="docutils literal"><span class="pre">-n</span></tt> is not given, the command will be executed on all
+nodes, otherwise it will be executed only on the node(s) specified. Use
+the option multiple times for running it on multiple nodes, like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-cluster command -n node1.example.com -n node2.example.com date</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-g</span></tt> option can be used to run a command only on a specific node
+group, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-cluster command -g default date</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-M</span></tt> option can be used to prepend the node name to all output
+lines. The <tt class="docutils literal"><span class="pre">--failure-only</span></tt> option hides successful commands, making
+it easier to see failures.</p>
+<p>The command is executed serially on the selected nodes. If the
+master node is present in the list, the command will be executed
+last on the master. Regarding the other nodes, the execution order
+is somewhat alphabetic, so that node2.example.com will be earlier
+than node10.example.com but after node1.example.com.</p>
+<p>So given the node names node1, node2, node3, node10, node11, with
+node3 being the master, the order will be: node1, node2, node10,
+node11, node3.</p>
+<p>The command is constructed by concatenating all other command line
+arguments. For example, to list the contents of the /etc directory
+on all nodes, run:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-cluster command ls -l /etc</span>
+</pre></div>
+</div>
+<p>and the command which will be executed will be <tt class="docutils literal"><span class="pre">ls</span> <span class="pre">-l</span> <span class="pre">/etc</span></tt>.</p>
+</div>
+<div class="section" id="copyfile">
+<h3>COPYFILE<a class="headerlink" href="#copyfile" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>copyfile</strong> [&#8211;use-replication-network] [-n <em>node</em>] [-g <em>group</em>]</div>
+<div class="line">{<em>file</em>}</div>
+</div>
+<p>Copies a file to all or to some nodes. The argument specifies the
+source file (on the current system), the <tt class="docutils literal"><span class="pre">-n</span></tt> argument specifies
+the target node, or nodes if the option is given multiple times. If
+<tt class="docutils literal"><span class="pre">-n</span></tt> is not given at all, the file will be copied to all nodes. The
+<tt class="docutils literal"><span class="pre">-g</span></tt> option can be used to only select nodes in a specific node group.
+Passing the <tt class="docutils literal"><span class="pre">--use-replication-network</span></tt> option will cause the
+copy to be done over the replication network (only matters if the
+primary/secondary IPs are different). Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-cluster copyfile -n node1.example.com -n node2.example.com /tmp/test</span>
+</pre></div>
+</div>
+<p>This will copy the file /tmp/test from the current node to the two
+named nodes.</p>
+</div>
+<div class="section" id="deactivate-master-ip">
+<h3>DEACTIVATE-MASTER-IP<a class="headerlink" href="#deactivate-master-ip" title="Permalink to this headline">¶</a></h3>
+<p><strong>deactivate-master-ip</strong> [&#8211;yes]</p>
+<p>Deactivates the master IP on the master node.</p>
+<p>This should be run only locally or on a connection to the node ip
+directly, as a connection to the master ip will be broken by this
+operation. Because of this risk it will require user confirmation
+unless the <tt class="docutils literal"><span class="pre">--yes</span></tt> option is passed.</p>
+</div>
+<div class="section" id="destroy">
+<h3>DESTROY<a class="headerlink" href="#destroy" title="Permalink to this headline">¶</a></h3>
+<p><strong>destroy</strong> {&#8211;yes-do-it}</p>
+<p>Remove all configuration files related to the cluster, so that a
+<strong>gnt-cluster init</strong> can be done again afterwards.</p>
+<p>Since this is a dangerous command, you are required to pass the
+argument <em>&#8211;yes-do-it.</em></p>
+</div>
+<div class="section" id="epo">
+<h3>EPO<a class="headerlink" href="#epo" title="Permalink to this headline">¶</a></h3>
+<p><strong>epo</strong> [&#8211;on] [&#8211;groups|&#8211;all] [&#8211;power-delay] <em>arguments</em></p>
+<p>Performs an emergency power-off on nodes given as arguments. If
+<tt class="docutils literal"><span class="pre">--groups</span></tt> is given, arguments are node groups. If <tt class="docutils literal"><span class="pre">--all</span></tt> is
+provided, the whole cluster will be shut down.</p>
+<p>The <tt class="docutils literal"><span class="pre">--on</span></tt> flag recovers the cluster after an emergency power-off.
+When powering on the cluster you can use <tt class="docutils literal"><span class="pre">--power-delay</span></tt> to define the
+time in seconds (fractions allowed) waited between powering on
+individual nodes.</p>
+<p>Please note that the master node will not be turned down or up
+automatically.  It will just be left in a state, where you can manully
+perform the shutdown of that one node. If the master is in the list of
+affected nodes and this is not a complete cluster emergency power-off
+(e.g. using <tt class="docutils literal"><span class="pre">--all</span></tt>), you&#8217;re required to do a master failover to
+another node not affected.</p>
+</div>
+<div class="section" id="getmaster">
+<h3>GETMASTER<a class="headerlink" href="#getmaster" title="Permalink to this headline">¶</a></h3>
+<p><strong>getmaster</strong></p>
+<p>Displays the current master node.</p>
+</div>
+<div class="section" id="info">
+<h3>INFO<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h3>
+<p><strong>info</strong> [&#8211;roman]</p>
+<p>Shows runtime cluster information: cluster name, architecture (32
+or 64 bit), master node, node list and instance list.</p>
+<p>Passing the <tt class="docutils literal"><span class="pre">--roman</span></tt> option gnt-cluster info will try to print
+its integer fields in a latin friendly way. This allows further
+diffusion of Ganeti among ancient cultures.</p>
+</div>
+<div class="section" id="show-ispecs-cmd">
+<h3>SHOW-ISPECS-CMD<a class="headerlink" href="#show-ispecs-cmd" title="Permalink to this headline">¶</a></h3>
+<p><strong>show-ispecs-cmd</strong></p>
+<p>Shows the command line that can be used to recreate the cluster with the
+same options relative to specs in the instance policies.</p>
+</div>
+<div class="section" id="init">
+<h3>INIT<a class="headerlink" href="#init" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>init</strong></div>
+<div class="line">[{-s|&#8211;secondary-ip} <em>secondary_ip</em>]</div>
+<div class="line">[&#8211;vg-name <em>vg-name</em>]</div>
+<div class="line">[&#8211;master-netdev <em>interface-name</em>]</div>
+<div class="line">[&#8211;master-netmask <em>netmask</em>]</div>
+<div class="line">[&#8211;use-external-mip-script {yes | no}]</div>
+<div class="line">[{-m|&#8211;mac-prefix} <em>mac-prefix</em>]</div>
+<div class="line">[&#8211;no-etc-hosts]</div>
+<div class="line">[&#8211;no-ssh-init]</div>
+<div class="line">[&#8211;file-storage-dir <em>dir</em>]</div>
+<div class="line">[&#8211;shared-file-storage-dir <em>dir</em>]</div>
+<div class="line">[&#8211;gluster-storage-dir <em>dir</em>]</div>
+<div class="line">[&#8211;enabled-hypervisors <em>hypervisors</em>]</div>
+<div class="line">[{-H|&#8211;hypervisor-parameters} <em>hypervisor</em>:<em>hv-param*=*value*[,*hv-param*=*value</em>...]]</div>
+<div class="line">[{-B|&#8211;backend-parameters} <em>be-param*=*value*[,*be-param*=*value</em>...]]</div>
+<div class="line">[{-N|&#8211;nic-parameters} <em>nic-param*=*value*[,*nic-param*=*value</em>...]]</div>
+<div class="line">[{-D|&#8211;disk-parameters} <em>disk-template</em>:<em>disk-param*=*value*[,*disk-param*=*value</em>...]]</div>
+<div class="line">[&#8211;maintain-node-health {yes | no}]</div>
+<div class="line">[&#8211;uid-pool <em>user-id pool definition</em>]</div>
+<div class="line">[{-I|&#8211;default-iallocator} <em>default instance allocator</em>]</div>
+<div class="line">[&#8211;default-iallocator-params <em>ial-param*=*value</em>,*ial-param*=*value*]</div>
+<div class="line">[&#8211;primary-ip-version <em>version</em>]</div>
+<div class="line">[&#8211;prealloc-wipe-disks {yes | no}]</div>
+<div class="line">[&#8211;node-parameters <em>ndparams</em>]</div>
+<div class="line">[{-C|&#8211;candidate-pool-size} <em>candidate_pool_size</em>]</div>
+<div class="line">[&#8211;specs-cpu-count <em>spec-param*=*value</em> [,*spec-param*=*value*...]]</div>
+<div class="line">[&#8211;specs-disk-count <em>spec-param*=*value</em> [,*spec-param*=*value*...]]</div>
+<div class="line">[&#8211;specs-disk-size <em>spec-param*=*value</em> [,*spec-param*=*value*...]]</div>
+<div class="line">[&#8211;specs-mem-size <em>spec-param*=*value</em> [,*spec-param*=*value*...]]</div>
+<div class="line">[&#8211;specs-nic-count <em>spec-param*=*value</em> [,*spec-param*=*value*...]]</div>
+<div class="line">[&#8211;ipolicy-std-specs <em>spec*=*value</em> [,*spec*=*value*...]]</div>
+<div class="line">[&#8211;ipolicy-bounds-specs <em>bounds_ispecs</em>]</div>
+<div class="line">[&#8211;ipolicy-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;ipolicy-spindle-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;ipolicy-vcpu-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">[&#8211;drbd-usermode-helper <em>helper</em>]</div>
+<div class="line">[&#8211;enabled-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;install-image <em>image</em>]</div>
+<div class="line">[&#8211;zeroing-image <em>image</em>]</div>
+<div class="line">[&#8211;compression-tools [<em>tool</em>, [<em>tool</em>]]]</div>
+<div class="line">[&#8211;user-shutdown {yes | no}]</div>
+<div class="line">{<em>clustername</em>}</div>
+</div>
+<p>This commands is only run once initially on the first node of the
+cluster. It will initialize the cluster configuration, setup the
+ssh-keys, start the daemons on the master node, etc. in order to have
+a working one-node cluster.</p>
+<p>Note that the <em>clustername</em> is not any random name. It has to be
+resolvable to an IP address using DNS, and it is best if you give the
+fully-qualified domain name. This hostname must resolve to an IP
+address reserved exclusively for this purpose, i.e. not already in
+use.</p>
+<p>The cluster can run in two modes: single-home or dual-homed. In the
+first case, all traffic (both public traffic, inter-node traffic and
+data replication traffic) goes over the same interface. In the
+dual-homed case, the data replication traffic goes over the second
+network. The <tt class="docutils literal"><span class="pre">-s</span> <span class="pre">(--secondary-ip)</span></tt> option here marks the cluster as
+dual-homed and its parameter represents this node&#8217;s address on the
+second network.  If you initialise the cluster with <tt class="docutils literal"><span class="pre">-s</span></tt>, all nodes
+added must have a secondary IP as well.</p>
+<p>Note that for Ganeti it doesn&#8217;t matter if the secondary network is
+actually a separate physical network, or is done using tunneling,
+etc. For performance reasons, it&#8217;s recommended to use a separate
+network, of course.</p>
+<p>The <tt class="docutils literal"><span class="pre">--vg-name</span></tt> option will let you specify a volume group
+different than &#8220;xenvg&#8221; for Ganeti to use when creating instance
+disks. This volume group must have the same name on all nodes. Once
+the cluster is initialized this can be altered by using the
+<strong>modify</strong> command. Note that if the volume group name is modified after
+the cluster creation and DRBD support is enabled you might have to
+manually modify the metavg as well.</p>
+<p>If you don&#8217;t want to use lvm storage at all use
+the <tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt> option to restrict the set of enabled
+disk templates. Once the cluster is initialized
+you can change this setup with the <strong>modify</strong> command.</p>
+<p>The <tt class="docutils literal"><span class="pre">--master-netdev</span></tt> option is useful for specifying a different
+interface on which the master will activate its IP address. It&#8217;s
+important that all nodes have this interface because you&#8217;ll need it
+for a master failover.</p>
+<p>The <tt class="docutils literal"><span class="pre">--master-netmask</span></tt> option allows to specify a netmask for the
+master IP. The netmask must be specified as an integer, and will be
+interpreted as a CIDR netmask. The default value is 32 for an IPv4
+address and 128 for an IPv6 address.</p>
+<p>The <tt class="docutils literal"><span class="pre">--use-external-mip-script</span></tt> option allows to specify whether to
+use an user-supplied master IP address setup script, whose location is
+<tt class="docutils literal"><span class="pre">/etc/ganeti/scripts/master-ip-setup</span></tt>. If the option value is
+set to False, the default script (located at
+<tt class="docutils literal"><span class="pre">/usr/lib/ganeti/tools/master-ip-setup</span></tt>) will be executed.</p>
+<p>The <tt class="docutils literal"><span class="pre">-m</span> <span class="pre">(--mac-prefix)</span></tt> option will let you specify a three byte
+prefix under which the virtual MAC addresses of your instances will be
+generated. The prefix must be specified in the format <tt class="docutils literal"><span class="pre">XX:XX:XX</span></tt> and
+the default is <tt class="docutils literal"><span class="pre">aa:00:00</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-etc-hosts</span></tt> option allows you to initialize the cluster
+without modifying the /etc/hosts file.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-ssh-init</span></tt> option allows you to initialize the cluster
+without creating or distributing SSH key pairs.</p>
+<p>The <tt class="docutils literal"><span class="pre">--file-storage-dir</span></tt>, <tt class="docutils literal"><span class="pre">--shared-file-storage-dir</span></tt> and
+<tt class="docutils literal"><span class="pre">--gluster-storage-dir</span></tt> options allow you set the directory to use for
+storing the instance disk files when using respectively the file storage
+backend, the shared file storage backend and the gluster storage
+backend. Note that these directories must be an allowed directory for
+file storage. Those directories are specified in the
+<tt class="docutils literal"><span class="pre">/etc/ganeti/file-storage-paths</span></tt> file.
+The file storage directory can also be a subdirectory of an allowed one.
+The file storage directory should be present on all nodes.</p>
+<p>The <tt class="docutils literal"><span class="pre">--prealloc-wipe-disks</span></tt> sets a cluster wide configuration value
+for wiping disks prior to allocation and size changes (<tt class="docutils literal"><span class="pre">gnt-instance</span>
+<span class="pre">grow-disk</span></tt>). This increases security on instance level as the instance
+can&#8217;t access untouched data from its underlying storage.</p>
+<p>The <tt class="docutils literal"><span class="pre">--enabled-hypervisors</span></tt> option allows you to set the list of
+hypervisors that will be enabled for this cluster. Instance
+hypervisors can only be chosen from the list of enabled
+hypervisors, and the first entry of this list will be used by
+default. Currently, the following hypervisors are available:</p>
+<dl class="docutils">
+<dt>xen-pvm</dt>
+<dd>Xen PVM hypervisor</dd>
+<dt>xen-hvm</dt>
+<dd>Xen HVM hypervisor</dd>
+<dt>kvm</dt>
+<dd>Linux KVM hypervisor</dd>
+<dt>chroot</dt>
+<dd>a simple chroot manager that starts chroot based on a script at the
+root of the filesystem holding the chroot</dd>
+<dt>fake</dt>
+<dd>fake hypervisor for development/testing</dd>
+</dl>
+<p>Either a single hypervisor name or a comma-separated list of
+hypervisor names can be specified. If this option is not specified,
+only the xen-pvm hypervisor is enabled by default.</p>
+<p>The <tt class="docutils literal"><span class="pre">--user-shutdown</span></tt> option enables or disables user shutdown
+detection at the cluster level.  User shutdown detection allows users to
+initiate instance poweroff from inside the instance, and Ganeti will
+report the instance status as &#8216;USER_down&#8217; (as opposed, to &#8216;ERROR_down&#8217;)
+and the watcher will not restart these instances, thus preserving their
+instance status.  This option is disabled by default.  For KVM,
+the hypervisor parameter <tt class="docutils literal"><span class="pre">user_shutdown</span></tt> must also be set, either at
+the cluster level or on a per-instance basis (see <strong>gnt-instance</strong>(8)).</p>
+<p>The <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">(--hypervisor-parameters)</span></tt> option allows you to set default
+hypervisor specific parameters for the cluster. The format of this
+option is the name of the hypervisor, followed by a colon and a
+comma-separated list of key=value pairs. The keys available for each
+hypervisors are detailed in the <strong>gnt-instance</strong>(8) man page, in the
+<strong>add</strong> command plus the following parameters which are only
+configurable globally (at cluster level):</p>
+<dl class="docutils">
+<dt>migration_port</dt>
+<dd><p class="first">Valid for the Xen PVM and KVM hypervisors.</p>
+<p class="last">This options specifies the TCP port to use for live-migration when
+using the xm toolstack. The same port should be configured on all
+nodes in the <tt class="docutils literal"><span class="pre">/etc/xen/xend-config.sxp</span></tt> file, under the
+key &#8220;xend-relocation-port&#8221;.</p>
+</dd>
+<dt>migration_bandwidth</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>This option specifies the maximum bandwidth that KVM will use for
+instance live migrations. The value is in MiB/s.</p>
+<p class="last">This option is only effective with kvm versions &gt;= 78 and qemu-kvm
+versions &gt;= 0.10.0.</p>
+</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-B</span> <span class="pre">(--backend-parameters)</span></tt> option allows you to set the default
+backend parameters for the cluster. The parameter format is a
+comma-separated list of key=value pairs with the following supported
+keys:</p>
+<dl class="docutils">
+<dt>vcpus</dt>
+<dd>Number of VCPUs to set for an instance by default, must be an
+integer, will be set to 1 if no specified.</dd>
+<dt>maxmem</dt>
+<dd>Maximum amount of memory to allocate for an instance by default, can
+be either an integer or an integer followed by a unit (M for
+mebibytes and G for gibibytes are supported), will be set to 128M if
+not specified.</dd>
+<dt>minmem</dt>
+<dd>Minimum amount of memory to allocate for an instance by default, can
+be either an integer or an integer followed by a unit (M for
+mebibytes and G for gibibytes are supported), will be set to 128M if
+not specified.</dd>
+<dt>auto_balance</dt>
+<dd>Value of the auto_balance flag for instances to use by default,
+will be set to true if not specified.</dd>
+<dt>always_failover</dt>
+<dd>Default value for the <tt class="docutils literal"><span class="pre">always_failover</span></tt> flag for instances; if
+not set, <tt class="docutils literal"><span class="pre">False</span></tt> is used.</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-N</span> <span class="pre">(--nic-parameters)</span></tt> option allows you to set the default
+network interface parameters for the cluster. The parameter format is a
+comma-separated list of key=value pairs with the following supported
+keys:</p>
+<dl class="docutils">
+<dt>mode</dt>
+<dd>The default NIC mode, one of <tt class="docutils literal"><span class="pre">routed</span></tt>, <tt class="docutils literal"><span class="pre">bridged</span></tt> or
+<tt class="docutils literal"><span class="pre">openvswitch</span></tt>.</dd>
+<dt>link</dt>
+<dd>In <tt class="docutils literal"><span class="pre">bridged</span></tt> or <tt class="docutils literal"><span class="pre">openvswitch</span></tt> mode the default interface where
+to attach NICs. In <tt class="docutils literal"><span class="pre">routed</span></tt> mode it represents an
+hypervisor-vif-script dependent value to allow different instance
+groups. For example under the KVM default network script it is
+interpreted as a routing table number or name. Openvswitch support
+is also hypervisor dependent and currently works for the default KVM
+network script. Under Xen a custom network script must be provided.</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-D</span> <span class="pre">(--disk-parameters)</span></tt> option allows you to set the default disk
+template parameters at cluster level. The format used for this option is
+similar to the one use by the  <tt class="docutils literal"><span class="pre">-H</span></tt> option: the disk template name
+must be specified first, followed by a colon and by a comma-separated
+list of key-value pairs. These parameters can only be specified at
+cluster and node group level; the cluster-level parameter are inherited
+by the node group at the moment of its creation, and can be further
+modified at node group level using the <strong>gnt-group</strong>(8) command.</p>
+<p>The following is the list of disk parameters available for the <strong>drbd</strong>
+template, with measurement units specified in square brackets at the end
+of the description (when applicable):</p>
+<dl class="docutils">
+<dt>resync-rate</dt>
+<dd>Static re-synchronization rate. [KiB/s]</dd>
+<dt>data-stripes</dt>
+<dd>Number of stripes to use for data LVs.</dd>
+<dt>meta-stripes</dt>
+<dd>Number of stripes to use for meta LVs.</dd>
+<dt>disk-barriers</dt>
+<dd>What kind of barriers to <strong>disable</strong> for disks. It can either assume
+the value &#8220;n&#8221;, meaning no barrier disabled, or a non-empty string
+containing a subset of the characters &#8220;bfd&#8221;. &#8220;b&#8221; means disable disk
+barriers, &#8220;f&#8221; means disable disk flushes, &#8220;d&#8221; disables disk drains.</dd>
+<dt>meta-barriers</dt>
+<dd>Boolean value indicating whether the meta barriers should be
+disabled (True) or not (False).</dd>
+<dt>metavg</dt>
+<dd>String containing the name of the default LVM volume group for DRBD
+metadata. By default, it is set to <tt class="docutils literal"><span class="pre">xenvg</span></tt>. It can be overridden
+during the instance creation process by using the <tt class="docutils literal"><span class="pre">metavg</span></tt> key of
+the <tt class="docutils literal"><span class="pre">--disk</span></tt> parameter.</dd>
+<dt>disk-custom</dt>
+<dd>String containing additional parameters to be appended to the
+arguments list of <tt class="docutils literal"><span class="pre">drbdsetup</span> <span class="pre">disk</span></tt>.</dd>
+<dt>net-custom</dt>
+<dd>String containing additional parameters to be appended to the
+arguments list of <tt class="docutils literal"><span class="pre">drbdsetup</span> <span class="pre">net</span></tt>.</dd>
+<dt>protocol</dt>
+<dd>Replication protocol for the DRBD device. Has to be either &#8220;A&#8221;, &#8220;B&#8221;
+or &#8220;C&#8221;. Refer to the DRBD documentation for further information
+about the differences between the protocols.</dd>
+<dt>dynamic-resync</dt>
+<dd>Boolean indicating whether to use the dynamic resync speed
+controller or not. If enabled, c-plan-ahead must be non-zero and all
+the c-* parameters will be used by DRBD. Otherwise, the value of
+resync-rate will be used as a static resync speed.</dd>
+<dt>c-plan-ahead</dt>
+<dd>Agility factor of the dynamic resync speed controller. (the higher,
+the slower the algorithm will adapt the resync speed). A value of 0
+(that is the default) disables the controller. [ds]</dd>
+<dt>c-fill-target</dt>
+<dd>Maximum amount of in-flight resync data for the dynamic resync speed
+controller. [sectors]</dd>
+<dt>c-delay-target</dt>
+<dd>Maximum estimated peer response latency for the dynamic resync speed
+controller. [ds]</dd>
+<dt>c-min-rate</dt>
+<dd>Minimum resync speed for the dynamic resync speed controller. [KiB/s]</dd>
+<dt>c-max-rate</dt>
+<dd>Upper bound on resync speed for the dynamic resync speed controller.
+[KiB/s]</dd>
+</dl>
+<p>List of parameters available for the <strong>plain</strong> template:</p>
+<dl class="docutils">
+<dt>stripes</dt>
+<dd>Number of stripes to use for new LVs.</dd>
+</dl>
+<p>List of parameters available for the <strong>rbd</strong> template:</p>
+<dl class="docutils">
+<dt>pool</dt>
+<dd>The RADOS cluster pool, inside which all rbd volumes will reside.
+When a new RADOS cluster is deployed, the default pool to put rbd
+volumes (Images in RADOS terminology) is &#8216;rbd&#8217;.</dd>
+<dt>access</dt>
+<dd><p class="first">If &#8216;userspace&#8217;, instances will access their disks directly without
+going through a block device, avoiding expensive context switches
+with kernel space and the potential for <a class="reference external" href="http://tracker.ceph.com/issues/3076">deadlocks</a> in low memory
+scenarios.</p>
+<p>The default value is &#8216;kernelspace&#8217; and it disables this behaviour.
+This setting may only be changed to &#8216;userspace&#8217; if all instance
+disks in the affected group or cluster can be accessed in userspace.</p>
+<p class="last">Attempts to use this feature without rbd support compiled in KVM
+result in a &#8220;no such file or directory&#8221; error messages.</p>
+</dd>
+</dl>
+<p>The option <tt class="docutils literal"><span class="pre">--maintain-node-health</span></tt> allows one to enable/disable
+automatic maintenance actions on nodes. Currently these include
+automatic shutdown of instances and deactivation of DRBD devices on
+offline nodes; in the future it might be extended to automatic
+removal of unknown LVM volumes, etc. Note that this option is only
+useful if the use of <tt class="docutils literal"><span class="pre">ganeti-confd</span></tt> was enabled at compilation.</p>
+<p>The <tt class="docutils literal"><span class="pre">--uid-pool</span></tt> option initializes the user-id pool. The
+<em>user-id pool definition</em> can contain a list of user-ids and/or a
+list of user-id ranges. The parameter format is a comma-separated
+list of numeric user-ids or user-id ranges. The ranges are defined
+by a lower and higher boundary, separated by a dash. The boundaries
+are inclusive. If the <tt class="docutils literal"><span class="pre">--uid-pool</span></tt> option is not supplied, the
+user-id pool is initialized to an empty list. An empty list means
+that the user-id pool feature is disabled.</p>
+<p>The <tt class="docutils literal"><span class="pre">-I</span> <span class="pre">(--default-iallocator)</span></tt> option specifies the default
+instance allocator. The instance allocator will be used for operations
+like instance creation, instance and node migration, etc. when no
+manual override is specified. If this option is not specified and
+htools was not enabled at build time, the default instance allocator
+will be blank, which means that relevant operations will require the
+administrator to manually specify either an instance allocator, or a
+set of nodes. If the option is not specified but htools was enabled,
+the default iallocator will be <strong>hail</strong>(1) (assuming it can be found
+on disk). The default iallocator can be changed later using the
+<strong>modify</strong> command.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--default-iallocator-params</span></tt> sets the cluster-wide
+iallocator parameters used by the default iallocator only on instance
+allocations.</p>
+<p>The <tt class="docutils literal"><span class="pre">--primary-ip-version</span></tt> option specifies the IP version used
+for the primary address. Possible values are 4 and 6 for IPv4 and
+IPv6, respectively. This option is used when resolving node names
+and the cluster name.</p>
+<p>The <tt class="docutils literal"><span class="pre">--node-parameters</span></tt> option allows you to set default node
+parameters for the cluster. Please see <strong>ganeti</strong>(7) for more
+information about supported key=value pairs.</p>
+<p>The <tt class="docutils literal"><span class="pre">-C</span> <span class="pre">(--candidate-pool-size)</span></tt> option specifies the
+<tt class="docutils literal"><span class="pre">candidate_pool_size</span></tt> cluster parameter. This is the number of nodes
+that the master will try to keep as master_candidates. For more
+details about this role and other node roles, see the <strong>ganeti</strong>(7).</p>
+<p>The <tt class="docutils literal"><span class="pre">--specs-...</span></tt> and <tt class="docutils literal"><span class="pre">--ipolicy-...</span></tt> options specify the instance
+policy on the cluster. The <tt class="docutils literal"><span class="pre">--ipolicy-bounds-specs</span></tt> option sets the
+minimum and maximum specifications for instances. The format is:
+min:<em>param*=*value</em>,.../max:<em>param*=*value</em>,... and further
+specifications pairs can be added by using <tt class="docutils literal"><span class="pre">//</span></tt> as a separator. The
+<tt class="docutils literal"><span class="pre">--ipolicy-std-specs</span></tt> option takes a list of parameter/value pairs.
+For both options, <em>param</em> can be:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">cpu-count</span></tt>: number of VCPUs for an instance</li>
+<li><tt class="docutils literal"><span class="pre">disk-count</span></tt>: number of disk for an instance</li>
+<li><tt class="docutils literal"><span class="pre">disk-size</span></tt>: size of each disk</li>
+<li><tt class="docutils literal"><span class="pre">memory-size</span></tt>: instance memory</li>
+<li><tt class="docutils literal"><span class="pre">nic-count</span></tt>: number of network interface</li>
+<li><tt class="docutils literal"><span class="pre">spindle-use</span></tt>: spindle usage for an instance</li>
+</ul>
+<p>For the <tt class="docutils literal"><span class="pre">--specs-...</span></tt> options, each option can have three values:
+<tt class="docutils literal"><span class="pre">min</span></tt>, <tt class="docutils literal"><span class="pre">max</span></tt> and <tt class="docutils literal"><span class="pre">std</span></tt>, which can also be modified on group level
+(except for <tt class="docutils literal"><span class="pre">std</span></tt>, which is defined once for the entire cluster).
+Please note, that <tt class="docutils literal"><span class="pre">std</span></tt> values are not the same as defaults set by
+<tt class="docutils literal"><span class="pre">--beparams</span></tt>, but they are used for the capacity calculations.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">--specs-cpu-count</span></tt> limits the number of VCPUs that can be used by an
+instance.</li>
+<li><tt class="docutils literal"><span class="pre">--specs-disk-count</span></tt> limits the number of disks</li>
+<li><tt class="docutils literal"><span class="pre">--specs-disk-size</span></tt> limits the disk size for every disk used</li>
+<li><tt class="docutils literal"><span class="pre">--specs-mem-size</span></tt> limits the amount of memory available</li>
+<li><tt class="docutils literal"><span class="pre">--specs-nic-count</span></tt> sets limits on the number of NICs used</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">--ipolicy-spindle-ratio</span></tt> option takes a decimal number. The
+<tt class="docutils literal"><span class="pre">--ipolicy-disk-templates</span></tt> option takes a comma-separated list of disk
+templates. This list of disk templates must be a subset of the list
+of cluster-wide enabled disk templates (which can be set with
+<tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt>).</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">--ipolicy-spindle-ratio</span></tt> limits the instances-spindles ratio</li>
+<li><tt class="docutils literal"><span class="pre">--ipolicy-vcpu-ratio</span></tt> limits the vcpu-cpu ratio</li>
+</ul>
+<p>All the instance policy elements can be overridden at group level. Group
+level overrides can be removed by specifying <tt class="docutils literal"><span class="pre">default</span></tt> as the value of
+an item.</p>
+<p>The <tt class="docutils literal"><span class="pre">--drbd-usermode-helper</span></tt> option can be used to specify a usermode
+helper. Check that this string is the one used by the DRBD kernel.</p>
+<p>For details about how to use <tt class="docutils literal"><span class="pre">--hypervisor-state</span></tt> and <tt class="docutils literal"><span class="pre">--disk-state</span></tt>
+have a look at <strong>ganeti</strong>(7).</p>
+<p>The <tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt> option specifies a list of disk templates
+that can be used by instances of the cluster. For the possible values in
+this list, see <strong>gnt-instance</strong>(8). Note that in contrast to the list of
+disk templates in the ipolicy, this list is a hard restriction. It is not
+possible to create instances with disk templates that are not enabled in
+the cluster. It is also not possible to disable a disk template when there
+are still instances using it. The first disk template in the list of
+enabled disk template is the default disk template. It will be used for
+instance creation, if no disk template is requested explicitely.</p>
+<p>The <tt class="docutils literal"><span class="pre">--install-image</span></tt> option specifies the location of the OS image to
+use to run the OS scripts inside a virtualized environment. This can be
+a file path or a URL. In the case that a file path is used, nodes are
+expected to have the install image located at the given path, although
+that is enforced during a instance create with unsafe OS scripts
+operation only.</p>
+<p>The <tt class="docutils literal"><span class="pre">--zeroing-image</span></tt> option specifies the location of the OS image to
+use to zero out the free space of an instance. This can be a file path
+or a URL. In the case that a file path is used, nodes are expected to
+have the zeroing image located at the given path, although that is
+enforced during a zeroing operation only.</p>
+<p>The <tt class="docutils literal"><span class="pre">--compression-tools</span></tt> option specifies the tools that can be used
+to compress the disk data of instances in transfer. The default tools
+are: &#8216;gzip&#8217;, &#8216;gzip-slow&#8217;, and &#8216;gzip-fast&#8217;. For compatibility reasons,
+the &#8216;gzip&#8217; tool cannot be excluded from the list of compression tools.
+Ganeti knows how to use certain tools, but does not provide them as a
+default as they are not commonly present: currently only &#8216;lzop&#8217;. The
+user should indicate their presence by specifying them through this
+option.
+Any other custom tool specified must have a simple executable name
+(&#8216;[-_a-zA-Z0-9]+&#8217;), accept input on stdin, and produce output on
+stdout. The &#8216;-d&#8217; flag specifies that decompression rather than
+compression is taking place. The &#8216;-h&#8217; flag must be supported as a means
+of testing whether the executable exists. These requirements are
+compatible with the gzip command line options, allowing many tools to
+be easily wrapped and used.</p>
+</div>
+<div class="section" id="master-failover">
+<h3>MASTER-FAILOVER<a class="headerlink" href="#master-failover" title="Permalink to this headline">¶</a></h3>
+<p><strong>master-failover</strong> [&#8211;no-voting] [&#8211;yes-do-it]</p>
+<p>Failover the master role to the current node.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-voting</span></tt> option skips the remote node agreement checks.
+This is dangerous, but necessary in some cases (for example failing
+over the master role in a 2 node cluster with the original master
+down). If the original master then comes up, it won&#8217;t be able to
+start its master daemon because it won&#8217;t have enough votes, but so
+won&#8217;t the new master, if the master daemon ever needs a restart.
+You can pass <tt class="docutils literal"><span class="pre">--no-voting</span></tt> to <strong>ganeti-luxid</strong> and <strong>ganeti-wconfd</strong>
+on the new master to solve this problem, and run
+<strong>gnt-cluster redist-conf</strong> to make sure the cluster is consistent
+again.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--yes-do-it</span></tt> is used together with <tt class="docutils literal"><span class="pre">--no-voting</span></tt>, for
+skipping the interactive checks. This is even more dangerous, and should
+only be used in conjunction with other means (e.g. a HA suite) to
+confirm that the operation is indeed safe.</p>
+<p>Note that in order for remote node agreement checks to work, a strict
+majority of nodes still needs to be functional. To avoid situations with
+daemons not starting up on the new master, master-failover without
+the <tt class="docutils literal"><span class="pre">--no-voting</span></tt> option verifies a healthy majority of nodes and refuses
+the operation otherwise.</p>
+</div>
+<div class="section" id="master-ping">
+<h3>MASTER-PING<a class="headerlink" href="#master-ping" title="Permalink to this headline">¶</a></h3>
+<p><strong>master-ping</strong></p>
+<p>Checks if the master daemon is alive.</p>
+<p>If the master daemon is alive and can respond to a basic query (the
+equivalent of <strong>gnt-cluster info</strong>), then the exit code of the
+command will be 0. If the master daemon is not alive (either due to
+a crash or because this is not the master node), the exit code will
+be 1.</p>
+</div>
+<div class="section" id="modify">
+<h3>MODIFY<a class="headerlink" href="#modify" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>modify</strong> [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;force]</div>
+<div class="line">[&#8211;vg-name <em>vg-name</em>]</div>
+<div class="line">[&#8211;enabled-hypervisors <em>hypervisors</em>]</div>
+<div class="line">[{-H|&#8211;hypervisor-parameters} <em>hypervisor</em>:<em>hv-param*=*value*[,*hv-param*=*value</em>...]]</div>
+<div class="line">[{-B|&#8211;backend-parameters} <em>be-param*=*value*[,*be-param*=*value</em>...]]</div>
+<div class="line">[{-N|&#8211;nic-parameters} <em>nic-param*=*value*[,*nic-param*=*value</em>...]]</div>
+<div class="line">[{-D|&#8211;disk-parameters} <em>disk-template</em>:<em>disk-param*=*value*[,*disk-param*=*value</em>...]]</div>
+<div class="line">[&#8211;uid-pool <em>user-id pool definition</em>]</div>
+<div class="line">[&#8211;add-uids <em>user-id pool definition</em>]</div>
+<div class="line">[&#8211;remove-uids <em>user-id pool definition</em>]</div>
+<div class="line">[{-C|&#8211;candidate-pool-size} <em>candidate_pool_size</em>]</div>
+<div class="line">[&#8211;max-running-jobs <em>count</em> ]</div>
+<div class="line">[&#8211;max-tracked-jobs <em>count</em> ]</div>
+<div class="line">[&#8211;maintain-node-health {yes | no}]</div>
+<div class="line">[&#8211;prealloc-wipe-disks {yes | no}]</div>
+<div class="line">[{-I|&#8211;default-iallocator} <em>default instance allocator</em>]</div>
+<div class="line">[&#8211;default-iallocator-params <em>ial-param*=*value</em>,*ial-param*=*value*]</div>
+<div class="line">[&#8211;reserved-lvs=*NAMES*]</div>
+<div class="line">[&#8211;node-parameters <em>ndparams</em>]</div>
+<div class="line">[{-m|&#8211;mac-prefix} <em>mac-prefix</em>]</div>
+<div class="line">[&#8211;master-netdev <em>interface-name</em>]</div>
+<div class="line">[&#8211;master-netmask <em>netmask</em>]</div>
+<div class="line">[&#8211;use-external-mip-script {yes | no}]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">[&#8211;ipolicy-std-specs <em>spec*=*value</em> [,*spec*=*value*...]]</div>
+<div class="line">[&#8211;ipolicy-bounds-specs <em>bounds_ispecs</em>]</div>
+<div class="line">[&#8211;ipolicy-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;ipolicy-spindle-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;ipolicy-vcpu-ratio <em>ratio</em>]</div>
+<div class="line">[&#8211;enabled-disk-templates <em>template</em> [,*template*...]]</div>
+<div class="line">[&#8211;drbd-usermode-helper <em>helper</em>]</div>
+<div class="line">[&#8211;file-storage-dir <em>dir</em>]</div>
+<div class="line">[&#8211;shared-file-storage-dir <em>dir</em>]</div>
+<div class="line">[&#8211;compression-tools [<em>tool</em>, [<em>tool</em>]]]</div>
+<div class="line">[&#8211;instance-communication-network <em>network</em>]</div>
+<div class="line">[&#8211;install-image <em>image</em>]</div>
+<div class="line">[&#8211;zeroing-image <em>image</em>]</div>
+<div class="line">[&#8211;user-shutdown {yes | no}]</div>
+</div>
+<p>Modify the options for the cluster.</p>
+<p>The <tt class="docutils literal"><span class="pre">--vg-name</span></tt>, <tt class="docutils literal"><span class="pre">--enabled-hypervisors</span></tt>, <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">(--hypervisor-parameters)</span></tt>,
+<tt class="docutils literal"><span class="pre">-B</span> <span class="pre">(--backend-parameters)</span></tt>, <tt class="docutils literal"><span class="pre">-D</span> <span class="pre">(--disk-parameters)</span></tt>, <tt class="docutils literal"><span class="pre">--nic-parameters</span></tt>,
+<tt class="docutils literal"><span class="pre">-C</span> <span class="pre">(--candidate-pool-size)</span></tt>, <tt class="docutils literal"><span class="pre">--maintain-node-health</span></tt>,
+<tt class="docutils literal"><span class="pre">--prealloc-wipe-disks</span></tt>, <tt class="docutils literal"><span class="pre">--uid-pool</span></tt>, <tt class="docutils literal"><span class="pre">--node-parameters</span></tt>,
+<tt class="docutils literal"><span class="pre">--mac-prefix</span></tt>, <tt class="docutils literal"><span class="pre">--master-netdev</span></tt>, <tt class="docutils literal"><span class="pre">--master-netmask</span></tt>,
+<tt class="docutils literal"><span class="pre">--use-external-mip-script</span></tt>, <tt class="docutils literal"><span class="pre">--drbd-usermode-helper</span></tt>,
+<tt class="docutils literal"><span class="pre">--file-storage-dir</span></tt>, <tt class="docutils literal"><span class="pre">--shared-file-storage-dir</span></tt>,
+<tt class="docutils literal"><span class="pre">--compression-tools</span></tt>, and <tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt> options are described in the <strong>init</strong> command.
+<tt class="docutils literal"><span class="pre">--master-netdev</span></tt>, <tt class="docutils literal"><span class="pre">--master-netmask</span></tt>, <tt class="docutils literal"><span class="pre">--use-external-mip-script</span></tt>,
+<tt class="docutils literal"><span class="pre">--drbd-usermode-helper</span></tt>, <tt class="docutils literal"><span class="pre">--file-storage-dir</span></tt>,
+<tt class="docutils literal"><span class="pre">--shared-file-storage-dir</span></tt>, <tt class="docutils literal"><span class="pre">--enabled-disk-templates</span></tt>, and
+<tt class="docutils literal"><span class="pre">--user-shutdown</span></tt> options are
+described in the <strong>init</strong> command.</p>
+<p>The <tt class="docutils literal"><span class="pre">--hypervisor-state</span></tt> and <tt class="docutils literal"><span class="pre">--disk-state</span></tt> options are described in
+detail in <strong>ganeti</strong>(7).</p>
+<p>The <tt class="docutils literal"><span class="pre">--max-running-jobs</span></tt> options allows to set limit on the
+number of jobs in non-finished jobs that are not queued, i.e.,
+the number of jobs that are in waiting or running state.
+The <tt class="docutils literal"><span class="pre">--max-tracked-jobs</span></tt> options allows to set the limit on
+the tracked jobs. Normally, Ganeti will watch waiting and running
+jobs by tracking their job file with inotify. If this limit is
+exceeded, however, Ganeti will back off and only periodically
+pull for updates.</p>
+<p>The <tt class="docutils literal"><span class="pre">--add-uids</span></tt> and <tt class="docutils literal"><span class="pre">--remove-uids</span></tt> options can be used to
+modify the user-id pool by adding/removing a list of user-ids or
+user-id ranges.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--reserved-lvs</span></tt> specifies a list (comma-separated) of
+logical volume group names (regular expressions) that will be
+ignored by the cluster verify operation. This is useful if the
+volume group used for Ganeti is shared with the system for other
+uses. Note that it&#8217;s not recommended to create and mark as ignored
+logical volume names which match Ganeti&#8217;s own name format (starting
+with UUID and then .diskN), as this option only skips the
+verification, but not the actual use of the names given.</p>
+<p>To remove all reserved logical volumes, pass in an empty argument
+to the option, as in <tt class="docutils literal"><span class="pre">--reserved-lvs=</span></tt> or <tt class="docutils literal"><span class="pre">--reserved-lvs</span> <span class="pre">''</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">-I</span> <span class="pre">(--default-iallocator)</span></tt> is described in the <strong>init</strong>
+command. To clear the default iallocator, just pass an empty string
+(&#8216;&#8217;).</p>
+<p>The option <tt class="docutils literal"><span class="pre">--default-iallocator-params</span></tt> is described in the <strong>init</strong>
+command. To clear the default iallocator parameters, just pass an empty
+string (&#8216;&#8217;).</p>
+<p>The <tt class="docutils literal"><span class="pre">--ipolicy-...</span></tt> options are described in the <strong>init</strong> command.</p>
+<p>The <tt class="docutils literal"><span class="pre">--instance-communication-network</span></tt> enables instance communication
+by specifying the name of the Ganeti network that should be used for
+instance communication.  If the supplied network does not exist, Ganeti
+will create a new network with the supplied name with the default
+parameters for instance communication.  If the supplied network exists,
+Ganeti will check its parameters and warn about unusual configurations,
+but it will still use that network for instance communication.</p>
+<p>See <strong>gnt-cluster init</strong> for a description of <tt class="docutils literal"><span class="pre">--install-image</span></tt> and
+<tt class="docutils literal"><span class="pre">--zeroing-image</span></tt>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="queue">
+<h3>QUEUE<a class="headerlink" href="#queue" title="Permalink to this headline">¶</a></h3>
+<p><strong>queue</strong> {drain | undrain | info}</p>
+<p>Change job queue properties.</p>
+<p>The <tt class="docutils literal"><span class="pre">drain</span></tt> option sets the drain flag on the job queue. No new
+jobs will be accepted, but jobs already in the queue will be
+processed.</p>
+<p>The <tt class="docutils literal"><span class="pre">undrain</span></tt> will unset the drain flag on the job queue. New
+jobs will be accepted.</p>
+<p>The <tt class="docutils literal"><span class="pre">info</span></tt> option shows the properties of the job queue.</p>
+</div>
+<div class="section" id="watcher">
+<h3>WATCHER<a class="headerlink" href="#watcher" title="Permalink to this headline">¶</a></h3>
+<p><strong>watcher</strong> {pause <em>duration</em> | continue | info}</p>
+<p>Make the watcher pause or let it continue.</p>
+<p>The <tt class="docutils literal"><span class="pre">pause</span></tt> option causes the watcher to pause for <em>duration</em>
+seconds.</p>
+<p>The <tt class="docutils literal"><span class="pre">continue</span></tt> option will let the watcher continue.</p>
+<p>The <tt class="docutils literal"><span class="pre">info</span></tt> option shows whether the watcher is currently paused.</p>
+</div>
+<div class="section" id="redist-conf">
+<h3>REDIST-CONF<a class="headerlink" href="#redist-conf" title="Permalink to this headline">¶</a></h3>
+<p><strong>redist-conf</strong> [&#8211;submit] [&#8211;print-job-id]</p>
+<p>This command forces a full push of configuration files from the
+master node to the other nodes in the cluster. This is normally not
+needed, but can be run if the <strong>verify</strong> complains about
+configuration mismatches.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="rename">
+<h3>RENAME<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h3>
+<p><strong>rename</strong> [-f] {<em>name</em>}</p>
+<p>Renames the cluster and in the process updates the master IP
+address to the one the new name resolves to. At least one of either
+the name or the IP address must be different, otherwise the
+operation will be aborted.</p>
+<p>Note that since this command can be dangerous (especially when run
+over SSH), the command will require confirmation unless run with
+the <tt class="docutils literal"><span class="pre">-f</span></tt> option.</p>
+</div>
+<div class="section" id="renew-crypto">
+<h3>RENEW-CRYPTO<a class="headerlink" href="#renew-crypto" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>renew-crypto</strong> [-f]</div>
+<div class="line">[&#8211;new-cluster-certificate] | [&#8211;new-node-certificates]</div>
+<div class="line">[&#8211;new-confd-hmac-key]</div>
+<div class="line">[&#8211;new-rapi-certificate] [&#8211;rapi-certificate <em>rapi-cert</em>]</div>
+<div class="line">[&#8211;new-spice-certificate | &#8211;spice-certificate <em>spice-cert</em></div>
+<div class="line">&#8211;spice-ca-certificate <em>spice-ca-cert</em>]</div>
+<div class="line">[&#8211;new-cluster-domain-secret] [&#8211;cluster-domain-secret <em>filename</em>]</div>
+</div>
+<p>This command will stop all Ganeti daemons in the cluster and start
+them again once the new certificates and keys are replicated. The
+option <tt class="docutils literal"><span class="pre">--new-confd-hmac-key</span></tt> can be used to regenerate
+the HMAC key used by <strong>ganeti-confd</strong>(8).</p>
+<p>The option <tt class="docutils literal"><span class="pre">--new-cluster-certificate</span></tt> will regenerate the
+cluster-internal server SSL certificate. The option
+<tt class="docutils literal"><span class="pre">--new-node-certificates</span></tt> will generate new node SSL
+certificates for all nodes. Note that for the regeneration of
+of the server SSL certficate will invoke a regeneration of the
+node certificates as well, because node certificates are signed
+by the server certificate and thus have to be recreated and
+signed by the new server certificate. Nodes which are offline
+during a renewal of the server or the node certificates are not
+accessible anymore once they are marked as online again. To
+fix this, please readd the node instead.</p>
+<p>To generate a new self-signed RAPI certificate (used by
+<strong>ganeti-rapi</strong>(8)) specify <tt class="docutils literal"><span class="pre">--new-rapi-certificate</span></tt>. If you want to
+use your own certificate, e.g. one signed by a certificate
+authority (CA), pass its filename to <tt class="docutils literal"><span class="pre">--rapi-certificate</span></tt>.</p>
+<p>To generate a new self-signed SPICE certificate, used for SPICE
+connections to the KVM hypervisor, specify the
+<tt class="docutils literal"><span class="pre">--new-spice-certificate</span></tt> option. If you want to provide a
+certificate, pass its filename to <tt class="docutils literal"><span class="pre">--spice-certificate</span></tt> and pass the
+signing CA certificate to <tt class="docutils literal"><span class="pre">--spice-ca-certificate</span></tt>.</p>
+<p>Finally <tt class="docutils literal"><span class="pre">--new-cluster-domain-secret</span></tt> generates a new, random
+cluster domain secret, and <tt class="docutils literal"><span class="pre">--cluster-domain-secret</span></tt> reads the
+secret from a file. The cluster domain secret is used to sign
+information exchanged between separate clusters via a third party.</p>
+</div>
+<div class="section" id="repair-disk-sizes">
+<h3>REPAIR-DISK-SIZES<a class="headerlink" href="#repair-disk-sizes" title="Permalink to this headline">¶</a></h3>
+<p><strong>repair-disk-sizes</strong> [instance...]</p>
+<p>This command checks that the recorded size of the given instance&#8217;s
+disks matches the actual size and updates any mismatches found.
+This is needed if the Ganeti configuration is no longer consistent
+with reality, as it will impact some disk operations. If no
+arguments are given, all instances will be checked. When exclusive
+storage is active, also spindles are updated.</p>
+<p>Note that only active disks can be checked by this command; in case
+a disk cannot be activated it&#8217;s advised to use
+<strong>gnt-instance activate-disks &#8211;ignore-size ...</strong> to force
+activation without regard to the current size.</p>
+<p>When all the disk sizes are consistent, the command will return no
+output. Otherwise it will log details about the inconsistencies in
+the configuration.</p>
+</div>
+<div class="section" id="upgrade">
+<h3>UPGRADE<a class="headerlink" href="#upgrade" title="Permalink to this headline">¶</a></h3>
+<p><strong>upgrade</strong> {&#8211;to <em>version</em> | &#8211;resume}</p>
+<p>This command safely switches all nodes of the cluster to a new Ganeti
+version. It is a prerequisite that the new version is already installed,
+albeit not activated, on all nodes; this requisite is checked before any
+actions are done.</p>
+<p>If called with the <tt class="docutils literal"><span class="pre">--resume</span></tt> option, any pending upgrade is
+continued, that was interrupted by a power failure or similar on
+master. It will do nothing, if not run on the master node, or if no
+upgrade was in progress.</p>
+</div>
+<div class="section" id="verify">
+<h3>VERIFY<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>verify</strong> [&#8211;no-nplus1-mem] [&#8211;node-group <em>nodegroup</em>]</div>
+<div class="line">[&#8211;error-codes] [{-I|&#8211;ignore-errors} <em>errorcode</em>]</div>
+<div class="line">[{-I|&#8211;ignore-errors} <em>errorcode</em>...]</div>
+</div>
+<p>Verify correctness of cluster configuration. This is safe with
+respect to running instances, and incurs no downtime of the
+instances.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--no-nplus1-mem</span></tt> option is given, Ganeti won&#8217;t check
+whether if it loses a node it can restart all the instances on
+their secondaries (and report an error otherwise).</p>
+<p>With <tt class="docutils literal"><span class="pre">--node-group</span></tt>, restrict the verification to those nodes and
+instances that live in the named group. This will not verify global
+settings, but will allow to perform verification of a group while other
+operations are ongoing in other groups.</p>
+<p>The <tt class="docutils literal"><span class="pre">--error-codes</span></tt> option outputs each error in the following
+parseable format: <em>ftype</em>:<em>ecode</em>:<em>edomain</em>:<em>name</em>:<em>msg</em>.
+These fields have the following meaning:</p>
+<dl class="docutils">
+<dt>ftype</dt>
+<dd>Failure type. Can be <em>WARNING</em> or <em>ERROR</em>.</dd>
+<dt>ecode</dt>
+<dd>Error code of the failure. See below for a list of error codes.</dd>
+<dt>edomain</dt>
+<dd>Can be <em>cluster</em>, <em>node</em> or <em>instance</em>.</dd>
+<dt>name</dt>
+<dd>Contains the name of the item that is affected from the failure.</dd>
+<dt>msg</dt>
+<dd>Contains a descriptive error message about the error</dd>
+</dl>
+<p><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt> will have a non-zero exit code if at least one of
+the failures that are found are of type <em>ERROR</em>.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-errors</span></tt> option can be used to change this behaviour,
+because it demotes the error represented by the error code received as a
+parameter to a warning. The option must be repeated for each error that
+should be ignored (e.g.: <tt class="docutils literal"><span class="pre">-I</span> <span class="pre">ENODEVERSION</span> <span class="pre">-I</span> <span class="pre">ENODEORPHANLV</span></tt>). The
+<tt class="docutils literal"><span class="pre">--error-codes</span></tt> option can be used to determine the error code of a
+given error.</p>
+<p>Note that the verification of the configuration file consistency across
+master candidates can fail if there are other concurrently running
+operations that modify the configuration.</p>
+<p>List of error codes:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">ENODESHAREDFILESTORAGEPATHUNUSABLE</span></tt></dt>
+<dd>Shared file storage path unusable</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEWRONGNODE</span></tt></dt>
+<dd>Instance running on the wrong node</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEOOBPATH</span></tt></dt>
+<dd>Invalid Out Of Band path</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEORPHANINSTANCE</span></tt></dt>
+<dd>Unknown intance running on a node</dd>
+<dt><tt class="docutils literal"><span class="pre">ECLUSTERDANGLINGINST</span></tt></dt>
+<dd>Some instances have a non-existing primary node</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODESSH</span></tt></dt>
+<dd>SSH-related node error</dd>
+<dt><tt class="docutils literal"><span class="pre">ECLUSTERFILECHECK</span></tt></dt>
+<dd>Cluster configuration verification failure</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEHOOKS</span></tt></dt>
+<dd>Communication failure in hooks execution</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEDRBDHELPER</span></tt></dt>
+<dd>Error caused by the DRBD helper</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEMISSINGDISK</span></tt></dt>
+<dd>Missing volume on an instance</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEPOLICY</span></tt></dt>
+<dd>Instance does not meet policy</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEFILESTORAGEPATHS</span></tt></dt>
+<dd>Detected bad file storage paths</dd>
+<dt><tt class="docutils literal"><span class="pre">ECLUSTERDANGLINGNODES</span></tt></dt>
+<dd>Some nodes belong to non-existing groups</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEDOWN</span></tt></dt>
+<dd>Instance not running on its primary node</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCELAYOUT</span></tt></dt>
+<dd>Instance has multiple secondary nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODENET</span></tt></dt>
+<dd>Network-related node error</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEUNSUITABLENODE</span></tt></dt>
+<dd>Instance running on nodes that are not suitable for it</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEBADNODE</span></tt></dt>
+<dd>Instance marked as running lives on an offline node</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEUSERSCRIPTS</span></tt></dt>
+<dd>User scripts not present or not executable</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEDRBDVERSION</span></tt></dt>
+<dd>DRBD version mismatch within a node group</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEFILESTORAGEPATHUNUSABLE</span></tt></dt>
+<dd>File storage path unusable</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEFAULTYDISK</span></tt></dt>
+<dd>Impossible to retrieve status for a disk</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEVERSION</span></tt></dt>
+<dd>Protocol version mismatch or Ganeti version mismatch</dd>
+<dt><tt class="docutils literal"><span class="pre">ECLUSTERCERT</span></tt></dt>
+<dd>Cluster certificate files verification failure</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEDRBD</span></tt></dt>
+<dd>Error parsing the DRBD status file</dd>
+<dt><tt class="docutils literal"><span class="pre">EGROUPDIFFERENTPVSIZE</span></tt></dt>
+<dd>PVs in the group have different sizes</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODETIME</span></tt></dt>
+<dd>Node returned invalid time</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEN1</span></tt></dt>
+<dd>Not enough memory to accommodate instance failovers</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEOS</span></tt></dt>
+<dd>OS-related node error</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODERPC</span></tt></dt>
+<dd>Error during connection to the primary node of an instance</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCESPLITGROUPS</span></tt></dt>
+<dd>Instance with primary and secondary nodes in different groups</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODESETUP</span></tt></dt>
+<dd>Node setup error</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEGLUSTERSTORAGEPATHUNUSABLE</span></tt></dt>
+<dd>Gluster storage path unusable</dd>
+<dt><tt class="docutils literal"><span class="pre">ECLUSTERCFG</span></tt></dt>
+<dd>Cluster configuration verification failure</dd>
+<dt><tt class="docutils literal"><span class="pre">EINSTANCEMISSINGCFGPARAMETER</span></tt></dt>
+<dd>A configuration parameter for an instance is missing</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODELVM</span></tt></dt>
+<dd>LVM-related node error</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEORPHANLV</span></tt></dt>
+<dd>Unknown LVM logical volume</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEFILECHECK</span></tt></dt>
+<dd>Error retrieving the checksum of the node files</dd>
+<dt><tt class="docutils literal"><span class="pre">ENODEHV</span></tt></dt>
+<dd>Hypervisor parameters verification failure</dd>
+</dl>
+</div>
+<div class="section" id="verify-disks">
+<h3>VERIFY-DISKS<a class="headerlink" href="#verify-disks" title="Permalink to this headline">¶</a></h3>
+<p><strong>verify-disks</strong></p>
+<p>The command checks which instances have degraded DRBD disks and
+activates the disks of those instances.</p>
+<p>This command is run from the <strong>ganeti-watcher</strong> tool, which also
+has a different, complementary algorithm for doing this check.
+Together, these two should ensure that DRBD disks are kept
+consistent.</p>
+</div>
+<div class="section" id="version">
+<h3>VERSION<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h3>
+<p><strong>version</strong></p>
+<p>Show the cluster version.</p>
+</div>
+<div class="section" id="tags">
+<h3>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="add-tags">
+<h4>ADD-TAGS<a class="headerlink" href="#add-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>add-tags</strong> [&#8211;from <em>file</em>] {<em>tag</em>...}</p>
+<p>Add tags to the cluster. If any of the tags contains invalid
+characters, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags will be
+extended with the contents of that file (each line becomes a tag).
+In this case, there is not need to pass tags on the command line
+(if you do, both sources will be used). A file name of - will be
+interpreted as stdin.</p>
+</div>
+<div class="section" id="list-tags">
+<h4>LIST-TAGS<a class="headerlink" href="#list-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>list-tags</strong></p>
+<p>List the tags of the cluster.</p>
+</div>
+<div class="section" id="remove-tags">
+<h4>REMOVE-TAGS<a class="headerlink" href="#remove-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>remove-tags</strong> [&#8211;from <em>file</em>] {<em>tag</em>...}</p>
+<p>Remove tags from the cluster. If any of the tags are not existing
+on the cluster, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags to be removed will
+be extended with the contents of that file (each line becomes a tag).
+In this case, there is not need to pass tags on the command line (if
+you do, tags from both sources will be removed). A file name of - will
+be interpreted as stdin.</p>
+</div>
+<div class="section" id="search-tags">
+<h4>SEARCH-TAGS<a class="headerlink" href="#search-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>search-tags</strong> {<em>pattern</em>}</p>
+<p>Searches the tags on all objects in the cluster (the cluster
+itself, the nodes and the instances) for a given pattern. The
+pattern is interpreted as a regular expression and a search will be
+done on it (i.e. the given pattern is not anchored to the beggining
+of the string; if you want that, prefix the pattern with ^).</p>
+<p>If no tags are matching the pattern, the exit code of the command
+will be one. If there is at least one match, the exit code will be
+zero. Each match is listed on one line, the object and the tag
+separated by a space. The cluster will be listed as /cluster, a
+node will be listed as /nodes/<em>name</em>, and an instance as
+/instances/<em>name</em>. Example:</p>
+<div class="highlight-python"><pre># gnt-cluster search-tags time
+/cluster ctime:2007-09-01
+/nodes/node1.example.com mtime:2007-10-04</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gnt-cluster</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#commands">COMMANDS</a><ul>
+<li><a class="reference internal" href="#activate-master-ip">ACTIVATE-MASTER-IP</a></li>
+<li><a class="reference internal" href="#command">COMMAND</a></li>
+<li><a class="reference internal" href="#copyfile">COPYFILE</a></li>
+<li><a class="reference internal" href="#deactivate-master-ip">DEACTIVATE-MASTER-IP</a></li>
+<li><a class="reference internal" href="#destroy">DESTROY</a></li>
+<li><a class="reference internal" href="#epo">EPO</a></li>
+<li><a class="reference internal" href="#getmaster">GETMASTER</a></li>
+<li><a class="reference internal" href="#info">INFO</a></li>
+<li><a class="reference internal" href="#show-ispecs-cmd">SHOW-ISPECS-CMD</a></li>
+<li><a class="reference internal" href="#init">INIT</a></li>
+<li><a class="reference internal" href="#master-failover">MASTER-FAILOVER</a></li>
+<li><a class="reference internal" href="#master-ping">MASTER-PING</a></li>
+<li><a class="reference internal" href="#modify">MODIFY</a></li>
+<li><a class="reference internal" href="#queue">QUEUE</a></li>
+<li><a class="reference internal" href="#watcher">WATCHER</a></li>
+<li><a class="reference internal" href="#redist-conf">REDIST-CONF</a></li>
+<li><a class="reference internal" href="#rename">RENAME</a></li>
+<li><a class="reference internal" href="#renew-crypto">RENEW-CRYPTO</a></li>
+<li><a class="reference internal" href="#repair-disk-sizes">REPAIR-DISK-SIZES</a></li>
+<li><a class="reference internal" href="#upgrade">UPGRADE</a></li>
+<li><a class="reference internal" href="#verify">VERIFY</a></li>
+<li><a class="reference internal" href="#verify-disks">VERIFY-DISKS</a></li>
+<li><a class="reference internal" href="#version">VERSION</a></li>
+<li><a class="reference internal" href="#tags">Tags</a><ul>
+<li><a class="reference internal" href="#add-tags">ADD-TAGS</a></li>
+<li><a class="reference internal" href="#list-tags">LIST-TAGS</a></li>
+<li><a class="reference internal" href="#remove-tags">REMOVE-TAGS</a></li>
+<li><a class="reference internal" href="#search-tags">SEARCH-TAGS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-gnt-backup.html"
+                        title="previous chapter">gnt-backup</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-debug.html"
+                        title="next chapter">gnt-debug</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-gnt-cluster.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-debug.html" title="gnt-debug"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-gnt-backup.html" title="gnt-backup"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

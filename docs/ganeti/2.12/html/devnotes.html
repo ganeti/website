@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Developer notes &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="next" title="Code style guide" href="dev-codestyle.html" />
+    <link rel="prev" title="Design for virtual clusters support" href="design-virtual-clusters.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="dev-codestyle.html" title="Code style guide"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-virtual-clusters.html" title="Design for virtual clusters support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="developer-notes">
+<h1>Developer notes<a class="headerlink" href="#developer-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="build-dependencies">
+<h2>Build dependencies<a class="headerlink" href="#build-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Most dependencies from <a class="reference internal" href="install-quick.html"><em>Ganeti quick installation guide</em></a>, including <tt class="docutils literal"><span class="pre">qemu-img</span></tt>
+(marked there as optional) plus (for Python):</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.gnu.org/software/make/">GNU make</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/tar/">GNU tar</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/gzip/">Gzip</a></li>
+<li><a class="reference external" href="http://johnmacfarlane.net/pandoc/">pandoc</a></li>
+<li><a class="reference external" href="http://epydoc.sourceforge.net/">python-epydoc</a></li>
+<li><a class="reference external" href="http://sphinx.pocoo.org/">python-sphinx</a>
+(tested with version 1.1.3)</li>
+<li><a class="reference external" href="http://www.voidspace.org.uk/python/mock/">python-mock</a>
+(tested with version 1.0.1)</li>
+<li><a class="reference external" href="http://www.graphviz.org/">graphviz</a></li>
+<li>the <cite>en_US.UTF-8</cite> locale must be enabled on the system</li>
+<li><a class="reference external" href="http://www.logilab.org/857">pylint</a> and its associated
+dependencies</li>
+<li><a class="reference external" href="https://github.com/jcrocholl/pep8/">pep8</a></li>
+<li><a class="reference external" href="http://pyyaml.org/">PyYAML</a></li>
+</ul>
+<p>For older developement (Ganeti &lt; 2.4) <tt class="docutils literal"><span class="pre">docbook</span></tt> was used instead of
+<tt class="docutils literal"><span class="pre">pandoc</span></tt>.</p>
+<p>Note that for pylint, at the current moment the following versions
+must be used:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">pylint</span> <span class="gs">--version</span>
+pylint 0.26.0,
+astng 0.24.1, common 0.58.3
+</pre></div>
+</div>
+<p>The same with pep8, other versions may give you errors:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">pep8</span> <span class="gs">--version</span>
+1.3.3
+</pre></div>
+</div>
+<p>Both these versions are the ones shipped with Ubuntu 13.04.</p>
+<p>To generate unittest coverage reports (<tt class="docutils literal"><span class="pre">make</span> <span class="pre">coverage</span></tt>), <a class="reference external" href="http://pypi.python.org/pypi/coverage">coverage</a> needs to be installed.</p>
+<p>Installation of all dependencies listed here:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">python-setuptools</span> <span class="gs">automake</span> <span class="gs">git</span> <span class="gs">fakeroot</span>
+$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">pandoc</span> <span class="gs">python-epydoc</span> <span class="gs">graphviz</span> <span class="gs">python-sphinx</span>
+$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">python-yaml</span>
+$ <span class="gs">cd</span> <span class="gs">/</span> <span class="gs">&amp;&amp;</span> <span class="gs">easy_install</span> <span class="gs">\</span>
+          <span class="gs">logilab-astng==0.24.1</span> <span class="gs">\</span>
+          <span class="gs">logilab-common==0.58.3</span> <span class="gs">\</span>
+          <span class="gs">pylint==0.26.0</span> <span class="gs">\</span>
+          <span class="gs">pep8==1.3.3</span> <span class="gs">\</span>
+          <span class="gs">mock==1.0.1</span> <span class="gs">\</span>
+          <span class="gs">coverage</span>
+</pre></div>
+</div>
+<p>For Haskell development, again all things from the quick install
+document, plus:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.haskell.org/haddock/">haddock</a>, documentation
+generator (equivalent to epydoc for Python)</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/hscolour">HsColour</a>, again
+used for documentation (it&#8217;s source-code pretty-printing)</li>
+<li><a class="reference external" href="http://community.haskell.org/~ndm/hlint/">hlint</a>, a source code
+linter (equivalent to pylint for Python), recommended version 1.8 or
+above (tested with 1.8.43)</li>
+<li>the <a class="reference external" href="http://hackage.haskell.org/package/QuickCheck">QuickCheck</a>
+library, version 2.x</li>
+<li>the <a class="reference external" href="http://hunit.sourceforge.net/">HUnit</a> library (tested with
+1.2.x)</li>
+<li>the <a class="reference external" href="http://batterseapower.github.com/test-framework/">test-framework</a> libraries,
+tested versions: <tt class="docutils literal"><span class="pre">test-framework</span></tt>: 0.6, <tt class="docutils literal"><span class="pre">test-framework-hunit</span></tt>:
+0.2.7, <tt class="docutils literal"><span class="pre">test-framework-quickcheck2</span></tt>: 0.2.12.1</li>
+<li><tt class="docutils literal"><span class="pre">hpc</span></tt>, which comes with the compiler, so you should already have
+it</li>
+<li><a class="reference external" href="http://joyful.com/shelltestrunner">shelltestrunner</a>, used for
+running shell-based unit-tests</li>
+<li><a class="reference external" href="https://github.com/batterseapower/temporary/">temporary</a> library,
+tested with version 1.1.2.3</li>
+</ul>
+<p>Under Debian Wheezy or later, these can be installed (on top of the
+required ones from the quick install document) via:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">libghc-quickcheck2-dev</span> <span class="gs">libghc-hunit-dev</span> <span class="gs">\</span>
+      <span class="gs">libghc-test-framework-dev</span> <span class="gs">\</span>
+      <span class="gs">libghc-test-framework-quickcheck2-dev</span> <span class="gs">\</span>
+      <span class="gs">libghc-test-framework-hunit-dev</span> <span class="gs">\</span>
+      <span class="gs">libghc-temporary-dev</span> <span class="gs">shelltestrunner</span> <span class="gs">\</span>
+      <span class="gs">hscolour</span> <span class="gs">hlint</span>
+</pre></div>
+</div>
+<p>Or alternatively via <tt class="docutils literal"><span class="pre">cabal</span></tt>:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">cabal</span> <span class="gs">install</span> <span class="gs">QuickCheck</span> <span class="gs">HUnit</span> <span class="gs">\</span>
+        <span class="gs">test-framework</span> <span class="gs">test-framework-quickcheck2</span> <span class="gs">test-framework-hunit</span> <span class="gs">\</span>
+        <span class="gs">temporary</span> <span class="gs">hscolour</span> <span class="gs">hlint</span> <span class="gs">shelltestrunner</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-for-development">
+<h2>Configuring for development<a class="headerlink" href="#configuring-for-development" title="Permalink to this headline">¶</a></h2>
+<p>Run the following command (only use <tt class="docutils literal"><span class="pre">PYTHON=...</span></tt> if you need to use a
+different python version):</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">./autogen.sh</span> <span class="gs">&amp;&amp;</span> <span class="gs">\</span>
+  <span class="gs">./configure</span> <span class="gs">--prefix=/usr/local</span> <span class="gs">--sysconfdir=/etc</span> <span class="gs">--localstatedir=/var</span>
+</pre></div>
+</div>
+<p>Note that doing development on a machine which already has Ganeti
+installed is problematic, as <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt> behaviour can be confusing
+(see Issue 170 for a bit of history/details; in general it works if
+the installed and developed versions are very similar, and/or if
+PYTHONPATH is customised correctly). As such, in general it&#8217;s
+recommended to use a &#8220;clean&#8221; machine for ganeti development.</p>
+</div>
+<div class="section" id="style-guide">
+<h2>Style guide<a class="headerlink" href="#style-guide" title="Permalink to this headline">¶</a></h2>
+<p>Please adhere to the <a class="reference internal" href="dev-codestyle.html"><em>Code style guide</em></a> while writing code for Ganeti.</p>
+</div>
+<div class="section" id="haskell-development-notes">
+<h2>Haskell development notes<a class="headerlink" href="#haskell-development-notes" title="Permalink to this headline">¶</a></h2>
+<p>There are a few things which can help writing or debugging the Haskell
+code.</p>
+<p>You can run the Haskell linter <strong class="command">hlint</strong> via:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hlint</span>
+</pre></div>
+</div>
+<p>This is not enabled by default (as the htools component is
+optional). The above command will generate both output on the terminal
+and, if any warnings are found, also an HTML report at
+<tt class="docutils literal"><span class="pre">doc/hs-lint.html</span></tt>.</p>
+<p>When writing or debugging TemplateHaskell code, it&#8217;s useful to see
+what the splices are converted to. This can be done via:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">HEXTRA=&quot;-ddump-splices&quot;</span>
+</pre></div>
+</div>
+<p>Or, more interactively:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">ghci</span>
+λ&gt; :set -ddump-splices
+λ&gt; :l src/Ganeti/Objects.hs
+</pre></div>
+</div>
+<p>And you will get the spliced code as the module is loaded.</p>
+<p>To build profiling code you must install the <tt class="docutils literal"><span class="pre">ghc-prof</span></tt> (or
+<tt class="docutils literal"><span class="pre">gch6-prof</span></tt>) package, and all the relevant libraries with their
+<tt class="docutils literal"><span class="pre">-prof</span></tt> counterparts. If installing libraries through cabal the config
+file should include <tt class="docutils literal"><span class="pre">library-profiling:</span> <span class="pre">True</span></tt> or the <tt class="docutils literal"><span class="pre">-p</span></tt> flag
+should be used. Any library already installed can be updated by passing
+<tt class="docutils literal"><span class="pre">--reinstall</span></tt> as well.</p>
+<p>Due to the way TemplateHaskell works, it&#8217;s not straightforward to
+build profiling code. The recommended way is to run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">hs-prof</span></tt>,
+or alternatively the manual sequence is:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">clean</span>
+$ <span class="gs">make</span> <span class="gs">src/htools</span> <span class="gs">HEXTRA=&quot;-osuf</span> <span class="gs">.o&quot;</span>
+$ <span class="gs">rm</span> <span class="gs">src/htools</span>
+$ <span class="gs">make</span> <span class="gs">src/htools</span> <span class="gs">HEXTRA=&quot;-osuf</span> <span class="gs">.prof_o</span> <span class="gs">-prof</span> <span class="gs">-auto-all&quot;</span>
+</pre></div>
+</div>
+<p>This will build the binary twice, per the TemplateHaskell
+documentation, the second one with profiling enabled.</p>
+<p>The binary files generated by compilation and the profiling/coverage
+files can &#8220;break&#8221; tab-completion in the sources; they can be ignored,
+for example, in bash via <tt class="docutils literal"><span class="pre">.bashrc</span></tt>:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>FIGNORE=&#39;.o:.hi:.prof_o:.tix&#39;
+</pre></div>
+</div>
+<p>or in emacs via <tt class="docutils literal"><span class="pre">completion-ignored-extensions</span></tt> (run <tt class="docutils literal"><span class="pre">M-x</span>
+<span class="pre">customize-var</span> <span class="pre">completion-ignored-extensions</span></tt>).</p>
+<div class="section" id="running-individual-tests">
+<h3>Running individual tests<a class="headerlink" href="#running-individual-tests" title="Permalink to this headline">¶</a></h3>
+<p>When developing code, running the entire test suite can be
+slow. Running individual tests is possible. There are different
+Makefile targets for running individual Python and Haskell tests.</p>
+<p>For Python tests:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">export</span> <span class="gs">PYTHONPATH=$PWD</span>
+$ <span class="gs">python</span> <span class="gs">./test/py/ganeti.</span><span class="nv">mytest</span>
+</pre></div>
+</div>
+<p>For Haskell tests:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hs-test-</span><span class="nv">pattern</span>
+</pre></div>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">pattern</span></tt> can be a simple test pattern (e.g. <tt class="docutils literal"><span class="pre">comma</span></tt>,
+matching any test whose name contains <tt class="docutils literal"><span class="pre">comma</span></tt>), a test pattern
+denoting a group (ending with a slash, e.g. <tt class="docutils literal"><span class="pre">Utils/</span></tt>), or more
+complex glob pattern. For more details, search for glob patterns in
+the documentation of <a class="reference external" href="http://batterseapower.github.com/test-framework/">test-framework</a>).</p>
+<p>For individual Haskell shelltests:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hs-shell-</span><span class="nv">name</span>
+</pre></div>
+</div>
+<p>which runs the test <tt class="docutils literal"><span class="pre">test/hs/shelltests/htools-%name%.test</span></tt>. For
+example, to run the test <tt class="docutils literal"><span class="pre">test/hs/shelltests/htools-balancing.test</span></tt>,
+use:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hs-shell-balancing</span>
+</pre></div>
+</div>
+<p>For combined Haskell shelltests:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hs-shell-{</span><span class="nv">name1</span><span class="gs">,</span><span class="nv">name2</span><span class="gs">,...}</span>
+</pre></div>
+</div>
+<p>for example:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">hs-shell-{balancing,basic}</span>
+</pre></div>
+</div>
+<p>Checking for the correct style of the NEWS file is also possible, by running:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">make</span> <span class="gs">check-news</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="packaging-notes">
+<h1>Packaging notes<a class="headerlink" href="#packaging-notes" title="Permalink to this headline">¶</a></h1>
+<p>Ganeti is mostly developed and tested on <a class="reference external" href="http://www.debian.org/">Debian</a>-based distributions, while still keeping
+adaptability to other Linux distributions in mind.</p>
+<p>The <tt class="docutils literal"><span class="pre">doc/examples/</span></tt> directory contains a number of potentially useful
+scripts and configuration files. Some of them might need adjustment
+before use.</p>
+<div class="section" id="daemon-util">
+<h2><tt class="docutils literal"><span class="pre">daemon-util</span></tt><a class="headerlink" href="#daemon-util" title="Permalink to this headline">¶</a></h2>
+<p>This script, in the source code as <tt class="docutils literal"><span class="pre">daemons/daemon-util.in</span></tt>, is used
+to start/stop Ganeti and do a few other things related to system
+daemons. It is recommended to use <tt class="docutils literal"><span class="pre">daemon-util</span></tt> also from the system&#8217;s
+init scripts. That way the code starting and stopping daemons is shared
+and future changes have to be made in only one place.</p>
+<p><tt class="docutils literal"><span class="pre">daemon-util</span></tt> reads extra arguments from variables (<tt class="docutils literal"><span class="pre">*_ARGS</span></tt>) in
+<tt class="docutils literal"><span class="pre">/etc/default/ganeti</span></tt>. When modifying <tt class="docutils literal"><span class="pre">daemon-util</span></tt>, keep in mind to
+not remove support for the <tt class="docutils literal"><span class="pre">EXTRA_*_ARGS</span></tt> variables for starting
+daemons. Some parts of Ganeti use them to pass additional arguments when
+starting a daemon.</p>
+<p>The <tt class="docutils literal"><span class="pre">reload_ssh_keys</span></tt> function can be adjusted to use another command
+for reloading the OpenSSH daemon&#8217;s host keys.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Developer notes</a><ul>
+<li><a class="reference internal" href="#build-dependencies">Build dependencies</a></li>
+<li><a class="reference internal" href="#configuring-for-development">Configuring for development</a></li>
+<li><a class="reference internal" href="#style-guide">Style guide</a></li>
+<li><a class="reference internal" href="#haskell-development-notes">Haskell development notes</a><ul>
+<li><a class="reference internal" href="#running-individual-tests">Running individual tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#packaging-notes">Packaging notes</a><ul>
+<li><a class="reference internal" href="#daemon-util"><tt class="docutils literal"><span class="pre">daemon-util</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-virtual-clusters.html"
+                        title="previous chapter">Design for virtual clusters support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dev-codestyle.html"
+                        title="next chapter">Code style guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/devnotes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="dev-codestyle.html" title="Code style guide"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-virtual-clusters.html" title="Design for virtual clusters support"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

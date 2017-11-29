@@ -1,0 +1,1758 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Program.Hcheck</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Program-Hcheck.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Program.Hcheck</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Cluster checker.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aoptions"
+>options</A
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3APhase"
+>Phase</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AInitial"
+>Initial</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ARebalanced"
+>Rebalanced</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ALevel"
+>Level</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AGroupLvl"
+>GroupLvl</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AClusterLvl"
+>ClusterLvl</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AGroupInfo"
+>GroupInfo</A
+> = (<A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+>, (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>))</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AGroupStats"
+>GroupStats</A
+> = ((<A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>, Double), [Int])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhtcPrefix"
+>htcPrefix</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcommonData"
+>commonData</A
+> :: [(String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgroupData"
+>groupData</A
+> :: [(String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AclusterData"
+>clusterData</A
+> :: [(String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AphasePrefix"
+>phasePrefix</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlevelPrefix"
+>levelPrefix</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AkeysData"
+>keysData</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AphaseDescr"
+>phaseDescr</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdescrData"
+>descrData</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AphaseLevelDescr"
+>phaseLevelDescr</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; Maybe String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintKeysHTC"
+>printKeysHTC</A
+> :: [(String, String)] -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintBool"
+>printBool</A
+> :: Bool -&gt; Bool -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintGroupsMappings"
+>printGroupsMappings</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprepareKey"
+>prepareKey</A
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; Maybe String -&gt; String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintStats"
+>printStats</A
+> :: Int -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; [String] -&gt; Maybe String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AextractGroupData"
+>extractGroupData</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprepareGroupValues"
+>prepareGroupValues</A
+> :: [Int] -&gt; Double -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprepareClusterValues"
+>prepareClusterValues</A
+> :: Bool -&gt; [Int] -&gt; [Bool] -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintGroupStats"
+>printGroupStats</A
+> :: Int -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupStats"
+>GroupStats</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintClusterStats"
+>printClusterStats</A
+> :: Int -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; [Int] -&gt; Bool -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AclusterNeedsRebalance"
+>clusterNeedsRebalance</A
+> :: [Int] -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AperGroupChecks"
+>perGroupChecks</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupStats"
+>GroupStats</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexecuteSimulation"
+>executeSimulation</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeSimulateGroupRebalance"
+>maybeSimulateGroupRebalance</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+> -&gt; IO <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeSimulateRebalance"
+>maybeSimulateRebalance</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [<A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+>] -&gt; IO [<A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintFinalHTC"
+>printFinalHTC</A
+> :: Bool -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amain"
+>main</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:options"
+><A NAME="v%3Aoptions"
+></A
+></A
+><B
+>options</B
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#options"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Options list and functions.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Phase"
+><A NAME="t%3APhase"
+></A
+></A
+><B
+>Phase</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#Phase"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Check phase - are we before (initial) or after rebalance.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Initial"
+><A NAME="v%3AInitial"
+></A
+></A
+><B
+>Initial</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:Rebalanced"
+><A NAME="v%3ARebalanced"
+></A
+></A
+><B
+>Rebalanced</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Level"
+><A NAME="t%3ALevel"
+></A
+></A
+><B
+>Level</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#Level"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Level of presented statistics.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:GroupLvl"
+><A NAME="v%3AGroupLvl"
+></A
+></A
+><B
+>GroupLvl</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ClusterLvl"
+><A NAME="v%3AClusterLvl"
+></A
+></A
+><B
+>ClusterLvl</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:GroupInfo"
+><A NAME="t%3AGroupInfo"
+></A
+></A
+><B
+>GroupInfo</B
+> = (<A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+>, (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>))</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#GroupInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A type alias for a group index and node/instance lists.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:GroupStats"
+><A NAME="t%3AGroupStats"
+></A
+></A
+><B
+>GroupStats</B
+> = ((<A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>, Double), [Int])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#GroupStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A type alias for group stats.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:htcPrefix"
+><A NAME="v%3AhtcPrefix"
+></A
+></A
+><B
+>htcPrefix</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#htcPrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prefix for machine readable names.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:commonData"
+><A NAME="v%3AcommonData"
+></A
+></A
+><B
+>commonData</B
+> :: [(String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#commonData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Data showed both per group and per cluster.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:groupData"
+><A NAME="v%3AgroupData"
+></A
+></A
+><B
+>groupData</B
+> :: [(String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#groupData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Data showed per group.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:clusterData"
+><A NAME="v%3AclusterData"
+></A
+></A
+><B
+>clusterData</B
+> :: [(String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#clusterData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Data showed per cluster.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:phasePrefix"
+><A NAME="v%3AphasePrefix"
+></A
+></A
+><B
+>phasePrefix</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#phasePrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Phase-specific prefix for machine readable version.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:levelPrefix"
+><A NAME="v%3AlevelPrefix"
+></A
+></A
+><B
+>levelPrefix</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#levelPrefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Level-specific prefix for machine readable version.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:keysData"
+><A NAME="v%3AkeysData"
+></A
+></A
+><B
+>keysData</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#keysData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Machine-readable keys to show depending on given level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:phaseDescr"
+><A NAME="v%3AphaseDescr"
+></A
+></A
+><B
+>phaseDescr</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#phaseDescr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Description of phases for human readable version.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:descrData"
+><A NAME="v%3AdescrData"
+></A
+></A
+><B
+>descrData</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#descrData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Description to show depending on given level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:phaseLevelDescr"
+><A NAME="v%3AphaseLevelDescr"
+></A
+></A
+><B
+>phaseLevelDescr</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; Maybe String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#phaseLevelDescr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Human readable prefix for statistics.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printKeysHTC"
+><A NAME="v%3AprintKeysHTC"
+></A
+></A
+><B
+>printKeysHTC</B
+> :: [(String, String)] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printKeysHTC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Format a list of key, value as a shell fragment.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printBool"
+><A NAME="v%3AprintBool"
+></A
+></A
+><B
+>printBool</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printBool"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether the result should be machine readable
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Value to be converted to string
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Prepare string from boolean value.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printGroupsMappings"
+><A NAME="v%3AprintGroupsMappings"
+></A
+></A
+><B
+>printGroupsMappings</B
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printGroupsMappings"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print mapping from group idx to group uuid (only in machine
+ readable mode).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prepareKey"
+><A NAME="v%3AprepareKey"
+></A
+></A
+><B
+>prepareKey</B
+> :: <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; Maybe String -&gt; String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#prepareKey"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prepare a single key given a certain level and phase of simulation.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printStats"
+><A NAME="v%3AprintStats"
+></A
+></A
+><B
+>printStats</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Int</TD
+><TD CLASS="rdoc"
+>Verbosity level
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>If the output should be machine readable
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3ALevel"
+>Level</A
+></TD
+><TD CLASS="rdoc"
+>Level on which we are printing
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+></TD
+><TD CLASS="rdoc"
+>Current phase of simulation
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [String]</TD
+><TD CLASS="rdoc"
+>Values to print
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Maybe String</TD
+><TD CLASS="rdoc"
+>Additional data for groups
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO ()</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Print all the statistics for given level and phase.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:extractGroupData"
+><A NAME="v%3AextractGroupData"
+></A
+></A
+><B
+>extractGroupData</B
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#extractGroupData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Extract name or idx from group.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prepareGroupValues"
+><A NAME="v%3AprepareGroupValues"
+></A
+></A
+><B
+>prepareGroupValues</B
+> :: [Int] -&gt; Double -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#prepareGroupValues"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prepare values for group.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prepareClusterValues"
+><A NAME="v%3AprepareClusterValues"
+></A
+></A
+><B
+>prepareClusterValues</B
+> :: Bool -&gt; [Int] -&gt; [Bool] -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#prepareClusterValues"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prepare values for cluster.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printGroupStats"
+><A NAME="v%3AprintGroupStats"
+></A
+></A
+><B
+>printGroupStats</B
+> :: Int -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupStats"
+>GroupStats</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printGroupStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print all the statistics on a group level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printClusterStats"
+><A NAME="v%3AprintClusterStats"
+></A
+></A
+><B
+>printClusterStats</B
+> :: Int -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3APhase"
+>Phase</A
+> -&gt; [Int] -&gt; Bool -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printClusterStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Print all the statistics on a cluster (global) level.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:clusterNeedsRebalance"
+><A NAME="v%3AclusterNeedsRebalance"
+></A
+></A
+><B
+>clusterNeedsRebalance</B
+> :: [Int] -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#clusterNeedsRebalance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check if any of cluster metrics is non-zero.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:perGroupChecks"
+><A NAME="v%3AperGroupChecks"
+></A
+></A
+><B
+>perGroupChecks</B
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupStats"
+>GroupStats</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#perGroupChecks"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check group for N+1 hapiness, conflicts of primaries on nodes and
+instances residing on offline nodes.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:executeSimulation"
+><A NAME="v%3AexecuteSimulation"
+></A
+></A
+><B
+>executeSimulation</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+> -&gt; Double -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#executeSimulation"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Use Hbal's iterateDepth to simulate group rebalance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeSimulateGroupRebalance"
+><A NAME="v%3AmaybeSimulateGroupRebalance"
+></A
+></A
+><B
+>maybeSimulateGroupRebalance</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+> -&gt; IO <A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#maybeSimulateGroupRebalance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simulate group rebalance if group's score is not good
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeSimulateRebalance"
+><A NAME="v%3AmaybeSimulateRebalance"
+></A
+></A
+><B
+>maybeSimulateRebalance</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#maybeSimulateRebalance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether to simulate rebalance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+></TD
+><TD CLASS="rdoc"
+>Command line options
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+>]</TD
+><TD CLASS="rdoc"
+>Group data
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO [<A HREF="Ganeti-HTools-Program-Hcheck.html#t%3AGroupInfo"
+>GroupInfo</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Decide whether to simulate rebalance.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printFinalHTC"
+><A NAME="v%3AprintFinalHTC"
+></A
+></A
+><B
+>printFinalHTC</B
+> :: Bool -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#printFinalHTC"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prints the final <TT
+>OK</TT
+> marker in machine readable output.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:main"
+><A NAME="v%3Amain"
+></A
+></A
+><B
+>main</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hcheck.html#main"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Instance auto-repair &mdash; Ganeti 2.13.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.13.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.13.3 documentation" href="index.html" />
+    <link rel="next" title="Ganeti Bulk Create" href="design-bulk-create.html" />
+    <link rel="prev" title="Cluster Keys Replacement" href="cluster-keys-replacement.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-bulk-create.html" title="Ganeti Bulk Create"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="instance-auto-repair">
+<h1><a class="toc-backref" href="#id1">Instance auto-repair</a><a class="headerlink" href="#instance-auto-repair" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#instance-auto-repair" id="id1">Instance auto-repair</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#new-attributes-or-tags" id="id4">New attributes (or tags)</a><ul>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-type" id="id5">ganeti:watcher:autorepair:&lt;type&gt;</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-suspend-timestamp" id="id6">ganeti:watcher:autorepair:suspend[:&lt;timestamp&gt;]</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-pending-type-id-timestamp-jobs" id="id7">ganeti:watcher:autorepair:pending:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;jobs&gt;</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-result-type-id-timestamp-result-jobs" id="id8">ganeti:watcher:autorepair:result:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;result&gt;:&lt;jobs&gt;</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#possible-states-and-transitions" id="id9">Possible states, and transitions</a><ul>
+<li><a class="reference internal" href="#healthy" id="id10">Healthy</a></li>
+<li><a class="reference internal" href="#suspended" id="id11">Suspended</a></li>
+<li><a class="reference internal" href="#needs-repair-repair-disallowed" id="id12">Needs-repair, repair disallowed</a></li>
+<li><a class="reference internal" href="#needs-repair-repair-allowed-always" id="id13">Needs-repair, repair allowed always</a></li>
+<li><a class="reference internal" href="#pending-repair" id="id14">Pending repair</a></li>
+<li><a class="reference internal" href="#failed" id="id15">Failed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repair-operation" id="id16">Repair operation</a></li>
+<li><a class="reference internal" href="#staging-of-work" id="id17">Staging of work</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id18">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the implementation of self-repair and
+recreation of instances in Ganeti. It also discusses ideas that might be useful
+for more future self-repair situations.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti currently doesn&#8217;t do any sort of self-repair or self-recreate of
+instances:</p>
+<ul class="simple">
+<li>If a drbd instance is broken (its primary of secondary nodes go
+offline or need to be drained) an admin or an external tool must fail
+it over if necessary, and then trigger a disk replacement.</li>
+<li>If a plain instance is broken (or both nodes of a drbd instance are)
+an admin or an external tool must recreate its disk and reinstall it.</li>
+</ul>
+<p>Moreover in an oversubscribed cluster operations mentioned above might
+fail for lack of capacity until a node is repaired or a new one added.
+In this case an external tool would also need to go through any
+&#8220;pending-recreate&#8221; or &#8220;pending-repair&#8221; instances and fix them.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We&#8217;d like to increase the self-repair capabilities of Ganeti, at least
+with regards to instances. In order to do so we plan to add mechanisms
+to mark an instance as &#8220;due for being repaired&#8221; and then the relevant
+repair to be performed as soon as it&#8217;s possible, on the cluster.</p>
+<p>The self repair will be written as part of ganeti-watcher or as an extra
+watcher component that is called less often.</p>
+<p>As the first version we&#8217;ll only handle the case in which an instance
+lives on an offline or drained node. In the future we may add more
+self-repair capabilities for errors ganeti can detect.</p>
+<div class="section" id="new-attributes-or-tags">
+<h3><a class="toc-backref" href="#id4">New attributes (or tags)</a><a class="headerlink" href="#new-attributes-or-tags" title="Permalink to this headline">¶</a></h3>
+<p>In order to know when to perform a self-repair operation we need to know
+whether they are allowed by the cluster administrator.</p>
+<p>This can be implemented as either new attributes or tags. Tags could be
+acceptable as they would only be read and interpreted by the self-repair tool
+(part of the watcher), and not by the ganeti core opcodes and node rpcs. The
+following tags would be needed:</p>
+<div class="section" id="ganeti-watcher-autorepair-type">
+<h4><a class="toc-backref" href="#id5">ganeti:watcher:autorepair:&lt;type&gt;</a><a class="headerlink" href="#ganeti-watcher-autorepair-type" title="Permalink to this headline">¶</a></h4>
+<p>(instance/nodegroup/cluster)
+Allow repairs to happen on an instance that has the tag, or that lives
+in a cluster or nodegroup which does. Types of repair are in order of
+perceived risk, lower to higher, and each type includes allowing the
+operations in the lower ones:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">fix-storage</span></tt> allows a disk replacement or another operation that
+fixes the instance backend storage without affecting the instance
+itself. This can for example recover from a broken drbd secondary, but
+risks data loss if something is wrong on the primary but the secondary
+was somehow recoverable.</li>
+<li><tt class="docutils literal"><span class="pre">migrate</span></tt> allows an instance migration. This can recover from a
+drained primary, but can cause an instance crash in some cases (bugs).</li>
+<li><tt class="docutils literal"><span class="pre">failover</span></tt> allows instance reboot on the secondary. This can recover
+from an offline primary, but the instance will lose its running state.</li>
+<li><tt class="docutils literal"><span class="pre">reinstall</span></tt> allows disks to be recreated and an instance to be
+reinstalled. This can recover from primary&amp;secondary both being
+offline, or from an offline primary in the case of non-redundant
+instances. It causes data loss.</li>
+</ul>
+<p>Each repair type allows all the operations in the previous types, in the
+order above, in order to ensure a repair can be completed fully. As such
+a repair of a lower type might not be able to proceed if it detects an
+error condition that requires a more risky or drastic solution, but
+never vice versa (if a worse solution is allowed then so is a better
+one).</p>
+<p>If there are multiple <tt class="docutils literal"><span class="pre">ganeti:watcher:autorepair:&lt;type&gt;</span></tt> tags in an
+object (cluster, node group or instance), the least destructive tag
+takes precedence. When multiplicity happens across objects, the nearest
+tag wins. For example, if in a cluster with two instances, <em>I1</em> and
+<em>I2</em>, <em>I1</em> has <tt class="docutils literal"><span class="pre">failover</span></tt>, and the cluster itself has both
+<tt class="docutils literal"><span class="pre">fix-storage</span></tt> and <tt class="docutils literal"><span class="pre">reinstall</span></tt>, <em>I1</em> will end up with <tt class="docutils literal"><span class="pre">failover</span></tt>
+and <em>I2</em> with <tt class="docutils literal"><span class="pre">fix-storage</span></tt>.</p>
+</div>
+<div class="section" id="ganeti-watcher-autorepair-suspend-timestamp">
+<h4><a class="toc-backref" href="#id6">ganeti:watcher:autorepair:suspend[:&lt;timestamp&gt;]</a><a class="headerlink" href="#ganeti-watcher-autorepair-suspend-timestamp" title="Permalink to this headline">¶</a></h4>
+<p>(instance/nodegroup/cluster)
+If this tag is encountered no autorepair operations will start for the
+instance (or for any instance, if present at the cluster or group
+level). Any job which already started will be allowed to finish, but
+then the autorepair system will not proceed further until this tag is
+removed, or the timestamp passes (in which case the tag will be removed
+automatically by the watcher).</p>
+<p>Note that depending on how this tag is used there might still be race
+conditions related to it for an external tool that uses it
+programmatically, as no &#8220;lock tag&#8221; or tag &#8220;test-and-set&#8221; operation is
+present at this time. While this is known we won&#8217;t solve these race
+conditions in the first version.</p>
+<p>It might also be useful to easily have an operation that tags all
+instances matching a  filter on some charateristic. But again, this
+wouldn&#8217;t be specific to this tag.</p>
+<p>If there are multiple
+<tt class="docutils literal"><span class="pre">ganeti:watcher:autorepair:suspend[:&lt;timestamp&gt;]</span></tt> tags in an object,
+the form without timestamp takes precedence (permanent suspension); or,
+if all object tags have a timestamp, the one with the highest timestamp.
+When multiplicity happens across objects, the nearest tag wins, as
+above. This makes it possible to suspend cluster-enabled repairs with a
+single tag in the cluster object; or to suspend them only for a certain
+node group or instance. At the same time, it is possible to re-enable
+cluster-suspended repairs in a particular instance or group by applying
+an enable tag to them.</p>
+</div>
+<div class="section" id="ganeti-watcher-autorepair-pending-type-id-timestamp-jobs">
+<h4><a class="toc-backref" href="#id7">ganeti:watcher:autorepair:pending:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;jobs&gt;</a><a class="headerlink" href="#ganeti-watcher-autorepair-pending-type-id-timestamp-jobs" title="Permalink to this headline">¶</a></h4>
+<p>(instance)
+If this tag is present a repair of type <tt class="docutils literal"><span class="pre">type</span></tt> is pending on the
+target instance. This means that either jobs are being run, or it&#8217;s
+waiting for resource availability. <tt class="docutils literal"><span class="pre">id</span></tt> is the unique id identifying
+this repair, <tt class="docutils literal"><span class="pre">timestamp</span></tt> is the time when this tag was first applied
+to this instance for this <tt class="docutils literal"><span class="pre">id</span></tt> (we will &#8220;update&#8221; the tag by adding a
+&#8220;new copy&#8221; of it and removing the old version as we run more jobs, but
+the timestamp will never change for the same repair)</p>
+<p><tt class="docutils literal"><span class="pre">jobs</span></tt> is the list of jobs already run or being run to repair the
+instance (separated by a plus sign, <em>+</em>). If the instance has just
+been put in pending state but no job has run yet, this list is empty.</p>
+<p>This tag will be set by ganeti if an equivalent autorepair tag is
+present and a a repair is needed, or can be set by an external tool to
+request a repair as a &#8220;once off&#8221;.</p>
+<p>If multiple instances of this tag are present they will be handled in
+order of timestamp.</p>
+</div>
+<div class="section" id="ganeti-watcher-autorepair-result-type-id-timestamp-result-jobs">
+<h4><a class="toc-backref" href="#id8">ganeti:watcher:autorepair:result:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;result&gt;:&lt;jobs&gt;</a><a class="headerlink" href="#ganeti-watcher-autorepair-result-type-id-timestamp-result-jobs" title="Permalink to this headline">¶</a></h4>
+<p>(instance)
+If this tag is present a repair of type <tt class="docutils literal"><span class="pre">type</span></tt> has been performed on
+the instance and has been completed by <tt class="docutils literal"><span class="pre">timestamp</span></tt>. The result is
+either <tt class="docutils literal"><span class="pre">success</span></tt>, <tt class="docutils literal"><span class="pre">failure</span></tt> or <tt class="docutils literal"><span class="pre">enoperm</span></tt>, and jobs is a
+<em>+</em>-separated list of jobs that were executed for this repair.</p>
+<p>An <tt class="docutils literal"><span class="pre">enoperm</span></tt> result is returned when the repair was brought on until
+possible, but the repair type doesn&#8217;t consent to proceed further.</p>
+</div>
+</div>
+<div class="section" id="possible-states-and-transitions">
+<h3><a class="toc-backref" href="#id9">Possible states, and transitions</a><a class="headerlink" href="#possible-states-and-transitions" title="Permalink to this headline">¶</a></h3>
+<p>At any point an instance can be in one of the following health states:</p>
+<div class="section" id="healthy">
+<h4><a class="toc-backref" href="#id10">Healthy</a><a class="headerlink" href="#healthy" title="Permalink to this headline">¶</a></h4>
+<p>The instance lives on only online nodes. The autorepair system will
+never touch these instances. Any <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tags will be removed
+and marked <tt class="docutils literal"><span class="pre">success</span></tt> with no jobs attached to them.</p>
+<p>This state can transition to:</p>
+<ul class="simple">
+<li>Needs-repair, repair disallowed (node offlined or drained, no
+autorepair tag)</li>
+<li>Needs-repair, autorepair allowed (node offlined or drained, autorepair
+tag present)</li>
+<li>Suspended (a suspend tag is added)</li>
+</ul>
+</div>
+<div class="section" id="suspended">
+<h4><a class="toc-backref" href="#id11">Suspended</a><a class="headerlink" href="#suspended" title="Permalink to this headline">¶</a></h4>
+<p>Whenever a <tt class="docutils literal"><span class="pre">repair:suspend</span></tt> tag is added the autorepair code won&#8217;t
+touch the instance until the timestamp on the tag has passed, if
+present. The tag will be removed afterwards (and the instance will
+transition to its correct state, depending on its health and other
+tags).</p>
+<p>Note that when an instance is suspended any pending repair is
+interrupted, but jobs which were submitted before the suspension are
+allowed to finish.</p>
+</div>
+<div class="section" id="needs-repair-repair-disallowed">
+<h4><a class="toc-backref" href="#id12">Needs-repair, repair disallowed</a><a class="headerlink" href="#needs-repair-repair-disallowed" title="Permalink to this headline">¶</a></h4>
+<p>The instance lives on an offline or drained node, but no autorepair tag
+is set, or the autorepair tag set is of a type not powerful enough to
+finish the repair. The autorepair system will never touch these
+instances, and they can transition to:</p>
+<ul class="simple">
+<li>Healthy (manual repair)</li>
+<li>Pending repair (a <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag is added)</li>
+<li>Needs-repair, repair allowed always (an autorepair always tag is added)</li>
+<li>Suspended (a suspend tag is added)</li>
+</ul>
+</div>
+<div class="section" id="needs-repair-repair-allowed-always">
+<h4><a class="toc-backref" href="#id13">Needs-repair, repair allowed always</a><a class="headerlink" href="#needs-repair-repair-allowed-always" title="Permalink to this headline">¶</a></h4>
+<p>A <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag is added, and the instance transitions to the
+Pending Repair state. The autorepair tag is preserved.</p>
+<p>Of course if a <tt class="docutils literal"><span class="pre">repair:suspended</span></tt> tag is found no pending tag will be
+added, and the instance will instead transition to the Suspended state.</p>
+</div>
+<div class="section" id="pending-repair">
+<h4><a class="toc-backref" href="#id14">Pending repair</a><a class="headerlink" href="#pending-repair" title="Permalink to this headline">¶</a></h4>
+<p>When an instance is in this stage the following will happen:</p>
+<p>If a <tt class="docutils literal"><span class="pre">repair:suspended</span></tt> tag is found the instance won&#8217;t be touched and
+moved to the Suspended state. Any jobs which were already running will
+be left untouched.</p>
+<p>If there are still jobs running related to the instance and scheduled by
+this repair they will be given more time to run, and the instance will
+be checked again later.  The state transitions to itself.</p>
+<p>If no jobs are running and the instance is detected to be healthy, the
+<tt class="docutils literal"><span class="pre">repair:result</span></tt> tag will be added, and the current active
+<tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag will be removed. It will then transition to the
+Healthy state if there are no <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tags, or to the Pending
+state otherwise: there, the instance being healthy, those tags will be
+resolved without any operation as well (note that this is the same as
+transitioning to the Healthy state, where <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tags would
+also be resolved).</p>
+<p>If no jobs are running and the instance still has issues:</p>
+<ul class="simple">
+<li>if the last job(s) failed it can either be retried a few times, if
+deemed to be safe, or the repair can transition to the Failed state.
+The <tt class="docutils literal"><span class="pre">repair:result</span></tt> tag will be added, and the active
+<tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag will be removed (further <tt class="docutils literal"><span class="pre">repair:pending</span></tt>
+tags will not be able to proceed, as explained by the Failed state,
+until the failure state is cleared)</li>
+<li>if the last job(s) succeeded but there are not enough resources to
+proceed, the state will transition to itself and no jobs are
+scheduled. The tag is left untouched (and later checked again). This
+basically just delays any repairs, the current <tt class="docutils literal"><span class="pre">pending</span></tt> tag stays
+active, and any others are untouched).</li>
+<li>if the last job(s) succeeded but the repair type cannot allow to
+proceed any further the <tt class="docutils literal"><span class="pre">repair:result</span></tt> tag is added with an
+<tt class="docutils literal"><span class="pre">enoperm</span></tt> result, and the current <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag is removed.
+The instance is now back to &#8220;Needs-repair, repair disallowed&#8221;,
+&#8220;Needs-repair, autorepair allowed&#8221;, or &#8220;Pending&#8221; if there is already a
+future tag that can repair the instance.</li>
+<li>if the last job(s) succeeded and the repair can continue new job(s)
+can be submitted, and the <tt class="docutils literal"><span class="pre">repair:pending</span></tt> tag can be updated.</li>
+</ul>
+</div>
+<div class="section" id="failed">
+<h4><a class="toc-backref" href="#id15">Failed</a><a class="headerlink" href="#failed" title="Permalink to this headline">¶</a></h4>
+<p>If repairing an instance has failed a <tt class="docutils literal"><span class="pre">repair:result:failure</span></tt> is
+added. The presence of this tag is used to detect that an instance is in
+this state, and it will not be touched until the failure is investigated
+and the tag is removed.</p>
+<p>An external tool or person needs to investigate the state of the
+instance and remove this tag when he is sure the instance is repaired
+and safe to turn back to the normal autorepair system.</p>
+<p>(Alternatively we can use the suspended state (indefinitely or
+temporarily) to mark the instance as &#8220;not touch&#8221; when we think a human
+needs to look at it. To be decided).</p>
+<p>A graph with the possible transitions follows; note that in the graph,
+following the implementation, the two <tt class="docutils literal"><span class="pre">Needs</span> <span class="pre">repair</span></tt> states have been
+coalesced into one; and the <tt class="docutils literal"><span class="pre">Suspended</span></tt> state disapears, for it
+becames an attribute of the instance object (its auto-repair policy).</p>
+<p class="graphviz">
+<img src="_images/graphviz-6b2bcdd6461b601f05069bb64e36d2648a3c3e79.png" alt="digraph &quot;auto-repair-states&quot; {
+node     [shape=circle, style=filled, fillcolor=&quot;#BEDEF1&quot;,
+          width=2, fixedsize=true];
+healthy  [label=&quot;Healthy&quot;];
+needsrep [label=&quot;Needs repair&quot;];
+pendrep  [label=&quot;Pending repair&quot;];
+failed   [label=&quot;Failed repair&quot;];
+disabled [label=&quot;(no state)&quot;, width=1.25];
+
+{rank=same; needsrep}
+{rank=same; healthy}
+{rank=same; pendrep}
+{rank=same; failed}
+{rank=same; disabled}
+
+// These nodes are needed to be the &quot;origin&quot; of the &quot;initial state&quot; arrows.
+node [width=.5, label=&quot;&quot;, style=invis];
+inih;
+inin;
+inip;
+inif;
+inix;
+
+edge [fontsize=10, fontname=&quot;Arial Bold&quot;, fontcolor=blue]
+
+inih -&gt; healthy  [label=&quot;No tags or\nresult:success&quot;];
+inip -&gt; pendrep  [label=&quot;Tag:\nautorepair:pending&quot;];
+inif -&gt; failed   [label=&quot;Tag:\nresult:failure&quot;];
+inix -&gt; disabled [fontcolor=black, label=&quot;ArNotEnabled&quot;];
+
+edge [fontcolor=&quot;orange&quot;];
+
+healthy -&gt; healthy [label=&quot;No problems\ndetected&quot;];
+
+healthy -&gt; needsrep [
+           label=&quot;Brokeness\ndetected in\nfirst half of\nthe tool run&quot;];
+
+pendrep -&gt; healthy [
+           label=&quot;All jobs\ncompleted\nsuccessfully /\ninstance healthy&quot;];
+
+pendrep -&gt; failed [label=&quot;Some job(s)\nfailed&quot;];
+
+edge [fontcolor=&quot;red&quot;];
+
+needsrep -&gt; pendrep [
+            label=&quot;Repair\nallowed and\ninitial job(s)\nsubmitted&quot;];
+
+needsrep -&gt; needsrep [
+            label=&quot;Repairs suspended\n(no-op) or enabled\nbut not powerful enough\n(result: enoperm)&quot;];
+
+pendrep -&gt; pendrep [label=&quot;More jobs\nsubmitted&quot;];
+}" />
+</p>
+</div>
+</div>
+<div class="section" id="repair-operation">
+<h3><a class="toc-backref" href="#id16">Repair operation</a><a class="headerlink" href="#repair-operation" title="Permalink to this headline">¶</a></h3>
+<p>Possible repairs are:</p>
+<ul class="simple">
+<li>Replace-disks (drbd, if the secondary is down), (or other storage
+specific fixes)</li>
+<li>Migrate (shared storage, rbd, drbd, if the primary is drained)</li>
+<li>Failover (shared storage, rbd, drbd, if the primary is down)</li>
+<li>Recreate disks + reinstall (all nodes down, plain, files or drbd)</li>
+</ul>
+<p>Note that more than one of these operations may need to happen before a
+full repair is completed (eg. if a drbd primary goes offline first a
+failover will happen, then a replce-disks).</p>
+<p>The self-repair tool will first take care of all needs-repair instance
+that can be brought into <tt class="docutils literal"><span class="pre">pending</span></tt> state, and transition them as
+described above.</p>
+<p>Then it will go through any <tt class="docutils literal"><span class="pre">repair:pending</span></tt> instances and handle them
+as described above.</p>
+<p>Note that the repair tool MAY &#8220;group&#8221; instances by performing common
+repair jobs for them (eg: node evacuate).</p>
+</div>
+<div class="section" id="staging-of-work">
+<h3><a class="toc-backref" href="#id17">Staging of work</a><a class="headerlink" href="#staging-of-work" title="Permalink to this headline">¶</a></h3>
+<p>First version: recreate-disks + reinstall (2.6.1)
+Second version: failover and migrate repairs (2.7)
+Third version: replace disks repair (2.7 or 2.8)</p>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id18">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<p>One important piece of work will be reporting what the autorepair system
+is &#8220;thinking&#8221; and exporting this in a form that can be read by an
+outside user or system. In order to do this we need a better
+communication system than embedding this information into tags. This
+should be thought in an extensible way that can be used in general for
+Ganeti to provide &#8220;advisory&#8221; information about entities it manages, and
+for an external system to &#8220;advise&#8221; ganeti over what it can do, but in a
+less direct manner than submitting individual jobs.</p>
+<p>Note that cluster verify checks some errors that are actually instance
+specific, (eg. a missing backend disk on a drbd node) or node-specific
+(eg. an extra lvm device). If we were to split these into &#8220;instance
+verify&#8221;, &#8220;node verify&#8221; and &#8220;cluster verify&#8221;, then we could easily use
+this tool to perform some of those repairs as well.</p>
+<p>Finally self-repairs could also be extended to the cluster level, for
+example concepts like &#8220;N+1 failures&#8221;, missing master candidates, etc. or
+node level for some specific types of errors.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Instance auto-repair</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#new-attributes-or-tags">New attributes (or tags)</a><ul>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-type">ganeti:watcher:autorepair:&lt;type&gt;</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-suspend-timestamp">ganeti:watcher:autorepair:suspend[:&lt;timestamp&gt;]</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-pending-type-id-timestamp-jobs">ganeti:watcher:autorepair:pending:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;jobs&gt;</a></li>
+<li><a class="reference internal" href="#ganeti-watcher-autorepair-result-type-id-timestamp-result-jobs">ganeti:watcher:autorepair:result:&lt;type&gt;:&lt;id&gt;:&lt;timestamp&gt;:&lt;result&gt;:&lt;jobs&gt;</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#possible-states-and-transitions">Possible states, and transitions</a><ul>
+<li><a class="reference internal" href="#healthy">Healthy</a></li>
+<li><a class="reference internal" href="#suspended">Suspended</a></li>
+<li><a class="reference internal" href="#needs-repair-repair-disallowed">Needs-repair, repair disallowed</a></li>
+<li><a class="reference internal" href="#needs-repair-repair-allowed-always">Needs-repair, repair allowed always</a></li>
+<li><a class="reference internal" href="#pending-repair">Pending repair</a></li>
+<li><a class="reference internal" href="#failed">Failed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repair-operation">Repair operation</a></li>
+<li><a class="reference internal" href="#staging-of-work">Staging of work</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cluster-keys-replacement.html"
+                        title="previous chapter">Cluster Keys Replacement</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-bulk-create.html"
+                        title="next chapter">Ganeti Bulk Create</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-autorepair.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-bulk-create.html" title="Ganeti Bulk Create"
+             >next</a></li>
+        <li class="right" >
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

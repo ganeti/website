@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hail &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="harep" href="man-harep.html" />
+    <link rel="prev" title="gnt-storage" href="man-gnt-storage.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-harep.html" title="harep"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-gnt-storage.html" title="gnt-storage"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="hail">
+<h1>hail<a class="headerlink" href="#hail" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>hail - Ganeti IAllocator plugin</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>hail</strong> [ <strong>-t</strong> <em>file</em> | <strong>&#8211;simulate</strong> <em>spec</em> ] [options...] <em>input-file</em></p>
+<p><strong>hail</strong> &#8211;version</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>hail is a Ganeti IAllocator plugin that implements the instance
+placement and movement using the same algorithm as <strong>hbal</strong>(1).</p>
+<p>The program takes input via a JSON-file containing current cluster
+state and the request details, and output (on stdout) a JSON-formatted
+response. In case of critical failures, the error message is printed
+on stderr and the exit code is changed to show failure.</p>
+<p>If the input file name is <tt class="docutils literal"><span class="pre">-</span></tt> (a single minus sign), then the request
+data will be read from <em>stdin</em>.</p>
+<p>Apart from input data, hail collects data over the network from all
+MonDs with the &#8211;mond option. Currently it uses only data produced by
+the CPUload collector.</p>
+<div class="section" id="algorithm">
+<h3>ALGORITHM<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<p>On regular node groups, the program uses a simplified version of
+the hbal algorithm; for allocation on node groups with exclusive
+storage see below.</p>
+<p>For single-node allocations (non-mirrored instances), again we
+select the node which, when chosen as the primary node, gives the best
+score.</p>
+<p>For dual-node allocations (mirrored instances), we chose the best
+pair; this is the only choice where the algorithm is non-trivial
+with regard to cluster size.</p>
+<p>For relocations, we try to change the secondary node of the instance to
+all the valid other nodes; the node which results in the best cluster
+score is chosen.</p>
+<p>For node changes (<em>change-node</em> mode), we currently support DRBD
+instances only, and all three modes (primary changes, secondary changes
+and all node changes).</p>
+<p>For group moves (<em>change-group</em> mode), again only DRBD is supported, and
+we compute the correct sequence that will result in a group change; job
+failure mid-way will result in a split instance. The choice of node(s)
+on the target group is based on the group score, and the choice of group
+is based on the same algorithm as allocations (group with lowest score
+after placement).</p>
+<p>The deprecated <em>multi-evacuate</em> modes is no longer supported.</p>
+<p>In all cases, the cluster (or group) scoring is identical to the hbal
+algorithm.</p>
+<p>For allocation on node groups with exclusive storage, the lost-allocations
+metrics is used instead to determine which node to allocate an instance
+on. For a node the allocation vector is the vector of, for each instance
+policy interval in decreasing order, the number of instances minimally
+compliant with that interval that still can be placed on that node. The
+lost-allocations vector for an instance on a node is the difference of
+the allocation vectors for that node before and after placing the
+instance on that node. The lost-allocations metrics is the lost allocation
+vector followed by the remaining disk space on the chosen node, all
+compared lexicographically.</p>
+</div>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p>The options that can be passed to the program are as follows:</p>
+<dl class="docutils">
+<dt>-p, &#8211;print-nodes</dt>
+<dd>Prints the before and after node status, in a format designed to allow
+the user to understand the node&#8217;s most important parameters. See the
+man page <strong>htools</strong>(1) for more details about this option.</dd>
+<dt>-t <em>datafile</em>, &#8211;text-data=*datafile*</dt>
+<dd>The name of the file holding cluster information, to override the data
+in the JSON request itself. This is mostly used for debugging. The
+format of the file is described in the man page <strong>htools</strong>(1).</dd>
+<dt>&#8211;mond=*yes|no*</dt>
+<dd>If given the program will query all MonDs to fetch data from the
+supported data collectors over the network.</dd>
+<dt>&#8211;mond-data <em>datafile</em></dt>
+<dd>The name of the file holding the data provided by MonD, to override
+quering MonDs over the network. This is mostly used for debugging. The
+file must be in JSON format and present an array of JSON objects ,
+one for every node, with two members. The first member named <tt class="docutils literal"><span class="pre">node</span></tt>
+is the name of the node and the second member named <tt class="docutils literal"><span class="pre">reports</span></tt> is an
+array of report objects. The report objects must be in the same format
+as produced by the monitoring agent.</dd>
+<dt>&#8211;ignore-dynu</dt>
+<dd>If given, all dynamic utilisation information will be ignored by
+assuming it to be 0. This option will take precedence over any data
+passed by the MonDs with the <tt class="docutils literal"><span class="pre">--mond</span></tt> and the <tt class="docutils literal"><span class="pre">--mond-data</span></tt>
+option.</dd>
+<dt>&#8211;ignore-soft-errors</dt>
+<dd>If given, all checks for soft errors will be ommitted when searching
+for possible allocations. In this way a useful decission can be made
+even in overloaded clusters.</dd>
+<dt>&#8211;no-capacity-checks</dt>
+<dd>Normally, hail will only consider those allocations where all instances
+of a node can immediately restarted should that node fail. With this
+option given, hail will check only N+1 redundancy for DRBD instances.</dd>
+<dt>&#8211;restrict-allocation-to</dt>
+<dd>Only consider alloctions on the specified nodes. This overrides any
+restrictions given in the allocation request.</dd>
+<dt>&#8211;simulate <em>description</em></dt>
+<dd>Backend specification: similar to the <strong>-t</strong> option, this allows
+overriding the cluster data with a simulated cluster. For details
+about the description, see the man page <strong>htools</strong>(1).</dd>
+<dt>-S <em>filename</em>, &#8211;save-cluster=*filename*</dt>
+<dd>If given, the state of the cluster before and the iallocator run is
+saved to a file named <em>filename.pre-ialloc</em>, respectively
+<em>filename.post-ialloc</em>. This allows re-feeding the cluster state to
+any of the htools utilities via the <tt class="docutils literal"><span class="pre">-t</span></tt> option.</dd>
+</dl>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-v</span></kbd></td>
+<td>This option increases verbosity and can be used for debugging in order
+to understand how the IAllocator request is parsed; it can be passed
+multiple times for successively more information.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration">
+<h2>CONFIGURATION<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>For the tag-exclusion configuration (see the manpage of hbal for more
+details), the list of which instance tags to consider as exclusion
+tags will be read from the cluster tags, configured as follows:</p>
+<ul class="simple">
+<li>get all cluster tags starting with <strong>htools:iextags:</strong></li>
+<li>use their suffix as the prefix for exclusion tags</li>
+</ul>
+<p>For example, given a cluster tag like <strong>htools:iextags:service</strong>,
+all instance tags of the form <strong>service:X</strong> will be considered as
+exclusion tags, meaning that (e.g.) two instances which both have a
+tag <strong>service:foo</strong> will not be placed on the same primary node.</p>
+</div>
+<div class="section" id="id1">
+<h2>OPTIONS<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The options that can be passed to the program are as follows:</p>
+</div>
+<div class="section" id="exit-status">
+<h2>EXIT STATUS<a class="headerlink" href="#exit-status" title="Permalink to this headline">¶</a></h2>
+<p>The exist status of the command will be zero, unless for some reason
+the algorithm fatally failed (e.g. wrong node or instance data).</p>
+</div>
+<div class="section" id="bugs">
+<h2>BUGS<a class="headerlink" href="#bugs" title="Permalink to this headline">¶</a></h2>
+<p>Networks (as configured by <strong>gnt-network</strong>(8)) are not taken into
+account in Ganeti 2.7. The only way to guarantee that they work
+correctly is having your networks connected to all nodegroups. This will
+be fixed in a future version.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">hail</a><ul>
+<li><a class="reference internal" href="#name">NAME</a></li>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#algorithm">ALGORITHM</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#configuration">CONFIGURATION</a></li>
+<li><a class="reference internal" href="#id1">OPTIONS</a></li>
+<li><a class="reference internal" href="#exit-status">EXIT STATUS</a></li>
+<li><a class="reference internal" href="#bugs">BUGS</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-gnt-storage.html"
+                        title="previous chapter">gnt-storage</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-harep.html"
+                        title="next chapter">harep</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-hail.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-harep.html" title="harep"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-gnt-storage.html" title="gnt-storage"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

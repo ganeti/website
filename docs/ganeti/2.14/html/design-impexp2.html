@@ -1,0 +1,638 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design for import/export version 2 &mdash; Ganeti 2.14.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.14.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Resource model changes" href="design-resource-model.html" />
+    <link rel="prev" title="Design for replacing Ganeti’s HTTP server" href="design-http-server.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-resource-model.html" title="Resource model changes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-http-server.html" title="Design for replacing Ganeti’s HTTP server"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-for-import-export-version-2">
+<h1><a class="toc-backref" href="#id2">Design for import/export version 2</a><a class="headerlink" href="#design-for-import-export-version-2" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#design-for-import-export-version-2" id="id2">Design for import/export version 2</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id3">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#software-requirements" id="id5">Software requirements</a></li>
+<li><a class="reference internal" href="#transport" id="id6">Transport</a></li>
+<li><a class="reference internal" href="#ssl-certificates" id="id7">SSL certificates</a></li>
+<li><a class="reference internal" href="#source" id="id8">Source</a><ul>
+<li><a class="reference internal" href="#option-1-cgi" id="id9">Option 1: CGI</a></li>
+<li><a class="reference internal" href="#option-2-fastcgi" id="id10">Option 2: FastCGI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#destination" id="id11">Destination</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-big-picture-for-instance-moves" id="id12">The big picture for instance moves</a></li>
+<li><a class="reference internal" href="#http-resources-on-source" id="id13">HTTP resources on source</a></li>
+<li><a class="reference internal" href="#code-samples" id="id14">Code samples</a><ul>
+<li><a class="reference internal" href="#pycurl-to-file" id="id15">pycURL to file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#backwards-compatibility" id="id16">Backwards compatibility</a><ul>
+<li><a class="reference internal" href="#version-1" id="id17">Version 1</a></li>
+<li><a class="reference internal" href="#exp-size-fd" id="id18"><tt class="docutils literal"><span class="pre">EXP_SIZE_FD</span></tt></a></li>
+<li><a class="reference internal" href="#compression" id="id19">Compression</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#notes" id="id20">Notes</a></li>
+<li><a class="reference internal" href="#performance-considerations" id="id21">Performance considerations</a></li>
+<li><a class="reference internal" href="#other-considered-solutions" id="id22">Other considered solutions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id3">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti 2.2 introduced <a class="reference internal" href="design-2.2.html"><em>inter-cluster instance moves</em></a>
+and replaced the import/export mechanism with the same technology. It&#8217;s
+since shown that the chosen implementation was too complicated and and
+can be difficult to debug.</p>
+<p>The old implementation is henceforth called &#8220;version 1&#8221;. It used
+<tt class="docutils literal"><span class="pre">socat</span></tt> in combination with a rather complex tree of <tt class="docutils literal"><span class="pre">bash</span></tt> and
+Python utilities to move instances between clusters and import/export
+them inside the cluster. Due to protocol limitations, the master daemon
+starts a daemon on the involved nodes and then keeps polling a status
+file for updates. A non-trivial number of timeouts ensures that jobs
+don&#8217;t freeze.</p>
+<p>In version 1, the destination node would start a daemon listening on a
+random TCP port. Upon receiving the destination information, the source
+node would temporarily stop the instance, create snapshots, and start
+exporting the data by connecting to the destination. The random TCP port
+is chosen by the operating system by binding the socket to port 0.
+While this is a somewhat elegant solution, it causes problems in setups
+with restricted connectivity (e.g. iptables).</p>
+<p>Another issue encountered was with dual-stack IPv6 setups. <tt class="docutils literal"><span class="pre">socat</span></tt> can
+only listen on one protocol, IPv4 or IPv6, at a time. The connecting
+node can not simply resolve the DNS name, but it must be told the exact
+IP address.</p>
+<p>Instance OS definitions can provide custom import/export scripts. They
+were working well in the early days when a filesystem was usually
+created directly on the block device. Around Ganeti 2.0 there was a
+transition to using partitions on the block devices. Import/export
+scripts could no longer use simple <tt class="docutils literal"><span class="pre">dump</span></tt> and <tt class="docutils literal"><span class="pre">restore</span></tt> commands,
+but usually ended up doing raw data dumps.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id4">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>Unlike in version 1, in version 2 the destination node will connect to
+the source. The active side is swapped. This design assumes the
+following design documents have been implemented:</p>
+<ul class="simple">
+<li><a class="reference internal" href="design-x509-ca.html"><em>Design for a X509 Certificate Authority</em></a></li>
+<li><a class="reference internal" href="design-http-server.html"><em>Design for replacing Ganeti&#8217;s HTTP server</em></a></li>
+</ul>
+<p>The following design is mostly targetted at inter-cluster instance
+moves. Intra-cluster import and export use the same technology, but do
+so in a less complicated way (e.g. reusing the node daemon certificate
+in version 1).</p>
+<p>Support for instance OS import/export scripts, which have been in Ganeti
+since the beginning, will be dropped with this design. Should the need
+arise, they can be re-added later.</p>
+<div class="section" id="software-requirements">
+<h3><a class="toc-backref" href="#id5">Software requirements</a><a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>HTTP client: cURL/pycURL (already used for inter-node RPC and RAPI
+client)</li>
+<li>Authentication: X509 certificates (server and client)</li>
+</ul>
+</div>
+<div class="section" id="transport">
+<h3><a class="toc-backref" href="#id6">Transport</a><a class="headerlink" href="#transport" title="Permalink to this headline">¶</a></h3>
+<p>Instead of a home-grown, mostly raw protocol the widely used HTTP
+protocol will be used. Ganeti already uses HTTP for its <a class="reference internal" href="rapi.html"><em>Remote API</em></a> and inter-node communication. Encryption and authentication will
+be implemented using SSL and X509 certificates.</p>
+</div>
+<div class="section" id="ssl-certificates">
+<h3><a class="toc-backref" href="#id7">SSL certificates</a><a class="headerlink" href="#ssl-certificates" title="Permalink to this headline">¶</a></h3>
+<p>The source machine will identify connecting clients by their SSL
+certificate. Unknown certificates will be refused.</p>
+<p>Version 1 created a new self-signed certificate per instance
+import/export, allowing the certificate to be used as a Certificate
+Authority (CA). This worked by means of starting a new <tt class="docutils literal"><span class="pre">socat</span></tt>
+instance per instance import/export.</p>
+<p>Under the version 2 model, a continously running HTTP server will be
+used. This disallows the use of self-signed certificates for
+authentication as the CA needs to be the same for all issued
+certificates.</p>
+<p>See the <a class="reference internal" href="design-x509-ca.html"><em>separate design document for more details on how the
+certificate authority will be implemented</em></a>.</p>
+<p>Local imports/exports will, like version 1, use the node daemon&#8217;s
+certificate/key. Doing so allows the verification of local connections.
+The client&#8217;s certificate can be exported to the CGI/FastCGI handler
+using lighttpd&#8217;s <tt class="docutils literal"><span class="pre">ssl.verifyclient.exportcert</span></tt> setting. If a
+cluster-local import/export is being done, the handler verifies if the
+used certificate matches with the local node daemon key.</p>
+</div>
+<div class="section" id="source">
+<h3><a class="toc-backref" href="#id8">Source</a><a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h3>
+<p>The source can be the same physical machine as the destination, another
+node in the same cluster, or a node in another cluster. A
+physical-to-virtual migration mechanism could be implemented as an
+alternative source.</p>
+<p>In the case of a traditional import, the source is usually a file on the
+source machine. For exports and remote imports, the source is an
+instance&#8217;s raw disk data. In all cases the transported data is opaque to
+Ganeti.</p>
+<p>All nodes of a cluster will run an instance of Lighttpd. The
+configuration is automatically generated when starting Ganeti. The HTTP
+server is configured to listen on IPv4 and IPv6 simultaneously.
+Imports/exports will use a dedicated TCP port, similar to the Remote
+API.</p>
+<p>See the separate <a class="reference internal" href="design-http-server.html#http-srv-shortcomings"><em>HTTP server design document</em></a> for why Ganeti&#8217;s existing, built-in HTTP server
+is not a good choice.</p>
+<p>The source cluster is provided with a X509 Certificate Signing Request
+(CSR) for a key private to the destination cluster.</p>
+<p>After shutting down the instance, creating snapshots and restarting the
+instance the master will sign the destination&#8217;s X509 certificate using
+the <a class="reference internal" href="design-x509-ca.html"><em>X509 CA</em></a> once per instance disk. Instead of
+using another identifier, the certificate&#8217;s serial number (<a class="reference internal" href="design-x509-ca.html#x509-ca-serial"><em>never
+reused</em></a>) and fingerprint are used to identify incoming
+requests. Once ready, the master will call an RPC method on the source
+node and provide it with the input information (e.g. file paths or block
+devices) and the certificate identities.</p>
+<p>The RPC method will write the identities to a place accessible by the
+HTTP request handler, generate unique transfer IDs and return them to
+the master. The transfer ID could be a filename containing the
+certificate&#8217;s serial number, fingerprint and some disk information. The
+file containing the per-transfer information is signed using the node
+daemon key and the signature written to a separate file.</p>
+<p>Once everything is in place, the master sends the certificates, the data
+and notification URLs (which include the transfer IDs) and the public
+part of the source&#8217;s CA to the job submitter. Like in version 1,
+everything will be signed using the cluster domain secret.</p>
+<p>Upon receiving a request, the handler verifies the identity and
+continues to stream the instance data. The serial number and fingerprint
+contained in the transfer ID should be matched with the certificate
+used. If a cluster-local import/export was requested, the remote&#8217;s
+certificate is verified with the local node daemon key. The signature of
+the information file from which the handler takes the path of the block
+device (and more) is verified using the local node daemon certificate.
+There are two options for handling requests, <a class="reference internal" href="#lighttpd-cgi-opt"><em>CGI</em></a> and <a class="reference internal" href="#lighttpd-fastcgi-opt"><em>FastCGI</em></a>.</p>
+<p>To wait for all requests to finish, the master calls another RPC method.
+The destination should notify the source once it&#8217;s done with downloading
+the data. Since this notification may never arrive (e.g. network
+issues), an additional timeout needs to be used.</p>
+<p>There is no good way to avoid polling as the HTTP requests will be
+handled asynchronously in another process. Once, and if, implemented
+<a class="reference internal" href="design-http-server.html#rpc-feedback"><em>RPC feedback</em></a> could be used to combine the two RPC
+methods.</p>
+<p>Upon completion of the transfer requests, the instance is removed if
+requested.</p>
+<div class="section" id="option-1-cgi">
+<span id="lighttpd-cgi-opt"></span><h4><a class="toc-backref" href="#id9">Option 1: CGI</a><a class="headerlink" href="#option-1-cgi" title="Permalink to this headline">¶</a></h4>
+<p>While easier to implement, this option requires the HTTP server to
+either run as &#8220;root&#8221; or a so-called SUID binary to elevate the started
+process to run as &#8220;root&#8221;.</p>
+<p>The export data can be sent directly to the HTTP server without any
+further processing.</p>
+</div>
+<div class="section" id="option-2-fastcgi">
+<span id="lighttpd-fastcgi-opt"></span><h4><a class="toc-backref" href="#id10">Option 2: FastCGI</a><a class="headerlink" href="#option-2-fastcgi" title="Permalink to this headline">¶</a></h4>
+<p>Unlike plain CGI, FastCGI scripts are run separately from the webserver.
+The webserver talks to them via a Unix socket. Webserver and scripts can
+run as separate users. Unlike for CGI, there are almost no bootstrap
+costs attached to each request.</p>
+<p>The FastCGI protocol requires data to be sent in length-prefixed
+packets, something which wouldn&#8217;t be very efficient to do in Python for
+large amounts of data (instance imports/exports can be hundreds of
+gigabytes). For this reason the proposal is to use a wrapper program
+written in C (e.g. <a class="reference external" href="http://nginx.localdomain.pl/wiki/FcgiWrap">fcgiwrap</a>) and to write the handler
+like an old-style CGI program with standard input/output. If data should
+be copied from a file, <tt class="docutils literal"><span class="pre">cat</span></tt>, <tt class="docutils literal"><span class="pre">dd</span></tt> or <tt class="docutils literal"><span class="pre">socat</span></tt> can be used (see
+note about <a class="reference internal" href="#python-sendfile"><em>sendfile(2)/splice(2) with Python</em></a>).</p>
+<p>The bootstrap cost associated with starting a Python interpreter for
+a disk export is expected to be negligible.</p>
+<p>The <a class="reference external" href="http://cgit.stbuehler.de/gitosis/spawn-fcgi/about/">spawn-fcgi</a>
+program will be used to start the CGI wrapper as &#8220;root&#8221;.</p>
+<p>FastCGI is, in the author&#8217;s opinion, the better choice as it allows user
+separation. As a first implementation step the export handler can be run
+as a standard CGI program. User separation can be implemented as a
+second step.</p>
+</div>
+</div>
+<div class="section" id="destination">
+<h3><a class="toc-backref" href="#id11">Destination</a><a class="headerlink" href="#destination" title="Permalink to this headline">¶</a></h3>
+<p>The destination can be the same physical machine as the source, another
+node in the same cluster, or a node in another cluster. While not
+considered in this design document, instances could be exported from the
+cluster by implementing an external client for exports.</p>
+<p>For traditional exports the destination is usually a file on the
+destination machine. For imports and remote exports, the destination is
+an instance&#8217;s disks. All transported data is opaque to Ganeti.</p>
+<p>Before an import can be started, an RSA key and corresponding
+Certificate Signing Request (CSR) must be generated using the new opcode
+<tt class="docutils literal"><span class="pre">OpInstanceImportPrepare</span></tt>. The returned information is signed using
+the cluster domain secret. The RSA key backing the CSR must not leave
+the destination cluster. After being passed through a third party, the
+source cluster will generate signed certificates from the CSR.</p>
+<p>Once the request for creating the instance arrives at the master daemon,
+it&#8217;ll create the instance and call an RPC method on the instance&#8217;s
+primary node to download all data. The RPC method does not return until
+the transfer is complete or failed (see <a class="reference internal" href="#exp-size-fd"><em>EXP_SIZE_FD</em></a>
+and <a class="reference internal" href="design-http-server.html#rpc-feedback"><em>RPC feedback</em></a>).</p>
+<p>The node will use pycURL to connect to the source machine and identify
+itself with the signed certificate received. pycURL will be configured
+to write directly to a file descriptor pointing to either a regular file
+or block device. The file descriptor needs to point to the correct
+offset for resuming downloads.</p>
+<p>Using cURL&#8217;s multi interface, more than one transfer can be made at the
+same time. While parallel transfers are used by the version 1
+import/export, it can be decided at a later time whether to use them in
+version 2 too. More investigation is necessary to determine whether
+<tt class="docutils literal"><span class="pre">CURLOPT_MAXCONNECTS</span></tt> is enough to limit the number of connections or
+whether more logic is necessary.</p>
+<p>If a transfer fails before it&#8217;s finished (e.g. timeout or network
+issues) it should be retried using an exponential backoff delay. The
+opcode submitter can specify for how long the transfer should be
+retried.</p>
+<p>At the end of a transfer, succssful or not, the source cluster must be
+notified. A the same time the RSA key needs to be destroyed.</p>
+<p>Support for HTTP proxies can be implemented by setting
+<tt class="docutils literal"><span class="pre">CURLOPT_PROXY</span></tt>. Proxies could be used for moving instances in/out of
+restricted network environments or across protocol borders (e.g. IPv4
+networks unable to talk to IPv6 networks).</p>
+</div>
+</div>
+<div class="section" id="the-big-picture-for-instance-moves">
+<h2><a class="toc-backref" href="#id12">The big picture for instance moves</a><a class="headerlink" href="#the-big-picture-for-instance-moves" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">OpInstanceImportPrepare</span></tt> (destination cluster)</li>
+</ol>
+<blockquote>
+<div>Create RSA key and CSR (certificate signing request), return signed
+with cluster domain secret.</div></blockquote>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">OpBackupPrepare</span></tt> (source cluster)</li>
+</ol>
+<blockquote>
+<div>Becomes a no-op in version 2, but see <a class="reference internal" href="#backwards-compat"><em>Backwards compatibility</em></a>.</div></blockquote>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">OpBackupExport</span></tt> (source cluster)</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>Receives destination cluster&#8217;s CSR, verifies signature using
+cluster domain secret.</li>
+<li>Creates certificates using CSR and <a class="reference internal" href="design-x509-ca.html"><em>cluster CA</em></a>, one for each disk</li>
+<li>Stop instance, create snapshots, start instance</li>
+<li>Prepare HTTP resources on node</li>
+<li>Send certificates, URLs and CA certificate to job submitter using
+feedback mechanism</li>
+<li>Wait for all transfers to finish or fail (with timeout)</li>
+<li>Remove snapshots</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">OpInstanceCreate</span></tt> (destination cluster)</li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Receives certificates signed by destination cluster, verifies
+certificates and URLs using cluster domain secret</p>
+<p>Note that the parameters should be implemented in a generic way
+allowing future extensions, e.g. to download disk images from a
+public, remote server. The cluster domain secret allows Ganeti to
+check data received from a third party, but since this won&#8217;t work
+with such extensions, other checks will have to be designed.</p>
+</li>
+<li><p class="first">Create block devices</p>
+</li>
+<li><p class="first">Download every disk from source, verified using remote&#8217;s CA and
+authenticated using signed certificates</p>
+</li>
+<li><p class="first">Destroy RSA key and certificates</p>
+</li>
+<li><p class="first">Start instance</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="http-resources-on-source">
+<span id="impexp2-http-resources"></span><h2><a class="toc-backref" href="#id13">HTTP resources on source</a><a class="headerlink" href="#http-resources-on-source" title="Permalink to this headline">¶</a></h2>
+<p>The HTTP resources listed below will be made available by the source
+machine. The transfer ID is generated while preparing the export and is
+unique per disk and instance. No caching should be used and the
+<tt class="docutils literal"><span class="pre">Pragma</span></tt> (HTTP/1.0) and <tt class="docutils literal"><span class="pre">Cache-Control</span></tt> (HTTP/1.1) headers set
+accordingly by the server.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">GET</span> <span class="pre">/transfers/[transfer_id]/contents</span></tt></dt>
+<dd><p class="first">Dump disk contents. Important request headers:</p>
+<dl class="last docutils">
+<dt><tt class="docutils literal"><span class="pre">Accept</span></tt> (<span class="target" id="index-0"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a>, section 14.1)</dt>
+<dd><p class="first">Specify preferred media types. Only one type is supported in the
+initial implementation:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">application/octet-stream</span></tt></dt>
+<dd>Request raw disk content.</dd>
+</dl>
+<p>If support for more media types were to be implemented in the
+future, the &#8220;q&#8221; parameter used for &#8220;indicating a relative quality
+factor&#8221; needs to be used. In the meantime parameters need to be
+expected, but can be ignored.</p>
+<p>If support for OS scripts were to be re-added in the future, the
+MIME type <tt class="docutils literal"><span class="pre">application/x-ganeti-instance-export</span></tt> is hereby
+reserved for disk dumps using an export script.</p>
+<p class="last">If the source can not satisfy the request the response status code
+will be 406 (Not Acceptable). Successful requests will specify the
+used media type using the <tt class="docutils literal"><span class="pre">Content-Type</span></tt> header. Unless only
+exactly one media type is requested, the client must handle the
+different response types.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Accept-Encoding</span></tt> (<span class="target" id="index-1"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a>, section 14.3)</dt>
+<dd><p class="first">Specify desired content coding. Supported are <tt class="docutils literal"><span class="pre">identity</span></tt> for
+uncompressed data, <tt class="docutils literal"><span class="pre">gzip</span></tt> for compressed data and <tt class="docutils literal"><span class="pre">*</span></tt> for any.
+The response will include a <tt class="docutils literal"><span class="pre">Content-Encoding</span></tt> header with the
+actual coding used. If the client specifies an unknown coding, the
+response status code will be 406 (Not Acceptable).</p>
+<p class="last">If the client specifically needs compressed data (see
+<a class="reference internal" href="#impexp2-compression"><em>Compression</em></a>) but only gets <tt class="docutils literal"><span class="pre">identity</span></tt>, it can
+either compress locally or abort the request.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Range</span></tt> (<span class="target" id="index-2"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a>, section 14.35)</dt>
+<dd><p class="first">Raw disk dumps can be resumed using this header (e.g. after a
+network issue).</p>
+<p>If this header was given in the request and the source supports
+resuming, the status code of the response will be 206 (Partial
+Content) and it&#8217;ll include the <tt class="docutils literal"><span class="pre">Content-Range</span></tt> header as per
+<span class="target" id="index-3"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a>. If it does not support resuming or the request was not
+specifying a range, the status code will be 200 (OK).</p>
+<p>Only a single byte range is supported. cURL does not support
+<tt class="docutils literal"><span class="pre">multipart/byteranges</span></tt> responses by itself. Even if they could be
+somehow implemented, doing so would be of doubtful benefit for
+import/export.</p>
+<p>For raw data dumps handling ranges is pretty straightforward by just
+dumping the requested range.</p>
+<p class="last">cURL will fail with the error code <tt class="docutils literal"><span class="pre">CURLE_RANGE_ERROR</span></tt> if a
+request included a range but the server can&#8217;t handle it. The request
+must be retried without a range.</p>
+</dd>
+</dl>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">POST</span> <span class="pre">/transfers/[transfer_id]/done</span></tt></dt>
+<dd>Use this resource to notify the source when transfer is finished (even
+if not successful). The status code will be 204 (No Content).</dd>
+</dl>
+</div>
+<div class="section" id="code-samples">
+<h2><a class="toc-backref" href="#id14">Code samples</a><a class="headerlink" href="#code-samples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pycurl-to-file">
+<h3><a class="toc-backref" href="#id15">pycURL to file</a><a class="headerlink" href="#pycurl-to-file" title="Permalink to this headline">¶</a></h3>
+<p>The following code sample shows how to write downloaded data directly to
+a file without pumping it through Python:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">curl</span> <span class="o">=</span> <span class="n">pycurl</span><span class="o">.</span><span class="n">Curl</span><span class="p">()</span>
+<span class="n">curl</span><span class="o">.</span><span class="n">setopt</span><span class="p">(</span><span class="n">pycurl</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span> <span class="s">&quot;http://www.google.com/&quot;</span><span class="p">)</span>
+<span class="n">curl</span><span class="o">.</span><span class="n">setopt</span><span class="p">(</span><span class="n">pycurl</span><span class="o">.</span><span class="n">WRITEDATA</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;googlecom.html&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">))</span>
+<span class="n">curl</span><span class="o">.</span><span class="n">perform</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This works equally well if the file descriptor is a pipe to another
+process.</p>
+</div>
+</div>
+<div class="section" id="backwards-compatibility">
+<span id="backwards-compat"></span><h2><a class="toc-backref" href="#id16">Backwards compatibility</a><a class="headerlink" href="#backwards-compatibility" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-1">
+<span id="backwards-compat-v1"></span><h3><a class="toc-backref" href="#id17">Version 1</a><a class="headerlink" href="#version-1" title="Permalink to this headline">¶</a></h3>
+<p>The old inter-cluster import/export implementation described in the
+<a class="reference internal" href="design-2.2.html"><em>Ganeti 2.2 design document</em></a> will be supported for at
+least one minor (2.x) release. Intra-cluster imports/exports will use
+the new version right away.</p>
+</div>
+<div class="section" id="exp-size-fd">
+<span id="id1"></span><h3><a class="toc-backref" href="#id18"><tt class="docutils literal"><span class="pre">EXP_SIZE_FD</span></tt></a><a class="headerlink" href="#exp-size-fd" title="Permalink to this headline">¶</a></h3>
+<p>Together with the improved import/export infrastructure Ganeti 2.2
+allowed instance export scripts to report the expected data size. This
+was then used to provide the user with an estimated remaining time.
+Version 2 no longer supports OS import/export scripts and therefore
+<tt class="docutils literal"><span class="pre">EXP_SIZE_FD</span></tt> is no longer needed.</p>
+</div>
+<div class="section" id="compression">
+<span id="impexp2-compression"></span><h3><a class="toc-backref" href="#id19">Compression</a><a class="headerlink" href="#compression" title="Permalink to this headline">¶</a></h3>
+<p>Version 1 used explicit compression using <tt class="docutils literal"><span class="pre">gzip</span></tt> for transporting
+data, but the dumped files didn&#8217;t use any compression. Version 2 will
+allow the destination to specify which encoding should be used. This way
+the transported data is already compressed and can be directly used by
+the client (see <a class="reference internal" href="#impexp2-http-resources"><em>HTTP resources on source</em></a>). The cURL option
+<tt class="docutils literal"><span class="pre">CURLOPT_ENCODING</span></tt> can be used to set the <tt class="docutils literal"><span class="pre">Accept-Encoding</span></tt> header.
+cURL will not decompress received data when
+<tt class="docutils literal"><span class="pre">CURLOPT_HTTP_CONTENT_DECODING</span></tt> is set to zero (if another HTTP client
+library were used which doesn&#8217;t support disabling transparent
+compression, a custom content-coding type could be defined, e.g.
+<tt class="docutils literal"><span class="pre">x-ganeti-gzip</span></tt>).</p>
+</div>
+</div>
+<div class="section" id="notes">
+<h2><a class="toc-backref" href="#id20">Notes</a><a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<p>The HTTP/1.1 protocol (<span class="target" id="index-4"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a>) defines trailing headers for chunked
+transfers in section 3.6.1. This could be used to transfer a checksum at
+the end of an import/export. cURL supports trailing headers since
+version 7.14.1. Lighttpd doesn&#8217;t seem to support them for FastCGI, but
+they appear to be usable in combination with an NPH CGI (No Parsed
+Headers).</p>
+<p id="lighttp-sendfile">Lighttpd allows FastCGI applications to send the special headers
+<tt class="docutils literal"><span class="pre">X-Sendfile</span></tt> and <tt class="docutils literal"><span class="pre">X-Sendfile2</span></tt> (the latter with a range). Using
+these headers applications can send response headers and tell the
+webserver to serve regular file stored on the file system as a response
+body. The webserver will then take care of sending that file.
+Unfortunately this mechanism is restricted to regular files and can not
+be used for data from programs, neither direct nor via named pipes,
+without writing to a file first. The latter is not an option as instance
+data can be very large. Theoretically <tt class="docutils literal"><span class="pre">X-Sendfile</span></tt> could be used for
+sending the input for a file-based instance import, but that&#8217;d require
+the webserver to run as &#8220;root&#8221;.</p>
+<p id="python-sendfile">Python does not include interfaces for the <tt class="docutils literal"><span class="pre">sendfile(2)</span></tt> or
+<tt class="docutils literal"><span class="pre">splice(2)</span></tt> system calls. The latter can be useful for faster copying
+of data between file descriptors. There are some 3rd-party modules (e.g.
+<a class="reference external" href="http://pypi.python.org/pypi/py-sendfile/">http://pypi.python.org/pypi/py-sendfile/</a>) and discussions
+(<a class="reference external" href="http://bugs.python.org/issue10882">http://bugs.python.org/issue10882</a>) for including support for
+<tt class="docutils literal"><span class="pre">sendfile(2)</span></tt>, but the later is certainly not going to happen for the
+Python versions supported by Ganeti. Calling the function using the
+<tt class="docutils literal"><span class="pre">ctypes</span></tt> module might be possible.</p>
+</div>
+<div class="section" id="performance-considerations">
+<h2><a class="toc-backref" href="#id21">Performance considerations</a><a class="headerlink" href="#performance-considerations" title="Permalink to this headline">¶</a></h2>
+<p>The design described above was confirmed to be one of the better choices
+in terms of download performance with bigger block sizes. All numbers
+were gathered on the same physical machine with a single CPU and 1 GB of
+RAM while downloading 2 GB of zeros read from <tt class="docutils literal"><span class="pre">/dev/zero</span></tt>. <tt class="docutils literal"><span class="pre">wget</span></tt>
+(version 1.10.2) was used as the client, <tt class="docutils literal"><span class="pre">lighttpd</span></tt> (version 1.4.28)
+as the server. The numbers in the first line are in megabytes per
+second. The second line in each row is the CPU time spent in userland
+respective system (measured for the CGI/FastCGI program using <tt class="docutils literal"><span class="pre">time</span>
+<span class="pre">-v</span></tt>).</p>
+<div class="highlight-python"><pre>----------------------------------------------------------------------
+Block size                      4 KB    64 KB   128 KB    1 MB    4 MB
+======================================================================
+Plain CGI script reading          83      174      180     122     120
+from ``/dev/zero``
+                             0.6/3.9  0.1/2.4  0.1/2.2 0.0/1.9 0.0/2.1
+----------------------------------------------------------------------
+FastCGI with ``fcgiwrap``,        86      167      170     177     174
+``dd`` reading from
+``/dev/zero``                  1.1/5  0.5/2.9  0.5/2.7 0.7/3.1 0.7/2.8
+----------------------------------------------------------------------
+FastCGI with ``fcgiwrap``,        68      146      150     170     170
+Python script copying from
+``/dev/zero`` to stdout
+                             1.3/5.1  0.8/3.7  0.7/3.3  0.9/2.9  0.8/3
+----------------------------------------------------------------------
+FastCGI, Python script using      31       48       47       5       1
+``flup`` library (version
+1.0.2) reading from
+``/dev/zero``
+                            23.5/9.8 14.3/8.5   16.1/8       -       -
+----------------------------------------------------------------------</pre>
+</div>
+<p>It should be mentioned that the <tt class="docutils literal"><span class="pre">flup</span></tt> library is not implemented in
+the most efficient way, but even with some changes it doesn&#8217;t get much
+faster. It is fine for small amounts of data, but not for huge
+transfers.</p>
+</div>
+<div class="section" id="other-considered-solutions">
+<h2><a class="toc-backref" href="#id22">Other considered solutions</a><a class="headerlink" href="#other-considered-solutions" title="Permalink to this headline">¶</a></h2>
+<p>Another possible solution considered was to use <tt class="docutils literal"><span class="pre">socat</span></tt> like version 1
+did. Due to the changing model, a large part of the code would&#8217;ve
+required a rewrite anyway, while still not fixing all shortcomings. For
+example, <tt class="docutils literal"><span class="pre">socat</span></tt> could still listen on only one protocol, IPv4 or
+IPv6. Running two separate instances might have fixed that, but it&#8217;d get
+more complicated. Using an existing HTTP server will provide us with a
+number of other benefits as well, such as easier user separation between
+server and backend.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design for import/export version 2</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#software-requirements">Software requirements</a></li>
+<li><a class="reference internal" href="#transport">Transport</a></li>
+<li><a class="reference internal" href="#ssl-certificates">SSL certificates</a></li>
+<li><a class="reference internal" href="#source">Source</a><ul>
+<li><a class="reference internal" href="#option-1-cgi">Option 1: CGI</a></li>
+<li><a class="reference internal" href="#option-2-fastcgi">Option 2: FastCGI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#destination">Destination</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-big-picture-for-instance-moves">The big picture for instance moves</a></li>
+<li><a class="reference internal" href="#http-resources-on-source">HTTP resources on source</a></li>
+<li><a class="reference internal" href="#code-samples">Code samples</a><ul>
+<li><a class="reference internal" href="#pycurl-to-file">pycURL to file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#backwards-compatibility">Backwards compatibility</a><ul>
+<li><a class="reference internal" href="#version-1">Version 1</a></li>
+<li><a class="reference internal" href="#exp-size-fd"><tt class="docutils literal"><span class="pre">EXP_SIZE_FD</span></tt></a></li>
+<li><a class="reference internal" href="#compression">Compression</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#performance-considerations">Performance considerations</a></li>
+<li><a class="reference internal" href="#other-considered-solutions">Other considered solutions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-http-server.html"
+                        title="previous chapter">Design for replacing Ganeti&#8217;s HTTP server</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-resource-model.html"
+                        title="next chapter">Resource model changes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-impexp2.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-resource-model.html" title="Resource model changes"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-http-server.html" title="Design for replacing Ganeti’s HTTP server"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

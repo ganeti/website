@@ -1,0 +1,927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Runtime</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Runtime.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Runtime.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Runtime</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the runtime configuration details.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AGanetiDaemon"
+>GanetiDaemon</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AGanetiMasterd"
+>GanetiMasterd</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AGanetiNoded"
+>GanetiNoded</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AGanetiRapi"
+>GanetiRapi</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AGanetiConfd"
+>GanetiConfd</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AMiscGroup"
+>MiscGroup</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ADaemonsGroup"
+>DaemonsGroup</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AAdminGroup"
+>AdminGroup</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AGanetiGroup"
+>GanetiGroup</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ADaemonGroup"
+>DaemonGroup</A
+> <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AExtraGroup"
+>ExtraGroup</A
+> <A HREF="Ganeti-Runtime.html#t%3AMiscGroup"
+>MiscGroup</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3ARuntimeEnts"
+>RuntimeEnts</A
+> = (Map <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> UserID, Map <A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+> GroupID)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdaemonName"
+>daemonName</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdaemonUser"
+>daemonUser</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdaemonGroup"
+>daemonGroup</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdaemonLogFile"
+>daemonLogFile</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; FilePath</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdaemonPidFile"
+>daemonPidFile</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; FilePath</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AallGroups"
+>allGroups</A
+> :: [<A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AignoreDoesNotExistErrors"
+>ignoreDoesNotExistErrors</A
+> ::  IO a -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetEnts"
+>getEnts</A
+> :: IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Runtime.html#t%3ARuntimeEnts"
+>RuntimeEnts</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AverifyDaemonUser"
+>verifyDaemonUser</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; <A HREF="Ganeti-Runtime.html#t%3ARuntimeEnts"
+>RuntimeEnts</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckUidMatch"
+>checkUidMatch</A
+> :: String -&gt; UserID -&gt; UserID -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:GanetiDaemon"
+><A NAME="t%3AGanetiDaemon"
+></A
+></A
+><B
+>GanetiDaemon</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#GanetiDaemon"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:GanetiMasterd"
+><A NAME="v%3AGanetiMasterd"
+></A
+></A
+><B
+>GanetiMasterd</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:GanetiNoded"
+><A NAME="v%3AGanetiNoded"
+></A
+></A
+><B
+>GanetiNoded</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:GanetiRapi"
+><A NAME="v%3AGanetiRapi"
+></A
+></A
+><B
+>GanetiRapi</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:GanetiConfd"
+><A NAME="v%3AGanetiConfd"
+></A
+></A
+><B
+>GanetiConfd</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:MiscGroup"
+><A NAME="t%3AMiscGroup"
+></A
+></A
+><B
+>MiscGroup</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#MiscGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DaemonsGroup"
+><A NAME="v%3ADaemonsGroup"
+></A
+></A
+><B
+>DaemonsGroup</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:AdminGroup"
+><A NAME="v%3AAdminGroup"
+></A
+></A
+><B
+>AdminGroup</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:GanetiGroup"
+><A NAME="t%3AGanetiGroup"
+></A
+></A
+><B
+>GanetiGroup</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#GanetiGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DaemonGroup"
+><A NAME="v%3ADaemonGroup"
+></A
+></A
+><B
+>DaemonGroup</B
+> <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ExtraGroup"
+><A NAME="v%3AExtraGroup"
+></A
+></A
+><B
+>ExtraGroup</B
+> <A HREF="Ganeti-Runtime.html#t%3AMiscGroup"
+>MiscGroup</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:RuntimeEnts"
+><A NAME="t%3ARuntimeEnts"
+></A
+></A
+><B
+>RuntimeEnts</B
+> = (Map <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> UserID, Map <A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+> GroupID)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#RuntimeEnts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonName"
+><A NAME="v%3AdaemonName"
+></A
+></A
+><B
+>daemonName</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#daemonName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the daemon name for a given daemon.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonUser"
+><A NAME="v%3AdaemonUser"
+></A
+></A
+><B
+>daemonUser</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#daemonUser"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the configured user name for a daemon.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonGroup"
+><A NAME="v%3AdaemonGroup"
+></A
+></A
+><B
+>daemonGroup</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#daemonGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the configured group for a daemon.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonLogFile"
+><A NAME="v%3AdaemonLogFile"
+></A
+></A
+><B
+>daemonLogFile</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; FilePath</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#daemonLogFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the log file for a daemon.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonPidFile"
+><A NAME="v%3AdaemonPidFile"
+></A
+></A
+><B
+>daemonPidFile</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; FilePath</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#daemonPidFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the pid file name for a daemon.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:allGroups"
+><A NAME="v%3AallGroups"
+></A
+></A
+><B
+>allGroups</B
+> :: [<A HREF="Ganeti-Runtime.html#t%3AGanetiGroup"
+>GanetiGroup</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#allGroups"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>All groups list. A bit hacking, as we can't enforce it's complete
+ at compile time.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:ignoreDoesNotExistErrors"
+><A NAME="v%3AignoreDoesNotExistErrors"
+></A
+></A
+><B
+>ignoreDoesNotExistErrors</B
+> ::  IO a -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#ignoreDoesNotExistErrors"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getEnts"
+><A NAME="v%3AgetEnts"
+></A
+></A
+><B
+>getEnts</B
+> :: IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Runtime.html#t%3ARuntimeEnts"
+>RuntimeEnts</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#getEnts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the group/user maps.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:verifyDaemonUser"
+><A NAME="v%3AverifyDaemonUser"
+></A
+></A
+><B
+>verifyDaemonUser</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; <A HREF="Ganeti-Runtime.html#t%3ARuntimeEnts"
+>RuntimeEnts</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#verifyDaemonUser"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks whether a daemon runs as the right user.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkUidMatch"
+><A NAME="v%3AcheckUidMatch"
+></A
+></A
+><B
+>checkUidMatch</B
+> :: String -&gt; UserID -&gt; UserID -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Runtime.html#checkUidMatch"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that two UIDs are matching or otherwise exit.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

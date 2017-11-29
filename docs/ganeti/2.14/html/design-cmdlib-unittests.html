@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Unit tests for cmdlib / LogicalUnit’s &mdash; Ganeti 2.14.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.14.2 documentation" href="index.html" />
+    <link rel="next" title="Taking relative CPU speed into account" href="design-cpu-speed.html" />
+    <link rel="prev" title="Chained jobs" href="design-chained-jobs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cpu-speed.html" title="Taking relative CPU speed into account"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-chained-jobs.html" title="Chained jobs"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="unit-tests-for-cmdlib-logicalunit-s">
+<h1><a class="toc-backref" href="#id1">Unit tests for cmdlib / LogicalUnit&#8217;s</a><a class="headerlink" href="#unit-tests-for-cmdlib-logicalunit-s" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#unit-tests-for-cmdlib-logicalunit-s" id="id1">Unit tests for cmdlib / LogicalUnit&#8217;s</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#test-boundaries" id="id4">Test boundaries</a></li>
+<li><a class="reference internal" href="#test-framework" id="id5">Test framework</a><ul>
+<li><a class="reference internal" href="#mcpu-mocking" id="id6">MCPU mocking</a></li>
+<li><a class="reference internal" href="#configuration-mocking" id="id7">Configuration mocking</a></li>
+<li><a class="reference internal" href="#lock-mocking" id="id8">Lock mocking</a></li>
+<li><a class="reference internal" href="#rpc-mocking" id="id9">RPC mocking</a></li>
+<li><a class="reference internal" href="#iallocator-mocking" id="id10">IAllocator mocking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work" id="id11">Future work</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document describing unit tests for the cmdlib module.
+Other modules are deliberately omitted, as LU&#8217;s contain the most complex
+logic and are only sparingly tested.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>The current test coverage of the cmdlib module is at only ~14%. Given
+the complexity of the code this is clearly too little.</p>
+<p>The reasons for this low coverage are numerous. There are organisational
+reasons, like no strict requirements for unit tests for each feature.
+But there are also design and technical reasons, which this design
+document wants to address. First, it&#8217;s not clear which parts of LU&#8217;s
+should be tested by unit tests, i.e. the test boundaries are not clearly
+defined. And secondly, it&#8217;s too hard to actually write unit tests for
+LU&#8217;s. There exists no good framework or set of tools to write easy to
+understand and concise tests.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>This design document consists of two parts. Initially, the test
+boundaries for cmdlib are laid out, and considerations about writing
+unit tests are given. Then the test framework is described, together
+with a rough overview of the individual parts and how they are meant
+to be used.</p>
+<div class="section" id="test-boundaries">
+<h3><a class="toc-backref" href="#id4">Test boundaries</a><a class="headerlink" href="#test-boundaries" title="Permalink to this headline">¶</a></h3>
+<p>For the cmdlib module, every LogicalUnit is seen as a unit for testing.
+Unit tests for LU&#8217;s may only execute the LU but make sure that no side
+effect (like filesystem access, network access or the like) takes
+place. Smaller test units (like individual methods) are sensible and
+will be supported by the test framework. However, they are not the main
+scope of this document.</p>
+<p>LU&#8217;s require the following environment to be provided by the test code
+in order to be executed:</p>
+<dl class="docutils">
+<dt>An input opcode</dt>
+<dd>LU&#8217;s get all the user provided input and parameters from the opcode.</dd>
+<dt>The command processor</dt>
+<dd>Used to get the execution context id and to output logging  messages.
+It also drives the execution of LU&#8217;s by calling the appropriate
+methods in the right order.</dd>
+<dt>The Ganeti context</dt>
+<dd><p class="first">Provides node-management methods and contains</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>The configuration. This gives access to the cluster configuration.</li>
+<li>The Ganeti Lock Manager. Manages locks during the execution.</li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>The RPC runner</dt>
+<dd>Used to communicate with node daemons on other nodes and to perform
+operations on them.</dd>
+<dt>The IAllocator runner</dt>
+<dd>Calls the IAllocator with a given request.</dd>
+</dl>
+<p>All of those components have to be replaced/adapted by the test
+framework.</p>
+<p>The goal of unit tests at the LU level is to exercise every possible
+code path in the LU at least once. Shared methods which are used by
+multiple LU&#8217;s should be made testable by themselves and explicit unit
+tests should be written for them.</p>
+<p>Ultimately, the code coverage for the cmdlib module should be higher
+than 90%. As Python is a dynamic language, a portion of those tests
+only exists to exercise the code without actually asserting for
+anything in the test. They merely make sure that no type errors exist
+and that potential typos etc. are caught at unit test time.</p>
+</div>
+<div class="section" id="test-framework">
+<h3><a class="toc-backref" href="#id5">Test framework</a><a class="headerlink" href="#test-framework" title="Permalink to this headline">¶</a></h3>
+<p>The test framework will it make possible to write short and concise
+tests for LU&#8217;s. In the simplest case, only an opcode has to be provided
+by the test. The framework will then use default values, like an almost
+empty configuration with only the master node and no instances.</p>
+<p>All aspects of the test environment will be configurable by individual
+tests.</p>
+<div class="section" id="mcpu-mocking">
+<h4><a class="toc-backref" href="#id6">MCPU mocking</a><a class="headerlink" href="#mcpu-mocking" title="Permalink to this headline">¶</a></h4>
+<p>The MCPU drives the execution of LU&#8217;s. It has to perform its usual
+sequence of actions, but additionally it has to provide easy access to
+the log output of LU&#8217;s. It will contain utility assertion methods on the
+output.</p>
+<p>The mock will be a sub-class of <tt class="docutils literal"><span class="pre">mcpu.Processor</span></tt> which overrides
+portions of it in order to support the additional functionality. The
+advantage of being a sub-class of the original processor is the
+automatic compatibility with the code running in real clusters.</p>
+</div>
+<div class="section" id="configuration-mocking">
+<h4><a class="toc-backref" href="#id7">Configuration mocking</a><a class="headerlink" href="#configuration-mocking" title="Permalink to this headline">¶</a></h4>
+<p>Per default, the mocked configuration will contain only the master node,
+no instances and default parameters. However, convenience methods for
+the following use cases will be provided:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8220;Shortcut&#8221; methods to add objects to the configuration.</li>
+<li>Helper methods to quickly create standard nodes/instances/etc.</li>
+<li>Pre-populated default configurations for standard use-cases (i.e.
+cluster with three nodes, five instances, etc.).</li>
+<li>Convenience assertion methods for checking the configuration.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="lock-mocking">
+<h4><a class="toc-backref" href="#id8">Lock mocking</a><a class="headerlink" href="#lock-mocking" title="Permalink to this headline">¶</a></h4>
+<p>Initially, the mocked lock manager always grants all locks. It performs
+the following tasks:</p>
+<blockquote>
+<div><ul class="simple">
+<li>It keeps track of requested/released locks.</li>
+<li>Provides utility assertion methods for checking locks (current and
+already released ones).</li>
+</ul>
+</div></blockquote>
+<p>In the future, this component might be extended to prevent locks from
+being granted. This could eventually be used to test optimistic locking.</p>
+</div>
+<div class="section" id="rpc-mocking">
+<h4><a class="toc-backref" href="#id9">RPC mocking</a><a class="headerlink" href="#rpc-mocking" title="Permalink to this headline">¶</a></h4>
+<p>No actual RPC can be made during unit tests. Therefore, those calls have
+to be replaced and their results mocked. As this will entail a large
+portion of work when writing tests, mocking RPC&#8217;s will be made as easy as
+possible. This entails:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Easy construction of RPC results.</li>
+<li>Easy mocking of RPC calls (also multiple ones of the same type during
+one LU execution).</li>
+<li>Asserting for RPC calls (including arguments, affected nodes, etc.).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="iallocator-mocking">
+<h4><a class="toc-backref" href="#id10">IAllocator mocking</a><a class="headerlink" href="#iallocator-mocking" title="Permalink to this headline">¶</a></h4>
+<p>Calls (also multiple ones during the execution of a LU) to the
+IAllocator interface have to be mocked. The framework will provide,
+similarly to the RPC mocking, provide means to specify the mocked result
+and to assert on the IAllocator requests.</p>
+</div>
+</div>
+</div>
+<div class="section" id="future-work">
+<h2><a class="toc-backref" href="#id11">Future work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h2>
+<p>With unit tests for cmdlib in place, further unit testing for other
+modules can and should be added. The test boundaries therefore should be
+aligned with the boundaries from cmdlib.</p>
+<p>The mocked locking module can be extended to allow testing of optimistic
+locking in LU&#8217;s. In this case, on all requested locks are actually
+granted to the LU, so it has to adapt for this situation correctly.</p>
+<p>A higher test coverage for LU&#8217;s will increase confidence in our code and
+tests. Refactorings will be easier to make as more problems are caught
+during tests.</p>
+<p>After a baseline of unit tests is established for cmdlib, efficient
+testing guidelines could be put in place. For example, new code could be
+required to not lower the test coverage in cmdlib. Additionally, every
+bug fix could be required to include a test which triggered the bug
+before the fix is created.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Unit tests for cmdlib / LogicalUnit&#8217;s</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#test-boundaries">Test boundaries</a></li>
+<li><a class="reference internal" href="#test-framework">Test framework</a><ul>
+<li><a class="reference internal" href="#mcpu-mocking">MCPU mocking</a></li>
+<li><a class="reference internal" href="#configuration-mocking">Configuration mocking</a></li>
+<li><a class="reference internal" href="#lock-mocking">Lock mocking</a></li>
+<li><a class="reference internal" href="#rpc-mocking">RPC mocking</a></li>
+<li><a class="reference internal" href="#iallocator-mocking">IAllocator mocking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-work">Future work</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-chained-jobs.html"
+                        title="previous chapter">Chained jobs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-cpu-speed.html"
+                        title="next chapter">Taking relative CPU speed into account</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-cmdlib-unittests.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cpu-speed.html" title="Taking relative CPU speed into account"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-chained-jobs.html" title="Chained jobs"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<title>Ganeti remote API</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="ganeti-remote-api">
+<h1 class="title">Ganeti remote API</h1>
+
+<p>Documents Ganeti version 2.0</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#introduction" id="id26">Introduction</a></li>
+<li><a class="reference internal" href="#protocol" id="id27">Protocol</a></li>
+<li><a class="reference internal" href="#usage-examples" id="id28">Usage examples</a><ul>
+<li><a class="reference internal" href="#shell" id="id29">Shell</a></li>
+<li><a class="reference internal" href="#python" id="id30">Python</a></li>
+<li><a class="reference internal" href="#javascript" id="id31">JavaScript</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#resources" id="id32">Resources</a><ul>
+<li><a class="reference internal" href="#id1" id="id33">/</a><ul>
+<li><a class="reference internal" href="#get" id="id34">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2" id="id35">/2</a><ul>
+<li><a class="reference internal" href="#id3" id="id36">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#info" id="id37">/2/info</a><ul>
+<li><a class="reference internal" href="#id4" id="id38">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances" id="id39">/2/instances</a><ul>
+<li><a class="reference internal" href="#id5" id="id40">GET</a></li>
+<li><a class="reference internal" href="#post" id="id41">POST</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name" id="id42">/2/instances/[instance_name]</a><ul>
+<li><a class="reference internal" href="#id6" id="id43">GET</a></li>
+<li><a class="reference internal" href="#delete" id="id44">DELETE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name-reboot" id="id45">/2/instances/[instance_name]/reboot</a><ul>
+<li><a class="reference internal" href="#id7" id="id46">POST</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name-reinstall" id="id47">/2/instances/[instance_name]/reinstall</a><ul>
+<li><a class="reference internal" href="#id8" id="id48">POST</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name-shutdown" id="id49">/2/instances/[instance_name]/shutdown</a><ul>
+<li><a class="reference internal" href="#put" id="id50">PUT</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name-startup" id="id51">/2/instances/[instance_name]/startup</a><ul>
+<li><a class="reference internal" href="#id9" id="id52">PUT</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#instances-instance-name-tags" id="id53">/2/instances/[instance_name]/tags</a><ul>
+<li><a class="reference internal" href="#id10" id="id54">GET</a></li>
+<li><a class="reference internal" href="#id11" id="id55">PUT</a></li>
+<li><a class="reference internal" href="#id12" id="id56">DELETE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jobs" id="id57">/2/jobs</a><ul>
+<li><a class="reference internal" href="#id13" id="id58">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jobs-job-id" id="id59">/2/jobs/[job_id]</a><ul>
+<li><a class="reference internal" href="#id14" id="id60">GET</a></li>
+<li><a class="reference internal" href="#id15" id="id61">DELETE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodes" id="id62">/2/nodes</a><ul>
+<li><a class="reference internal" href="#id16" id="id63">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodes-node-name-tags" id="id64">/2/nodes/[node_name]/tags</a><ul>
+<li><a class="reference internal" href="#id17" id="id65">GET</a></li>
+<li><a class="reference internal" href="#id18" id="id66">PUT</a></li>
+<li><a class="reference internal" href="#id19" id="id67">DELETE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#os" id="id68">/2/os</a><ul>
+<li><a class="reference internal" href="#id20" id="id69">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tags" id="id70">/2/tags</a><ul>
+<li><a class="reference internal" href="#id21" id="id71">GET</a></li>
+<li><a class="reference internal" href="#id22" id="id72">PUT</a></li>
+<li><a class="reference internal" href="#id23" id="id73">DELETE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodes-node-name" id="id74">/nodes/[node_name]</a><ul>
+<li><a class="reference internal" href="#id24" id="id75">GET</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version" id="id76">/version</a><ul>
+<li><a class="reference internal" href="#id25" id="id77">GET</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h1><a class="toc-backref" href="#id26">Introduction</a></h1>
+<p>Ganeti supports a remote API for enable external tools to easily
+retrieve information about a cluster's state. The remote API daemon,
+<em>ganeti-rapi</em>, is automatically started on the master node. By default
+it runs on TCP port 5080, but this can be changed either in
+<tt class="docutils literal"><span class="pre">.../constants.py</span></tt> or via the command line parameter <em>-p</em>. SSL mode,
+which is used by default, can also be disabled by passing command line
+parameters.</p>
+</div>
+<div class="section" id="protocol">
+<h1><a class="toc-backref" href="#id27">Protocol</a></h1>
+<p>The protocol used is <a class="reference external" href="http://www.json.org/">JSON</a> over HTTP designed after the <a class="reference external" href="http://en.wikipedia.org/wiki/Representational_State_Transfer">REST</a>
+principle.</p>
+</div>
+<div class="section" id="usage-examples">
+<h1><a class="toc-backref" href="#id28">Usage examples</a></h1>
+<p>You can access the API using your favorite programming language as
+long as it supports network connections.</p>
+<div class="section" id="shell">
+<h2><a class="toc-backref" href="#id29">Shell</a></h2>
+<p>Using wget:</p>
+<pre class="literal-block">
+wget -q -O - https://CLUSTERNAME:5080/2/info
+</pre>
+<p>or curl:</p>
+<pre class="literal-block">
+curl https://CLUSTERNAME:5080/2/info
+</pre>
+</div>
+<div class="section" id="python">
+<h2><a class="toc-backref" href="#id30">Python</a></h2>
+<pre class="literal-block">
+import urllib2
+f = urllib2.urlopen('https://CLUSTERNAME:5080/2/info')
+print f.read()
+</pre>
+</div>
+<div class="section" id="javascript">
+<h2><a class="toc-backref" href="#id31">JavaScript</a></h2>
+<div class="warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">While it's possible to use JavaScript, it poses several potential
+problems, including browser blocking request due to
+non-standard ports or different domain names. Fetching the data
+on the webserver is easier.</p>
+</div>
+<pre class="literal-block">
+var url = 'https://CLUSTERNAME:5080/2/info';
+var info;
+var xmlreq = new XMLHttpRequest();
+xmlreq.onreadystatechange = function () {
+  if (xmlreq.readyState != 4) return;
+  if (xmlreq.status == 200) {
+    info = eval(&quot;(&quot; + xmlreq.responseText + &quot;)&quot;);
+    alert(info);
+  } else {
+    alert('Error fetching cluster info');
+  }
+  xmlreq = null;
+};
+xmlreq.open('GET', url, true);
+xmlreq.send(null);
+</pre>
+</div>
+</div>
+<div class="section" id="resources">
+<h1><a class="toc-backref" href="#id32">Resources</a></h1>
+<!-- Automatically generated, do not edit -->
+<div class="section" id="id1">
+<h2><a class="toc-backref" href="#id33">/</a></h2>
+<pre class="literal-block">
+/ resource.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="get">
+<h3><a class="toc-backref" href="#id34">GET</a></h3>
+<pre class="literal-block">
+Show the list of mapped resources.
+
+Returns: a dictionary with 'name' and 'uri' keys for each of them.
+</pre>
+</div>
+</div>
+<div class="section" id="id2">
+<h2><a class="toc-backref" href="#id35">/2</a></h2>
+<pre class="literal-block">
+/2 resource, the root of the version 2 API.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id36">GET</a></h3>
+<pre class="literal-block">
+Show the list of mapped resources.
+
+Returns: a dictionary with 'name' and 'uri' keys for each of them.
+</pre>
+</div>
+</div>
+<div class="section" id="info">
+<h2><a class="toc-backref" href="#id37">/2/info</a></h2>
+<pre class="literal-block">
+Cluster info.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id38">GET</a></h3>
+<pre class="literal-block">
+Returns cluster information.
+
+Example::
+
+{
+  &quot;config_version&quot;: 2000000,
+  &quot;name&quot;: &quot;cluster&quot;,
+  &quot;software_version&quot;: &quot;2.0.0~beta2&quot;,
+  &quot;os_api_version&quot;: 10,
+  &quot;export_version&quot;: 0,
+  &quot;candidate_pool_size&quot;: 10,
+  &quot;enabled_hypervisors&quot;: [
+    &quot;fake&quot;
+  ],
+  &quot;hvparams&quot;: {
+    &quot;fake&quot;: {}
+   },
+  &quot;default_hypervisor&quot;: &quot;fake&quot;,
+  &quot;master&quot;: &quot;node1.example.com&quot;,
+  &quot;architecture&quot;: [
+    &quot;64bit&quot;,
+    &quot;x86_64&quot;
+  ],
+  &quot;protocol_version&quot;: 20,
+  &quot;beparams&quot;: {
+    &quot;default&quot;: {
+      &quot;auto_balance&quot;: true,
+      &quot;vcpus&quot;: 1,
+      &quot;memory&quot;: 128
+     }
+    }
+  }
+</pre>
+</div>
+</div>
+<div class="section" id="instances">
+<h2><a class="toc-backref" href="#id39">/2/instances</a></h2>
+<pre class="literal-block">
+/2/instances resource.
+</pre>
+<p>It supports the following commands: GET, POST.</p>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id40">GET</a></h3>
+<pre class="literal-block">
+Returns a list of all available instances.
+
+
+Example::
+
+  [
+    {
+      &quot;name&quot;: &quot;web.example.com&quot;,
+      &quot;uri&quot;: &quot;\/instances\/web.example.com&quot;
+    },
+    {
+      &quot;name&quot;: &quot;mail.example.com&quot;,
+      &quot;uri&quot;: &quot;\/instances\/mail.example.com&quot;
+    }
+  ]
+
+If the optional 'bulk' argument is provided and set to 'true'
+value (i.e '?bulk=1'), the output contains detailed
+information about instances as a list.
+
+Example::
+
+  [
+    {
+       &quot;status&quot;: &quot;running&quot;,
+       &quot;disk_usage&quot;: 20480,
+       &quot;nic.bridges&quot;: [
+         &quot;xen-br0&quot;
+        ],
+       &quot;name&quot;: &quot;web.example.com&quot;,
+       &quot;tags&quot;: [&quot;tag1&quot;, &quot;tag2&quot;],
+       &quot;beparams&quot;: {
+         &quot;vcpus&quot;: 2,
+         &quot;memory&quot;: 512
+       },
+       &quot;disk.sizes&quot;: [
+           20480
+       ],
+       &quot;pnode&quot;: &quot;node1.example.com&quot;,
+       &quot;nic.macs&quot;: [&quot;01:23:45:67:89:01&quot;],
+       &quot;snodes&quot;: [&quot;node2.example.com&quot;],
+       &quot;disk_template&quot;: &quot;drbd&quot;,
+       &quot;admin_state&quot;: true,
+       &quot;os&quot;: &quot;debian-etch&quot;,
+       &quot;oper_state&quot;: true
+    },
+    ...
+  ]
+
+Returns: a dictionary with 'name' and 'uri' keys for each of them.
+</pre>
+</div>
+<div class="section" id="post">
+<h3><a class="toc-backref" href="#id41">POST</a></h3>
+<pre class="literal-block">
+Create an instance.
+
+Returns: a job id
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name">
+<h2><a class="toc-backref" href="#id42">/2/instances/[instance_name]</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name] resources.
+</pre>
+<p>It supports the following commands: GET, DELETE.</p>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id43">GET</a></h3>
+<pre class="literal-block">
+Send information about an instance.
+</pre>
+</div>
+<div class="section" id="delete">
+<h3><a class="toc-backref" href="#id44">DELETE</a></h3>
+<pre class="literal-block">
+Delete an instance.
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name-reboot">
+<h2><a class="toc-backref" href="#id45">/2/instances/[instance_name]/reboot</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name]/reboot resource.
+
+Implements an instance reboot.
+</pre>
+<p>It supports the following commands: POST.</p>
+<div class="section" id="id7">
+<h3><a class="toc-backref" href="#id46">POST</a></h3>
+<pre class="literal-block">
+Reboot an instance.
+
+The URI takes type=[hard|soft|full] and
+ignore_secondaries=[False|True] parameters.
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name-reinstall">
+<h2><a class="toc-backref" href="#id47">/2/instances/[instance_name]/reinstall</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name]/reinstall resource.
+
+Implements an instance reinstall.
+</pre>
+<p>It supports the following commands: POST.</p>
+<div class="section" id="id8">
+<h3><a class="toc-backref" href="#id48">POST</a></h3>
+<pre class="literal-block">
+Reinstall an instance.
+
+The URI takes os=name and nostartup=[0|1] optional
+parameters. By default, the instance will be started
+automatically.
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name-shutdown">
+<h2><a class="toc-backref" href="#id49">/2/instances/[instance_name]/shutdown</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name]/shutdown resource.
+
+Implements an instance shutdown.
+</pre>
+<p>It supports the following commands: PUT.</p>
+<div class="section" id="put">
+<h3><a class="toc-backref" href="#id50">PUT</a></h3>
+<pre class="literal-block">
+Shutdown an instance.
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name-startup">
+<h2><a class="toc-backref" href="#id51">/2/instances/[instance_name]/startup</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name]/startup resource.
+
+Implements an instance startup.
+</pre>
+<p>It supports the following commands: PUT.</p>
+<div class="section" id="id9">
+<h3><a class="toc-backref" href="#id52">PUT</a></h3>
+<pre class="literal-block">
+Startup an instance.
+
+The URI takes force=[False|True] parameter to start the instance
+if even if secondary disks are failing.
+</pre>
+</div>
+</div>
+<div class="section" id="instances-instance-name-tags">
+<h2><a class="toc-backref" href="#id53">/2/instances/[instance_name]/tags</a></h2>
+<pre class="literal-block">
+/2/instances/[instance_name]/tags resource.
+
+Manages per-instance tags.
+</pre>
+<p>It supports the following commands: GET, PUT, DELETE.</p>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id54">GET</a></h3>
+<pre class="literal-block">
+Returns a list of tags.
+
+Example: [&quot;tag1&quot;, &quot;tag2&quot;, &quot;tag3&quot;]
+</pre>
+</div>
+<div class="section" id="id11">
+<h3><a class="toc-backref" href="#id55">PUT</a></h3>
+<pre class="literal-block">
+Add a set of tags.
+
+The request as a list of strings should be PUT to this URI. And
+you'll have back a job id.
+</pre>
+</div>
+<div class="section" id="id12">
+<h3><a class="toc-backref" href="#id56">DELETE</a></h3>
+<pre class="literal-block">
+Delete a tag.
+
+In order to delete a set of tags, the DELETE
+request should be addressed to URI like:
+/tags?tag=[tag]&amp;tag=[tag]
+</pre>
+</div>
+</div>
+<div class="section" id="jobs">
+<h2><a class="toc-backref" href="#id57">/2/jobs</a></h2>
+<pre class="literal-block">
+/2/jobs resource.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id13">
+<h3><a class="toc-backref" href="#id58">GET</a></h3>
+<pre class="literal-block">
+Returns a dictionary of jobs.
+
+Returns: a dictionary with jobs id and uri.
+</pre>
+</div>
+</div>
+<div class="section" id="jobs-job-id">
+<h2><a class="toc-backref" href="#id59">/2/jobs/[job_id]</a></h2>
+<pre class="literal-block">
+/2/jobs/[job_id] resource.
+</pre>
+<p>It supports the following commands: GET, DELETE.</p>
+<div class="section" id="id14">
+<h3><a class="toc-backref" href="#id60">GET</a></h3>
+<pre class="literal-block">
+Returns a job status.
+
+Returns: a dictionary with job parameters.
+    The result includes:
+        - id: job ID as a number
+        - status: current job status as a string
+        - ops: involved OpCodes as a list of dictionaries for each
+          opcodes in the job
+        - opstatus: OpCodes status as a list
+        - opresult: OpCodes results as a list of lists
+</pre>
+</div>
+<div class="section" id="id15">
+<h3><a class="toc-backref" href="#id61">DELETE</a></h3>
+<pre class="literal-block">
+Cancel not-yet-started job.
+</pre>
+</div>
+</div>
+<div class="section" id="nodes">
+<h2><a class="toc-backref" href="#id62">/2/nodes</a></h2>
+<pre class="literal-block">
+/2/nodes resource.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id16">
+<h3><a class="toc-backref" href="#id63">GET</a></h3>
+<pre class="literal-block">
+Returns a list of all nodes.
+
+Example::
+
+  [
+    {
+      &quot;id&quot;: &quot;node1.example.com&quot;,
+      &quot;uri&quot;: &quot;\/instances\/node1.example.com&quot;
+    },
+    {
+      &quot;id&quot;: &quot;node2.example.com&quot;,
+      &quot;uri&quot;: &quot;\/instances\/node2.example.com&quot;
+    }
+  ]
+
+If the optional 'bulk' argument is provided and set to 'true'
+value (i.e '?bulk=1'), the output contains detailed
+information about nodes as a list.
+
+Example::
+
+  [
+    {
+      &quot;pinst_cnt&quot;: 1,
+      &quot;mfree&quot;: 31280,
+      &quot;mtotal&quot;: 32763,
+      &quot;name&quot;: &quot;www.example.com&quot;,
+      &quot;tags&quot;: [],
+      &quot;mnode&quot;: 512,
+      &quot;dtotal&quot;: 5246208,
+      &quot;sinst_cnt&quot;: 2,
+      &quot;dfree&quot;: 5171712,
+      &quot;offline&quot;: false
+    },
+    ...
+  ]
+
+Returns: a dictionary with 'name' and 'uri' keys for each of them
+</pre>
+</div>
+</div>
+<div class="section" id="nodes-node-name-tags">
+<h2><a class="toc-backref" href="#id64">/2/nodes/[node_name]/tags</a></h2>
+<pre class="literal-block">
+/2/nodes/[node_name]/tags resource.
+
+Manages per-node tags.
+</pre>
+<p>It supports the following commands: GET, PUT, DELETE.</p>
+<div class="section" id="id17">
+<h3><a class="toc-backref" href="#id65">GET</a></h3>
+<pre class="literal-block">
+Returns a list of tags.
+
+Example: [&quot;tag1&quot;, &quot;tag2&quot;, &quot;tag3&quot;]
+</pre>
+</div>
+<div class="section" id="id18">
+<h3><a class="toc-backref" href="#id66">PUT</a></h3>
+<pre class="literal-block">
+Add a set of tags.
+
+The request as a list of strings should be PUT to this URI. And
+you'll have back a job id.
+</pre>
+</div>
+<div class="section" id="id19">
+<h3><a class="toc-backref" href="#id67">DELETE</a></h3>
+<pre class="literal-block">
+Delete a tag.
+
+In order to delete a set of tags, the DELETE
+request should be addressed to URI like:
+/tags?tag=[tag]&amp;tag=[tag]
+</pre>
+</div>
+</div>
+<div class="section" id="os">
+<h2><a class="toc-backref" href="#id68">/2/os</a></h2>
+<pre class="literal-block">
+/2/os resource.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id20">
+<h3><a class="toc-backref" href="#id69">GET</a></h3>
+<pre class="literal-block">
+Return a list of all OSes.
+
+Can return error 500 in case of a problem.
+
+Example: [&quot;debian-etch&quot;]
+</pre>
+</div>
+</div>
+<div class="section" id="tags">
+<h2><a class="toc-backref" href="#id70">/2/tags</a></h2>
+<pre class="literal-block">
+/2/instances/tags resource.
+
+Manages cluster tags.
+</pre>
+<p>It supports the following commands: GET, PUT, DELETE.</p>
+<div class="section" id="id21">
+<h3><a class="toc-backref" href="#id71">GET</a></h3>
+<pre class="literal-block">
+Returns a list of tags.
+
+Example: [&quot;tag1&quot;, &quot;tag2&quot;, &quot;tag3&quot;]
+</pre>
+</div>
+<div class="section" id="id22">
+<h3><a class="toc-backref" href="#id72">PUT</a></h3>
+<pre class="literal-block">
+Add a set of tags.
+
+The request as a list of strings should be PUT to this URI. And
+you'll have back a job id.
+</pre>
+</div>
+<div class="section" id="id23">
+<h3><a class="toc-backref" href="#id73">DELETE</a></h3>
+<pre class="literal-block">
+Delete a tag.
+
+In order to delete a set of tags, the DELETE
+request should be addressed to URI like:
+/tags?tag=[tag]&amp;tag=[tag]
+</pre>
+</div>
+</div>
+<div class="section" id="nodes-node-name">
+<h2><a class="toc-backref" href="#id74">/nodes/[node_name]</a></h2>
+<pre class="literal-block">
+/2/nodes/[node_name] resources.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id24">
+<h3><a class="toc-backref" href="#id75">GET</a></h3>
+<pre class="literal-block">
+Send information about a node.
+</pre>
+</div>
+</div>
+<div class="section" id="version">
+<h2><a class="toc-backref" href="#id76">/version</a></h2>
+<pre class="literal-block">
+/version resource.
+
+This resource should be used to determine the remote API version and
+to adapt clients accordingly.
+</pre>
+<p>It supports the following commands: GET.</p>
+<div class="section" id="id25">
+<h3><a class="toc-backref" href="#id77">GET</a></h3>
+<pre class="literal-block">
+Returns the remote API version.
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

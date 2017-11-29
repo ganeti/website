@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.opcodes_base</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        Module&nbsp;opcodes_base
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.opcodes_base-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.opcodes_base-module.html">Module ganeti.opcodes_base</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""OpCodes base module</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">This module implements part of the data structures which define the</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring">cluster operations - the so-called opcodes.</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-docstring">Every operation which modifies the cluster state is expressed via</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-docstring">opcodes.</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-comment"># this are practically structures, so disable the message about too</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-comment"># few public methods:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-comment"># pylint: disable=R0903</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">copy</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">re</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-3', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module ganeti.ht=ganeti.ht-module.html"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-5', 'ht', 'link-5');">ht</a></tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Module ganeti.outils=ganeti.outils-module.html"><a title="ganeti.outils" class="py-name" href="#" onclick="return doclink('link-7', 'outils', 'link-7');">outils</a></tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-comment">#: OP_ID conversion regular expression</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt id="link-8" class="py-name" targets="Variable ganeti.opcodes_base._OPID_RE=ganeti.opcodes_base-module.html#_OPID_RE"><a title="ganeti.opcodes_base._OPID_RE" class="py-name" href="#" onclick="return doclink('link-8', '_OPID_RE', 'link-8');">_OPID_RE</a></tt> <tt class="py-op">=</tt> <tt class="py-name">re</tt><tt class="py-op">.</tt><tt class="py-name">compile</tt><tt class="py-op">(</tt><tt class="py-string">"([a-z])([A-Z])"</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt id="link-9" class="py-name" targets="Variable ganeti.opcodes_base.SUMMARY_PREFIX=ganeti.opcodes_base-module.html#SUMMARY_PREFIX"><a title="ganeti.opcodes_base.SUMMARY_PREFIX" class="py-name" href="#" onclick="return doclink('link-9', 'SUMMARY_PREFIX', 'link-9');">SUMMARY_PREFIX</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">  <tt class="py-string">"CLUSTER_"</tt><tt class="py-op">:</tt> <tt class="py-string">"C_"</tt><tt class="py-op">,</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">  <tt class="py-string">"GROUP_"</tt><tt class="py-op">:</tt> <tt class="py-string">"G_"</tt><tt class="py-op">,</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">  <tt class="py-string">"NODE_"</tt><tt class="py-op">:</tt> <tt class="py-string">"N_"</tt><tt class="py-op">,</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">  <tt class="py-string">"INSTANCE_"</tt><tt class="py-op">:</tt> <tt class="py-string">"I_"</tt><tt class="py-op">,</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">  <tt class="py-op">}</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-comment">#: Attribute name for dependencies</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt id="link-10" class="py-name" targets="Variable ganeti.opcodes_base.DEPEND_ATTR=ganeti.opcodes_base-module.html#DEPEND_ATTR"><a title="ganeti.opcodes_base.DEPEND_ATTR" class="py-name" href="#" onclick="return doclink('link-10', 'DEPEND_ATTR', 'link-10');">DEPEND_ATTR</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"depends"</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-comment">#: Attribute name for comment</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt id="link-11" class="py-name" targets="Variable ganeti.opcodes_base.COMMENT_ATTR=ganeti.opcodes_base-module.html#COMMENT_ATTR"><a title="ganeti.opcodes_base.COMMENT_ATTR" class="py-name" href="#" onclick="return doclink('link-11', 'COMMENT_ATTR', 'link-11');">COMMENT_ATTR</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"comment"</tt> </tt>
+<a name="_NameComponents"></a><div id="_NameComponents-def"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="_NameComponents-toggle" onclick="return toggle('_NameComponents');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base-module.html#_NameComponents">_NameComponents</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_NameComponents-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_NameComponents-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">  <tt class="py-docstring">"""Split an opcode class name into its components</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">  @type name: string</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">  @param name: the class name, as OpXxxYyy</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: array of strings</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the components of the name</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">  <tt class="py-keyword">assert</tt> <tt id="link-12" class="py-name" targets="Variable ganeti.build.shell_example_lexer.ShellExampleLexer.name=ganeti.build.shell_example_lexer.ShellExampleLexer-class.html#name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-12', 'name', 'link-12');">name</a></tt><tt class="py-op">.</tt><tt class="py-name">startswith</tt><tt class="py-op">(</tt><tt class="py-string">"Op"</tt><tt class="py-op">)</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">  <tt class="py-comment"># Note: (?&lt;=[a-z])(?=[A-Z]) would be ideal, since it wouldn't</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">  <tt class="py-comment"># consume any input, and hence we would just have all the elements</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">  <tt class="py-comment"># in the list, one by one; but it seems that split doesn't work on</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">  <tt class="py-comment"># non-consuming input, hence we have to process the input string a</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">  <tt class="py-comment"># bit</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">  <tt id="link-13" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-13', 'name', 'link-12');">name</a></tt> <tt class="py-op">=</tt> <tt id="link-14" class="py-name"><a title="ganeti.opcodes_base._OPID_RE" class="py-name" href="#" onclick="return doclink('link-14', '_OPID_RE', 'link-8');">_OPID_RE</a></tt><tt class="py-op">.</tt><tt class="py-name">sub</tt><tt class="py-op">(</tt><tt class="py-string">r"\1,\2"</tt><tt class="py-op">,</tt> <tt id="link-15" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-15', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">  <tt class="py-name">elems</tt> <tt class="py-op">=</tt> <tt id="link-16" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-16', 'name', 'link-12');">name</a></tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-string">","</tt><tt class="py-op">)</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">elems</tt> </tt>
+</div><a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"> </tt>
+<a name="_NameToId"></a><div id="_NameToId-def"><a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt> <a class="py-toggle" href="#" id="_NameToId-toggle" onclick="return toggle('_NameToId');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base-module.html#_NameToId">_NameToId</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_NameToId-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_NameToId-expanded"><a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">  <tt class="py-docstring">"""Convert an opcode class name to an OP_ID.</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">  @type name: string</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">  @param name: the class name, as OpXxxYyy</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: string</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the name in the OP_XXXX_YYYY format</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-17" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-17', 'name', 'link-12');">name</a></tt><tt class="py-op">.</tt><tt class="py-name">startswith</tt><tt class="py-op">(</tt><tt class="py-string">"Op"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-string">"_"</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">n</tt><tt class="py-op">.</tt><tt class="py-name">upper</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">n</tt> <tt class="py-keyword">in</tt> <tt id="link-18" class="py-name" targets="Function ganeti.opcodes_base._NameComponents()=ganeti.opcodes_base-module.html#_NameComponents"><a title="ganeti.opcodes_base._NameComponents" class="py-name" href="#" onclick="return doclink('link-18', '_NameComponents', 'link-18');">_NameComponents</a></tt><tt class="py-op">(</tt><tt id="link-19" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-19', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"> </tt>
+<a name="NameToReasonSrc"></a><div id="NameToReasonSrc-def"><a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt> <a class="py-toggle" href="#" id="NameToReasonSrc-toggle" onclick="return toggle('NameToReasonSrc');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base-module.html#NameToReasonSrc">NameToReasonSrc</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">prefix</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="NameToReasonSrc-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="NameToReasonSrc-expanded"><a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">  <tt class="py-docstring">"""Convert an opcode class name to a source string for the reason trail</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"><tt class="py-docstring">  @type name: string</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring">  @param name: the class name, as OpXxxYyy</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"><tt class="py-docstring">  @type prefix: string</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"><tt class="py-docstring">  @param prefix: the prefix that will be prepended to the opcode name</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: string</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the name in the OP_XXXX_YYYY format</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-20" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-20', 'name', 'link-12');">name</a></tt><tt class="py-op">.</tt><tt class="py-name">startswith</tt><tt class="py-op">(</tt><tt class="py-string">"Op"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-string">"%s:%s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">prefix</tt><tt class="py-op">,</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">                    <tt class="py-string">"_"</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">n</tt><tt class="py-op">.</tt><tt class="py-name">lower</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">n</tt> <tt class="py-keyword">in</tt> <tt id="link-21" class="py-name"><a title="ganeti.opcodes_base._NameComponents" class="py-name" href="#" onclick="return doclink('link-21', '_NameComponents', 'link-18');">_NameComponents</a></tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-22', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="_AutoOpParamSlots"></a><div id="_AutoOpParamSlots-def"><a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt> <a class="py-toggle" href="#" id="_AutoOpParamSlots-toggle" onclick="return toggle('_AutoOpParamSlots');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.opcodes_base._AutoOpParamSlots-class.html">_AutoOpParamSlots</a><tt class="py-op">(</tt><tt class="py-base-class">outils</tt><tt class="py-op">.</tt><tt class="py-base-class">AutoSlots</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_AutoOpParamSlots-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_AutoOpParamSlots-expanded"><a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">  <tt class="py-docstring">"""Meta class for opcode definitions.</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="_AutoOpParamSlots.__new__"></a><div id="_AutoOpParamSlots.__new__-def"><a name="L127"></a><tt class="py-lineno">127</tt> <a class="py-toggle" href="#" id="_AutoOpParamSlots.__new__-toggle" onclick="return toggle('_AutoOpParamSlots.__new__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base._AutoOpParamSlots-class.html#__new__">__new__</a><tt class="py-op">(</tt><tt class="py-param">mcs</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">bases</tt><tt class="py-op">,</tt> <tt class="py-param">attrs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_AutoOpParamSlots.__new__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="_AutoOpParamSlots.__new__-expanded"><a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">    <tt class="py-docstring">"""Called when a class should be created.</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">    @param mcs: The meta class</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">    @param name: Name of created class</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">    @param bases: Base classes</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring">    @type attrs: dict</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">    @param attrs: Class attributes</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-string">"OP_ID"</tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt class="py-name">attrs</tt><tt class="py-op">,</tt> <tt class="py-string">"Class '%s' defining OP_ID"</tt> <tt class="py-op">%</tt> <tt id="link-23" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-23', 'name', 'link-12');">name</a></tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">    <tt class="py-name">slots</tt> <tt class="py-op">=</tt> <tt class="py-name">mcs</tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Class Method ganeti.masterd.iallocator._AutoReqParam._GetSlots()=ganeti.masterd.iallocator._AutoReqParam-class.html#_GetSlots,Class Method ganeti.opcodes_base._AutoOpParamSlots._GetSlots()=ganeti.opcodes_base._AutoOpParamSlots-class.html#_GetSlots,Class Method ganeti.outils.AutoSlots._GetSlots()=ganeti.outils.AutoSlots-class.html#_GetSlots"><a title="ganeti.masterd.iallocator._AutoReqParam._GetSlots
+ganeti.opcodes_base._AutoOpParamSlots._GetSlots
+ganeti.outils.AutoSlots._GetSlots" class="py-name" href="#" onclick="return doclink('link-24', '_GetSlots', 'link-24');">_GetSlots</a></tt><tt class="py-op">(</tt><tt class="py-name">attrs</tt><tt class="py-op">)</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-string">"OP_DSC_FIELD"</tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt class="py-name">attrs</tt> <tt class="py-keyword">or</tt> <tt class="py-name">attrs</tt><tt class="py-op">[</tt><tt class="py-string">"OP_DSC_FIELD"</tt><tt class="py-op">]</tt> <tt class="py-keyword">in</tt> <tt class="py-name">slots</tt><tt class="py-op">,</tt> \ </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">      <tt class="py-string">"Class '%s' uses unknown field in OP_DSC_FIELD"</tt> <tt class="py-op">%</tt> <tt id="link-25" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-25', 'name', 'link-12');">name</a></tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-op">(</tt><tt class="py-string">"OP_DSC_FORMATTER"</tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt class="py-name">attrs</tt> <tt class="py-keyword">or</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">            <tt class="py-name">callable</tt><tt class="py-op">(</tt><tt class="py-name">attrs</tt><tt class="py-op">[</tt><tt class="py-string">"OP_DSC_FORMATTER"</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> \ </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">      <tt class="py-op">(</tt><tt class="py-string">"Class '%s' uses non-callable in OP_DSC_FORMATTER (%s)"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">       <tt class="py-op">(</tt><tt id="link-26" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-26', 'name', 'link-12');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">attrs</tt><tt class="py-op">[</tt><tt class="py-string">"OP_DSC_FORMATTER"</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">    <tt class="py-name">attrs</tt><tt class="py-op">[</tt><tt class="py-string">"OP_ID"</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-27" class="py-name" targets="Function ganeti.opcodes_base._NameToId()=ganeti.opcodes_base-module.html#_NameToId"><a title="ganeti.opcodes_base._NameToId" class="py-name" href="#" onclick="return doclink('link-27', '_NameToId', 'link-27');">_NameToId</a></tt><tt class="py-op">(</tt><tt id="link-28" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-28', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-29" class="py-name"><a title="ganeti.outils" class="py-name" href="#" onclick="return doclink('link-29', 'outils', 'link-7');">outils</a></tt><tt class="py-op">.</tt><tt id="link-30" class="py-name" targets="Class ganeti.outils.AutoSlots=ganeti.outils.AutoSlots-class.html"><a title="ganeti.outils.AutoSlots" class="py-name" href="#" onclick="return doclink('link-30', 'AutoSlots', 'link-30');">AutoSlots</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name" targets="Method ganeti.hypervisor.hv_lxc.LXCVersion.__new__()=ganeti.hypervisor.hv_lxc.LXCVersion-class.html#__new__,Method ganeti.opcodes_base._AutoOpParamSlots.__new__()=ganeti.opcodes_base._AutoOpParamSlots-class.html#__new__,Method ganeti.outils.AutoSlots.__new__()=ganeti.outils.AutoSlots-class.html#__new__"><a title="ganeti.hypervisor.hv_lxc.LXCVersion.__new__
+ganeti.opcodes_base._AutoOpParamSlots.__new__
+ganeti.outils.AutoSlots.__new__" class="py-name" href="#" onclick="return doclink('link-31', '__new__', 'link-31');">__new__</a></tt><tt class="py-op">(</tt><tt class="py-name">mcs</tt><tt class="py-op">,</tt> <tt id="link-32" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-32', 'name', 'link-12');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">bases</tt><tt class="py-op">,</tt> <tt class="py-name">attrs</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="_AutoOpParamSlots._GetSlots"></a><div id="_AutoOpParamSlots._GetSlots-def"><a name="L152"></a><tt class="py-lineno">152</tt> <a class="py-toggle" href="#" id="_AutoOpParamSlots._GetSlots-toggle" onclick="return toggle('_AutoOpParamSlots._GetSlots');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base._AutoOpParamSlots-class.html#_GetSlots">_GetSlots</a><tt class="py-op">(</tt><tt class="py-param">mcs</tt><tt class="py-op">,</tt> <tt class="py-param">attrs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_AutoOpParamSlots._GetSlots-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="_AutoOpParamSlots._GetSlots-expanded"><a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">    <tt class="py-docstring">"""Build the slots out of OP_PARAMS.</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">    <tt class="py-comment"># Always set OP_PARAMS to avoid duplicates in BaseOpCode.GetAllParams</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">    <tt class="py-name">params</tt> <tt class="py-op">=</tt> <tt class="py-name">attrs</tt><tt class="py-op">.</tt><tt class="py-name">setdefault</tt><tt class="py-op">(</tt><tt class="py-string">"OP_PARAMS"</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">    <tt class="py-comment"># Use parameter names as slots</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">[</tt><tt class="py-name">pname</tt> <tt class="py-keyword">for</tt> <tt class="py-op">(</tt><tt class="py-name">pname</tt><tt class="py-op">,</tt> <tt class="py-name">_</tt><tt class="py-op">,</tt> <tt class="py-name">_</tt><tt class="py-op">,</tt> <tt class="py-name">_</tt><tt class="py-op">)</tt> <tt class="py-keyword">in</tt> <tt class="py-name">params</tt><tt class="py-op">]</tt> </tt>
+</div></div><a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"> </tt>
+<a name="BaseOpCode"></a><div id="BaseOpCode-def"><a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt> <a class="py-toggle" href="#" id="BaseOpCode-toggle" onclick="return toggle('BaseOpCode');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html">BaseOpCode</a><tt class="py-op">(</tt><tt class="py-base-class">outils</tt><tt class="py-op">.</tt><tt class="py-base-class">ValidatedSlots</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseOpCode-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BaseOpCode-expanded"><a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">  <tt class="py-docstring">"""A simple serializable object.</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"><tt class="py-docstring">  This object serves as a parent class for OpCode without any custom</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"><tt class="py-docstring">  field handling.</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">  <tt class="py-comment"># pylint: disable=E1101</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">  <tt class="py-comment"># as OP_ID is dynamically defined</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">  <tt class="py-name">__metaclass__</tt> <tt class="py-op">=</tt> <tt id="link-33" class="py-name" targets="Class ganeti.opcodes_base._AutoOpParamSlots=ganeti.opcodes_base._AutoOpParamSlots-class.html"><a title="ganeti.opcodes_base._AutoOpParamSlots" class="py-name" href="#" onclick="return doclink('link-33', '_AutoOpParamSlots', 'link-33');">_AutoOpParamSlots</a></tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"> </tt>
+<a name="BaseOpCode.__init__"></a><div id="BaseOpCode.__init__-def"><a name="L174"></a><tt class="py-lineno">174</tt> <a class="py-toggle" href="#" id="BaseOpCode.__init__-toggle" onclick="return toggle('BaseOpCode.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseOpCode.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BaseOpCode.__init__-expanded"><a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">    <tt id="link-34" class="py-name"><a title="ganeti.outils" class="py-name" href="#" onclick="return doclink('link-34', 'outils', 'link-7');">outils</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Class ganeti.outils.ValidatedSlots=ganeti.outils.ValidatedSlots-class.html"><a title="ganeti.outils.ValidatedSlots" class="py-name" href="#" onclick="return doclink('link-35', 'ValidatedSlots', 'link-35');">ValidatedSlots</a></tt><tt class="py-op">.</tt><tt id="link-36" class="py-name" targets="Method ganeti.asyncnotifier.AsyncNotifier.__init__()=ganeti.asyncnotifier.AsyncNotifier-class.html#__init__,Method ganeti.asyncnotifier.FileEventHandlerBase.__init__()=ganeti.asyncnotifier.FileEventHandlerBase-class.html#__init__,Method ganeti.asyncnotifier.SingleFileEventHandler.__init__()=ganeti.asyncnotifier.SingleFileEventHandler-class.html#__init__,Method ganeti.backend.HooksRunner.__init__()=ganeti.backend.HooksRunner-class.html#__init__,Method ganeti.build.sphinx_ext._ManPageXRefRole.__init__()=ganeti.build.sphinx_ext._ManPageXRefRole-class.html#__init__,Method ganeti.cli.ArgSuggest.__init__()=ganeti.cli.ArgSuggest-class.html#__init__,Method ganeti.cli.FeedbackFnJobPollReportCb.__init__()=ganeti.cli.FeedbackFnJobPollReportCb-class.html#__init__,Method ganeti.cli.JobExecutor.__init__()=ganeti.cli.JobExecutor-class.html#__init__,Method ganeti.cli.JobPollCbBase.__init__()=ganeti.cli.JobPollCbBase-class.html#__init__,Method ganeti.cli.JobPollReportCbBase.__init__()=ganeti.cli.JobPollReportCbBase-class.html#__init__,Method ganeti.cli.StdioJobPollReportCb.__init__()=ganeti.cli.StdioJobPollReportCb-class.html#__init__,Method ganeti.cli.TableColumn.__init__()=ganeti.cli.TableColumn-class.html#__init__,Method ganeti.cli._Argument.__init__()=ganeti.cli._Argument-class.html#__init__,Method ganeti.cli._LuxiJobPollCb.__init__()=ganeti.cli._LuxiJobPollCb-class.html#__init__,Method ganeti.cli._QueryColumnFormatter.__init__()=ganeti.cli._QueryColumnFormatter-class.html#__init__,Method ganeti.cli._RunWhileDaemonsStoppedHelper.__init__()=ganeti.cli._RunWhileDaemonsStoppedHelper-class.html#__init__,Method ganeti.cli._ShowUsage.__init__()=ganeti.cli._ShowUsage-class.html#__init__,Method ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__()=ganeti.client.gnt_cluster._RunWhenNodesReachableHelper-class.html#__init__,Method ganeti.client.gnt_debug._JobQueueTestReporter.__init__()=ganeti.client.gnt_debug._JobQueueTestReporter-class.html#__init__,Method ganeti.client.gnt_node.ReplyStatus.__init__()=ganeti.client.gnt_node.ReplyStatus-class.html#__init__,Method ganeti.cmdlib.base.LUWConfdClient.__init__()=ganeti.cmdlib.base.LUWConfdClient-class.html#__init__,Method ganeti.cmdlib.base.LogicalUnit.__init__()=ganeti.cmdlib.base.LogicalUnit-class.html#__init__,Method ganeti.cmdlib.base.QueryBase.__init__()=ganeti.cmdlib.base.QueryBase-class.html#__init__,Method ganeti.cmdlib.base.ResultWithJobs.__init__()=ganeti.cmdlib.base.ResultWithJobs-class.html#__init__,Method ganeti.cmdlib.base.Tasklet.__init__()=ganeti.cmdlib.base.Tasklet-class.html#__init__,Method ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__()=ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage-class.html#__init__,Method ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__()=ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__,Method ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__()=ganeti.cmdlib.instance_set_params.InstNicModPrivate-class.html#__init__,Method ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__()=ganeti.cmdlib.instance_storage.TLReplaceDisks-class.html#__init__,Method ganeti.cmdlib.instance_storage.TemporaryDisk.__init__()=ganeti.cmdlib.instance_storage.TemporaryDisk-class.html#__init__,Method ganeti.cmdlib.test.TestSocketWrapper.__init__()=ganeti.cmdlib.test.TestSocketWrapper-class.html#__init__,Method ganeti.confd.client.ConfdAsyncUDPClient.__init__()=ganeti.confd.client.ConfdAsyncUDPClient-class.html#__init__,Method ganeti.confd.client.ConfdClient.__init__()=ganeti.confd.client.ConfdClient-class.html#__init__,Method ganeti.confd.client.ConfdClientRequest.__init__()=ganeti.confd.client.ConfdClientRequest-class.html#__init__,Method ganeti.confd.client.ConfdCountingCallback.__init__()=ganeti.confd.client.ConfdCountingCallback-class.html#__init__,Method ganeti.confd.client.ConfdFilterCallback.__init__()=ganeti.confd.client.ConfdFilterCallback-class.html#__init__,Method ganeti.confd.client.StoreResultCallback.__init__()=ganeti.confd.client.StoreResultCallback-class.html#__init__,Method ganeti.confd.client._Request.__init__()=ganeti.confd.client._Request-class.html#__init__,Method ganeti.config.ConfigWriter.__init__()=ganeti.config.ConfigWriter-class.html#__init__,Method ganeti.config.DetachedConfig.__init__()=ganeti.config.DetachedConfig-class.html#__init__,Method ganeti.config.temporary_reservations.TemporaryReservationManager.__init__()=ganeti.config.temporary_reservations.TemporaryReservationManager-class.html#__init__,Method ganeti.config.utils.ConfigManager.__init__()=ganeti.config.utils.ConfigManager-class.html#__init__,Method ganeti.daemon.AsyncAwaker.__init__()=ganeti.daemon.AsyncAwaker-class.html#__init__,Method ganeti.daemon.AsyncTerminatedMessageStream.__init__()=ganeti.daemon.AsyncTerminatedMessageStream-class.html#__init__,Method ganeti.daemon.AsyncUDPSocket.__init__()=ganeti.daemon.AsyncUDPSocket-class.html#__init__,Method ganeti.daemon.AsyncoreScheduler.__init__()=ganeti.daemon.AsyncoreScheduler-class.html#__init__,Method ganeti.daemon.Mainloop.__init__()=ganeti.daemon.Mainloop-class.html#__init__,Method ganeti.daemon._ShutdownCheck.__init__()=ganeti.daemon._ShutdownCheck-class.html#__init__,Method ganeti.errors.DeviceCreationError.__init__()=ganeti.errors.DeviceCreationError-class.html#__init__,Method ganeti.hooksmaster.HooksMaster.__init__()=ganeti.hooksmaster.HooksMaster-class.html#__init__,Method ganeti.ht._WrapperBase.__init__()=ganeti.ht._WrapperBase-class.html#__init__,Method ganeti.http.HttpBase.__init__()=ganeti.http.HttpBase-class.html#__init__,Method ganeti.http.HttpClientToServerStartLine.__init__()=ganeti.http.HttpClientToServerStartLine-class.html#__init__,Method ganeti.http.HttpException.__init__()=ganeti.http.HttpException-class.html#__init__,Method ganeti.http.HttpMessage.__init__()=ganeti.http.HttpMessage-class.html#__init__,Method ganeti.http.HttpMessageReader.__init__()=ganeti.http.HttpMessageReader-class.html#__init__,Method ganeti.http.HttpMessageWriter.__init__()=ganeti.http.HttpMessageWriter-class.html#__init__,Method ganeti.http.HttpServerToClientStartLine.__init__()=ganeti.http.HttpServerToClientStartLine-class.html#__init__,Method ganeti.http.HttpSslParams.__init__()=ganeti.http.HttpSslParams-class.html#__init__,Method ganeti.http.client.HttpClientRequest.__init__()=ganeti.http.client.HttpClientRequest-class.html#__init__,Method ganeti.http.client._PendingRequest.__init__()=ganeti.http.client._PendingRequest-class.html#__init__,Method ganeti.http.client._PendingRequestMonitor.__init__()=ganeti.http.client._PendingRequestMonitor-class.html#__init__,Method ganeti.http.server.HttpResponder.__init__()=ganeti.http.server.HttpResponder-class.html#__init__,Method ganeti.http.server.HttpServer.__init__()=ganeti.http.server.HttpServer-class.html#__init__,Method ganeti.http.server.HttpServerRequestExecutor.__init__()=ganeti.http.server.HttpServerRequestExecutor-class.html#__init__,Method ganeti.http.server._HttpServerRequest.__init__()=ganeti.http.server._HttpServerRequest-class.html#__init__,Method ganeti.http.server._HttpServerToClientMessageWriter.__init__()=ganeti.http.server._HttpServerToClientMessageWriter-class.html#__init__,Method ganeti.hypervisor.hv_chroot.ChrootManager.__init__()=ganeti.hypervisor.hv_chroot.ChrootManager-class.html#__init__,Method ganeti.hypervisor.hv_fake.FakeHypervisor.__init__()=ganeti.hypervisor.hv_fake.FakeHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__()=ganeti.hypervisor.hv_kvm.KVMHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__()=ganeti.hypervisor.hv_kvm.monitor.MonitorSocket-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpConnection-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpMessage-class.html#__init__,Method ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__()=ganeti.hypervisor.hv_lxc.LXCHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_xen.XenHypervisor.__init__()=ganeti.hypervisor.hv_xen.XenHypervisor-class.html#__init__,Method ganeti.impexpd.ChildIOProcessor.__init__()=ganeti.impexpd.ChildIOProcessor-class.html#__init__,Method ganeti.impexpd.CommandBuilder.__init__()=ganeti.impexpd.CommandBuilder-class.html#__init__,Method ganeti.jqueue.JobQueue.__init__()=ganeti.jqueue.JobQueue-class.html#__init__,Method ganeti.jqueue._JobDependencyManager.__init__()=ganeti.jqueue._JobDependencyManager-class.html#__init__,Method ganeti.jqueue._JobProcessor.__init__()=ganeti.jqueue._JobProcessor-class.html#__init__,Method ganeti.jqueue._OpExecCallbacks.__init__()=ganeti.jqueue._OpExecCallbacks-class.html#__init__,Method ganeti.jqueue._OpExecContext.__init__()=ganeti.jqueue._OpExecContext-class.html#__init__,Method ganeti.jqueue._QueuedJob.__init__()=ganeti.jqueue._QueuedJob-class.html#__init__,Method ganeti.jqueue._QueuedOpCode.__init__()=ganeti.jqueue._QueuedOpCode-class.html#__init__,Method ganeti.jqueue._TimeoutStrategyWrapper.__init__()=ganeti.jqueue._TimeoutStrategyWrapper-class.html#__init__,Method ganeti.locking.PipeCondition.__init__()=ganeti.locking.PipeCondition-class.html#__init__,Method ganeti.locking.SharedLock.__init__()=ganeti.locking.SharedLock-class.html#__init__,Method ganeti.locking.SingleNotifyPipeCondition.__init__()=ganeti.locking.SingleNotifyPipeCondition-class.html#__init__,Method ganeti.locking._BaseCondition.__init__()=ganeti.locking._BaseCondition-class.html#__init__,Method ganeti.locking._PipeConditionWithMode.__init__()=ganeti.locking._PipeConditionWithMode-class.html#__init__,Method ganeti.locking._SingleNotifyPipeConditionWaiter.__init__()=ganeti.locking._SingleNotifyPipeConditionWaiter-class.html#__init__,Method ganeti.luxi.Client.__init__()=ganeti.luxi.Client-class.html#__init__,Method ganeti.masterd.iallocator.IARequestBase.__init__()=ganeti.masterd.iallocator.IARequestBase-class.html#__init__,Method ganeti.masterd.iallocator.IAllocator.__init__()=ganeti.masterd.iallocator.IAllocator-class.html#__init__,Method ganeti.masterd.instance.DiskExport.__init__()=ganeti.masterd.instance.DiskExport-class.html#__init__,Method ganeti.masterd.instance.DiskImport.__init__()=ganeti.masterd.instance.DiskImport-class.html#__init__,Method ganeti.masterd.instance.DiskTransfer.__init__()=ganeti.masterd.instance.DiskTransfer-class.html#__init__,Method ganeti.masterd.instance.ExportInstanceHelper.__init__()=ganeti.masterd.instance.ExportInstanceHelper-class.html#__init__,Method ganeti.masterd.instance.ImportExportLoop.__init__()=ganeti.masterd.instance.ImportExportLoop-class.html#__init__,Method ganeti.masterd.instance.ImportExportTimeouts.__init__()=ganeti.masterd.instance.ImportExportTimeouts-class.html#__init__,Method ganeti.masterd.instance._DiskImportExportBase.__init__()=ganeti.masterd.instance._DiskImportExportBase-class.html#__init__,Method ganeti.masterd.instance._DiskTransferPrivate.__init__()=ganeti.masterd.instance._DiskTransferPrivate-class.html#__init__,Method ganeti.masterd.instance._RemoteExportCb.__init__()=ganeti.masterd.instance._RemoteExportCb-class.html#__init__,Method ganeti.masterd.instance._RemoteImportCb.__init__()=ganeti.masterd.instance._RemoteImportCb-class.html#__init__,Method ganeti.masterd.instance._TransferInstCbBase.__init__()=ganeti.masterd.instance._TransferInstCbBase-class.html#__init__,Method ganeti.mcpu.LockAttemptTimeoutStrategy.__init__()=ganeti.mcpu.LockAttemptTimeoutStrategy-class.html#__init__,Method ganeti.mcpu.Processor.__init__()=ganeti.mcpu.Processor-class.html#__init__,Method ganeti.metad.Client.__init__()=ganeti.metad.Client-class.html#__init__,Method ganeti.netutils.Hostname.__init__()=ganeti.netutils.Hostname-class.html#__init__,Method ganeti.netutils.IP4Address.__init__()=ganeti.netutils.IP4Address-class.html#__init__,Method ganeti.netutils.IP6Address.__init__()=ganeti.netutils.IP6Address-class.html#__init__,Method ganeti.network.AddressPool.__init__()=ganeti.network.AddressPool-class.html#__init__,Method ganeti.opcodes_base.BaseOpCode.__init__()=ganeti.opcodes_base.BaseOpCode-class.html#__init__,Method ganeti.outils.ValidatedSlots.__init__()=ganeti.outils.ValidatedSlots-class.html#__init__,Method ganeti.ovf.Converter.__init__()=ganeti.ovf.Converter-class.html#__init__,Method ganeti.ovf.OVFReader.__init__()=ganeti.ovf.OVFReader-class.html#__init__,Method ganeti.ovf.OVFWriter.__init__()=ganeti.ovf.OVFWriter-class.html#__init__,Method ganeti.query.ClusterQueryData.__init__()=ganeti.query.ClusterQueryData-class.html#__init__,Method ganeti.query.GroupQueryData.__init__()=ganeti.query.GroupQueryData-class.html#__init__,Method ganeti.query.InstanceQueryData.__init__()=ganeti.query.InstanceQueryData-class.html#__init__,Method ganeti.query.LockQueryData.__init__()=ganeti.query.LockQueryData-class.html#__init__,Method ganeti.query.NetworkQueryData.__init__()=ganeti.query.NetworkQueryData-class.html#__init__,Method ganeti.query.NodeQueryData.__init__()=ganeti.query.NodeQueryData-class.html#__init__,Method ganeti.query.Query.__init__()=ganeti.query.Query-class.html#__init__,Method ganeti.query._FilterCompilerHelper.__init__()=ganeti.query._FilterCompilerHelper-class.html#__init__,Method ganeti.query._FilterHints.__init__()=ganeti.query._FilterHints-class.html#__init__,Method ganeti.rapi.auth.basic_auth.BasicAuthenticator.__init__()=ganeti.rapi.auth.basic_auth.BasicAuthenticator-class.html#__init__,Method ganeti.rapi.auth.basic_auth.FileEventHandler.__init__()=ganeti.rapi.auth.basic_auth.FileEventHandler-class.html#__init__,Method ganeti.rapi.auth.pam.CFunctions.__init__()=ganeti.rapi.auth.pam.CFunctions-class.html#__init__,Method ganeti.rapi.auth.pam.PamAuthenticator.__init__()=ganeti.rapi.auth.pam.PamAuthenticator-class.html#__init__,Method ganeti.rapi.auth.pam.PamHandleT.__init__()=ganeti.rapi.auth.pam.PamHandleT-class.html#__init__,Method ganeti.rapi.auth.users_file.PasswordFileUser.__init__()=ganeti.rapi.auth.users_file.PasswordFileUser-class.html#__init__,Method ganeti.rapi.auth.users_file.RapiUsers.__init__()=ganeti.rapi.auth.users_file.RapiUsers-class.html#__init__,Method ganeti.rapi.baserlib.OpcodeAttributes.__init__()=ganeti.rapi.baserlib.OpcodeAttributes-class.html#__init__,Method ganeti.rapi.baserlib.ResourceBase.__init__()=ganeti.rapi.baserlib.ResourceBase-class.html#__init__,Method ganeti.rapi.client.GanetiApiError.__init__()=ganeti.rapi.client.GanetiApiError-class.html#__init__,Method ganeti.rapi.client.GanetiRapiClient.__init__()=ganeti.rapi.client.GanetiRapiClient-class.html#__init__,Method ganeti.rapi.client_utils.RapiJobPollCb.__init__()=ganeti.rapi.client_utils.RapiJobPollCb-class.html#__init__,Method ganeti.rapi.connector.Mapper.__init__()=ganeti.rapi.connector.Mapper-class.html#__init__,Method ganeti.rapi.connector.UriPattern.__init__()=ganeti.rapi.connector.UriPattern-class.html#__init__,Method ganeti.rapi.rlib2._R_Tags.__init__()=ganeti.rapi.rlib2._R_Tags-class.html#__init__,Method ganeti.rapi.testutils.FakeCurl.__init__()=ganeti.rapi.testutils.FakeCurl-class.html#__init__,Method ganeti.rapi.testutils.InputTestClient.__init__()=ganeti.rapi.testutils.InputTestClient-class.html#__init__,Method ganeti.rapi.testutils._LuxiCallRecorder.__init__()=ganeti.rapi.testutils._LuxiCallRecorder-class.html#__init__,Method ganeti.rapi.testutils._RapiMock.__init__()=ganeti.rapi.testutils._RapiMock-class.html#__init__,Method ganeti.rapi.testutils._TestLuxiTransport.__init__()=ganeti.rapi.testutils._TestLuxiTransport-class.html#__init__,Method ganeti.rpc.client.AbstractClient.__init__()=ganeti.rpc.client.AbstractClient-class.html#__init__,Method ganeti.rpc.client.AbstractStubClient.__init__()=ganeti.rpc.client.AbstractStubClient-class.html#__init__,Method ganeti.rpc.node.BootstrapRunner.__init__()=ganeti.rpc.node.BootstrapRunner-class.html#__init__,Method ganeti.rpc.node.ConfigRunner.__init__()=ganeti.rpc.node.ConfigRunner-class.html#__init__,Method ganeti.rpc.node.DnsOnlyRunner.__init__()=ganeti.rpc.node.DnsOnlyRunner-class.html#__init__,Method ganeti.rpc.node.JobQueueRunner.__init__()=ganeti.rpc.node.JobQueueRunner-class.html#__init__,Method ganeti.rpc.node.RpcResult.__init__()=ganeti.rpc.node.RpcResult-class.html#__init__,Method ganeti.rpc.node.RpcRunner.__init__()=ganeti.rpc.node.RpcRunner-class.html#__init__,Method ganeti.rpc.node._RpcClientBase.__init__()=ganeti.rpc.node._RpcClientBase-class.html#__init__,Method ganeti.rpc.node._RpcProcessor.__init__()=ganeti.rpc.node._RpcProcessor-class.html#__init__,Method ganeti.rpc.node._StaticResolver.__init__()=ganeti.rpc.node._StaticResolver-class.html#__init__,Method ganeti.rpc.transport.FdTransport.__init__()=ganeti.rpc.transport.FdTransport-class.html#__init__,Method ganeti.rpc.transport.Transport.__init__()=ganeti.rpc.transport.Transport-class.html#__init__,Method ganeti.runtime.GetentResolver.__init__()=ganeti.runtime.GetentResolver-class.html#__init__,Method ganeti.serializer.Private.__init__()=ganeti.serializer.Private-class.html#__init__,Method ganeti.serializer.PrivateDict.__init__()=ganeti.serializer.PrivateDict-class.html#__init__,Method ganeti.server.masterd.GanetiContext.__init__()=ganeti.server.masterd.GanetiContext-class.html#__init__,Method ganeti.server.noded.MlockallRequestExecutor.__init__()=ganeti.server.noded.MlockallRequestExecutor-class.html#__init__,Method ganeti.server.noded.NodeRequestHandler.__init__()=ganeti.server.noded.NodeRequestHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiHandler.__init__()=ganeti.server.rapi.RemoteApiHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiRequestContext.__init__()=ganeti.server.rapi.RemoteApiRequestContext-class.html#__init__,Method ganeti.ssconf.SimpleStore.__init__()=ganeti.ssconf.SimpleStore-class.html#__init__,Method ganeti.ssh.SshRunner.__init__()=ganeti.ssh.SshRunner-class.html#__init__,Method ganeti.storage.base.BlockDev.__init__()=ganeti.storage.base.BlockDev-class.html#__init__,Method ganeti.storage.bdev.LogicalVolume.__init__()=ganeti.storage.bdev.LogicalVolume-class.html#__init__,Method ganeti.storage.bdev.PersistentBlockDevice.__init__()=ganeti.storage.bdev.PersistentBlockDevice-class.html#__init__,Method ganeti.storage.bdev.RADOSBlockDevice.__init__()=ganeti.storage.bdev.RADOSBlockDevice-class.html#__init__,Method ganeti.storage.container.FileStorage.__init__()=ganeti.storage.container.FileStorage-class.html#__init__,Method ganeti.storage.drbd.DRBD8Dev.__init__()=ganeti.storage.drbd.DRBD8Dev-class.html#__init__,Method ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Info.__init__()=ganeti.storage.drbd_info.DRBD8Info-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Status.__init__()=ganeti.storage.drbd_info.DRBD8Status-class.html#__init__,Method ganeti.storage.extstorage.ExtStorageDevice.__init__()=ganeti.storage.extstorage.ExtStorageDevice-class.html#__init__,Method ganeti.storage.filestorage.FileDeviceHelper.__init__()=ganeti.storage.filestorage.FileDeviceHelper-class.html#__init__,Method ganeti.storage.filestorage.FileStorage.__init__()=ganeti.storage.filestorage.FileStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterStorage.__init__()=ganeti.storage.gluster.GlusterStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterVolume.__init__()=ganeti.storage.gluster.GlusterVolume-class.html#__init__,Method ganeti.tools.burnin.Burner.__init__()=ganeti.tools.burnin.Burner-class.html#__init__,Method ganeti.tools.burnin.JobHandler.__init__()=ganeti.tools.burnin.JobHandler-class.html#__init__,Method ganeti.tools.cfgupgrade.CfgUpgrade.__init__()=ganeti.tools.cfgupgrade.CfgUpgrade-class.html#__init__,Method ganeti.uidpool.LockedUid.__init__()=ganeti.uidpool.LockedUid-class.html#__init__,Method ganeti.utils.FdConditionWaiterHelper.__init__()=ganeti.utils.FdConditionWaiterHelper-class.html#__init__,Method ganeti.utils.FieldSet.__init__()=ganeti.utils.FieldSet-class.html#__init__,Method ganeti.utils.SignalHandler.__init__()=ganeti.utils.SignalHandler-class.html#__init__,Method ganeti.utils.SignalWakeupFd.__init__()=ganeti.utils.SignalWakeupFd-class.html#__init__,Method ganeti.utils.algo.RunningTimeout.__init__()=ganeti.utils.algo.RunningTimeout-class.html#__init__,Method ganeti.utils.filelock.FileLock.__init__()=ganeti.utils.filelock.FileLock-class.html#__init__,Method ganeti.utils.io.FileStatHelper.__init__()=ganeti.utils.io.FileStatHelper-class.html#__init__,Method ganeti.utils.io.TemporaryFileManager.__init__()=ganeti.utils.io.TemporaryFileManager-class.html#__init__,Method ganeti.utils.livelock.LiveLock.__init__()=ganeti.utils.livelock.LiveLock-class.html#__init__,Method ganeti.utils.livelock.LiveLockName.__init__()=ganeti.utils.livelock.LiveLockName-class.html#__init__,Method ganeti.utils.log._ReopenableLogHandler.__init__()=ganeti.utils.log._ReopenableLogHandler-class.html#__init__,Method ganeti.utils.process.RunResult.__init__()=ganeti.utils.process.RunResult-class.html#__init__,Method ganeti.utils.retry._RetryDelayCalculator.__init__()=ganeti.utils.retry._RetryDelayCalculator-class.html#__init__,Method ganeti.utils.text.LineSplitter.__init__()=ganeti.utils.text.LineSplitter-class.html#__init__,Method ganeti.utils.text.ShellWriter.__init__()=ganeti.utils.text.ShellWriter-class.html#__init__,Method ganeti.watcher.Instance.__init__()=ganeti.watcher.Instance-class.html#__init__,Method ganeti.watcher.Node.__init__()=ganeti.watcher.Node-class.html#__init__,Method ganeti.watcher.nodemaint.NodeMaintenance.__init__()=ganeti.watcher.nodemaint.NodeMaintenance-class.html#__init__,Method ganeti.watcher.state.WatcherState.__init__()=ganeti.watcher.state.WatcherState-class.html#__init__,Method ganeti.wconfd.Client.__init__()=ganeti.wconfd.Client-class.html#__init__,Method ganeti.workerpool.BaseWorker.__init__()=ganeti.workerpool.BaseWorker-class.html#__init__,Method ganeti.workerpool.DeferTask.__init__()=ganeti.workerpool.DeferTask-class.html#__init__,Method ganeti.workerpool.WorkerPool.__init__()=ganeti.workerpool.WorkerPool-class.html#__init__,Method script-build_bash_completion.CompletionWriter.__init__()=script-build_bash_completion.CompletionWriter-class.html#__init__,Method script-cfgshell.ConfigShell.__init__()=script-cfgshell.ConfigShell-class.html#__init__,Method script-cluster_merge.Merger.__init__()=script-cluster_merge.Merger-class.html#__init__,Method script-cluster_merge.MergerData.__init__()=script-cluster_merge.MergerData-class.html#__init__,Method script-confd_client.TestClient.__init__()=script-confd_client.TestClient-class.html#__init__,Method script-import_export.ChildProcess.__init__()=script-import_export.ChildProcess-class.html#__init__,Method script-import_export.StatusFile.__init__()=script-import_export.StatusFile-class.html#__init__,Method script-move_instance.InstanceMove.__init__()=script-move_instance.InstanceMove-class.html#__init__,Method script-move_instance.MoveDestExecutor.__init__()=script-move_instance.MoveDestExecutor-class.html#__init__,Method script-move_instance.MoveJobPollReportCb.__init__()=script-move_instance.MoveJobPollReportCb-class.html#__init__,Method script-move_instance.MoveRuntime.__init__()=script-move_instance.MoveRuntime-class.html#__init__,Method script-move_instance.MoveSourceExecutor.__init__()=script-move_instance.MoveSourceExecutor-class.html#__init__,Method script-move_instance.RapiClientFactory.__init__()=script-move_instance.RapiClientFactory-class.html#__init__,Method script-query_config.QueryClient.__init__()=script-query_config.QueryClient-class.html#__init__"><a title="ganeti.asyncnotifier.AsyncNotifier.__init__
+ganeti.asyncnotifier.FileEventHandlerBase.__init__
+ganeti.asyncnotifier.SingleFileEventHandler.__init__
+ganeti.backend.HooksRunner.__init__
+ganeti.build.sphinx_ext._ManPageXRefRole.__init__
+ganeti.cli.ArgSuggest.__init__
+ganeti.cli.FeedbackFnJobPollReportCb.__init__
+ganeti.cli.JobExecutor.__init__
+ganeti.cli.JobPollCbBase.__init__
+ganeti.cli.JobPollReportCbBase.__init__
+ganeti.cli.StdioJobPollReportCb.__init__
+ganeti.cli.TableColumn.__init__
+ganeti.cli._Argument.__init__
+ganeti.cli._LuxiJobPollCb.__init__
+ganeti.cli._QueryColumnFormatter.__init__
+ganeti.cli._RunWhileDaemonsStoppedHelper.__init__
+ganeti.cli._ShowUsage.__init__
+ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__
+ganeti.client.gnt_debug._JobQueueTestReporter.__init__
+ganeti.client.gnt_node.ReplyStatus.__init__
+ganeti.cmdlib.base.LUWConfdClient.__init__
+ganeti.cmdlib.base.LogicalUnit.__init__
+ganeti.cmdlib.base.QueryBase.__init__
+ganeti.cmdlib.base.ResultWithJobs.__init__
+ganeti.cmdlib.base.Tasklet.__init__
+ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__
+ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__
+ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__
+ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__
+ganeti.cmdlib.instance_storage.TemporaryDisk.__init__
+ganeti.cmdlib.test.TestSocketWrapper.__init__
+ganeti.confd.client.ConfdAsyncUDPClient.__init__
+ganeti.confd.client.ConfdClient.__init__
+ganeti.confd.client.ConfdClientRequest.__init__
+ganeti.confd.client.ConfdCountingCallback.__init__
+ganeti.confd.client.ConfdFilterCallback.__init__
+ganeti.confd.client.StoreResultCallback.__init__
+ganeti.confd.client._Request.__init__
+ganeti.config.ConfigWriter.__init__
+ganeti.config.DetachedConfig.__init__
+ganeti.config.temporary_reservations.TemporaryReservationManager.__init__
+ganeti.config.utils.ConfigManager.__init__
+ganeti.daemon.AsyncAwaker.__init__
+ganeti.daemon.AsyncTerminatedMessageStream.__init__
+ganeti.daemon.AsyncUDPSocket.__init__
+ganeti.daemon.AsyncoreScheduler.__init__
+ganeti.daemon.Mainloop.__init__
+ganeti.daemon._ShutdownCheck.__init__
+ganeti.errors.DeviceCreationError.__init__
+ganeti.hooksmaster.HooksMaster.__init__
+ganeti.ht._WrapperBase.__init__
+ganeti.http.HttpBase.__init__
+ganeti.http.HttpClientToServerStartLine.__init__
+ganeti.http.HttpException.__init__
+ganeti.http.HttpMessage.__init__
+ganeti.http.HttpMessageReader.__init__
+ganeti.http.HttpMessageWriter.__init__
+ganeti.http.HttpServerToClientStartLine.__init__
+ganeti.http.HttpSslParams.__init__
+ganeti.http.client.HttpClientRequest.__init__
+ganeti.http.client._PendingRequest.__init__
+ganeti.http.client._PendingRequestMonitor.__init__
+ganeti.http.server.HttpResponder.__init__
+ganeti.http.server.HttpServer.__init__
+ganeti.http.server.HttpServerRequestExecutor.__init__
+ganeti.http.server._HttpServerRequest.__init__
+ganeti.http.server._HttpServerToClientMessageWriter.__init__
+ganeti.hypervisor.hv_chroot.ChrootManager.__init__
+ganeti.hypervisor.hv_fake.FakeHypervisor.__init__
+ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__
+ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__
+ganeti.hypervisor.hv_xen.XenHypervisor.__init__
+ganeti.impexpd.ChildIOProcessor.__init__
+ganeti.impexpd.CommandBuilder.__init__
+ganeti.jqueue.JobQueue.__init__
+ganeti.jqueue._JobDependencyManager.__init__
+ganeti.jqueue._JobProcessor.__init__
+ganeti.jqueue._OpExecCallbacks.__init__
+ganeti.jqueue._OpExecContext.__init__
+ganeti.jqueue._QueuedJob.__init__
+ganeti.jqueue._QueuedOpCode.__init__
+ganeti.jqueue._TimeoutStrategyWrapper.__init__
+ganeti.locking.PipeCondition.__init__
+ganeti.locking.SharedLock.__init__
+ganeti.locking.SingleNotifyPipeCondition.__init__
+ganeti.locking._BaseCondition.__init__
+ganeti.locking._PipeConditionWithMode.__init__
+ganeti.locking._SingleNotifyPipeConditionWaiter.__init__
+ganeti.luxi.Client.__init__
+ganeti.masterd.iallocator.IARequestBase.__init__
+ganeti.masterd.iallocator.IAllocator.__init__
+ganeti.masterd.instance.DiskExport.__init__
+ganeti.masterd.instance.DiskImport.__init__
+ganeti.masterd.instance.DiskTransfer.__init__
+ganeti.masterd.instance.ExportInstanceHelper.__init__
+ganeti.masterd.instance.ImportExportLoop.__init__
+ganeti.masterd.instance.ImportExportTimeouts.__init__
+ganeti.masterd.instance._DiskImportExportBase.__init__
+ganeti.masterd.instance._DiskTransferPrivate.__init__
+ganeti.masterd.instance._RemoteExportCb.__init__
+ganeti.masterd.instance._RemoteImportCb.__init__
+ganeti.masterd.instance._TransferInstCbBase.__init__
+ganeti.mcpu.LockAttemptTimeoutStrategy.__init__
+ganeti.mcpu.Processor.__init__
+ganeti.metad.Client.__init__
+ganeti.netutils.Hostname.__init__
+ganeti.netutils.IP4Address.__init__
+ganeti.netutils.IP6Address.__init__
+ganeti.network.AddressPool.__init__
+ganeti.opcodes_base.BaseOpCode.__init__
+ganeti.outils.ValidatedSlots.__init__
+ganeti.ovf.Converter.__init__
+ganeti.ovf.OVFReader.__init__
+ganeti.ovf.OVFWriter.__init__
+ganeti.query.ClusterQueryData.__init__
+ganeti.query.GroupQueryData.__init__
+ganeti.query.InstanceQueryData.__init__
+ganeti.query.LockQueryData.__init__
+ganeti.query.NetworkQueryData.__init__
+ganeti.query.NodeQueryData.__init__
+ganeti.query.Query.__init__
+ganeti.query._FilterCompilerHelper.__init__
+ganeti.query._FilterHints.__init__
+ganeti.rapi.auth.basic_auth.BasicAuthenticator.__init__
+ganeti.rapi.auth.basic_auth.FileEventHandler.__init__
+ganeti.rapi.auth.pam.CFunctions.__init__
+ganeti.rapi.auth.pam.PamAuthenticator.__init__
+ganeti.rapi.auth.pam.PamHandleT.__init__
+ganeti.rapi.auth.users_file.PasswordFileUser.__init__
+ganeti.rapi.auth.users_file.RapiUsers.__init__
+ganeti.rapi.baserlib.OpcodeAttributes.__init__
+ganeti.rapi.baserlib.ResourceBase.__init__
+ganeti.rapi.client.GanetiApiError.__init__
+ganeti.rapi.client.GanetiRapiClient.__init__
+ganeti.rapi.client_utils.RapiJobPollCb.__init__
+ganeti.rapi.connector.Mapper.__init__
+ganeti.rapi.connector.UriPattern.__init__
+ganeti.rapi.rlib2._R_Tags.__init__
+ganeti.rapi.testutils.FakeCurl.__init__
+ganeti.rapi.testutils.InputTestClient.__init__
+ganeti.rapi.testutils._LuxiCallRecorder.__init__
+ganeti.rapi.testutils._RapiMock.__init__
+ganeti.rapi.testutils._TestLuxiTransport.__init__
+ganeti.rpc.client.AbstractClient.__init__
+ganeti.rpc.client.AbstractStubClient.__init__
+ganeti.rpc.node.BootstrapRunner.__init__
+ganeti.rpc.node.ConfigRunner.__init__
+ganeti.rpc.node.DnsOnlyRunner.__init__
+ganeti.rpc.node.JobQueueRunner.__init__
+ganeti.rpc.node.RpcResult.__init__
+ganeti.rpc.node.RpcRunner.__init__
+ganeti.rpc.node._RpcClientBase.__init__
+ganeti.rpc.node._RpcProcessor.__init__
+ganeti.rpc.node._StaticResolver.__init__
+ganeti.rpc.transport.FdTransport.__init__
+ganeti.rpc.transport.Transport.__init__
+ganeti.runtime.GetentResolver.__init__
+ganeti.serializer.Private.__init__
+ganeti.serializer.PrivateDict.__init__
+ganeti.server.masterd.GanetiContext.__init__
+ganeti.server.noded.MlockallRequestExecutor.__init__
+ganeti.server.noded.NodeRequestHandler.__init__
+ganeti.server.rapi.RemoteApiHandler.__init__
+ganeti.server.rapi.RemoteApiRequestContext.__init__
+ganeti.ssconf.SimpleStore.__init__
+ganeti.ssh.SshRunner.__init__
+ganeti.storage.base.BlockDev.__init__
+ganeti.storage.bdev.LogicalVolume.__init__
+ganeti.storage.bdev.PersistentBlockDevice.__init__
+ganeti.storage.bdev.RADOSBlockDevice.__init__
+ganeti.storage.container.FileStorage.__init__
+ganeti.storage.drbd.DRBD8Dev.__init__
+ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__
+ganeti.storage.drbd_info.DRBD8Info.__init__
+ganeti.storage.drbd_info.DRBD8Status.__init__
+ganeti.storage.extstorage.ExtStorageDevice.__init__
+ganeti.storage.filestorage.FileDeviceHelper.__init__
+ganeti.storage.filestorage.FileStorage.__init__
+ganeti.storage.gluster.GlusterStorage.__init__
+ganeti.storage.gluster.GlusterVolume.__init__
+ganeti.tools.burnin.Burner.__init__
+ganeti.tools.burnin.JobHandler.__init__
+ganeti.tools.cfgupgrade.CfgUpgrade.__init__
+ganeti.uidpool.LockedUid.__init__
+ganeti.utils.FdConditionWaiterHelper.__init__
+ganeti.utils.FieldSet.__init__
+ganeti.utils.SignalHandler.__init__
+ganeti.utils.SignalWakeupFd.__init__
+ganeti.utils.algo.RunningTimeout.__init__
+ganeti.utils.filelock.FileLock.__init__
+ganeti.utils.io.FileStatHelper.__init__
+ganeti.utils.io.TemporaryFileManager.__init__
+ganeti.utils.livelock.LiveLock.__init__
+ganeti.utils.livelock.LiveLockName.__init__
+ganeti.utils.log._ReopenableLogHandler.__init__
+ganeti.utils.process.RunResult.__init__
+ganeti.utils.retry._RetryDelayCalculator.__init__
+ganeti.utils.text.LineSplitter.__init__
+ganeti.utils.text.ShellWriter.__init__
+ganeti.watcher.Instance.__init__
+ganeti.watcher.Node.__init__
+ganeti.watcher.nodemaint.NodeMaintenance.__init__
+ganeti.watcher.state.WatcherState.__init__
+ganeti.wconfd.Client.__init__
+ganeti.workerpool.BaseWorker.__init__
+ganeti.workerpool.DeferTask.__init__
+ganeti.workerpool.WorkerPool.__init__
+script-build_bash_completion.CompletionWriter.__init__
+script-cfgshell.ConfigShell.__init__
+script-cluster_merge.Merger.__init__
+script-cluster_merge.MergerData.__init__
+script-confd_client.TestClient.__init__
+script-import_export.ChildProcess.__init__
+script-import_export.StatusFile.__init__
+script-move_instance.InstanceMove.__init__
+script-move_instance.MoveDestExecutor.__init__
+script-move_instance.MoveJobPollReportCb.__init__
+script-move_instance.MoveRuntime.__init__
+script-move_instance.MoveSourceExecutor.__init__
+script-move_instance.RapiClientFactory.__init__
+script-query_config.QueryClient.__init__" class="py-name" href="#" onclick="return doclink('link-36', '__init__', 'link-36');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">default</tt><tt class="py-op">,</tt> <tt class="py-name">_</tt><tt class="py-op">,</tt> <tt class="py-name">_</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt id="link-37" class="py-name" targets="Class Method ganeti.opcodes_base.BaseOpCode.GetAllParams()=ganeti.opcodes_base.BaseOpCode-class.html#GetAllParams"><a title="ganeti.opcodes_base.BaseOpCode.GetAllParams" class="py-name" href="#" onclick="return doclink('link-37', 'GetAllParams', 'link-37');">GetAllParams</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">        <tt class="py-name">setattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">default</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line"> </tt>
+<a name="BaseOpCode.__getstate__"></a><div id="BaseOpCode.__getstate__-def"><a name="L180"></a><tt class="py-lineno">180</tt> <a class="py-toggle" href="#" id="BaseOpCode.__getstate__-toggle" onclick="return toggle('BaseOpCode.__getstate__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html#__getstate__">__getstate__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseOpCode.__getstate__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BaseOpCode.__getstate__-expanded"><a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">    <tt class="py-docstring">"""Generic serializer.</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"><tt class="py-docstring">    This method just returns the contents of the instance as a</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring">    dictionary.</tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype:  C{dict}</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"><tt class="py-docstring">    @return: the instance attributes and their values</tt> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line">    <tt id="link-38" class="py-name" targets="Module ganeti.watcher.state=ganeti.watcher.state-module.html"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-38', 'state', 'link-38');">state</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-39" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-39', 'name', 'link-12');">name</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Class Method ganeti.outils.ValidatedSlots.GetAllSlots()=ganeti.outils.ValidatedSlots-class.html#GetAllSlots"><a title="ganeti.outils.ValidatedSlots.GetAllSlots" class="py-name" href="#" onclick="return doclink('link-40', 'GetAllSlots', 'link-40');">GetAllSlots</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-41" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-41', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line">        <tt id="link-42" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-42', 'state', 'link-38');">state</a></tt><tt class="py-op">[</tt><tt id="link-43" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-43', 'name', 'link-12');">name</a></tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-44" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-44', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-45" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-45', 'state', 'link-38');">state</a></tt> </tt>
+</div><a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"> </tt>
+<a name="BaseOpCode.__setstate__"></a><div id="BaseOpCode.__setstate__-def"><a name="L196"></a><tt class="py-lineno">196</tt> <a class="py-toggle" href="#" id="BaseOpCode.__setstate__-toggle" onclick="return toggle('BaseOpCode.__setstate__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html#__setstate__">__setstate__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">state</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseOpCode.__setstate__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BaseOpCode.__setstate__-expanded"><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">    <tt class="py-docstring">"""Generic unserializer.</tt> </tt>
+<a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line"><tt class="py-docstring">    This method just restores from the serialized state the attributes</tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line"><tt class="py-docstring">    of the current instance.</tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line"><tt class="py-docstring">    @param state: the serialized opcode data</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"><tt class="py-docstring">    @type state:  C{dict}</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt id="link-46" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-46', 'state', 'link-38');">state</a></tt><tt class="py-op">,</tt> <tt class="py-name">dict</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">"Invalid data to __setstate__: expected dict, got %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line">                       <tt class="py-name">type</tt><tt class="py-op">(</tt><tt id="link-47" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-47', 'state', 'link-38');">state</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-48" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-48', 'name', 'link-12');">name</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-49" class="py-name"><a title="ganeti.outils.ValidatedSlots.GetAllSlots" class="py-name" href="#" onclick="return doclink('link-49', 'GetAllSlots', 'link-40');">GetAllSlots</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt id="link-50" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-50', 'name', 'link-12');">name</a></tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt id="link-51" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-51', 'state', 'link-38');">state</a></tt> <tt class="py-keyword">and</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-52" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-52', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">        <tt class="py-name">delattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-53" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-53', 'name', 'link-12');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line"> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-54" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-54', 'name', 'link-12');">name</a></tt> <tt class="py-keyword">in</tt> <tt id="link-55" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-55', 'state', 'link-38');">state</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">      <tt class="py-name">setattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt id="link-56" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-56', 'name', 'link-12');">name</a></tt><tt class="py-op">,</tt> <tt id="link-57" class="py-name"><a title="ganeti.watcher.state" class="py-name" href="#" onclick="return doclink('link-57', 'state', 'link-38');">state</a></tt><tt class="py-op">[</tt><tt id="link-58" class="py-name"><a title="ganeti.build.shell_example_lexer.ShellExampleLexer.name" class="py-name" href="#" onclick="return doclink('link-58', 'name', 'link-12');">name</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line"> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="BaseOpCode.GetAllParams"></a><div id="BaseOpCode.GetAllParams-def"><a name="L218"></a><tt class="py-lineno">218</tt> <a class="py-toggle" href="#" id="BaseOpCode.GetAllParams-toggle" onclick="return toggle('BaseOpCode.GetAllParams');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html#GetAllParams">GetAllParams</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseOpCode.GetAllParams-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BaseOpCode.GetAllParams-expanded"><a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line">    <tt class="py-docstring">"""Compute list of all parameters for an opcode.</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line">    <tt class="py-name">slots</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">parent</tt> <tt class="py-keyword">in</tt> <tt class="py-name">cls</tt><tt class="py-op">.</tt><tt class="py-name">__mro__</tt><tt class="py-op">:</tt> </tt>
+<a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line">      <tt class="py-name">slots</tt><tt class="py-op">.</tt><tt class="py-name">extend</tt><tt class="py-op">(</tt><tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">parent</tt><tt class="py-op">,</tt> <tt class="py-string">"OP_PARAMS"</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">slots</tt> </tt>
+</div><a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line"> </tt>
+<a name="BaseOpCode.Validate"></a><div id="BaseOpCode.Validate-def"><a name="L227"></a><tt class="py-lineno">227</tt> <a class="py-toggle" href="#" id="BaseOpCode.Validate-toggle" onclick="return toggle('BaseOpCode.Validate');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base.BaseOpCode-class.html#Validate">Validate</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">set_defaults</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> <tt class="py-comment"># pylint: disable=W0221</tt> </tt>
+</div><a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line">    <tt class="py-docstring">"""Validate opcode parameters, optionally setting default values.</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line"><tt class="py-docstring">    @type set_defaults: bool</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line"><tt class="py-docstring">    @param set_defaults: whether to set default values</tt> </tt>
+<a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: NoneType</tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"><tt class="py-docstring">    @return: L{None}, if the validation succeeds</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"><tt class="py-docstring">    @raise errors.OpPrereqError: when a parameter value doesn't match</tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line"><tt class="py-docstring">                                 requirements</tt> </tt>
+<a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-op">(</tt><tt class="py-name">attr_name</tt><tt class="py-op">,</tt> <tt class="py-name">default</tt><tt class="py-op">,</tt> <tt id="link-59" class="py-name" targets="Module ganeti.cmdlib.test=ganeti.cmdlib.test-module.html"><a title="ganeti.cmdlib.test" class="py-name" href="#" onclick="return doclink('link-59', 'test', 'link-59');">test</a></tt><tt class="py-op">,</tt> <tt class="py-name">_</tt><tt class="py-op">)</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-60" class="py-name"><a title="ganeti.opcodes_base.BaseOpCode.GetAllParams" class="py-name" href="#" onclick="return doclink('link-60', 'GetAllParams', 'link-37');">GetAllParams</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line">      <tt class="py-keyword">assert</tt> <tt class="py-name">callable</tt><tt class="py-op">(</tt><tt id="link-61" class="py-name"><a title="ganeti.cmdlib.test" class="py-name" href="#" onclick="return doclink('link-61', 'test', 'link-59');">test</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line"> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line">        <tt class="py-name">attr_val</tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line">        <tt class="py-name">attr_val</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">.</tt><tt class="py-name">deepcopy</tt><tt class="py-op">(</tt><tt class="py-name">default</tt><tt class="py-op">)</tt> </tt>
+<a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line"> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt id="link-62" class="py-name"><a title="ganeti.cmdlib.test" class="py-name" href="#" onclick="return doclink('link-62', 'test', 'link-59');">test</a></tt><tt class="py-op">(</tt><tt class="py-name">attr_val</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">set_defaults</tt><tt class="py-op">:</tt> </tt>
+<a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line">          <tt class="py-name">setattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">,</tt> <tt class="py-name">attr_val</tt><tt class="py-op">)</tt> </tt>
+<a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line">      <tt class="py-keyword">elif</tt> <tt id="link-63" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-63', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-64" class="py-name" targets="Function ganeti.ht.TInt()=ganeti.ht-module.html#TInt"><a title="ganeti.ht.TInt" class="py-name" href="#" onclick="return doclink('link-64', 'TInt', 'link-64');">TInt</a></tt><tt class="py-op">(</tt><tt class="py-name">attr_val</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt id="link-65" class="py-name"><a title="ganeti.cmdlib.test" class="py-name" href="#" onclick="return doclink('link-65', 'test', 'link-59');">test</a></tt><tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">(</tt><tt class="py-name">attr_val</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">set_defaults</tt><tt class="py-op">:</tt> </tt>
+<a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line">          <tt class="py-name">setattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">,</tt> <tt class="py-name">float</tt><tt class="py-op">(</tt><tt class="py-name">attr_val</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">        <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-string">"OpCode %s, parameter %s, has invalid type %s/value"</tt> </tt>
+<a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line">                      <tt class="py-string">" '%s' expecting type %s"</tt><tt class="py-op">,</tt> </tt>
+<a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line">                      <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">OP_ID</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">,</tt> <tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">attr_val</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">attr_val</tt><tt class="py-op">,</tt> <tt id="link-66" class="py-name"><a title="ganeti.cmdlib.test" class="py-name" href="#" onclick="return doclink('link-66', 'test', 'link-59');">test</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line"> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">attr_val</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line">          <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-string">"OpCode %s, parameter %s, has default value None which"</tt> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line">                        <tt class="py-string">" is does not check against the parameter's type: this"</tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line">                        <tt class="py-string">" means this parameter is required but no value was"</tt> </tt>
+<a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">                        <tt class="py-string">" given"</tt><tt class="py-op">,</tt> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line">                        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">OP_ID</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line"> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-67" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-67', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-68" class="py-name" targets="Class ganeti.errors.OpPrereqError=ganeti.errors.OpPrereqError-class.html"><a title="ganeti.errors.OpPrereqError" class="py-name" href="#" onclick="return doclink('link-68', 'OpPrereqError', 'link-68');">OpPrereqError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Parameter '%s.%s' fails validation"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line">                                   <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">OP_ID</tt><tt class="py-op">,</tt> <tt class="py-name">attr_name</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line">                                   <tt id="link-69" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-69', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-70" class="py-name" targets="Variable ganeti.errors.ECODE_INVAL=ganeti.errors-module.html#ECODE_INVAL,Variable ganeti.rapi.client.ECODE_INVAL=ganeti.rapi.client-module.html#ECODE_INVAL"><a title="ganeti.errors.ECODE_INVAL
+ganeti.rapi.client.ECODE_INVAL" class="py-name" href="#" onclick="return doclink('link-70', 'ECODE_INVAL', 'link-70');">ECODE_INVAL</a></tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"> </tt>
+<a name="BuildJobDepCheck"></a><div id="BuildJobDepCheck-def"><a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line"> </tt>
+<a name="L270"></a><tt class="py-lineno">270</tt> <a class="py-toggle" href="#" id="BuildJobDepCheck-toggle" onclick="return toggle('BuildJobDepCheck');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.opcodes_base-module.html#BuildJobDepCheck">BuildJobDepCheck</a><tt class="py-op">(</tt><tt class="py-param">relative</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BuildJobDepCheck-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BuildJobDepCheck-expanded"><a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line">  <tt class="py-docstring">"""Builds check for job dependencies (L{DEPEND_ATTR}).</tt> </tt>
+<a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line"><tt class="py-docstring">  @type relative: bool</tt> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line"><tt class="py-docstring">  @param relative: Whether to accept relative job IDs (negative)</tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: callable</tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">relative</tt><tt class="py-op">:</tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line">    <tt class="py-name">job_id</tt> <tt class="py-op">=</tt> <tt id="link-71" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-71', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-72" class="py-name" targets="Function ganeti.ht.TOr()=ganeti.ht-module.html#TOr"><a title="ganeti.ht.TOr" class="py-name" href="#" onclick="return doclink('link-72', 'TOr', 'link-72');">TOr</a></tt><tt class="py-op">(</tt><tt id="link-73" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-73', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-74" class="py-name" targets="Variable ganeti.ht.TJobId=ganeti.ht-module.html#TJobId"><a title="ganeti.ht.TJobId" class="py-name" href="#" onclick="return doclink('link-74', 'TJobId', 'link-74');">TJobId</a></tt><tt class="py-op">,</tt> <tt id="link-75" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-75', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-76" class="py-name" targets="Variable ganeti.ht.TRelativeJobId=ganeti.ht-module.html#TRelativeJobId"><a title="ganeti.ht.TRelativeJobId" class="py-name" href="#" onclick="return doclink('link-76', 'TRelativeJobId', 'link-76');">TRelativeJobId</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line">    <tt class="py-name">job_id</tt> <tt class="py-op">=</tt> <tt id="link-77" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-77', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-78" class="py-name"><a title="ganeti.ht.TJobId" class="py-name" href="#" onclick="return doclink('link-78', 'TJobId', 'link-74');">TJobId</a></tt> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line"> </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line">  <tt class="py-name">job_dep</tt> <tt class="py-op">=</tt> \ </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">    <tt id="link-79" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-79', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-80" class="py-name" targets="Function ganeti.ht.TAnd()=ganeti.ht-module.html#TAnd"><a title="ganeti.ht.TAnd" class="py-name" href="#" onclick="return doclink('link-80', 'TAnd', 'link-80');">TAnd</a></tt><tt class="py-op">(</tt><tt id="link-81" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-81', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-82" class="py-name"><a title="ganeti.ht.TOr" class="py-name" href="#" onclick="return doclink('link-82', 'TOr', 'link-72');">TOr</a></tt><tt class="py-op">(</tt><tt id="link-83" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-83', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-84" class="py-name" targets="Function ganeti.ht.TListOf()=ganeti.ht-module.html#TListOf"><a title="ganeti.ht.TListOf" class="py-name" href="#" onclick="return doclink('link-84', 'TListOf', 'link-84');">TListOf</a></tt><tt class="py-op">(</tt><tt id="link-85" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-85', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-86" class="py-name" targets="Function ganeti.ht.TAny()=ganeti.ht-module.html#TAny"><a title="ganeti.ht.TAny" class="py-name" href="#" onclick="return doclink('link-86', 'TAny', 'link-86');">TAny</a></tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt id="link-87" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-87', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-88" class="py-name" targets="Function ganeti.ht.TTuple()=ganeti.ht-module.html#TTuple"><a title="ganeti.ht.TTuple" class="py-name" href="#" onclick="return doclink('link-88', 'TTuple', 'link-88');">TTuple</a></tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line">            <tt id="link-89" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-89', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-90" class="py-name" targets="Function ganeti.ht.TIsLength()=ganeti.ht-module.html#TIsLength"><a title="ganeti.ht.TIsLength" class="py-name" href="#" onclick="return doclink('link-90', 'TIsLength', 'link-90');">TIsLength</a></tt><tt class="py-op">(</tt><tt class="py-number">2</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line">            <tt id="link-91" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-91', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-92" class="py-name" targets="Function ganeti.ht.TItems()=ganeti.ht-module.html#TItems"><a title="ganeti.ht.TItems" class="py-name" href="#" onclick="return doclink('link-92', 'TItems', 'link-92');">TItems</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">job_id</tt><tt class="py-op">,</tt> </tt>
+<a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line">                       <tt id="link-93" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-93', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-94" class="py-name"><a title="ganeti.ht.TListOf" class="py-name" href="#" onclick="return doclink('link-94', 'TListOf', 'link-84');">TListOf</a></tt><tt class="py-op">(</tt><tt id="link-95" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-95', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-96" class="py-name" targets="Function ganeti.ht.TElemOf()=ganeti.ht-module.html#TElemOf"><a title="ganeti.ht.TElemOf" class="py-name" href="#" onclick="return doclink('link-96', 'TElemOf', 'link-96');">TElemOf</a></tt><tt class="py-op">(</tt><tt id="link-97" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-97', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-98" class="py-name" targets="Variable ganeti._constants.JOBS_FINALIZED=ganeti._constants-module.html#JOBS_FINALIZED"><a title="ganeti._constants.JOBS_FINALIZED" class="py-name" href="#" onclick="return doclink('link-98', 'JOBS_FINALIZED', 'link-98');">JOBS_FINALIZED</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line"> </tt>
+<a name="L289"></a><tt class="py-lineno">289</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-99" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-99', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-100" class="py-name" targets="Function ganeti.ht.TMaybe()=ganeti.ht-module.html#TMaybe"><a title="ganeti.ht.TMaybe" class="py-name" href="#" onclick="return doclink('link-100', 'TMaybe', 'link-100');">TMaybe</a></tt><tt class="py-op">(</tt><tt id="link-101" class="py-name"><a title="ganeti.ht" class="py-name" href="#" onclick="return doclink('link-101', 'ht', 'link-5');">ht</a></tt><tt class="py-op">.</tt><tt id="link-102" class="py-name"><a title="ganeti.ht.TListOf" class="py-name" href="#" onclick="return doclink('link-102', 'TListOf', 'link-84');">TListOf</a></tt><tt class="py-op">(</tt><tt class="py-name">job_dep</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line"> </tt>
+<a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line"> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line"><tt id="link-103" class="py-name" targets="Variable ganeti.opcodes_base.TNoRelativeJobDependencies=ganeti.opcodes_base-module.html#TNoRelativeJobDependencies"><a title="ganeti.opcodes_base.TNoRelativeJobDependencies" class="py-name" href="#" onclick="return doclink('link-103', 'TNoRelativeJobDependencies', 'link-103');">TNoRelativeJobDependencies</a></tt> <tt class="py-op">=</tt> <tt id="link-104" class="py-name" targets="Function ganeti.opcodes_base.BuildJobDepCheck()=ganeti.opcodes_base-module.html#BuildJobDepCheck"><a title="ganeti.opcodes_base.BuildJobDepCheck" class="py-name" href="#" onclick="return doclink('link-104', 'BuildJobDepCheck', 'link-104');">BuildJobDepCheck</a></tt><tt class="py-op">(</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Mar 11 11:24:01 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

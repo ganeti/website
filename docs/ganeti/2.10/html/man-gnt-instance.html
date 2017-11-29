@@ -1,0 +1,2447 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gnt-instance &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-job" href="man-gnt-job.html" />
+    <link rel="prev" title="gnt-group" href="man-gnt-group.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-job.html" title="gnt-job"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-gnt-group.html" title="gnt-group"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gnt-instance">
+<h1>gnt-instance<a class="headerlink" href="#gnt-instance" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>gnt-instance - Ganeti instance administration</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>gnt-instance</strong> {command} [arguments...]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>gnt-instance</strong> command is used for instance administration in
+the Ganeti system.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creation-removal-querying">
+<h3>Creation/removal/querying<a class="headerlink" href="#creation-removal-querying" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="add">
+<h4>ADD<a class="headerlink" href="#add" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>add</strong></div>
+<div class="line">{-t|&#8211;disk-template {diskless | file | plain | drbd | rbd}}</div>
+<div class="line">{&#8211;disk=*N*: {size=*VAL*[,spindles=*VAL*] | adopt=*LV*}[,options...]</div>
+<div class="line-block">
+<div class="line">| {size=*VAL*,provider=*PROVIDER*}[,param=*value*... ][,options...]</div>
+<div class="line">| {-s|&#8211;os-size} <em>SIZE</em>}</div>
+</div>
+<div class="line">[&#8211;no-ip-check] [&#8211;no-name-check] [&#8211;no-conflicts-check]</div>
+<div class="line">[&#8211;no-start] [&#8211;no-install]</div>
+<div class="line">[&#8211;net=*N* [:options...] | &#8211;no-nics]</div>
+<div class="line">[{-B|&#8211;backend-parameters} <em>BEPARAMS</em>]</div>
+<div class="line">[{-H|&#8211;hypervisor-parameters} <em>HYPERVISOR</em> [: option=*value*... ]]</div>
+<div class="line">[{-O|&#8211;os-parameters} <em>param*=*value</em>... ]</div>
+<div class="line">[&#8211;file-storage-dir <em>dir_path</em>] [&#8211;file-driver {loop | blktap | blktap2}]</div>
+<div class="line">{{-n|&#8211;node} <em>node[:secondary-node]</em> | {-I|&#8211;iallocator} <em>name</em>}</div>
+<div class="line">{{-o|&#8211;os-type} <em>os-type</em>}</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;ignore-ipolicy]</div>
+<div class="line">[&#8211;no-wait-for-sync]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Creates a new instance on the specified host. The <em>instance</em> argument
+must be in DNS, but depending on the bridge/routing setup, need not be
+in the same network as the nodes in the cluster.</p>
+<p>The <tt class="docutils literal"><span class="pre">disk</span></tt> option specifies the parameters for the disks of the
+instance. The numbering of disks starts at zero, and at least one disk
+needs to be passed. For each disk, either the size or the adoption
+source needs to be given. The size is interpreted (when no unit is
+given) in mebibytes. You can also use one of the suffixes <em>m</em>, <em>g</em> or
+<em>t</em> to specify the exact the units used; these suffixes map to
+mebibytes, gibibytes and tebibytes. Each disk can also take these
+parameters (all optional):</p>
+<dl class="docutils">
+<dt>spindles</dt>
+<dd>How many spindles (physical disks on the node) the disk should span.</dd>
+<dt>mode</dt>
+<dd>The access mode. Either <tt class="docutils literal"><span class="pre">ro</span></tt> (read-only) or the default <tt class="docutils literal"><span class="pre">rw</span></tt>
+(read-write).</dd>
+<dt>name</dt>
+<dd>This option specifies a name for the disk, which can be used as a disk
+identifier. An instance can not have two disks with the same name.</dd>
+<dt>vg</dt>
+<dd>The LVM volume group. This works only for LVM and DRBD devices.</dd>
+<dt>metavg</dt>
+<dd>This options specifies a different VG for the metadata device. This
+works only for DRBD devices. If not specified, the default metavg
+of the node-group (possibly inherited from the cluster-wide settings)
+will be used.</dd>
+</dl>
+<p>When creating ExtStorage disks, also arbitrary parameters can be passed,
+to the ExtStorage provider. Those parameters are passed as additional
+comma separated options. Therefore, an ExtStorage disk provided by
+provider <tt class="docutils literal"><span class="pre">pvdr1</span></tt> with parameters <tt class="docutils literal"><span class="pre">param1</span></tt>, <tt class="docutils literal"><span class="pre">param2</span></tt> would be
+passed as <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=10G,provider=pvdr1,param1=val1,param2=val2</span></tt>.</p>
+<p>When using the <tt class="docutils literal"><span class="pre">adopt</span></tt> key in the disk definition, Ganeti will
+reuse those volumes (instead of creating new ones) as the
+instance&#8217;s disks. Ganeti will rename these volumes to the standard
+format, and (without installing the OS) will use them as-is for the
+instance. This allows migrating instances from non-managed mode
+(e.g. plain KVM with LVM) to being managed via Ganeti. Please note that
+this works only for the `plain&#8217; disk template (see below for
+template details).</p>
+<p>Alternatively, a single-disk instance can be created via the <tt class="docutils literal"><span class="pre">-s</span></tt>
+option which takes a single argument, the size of the disk. This is
+similar to the Ganeti 1.2 version (but will only create one disk).</p>
+<p>The minimum disk specification is therefore <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=20G</span></tt> (or
+<tt class="docutils literal"><span class="pre">-s</span> <span class="pre">20G</span></tt> when using the <tt class="docutils literal"><span class="pre">-s</span></tt> option), and a three-disk instance
+can be specified as <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=20G</span> <span class="pre">--disk</span> <span class="pre">1:size=4G</span> <span class="pre">--disk</span>
+<span class="pre">2:size=100G</span></tt>.</p>
+<p>The minimum information needed to specify an ExtStorage disk are the
+<tt class="docutils literal"><span class="pre">size</span></tt> and the <tt class="docutils literal"><span class="pre">provider</span></tt>. For example:
+<tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=20G,provider=pvdr1</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-ip-check</span></tt> skips the checks that are done to see if the
+instance&#8217;s IP is not already alive (i.e. reachable from the master
+node).</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-name-check</span></tt> skips the check for the instance name via
+the resolver (e.g. in DNS or /etc/hosts, depending on your setup).
+Since the name check is used to compute the IP address, if you pass
+this option you must also pass the <tt class="docutils literal"><span class="pre">--no-ip-check</span></tt> option.</p>
+<p>If you don&#8217;t want the instance to automatically start after
+creation, this is possible via the <tt class="docutils literal"><span class="pre">--no-start</span></tt> option. This will
+leave the instance down until a subsequent <strong>gnt-instance start</strong>
+command.</p>
+<p>The NICs of the instances can be specified via the <tt class="docutils literal"><span class="pre">--net</span></tt>
+option. By default, one NIC is created for the instance, with a
+random MAC, and set up according to the cluster level NIC
+parameters. Each NIC can take these parameters (all optional):</p>
+<dl class="docutils">
+<dt>mac</dt>
+<dd>either a value or &#8216;generate&#8217; to generate a new unique MAC</dd>
+<dt>ip</dt>
+<dd>specifies the IP address assigned to the instance from the Ganeti
+side (this is not necessarily what the instance will use, but what
+the node expects the instance to use). Note that if an IP in the
+range of a network configured with <strong>gnt-network</strong>(8) is used,
+and the NIC is not already connected to it, this network has to be
+passed in the <strong>network</strong> parameter if this NIC is meant to be
+connected to the said network. <tt class="docutils literal"><span class="pre">--no-conflicts-check</span></tt> can be used
+to override this check. The special value <strong>pool</strong> causes Ganeti to
+select an IP from the network the NIC is or will be connected to.
+One can pick an externally reserved IP of a network along with
+<tt class="docutils literal"><span class="pre">--no-conflict-check</span></tt>. Note that this IP cannot be assigned to
+any other instance until it gets released.</dd>
+<dt>mode</dt>
+<dd>specifies the connection mode for this NIC: routed, bridged or
+openvswitch.</dd>
+<dt>link</dt>
+<dd>in bridged or openvswitch mode specifies the interface to attach
+this NIC to, in routed mode it&#8217;s intended to differentiate between
+different routing tables/instance groups (but the meaning is
+dependent on the network script, see <strong>gnt-cluster</strong>(8) for more
+details). Note that openvswitch support is also hypervisor
+dependent.</dd>
+<dt>network</dt>
+<dd>derives the mode and the link from the settings of the network
+which is identified by its name. If the network option is chosen,
+link and mode must not be specified. Note that the mode and link
+depend on the network-to-nodegroup connection, thus allowing
+different nodegroups to be connected to the same network in
+different ways.</dd>
+<dt>name</dt>
+<dd>this option specifies a name for the NIC, which can be used as a NIC
+identifier. An instance can not have two NICs with the same name.</dd>
+<dt>vlan</dt>
+<dd>in openvswitch mode specifies the VLANs that the NIC will be
+connected to. To connect as an access port use <tt class="docutils literal"><span class="pre">n</span></tt> or <tt class="docutils literal"><span class="pre">.n</span></tt> with
+<strong>n</strong> being the VLAN ID. To connect as an trunk port use <tt class="docutils literal"><span class="pre">:n[:n]</span></tt>.
+A hybrid port can be created with <tt class="docutils literal"><span class="pre">.n:n[:n]</span></tt></dd>
+</dl>
+<p>Of these &#8220;mode&#8221; and &#8220;link&#8221; are NIC parameters, and inherit their
+default at cluster level.  Alternatively, if no network is desired for
+the instance, you can prevent the default of one NIC with the
+<tt class="docutils literal"><span class="pre">--no-nics</span></tt> option.</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--os-type)</span></tt> option specifies the operating system to be
+installed.  The available operating systems can be listed with
+<strong>gnt-os list</strong>.  Passing <tt class="docutils literal"><span class="pre">--no-install</span></tt> will however skip the OS
+installation, allowing a manual import if so desired. Note that the
+no-installation mode will automatically disable the start-up of the
+instance (without an OS, it most likely won&#8217;t be able to start-up
+successfully).</p>
+<p>The <tt class="docutils literal"><span class="pre">-B</span> <span class="pre">(--backend-parameters)</span></tt> option specifies the backend
+parameters for the instance. If no such parameters are specified, the
+values are inherited from the cluster. Possible parameters are:</p>
+<dl class="docutils">
+<dt>maxmem</dt>
+<dd>the maximum memory size of the instance; as usual, suffixes can be
+used to denote the unit, otherwise the value is taken in mebibytes</dd>
+<dt>minmem</dt>
+<dd>the minimum memory size of the instance; as usual, suffixes can be
+used to denote the unit, otherwise the value is taken in mebibytes</dd>
+<dt>vcpus</dt>
+<dd>the number of VCPUs to assign to the instance (if this value makes
+sense for the hypervisor)</dd>
+<dt>auto_balance</dt>
+<dd>whether the instance is considered in the N+1 cluster checks
+(enough redundancy in the cluster to survive a node failure)</dd>
+<dt>always_failover</dt>
+<dd><tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>, whether the instance must be failed over
+(shut down and rebooted) always or it may be migrated (briefly
+suspended)</dd>
+</dl>
+<p>Note that before 2.6 Ganeti had a <tt class="docutils literal"><span class="pre">memory</span></tt> parameter, which was the
+only value of memory an instance could have. With the
+<tt class="docutils literal"><span class="pre">maxmem</span></tt>/<tt class="docutils literal"><span class="pre">minmem</span></tt> change Ganeti guarantees that at least the minimum
+memory is always available for an instance, but allows more memory to be
+used (up to the maximum memory) should it be free.</p>
+<p>The <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">(--hypervisor-parameters)</span></tt> option specified the hypervisor
+to use for the instance (must be one of the enabled hypervisors on the
+cluster) and optionally custom parameters for this instance. If not
+other options are used (i.e. the invocation is just -H <em>NAME</em>) the
+instance will inherit the cluster options. The defaults below show the
+cluster defaults at cluster creation time.</p>
+<p>The possible hypervisor options are as follows:</p>
+<dl class="docutils">
+<dt>boot_order</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p>A string value denoting the boot order. This has different meaning
+for the Xen HVM hypervisor and for the KVM one.</p>
+<p>For Xen HVM, The boot order is a string of letters listing the boot
+devices, with valid device letters being:</p>
+<dl class="docutils">
+<dt>a</dt>
+<dd>floppy drive</dd>
+<dt>c</dt>
+<dd>hard disk</dd>
+<dt>d</dt>
+<dd>CDROM drive</dd>
+<dt>n</dt>
+<dd>network boot (PXE)</dd>
+</dl>
+<p>The default is not to set an HVM boot order, which is interpreted
+as &#8216;dc&#8217;.</p>
+<p class="last">For KVM the boot order is either &#8220;floppy&#8221;, &#8220;cdrom&#8221;, &#8220;disk&#8221; or
+&#8220;network&#8221;.  Please note that older versions of KVM couldn&#8217;t netboot
+from virtio interfaces. This has been fixed in more recent versions
+and is confirmed to work at least with qemu-kvm 0.11.1. Also note
+that if you have set the <tt class="docutils literal"><span class="pre">kernel_path</span></tt> option, that will be used
+for booting, and this setting will be silently ignored.</p>
+</dd>
+<dt>blockdev_prefix</dt>
+<dd><p class="first">Valid for the Xen HVM and PVM hypervisors.</p>
+<p class="last">Relevant to non-pvops guest kernels, in which the disk device names
+are given by the host.  Allows one to specify &#8216;xvd&#8217;, which helps run
+Red Hat based installers, driven by anaconda.</p>
+</dd>
+<dt>floppy_image_path</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">The path to a floppy disk image to attach to the instance.  This
+is useful to install Windows operating systems on Virt/IO disks
+because you can specify here the floppy for the drivers at
+installation time.</p>
+</dd>
+<dt>cdrom_image_path</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">The path to a CDROM image to attach to the instance.</p>
+</dd>
+<dt>cdrom2_image_path</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">The path to a second CDROM image to attach to the instance.
+<strong>NOTE</strong>: This image can&#8217;t be used to boot the system. To do that
+you have to use the &#8216;cdrom_image_path&#8217; option.</p>
+</dd>
+<dt>nic_type</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p>This parameter determines the way the network cards are presented
+to the instance. The possible options are:</p>
+<ul class="last simple">
+<li>rtl8139 (default for Xen HVM) (HVM &amp; KVM)</li>
+<li>ne2k_isa (HVM &amp; KVM)</li>
+<li>ne2k_pci (HVM &amp; KVM)</li>
+<li>i82551 (KVM)</li>
+<li>i82557b (KVM)</li>
+<li>i82559er (KVM)</li>
+<li>pcnet (KVM)</li>
+<li>e1000 (KVM)</li>
+<li>paravirtual (default for KVM) (HVM &amp; KVM)</li>
+</ul>
+</dd>
+<dt>vif_type</dt>
+<dd><p class="first">Valid for the Xen HVM hypervisor.</p>
+<p>This parameter specifies the vif type of the nic configuration
+of the instance. Unsetting the value leads to no type being specified
+in the configuration. Note that this parameter only takes effect when
+the &#8216;nic_type&#8217; is not set. The possible options are:</p>
+<ul class="last simple">
+<li>ioemu</li>
+<li>vif</li>
+</ul>
+</dd>
+<dt>disk_type</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p>This parameter determines the way the disks are presented to the
+instance. The possible options are:</p>
+<ul class="last simple">
+<li>ioemu [default] (HVM &amp; KVM)</li>
+<li>paravirtual (HVM &amp; KVM)</li>
+<li>ide (KVM)</li>
+<li>scsi (KVM)</li>
+<li>sd (KVM)</li>
+<li>mtd (KVM)</li>
+<li>pflash (KVM)</li>
+</ul>
+</dd>
+<dt>cdrom_disk_type</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>This parameter determines the way the cdroms disks are presented
+to the instance. The default behavior is to get the same value of
+the earlier parameter (disk_type). The possible options are:</p>
+<ul class="last simple">
+<li>paravirtual</li>
+<li>ide</li>
+<li>scsi</li>
+<li>sd</li>
+<li>mtd</li>
+<li>pflash</li>
+</ul>
+</dd>
+<dt>vnc_bind_address</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">Specifies the address that the VNC listener for this instance
+should bind to. Valid values are IPv4 addresses. Use the address
+0.0.0.0 to bind to all available interfaces (this is the default)
+or specify the address of one of the interfaces on the node to
+restrict listening to that interface.</p>
+</dd>
+<dt>vnc_password_file</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">Specifies the location of the file containing the password for
+connections using VNC. The default is a file named
+vnc-cluster-password which can be found in the configuration
+directory.</p>
+</dd>
+<dt>vnc_tls</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">A boolean option that controls whether the VNC connection is
+secured with TLS.</p>
+</dd>
+<dt>vnc_x509_path</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">If <tt class="docutils literal"><span class="pre">vnc_tls</span></tt> is enabled, this options specifies the path to the
+x509 certificate to use.</p>
+</dd>
+<dt>vnc_x509_verify</dt>
+<dd>Valid for the KVM hypervisor.</dd>
+<dt>spice_bind</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Specifies the address or interface on which the SPICE server will
+listen. Valid values are:</p>
+<ul class="simple">
+<li>IPv4 addresses, including 0.0.0.0 and 127.0.0.1</li>
+<li>IPv6 addresses, including :: and ::1</li>
+<li>names of network interfaces</li>
+</ul>
+<p class="last">If a network interface is specified, the SPICE server will be bound
+to one of the addresses of that interface.</p>
+</dd>
+<dt>spice_ip_version</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Specifies which version of the IP protocol should be used by the
+SPICE server.</p>
+<p class="last">It is mainly intended to be used for specifying what kind of IP
+addresses should be used if a network interface with both IPv4 and
+IPv6 addresses is specified via the <tt class="docutils literal"><span class="pre">spice_bind</span></tt> parameter. In
+this case, if the <tt class="docutils literal"><span class="pre">spice_ip_version</span></tt> parameter is not used, the
+default IP version of the cluster will be used.</p>
+</dd>
+<dt>spice_password_file</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Specifies a file containing the password that must be used when
+connecting via the SPICE protocol. If the option is not specified,
+passwordless connections are allowed.</p>
+</dd>
+<dt>spice_image_compression</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Configures the SPICE lossless image compression. Valid values are:</p>
+<ul class="last simple">
+<li>auto_glz</li>
+<li>auto_lz</li>
+<li>quic</li>
+<li>glz</li>
+<li>lz</li>
+<li>off</li>
+</ul>
+</dd>
+<dt>spice_jpeg_wan_compression</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Configures how SPICE should use the jpeg algorithm for lossy image
+compression on slow links. Valid values are:</p>
+<ul class="last simple">
+<li>auto</li>
+<li>never</li>
+<li>always</li>
+</ul>
+</dd>
+<dt>spice_zlib_glz_wan_compression</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Configures how SPICE should use the zlib-glz algorithm for lossy image
+compression on slow links. Valid values are:</p>
+<ul class="last simple">
+<li>auto</li>
+<li>never</li>
+<li>always</li>
+</ul>
+</dd>
+<dt>spice_streaming_video</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Configures how SPICE should detect video streams. Valid values are:</p>
+<ul class="last simple">
+<li>off</li>
+<li>all</li>
+<li>filter</li>
+</ul>
+</dd>
+<dt>spice_playback_compression</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Configures whether SPICE should compress audio streams or not.</p>
+</dd>
+<dt>spice_use_tls</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Specifies that the SPICE server must use TLS to encrypt all the
+traffic with the client.</p>
+</dd>
+<dt>spice_tls_ciphers</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Specifies a list of comma-separated ciphers that SPICE should use
+for TLS connections. For the format, see man <strong>cipher</strong>(1).</p>
+</dd>
+<dt>spice_use_vdagent</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Enables or disables passing mouse events via SPICE vdagent.</p>
+</dd>
+<dt>cpu_type</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>This parameter determines the emulated cpu for the instance. If this
+parameter is empty (which is the default configuration), it will not
+be passed to KVM.</p>
+<p>Be aware of setting this parameter to <tt class="docutils literal"><span class="pre">&quot;host&quot;</span></tt> if you have nodes
+with different CPUs from each other. Live migration may stop working
+in this situation.</p>
+<p class="last">For more information please refer to the KVM manual.</p>
+</dd>
+<dt>acpi</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">A boolean option that specifies if the hypervisor should enable
+ACPI support for this instance. By default, ACPI is disabled.</p>
+</dd>
+<dt>pae</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">A boolean option that specifies if the hypervisor should enable
+PAE support for this instance. The default is false, disabling PAE
+support.</p>
+</dd>
+<dt>viridian</dt>
+<dd><p class="first">Valid for the Xen HVM hypervisor.</p>
+<p class="last">A boolean option that specifies if the hypervisor should enable
+viridian (Hyper-V) for this instance. The default is false,
+disabling viridian support.</p>
+</dd>
+<dt>use_localtime</dt>
+<dd><p class="first">Valid for the Xen HVM and KVM hypervisors.</p>
+<p class="last">A boolean option that specifies if the instance should be started
+with its clock set to the localtime of the machine (when true) or
+to the UTC (When false). The default is false, which is useful for
+Linux/Unix machines; for Windows OSes, it is recommended to enable
+this parameter.</p>
+</dd>
+<dt>kernel_path</dt>
+<dd><p class="first">Valid for the Xen PVM and KVM hypervisors.</p>
+<p class="last">This option specifies the path (on the node) to the kernel to boot
+the instance with. Xen PVM instances always require this, while for
+KVM if this option is empty, it will cause the machine to load the
+kernel from its disks (and the boot will be done accordingly to
+<tt class="docutils literal"><span class="pre">boot_order</span></tt>).</p>
+</dd>
+<dt>kernel_args</dt>
+<dd><p class="first">Valid for the Xen PVM and KVM hypervisors.</p>
+<p>This options specifies extra arguments to the kernel that will be
+loaded. device. This is always used for Xen PVM, while for KVM it
+is only used if the <tt class="docutils literal"><span class="pre">kernel_path</span></tt> option is also specified.</p>
+<p class="last">The default setting for this value is simply <tt class="docutils literal"><span class="pre">&quot;ro&quot;</span></tt>, which
+mounts the root disk (initially) in read-only one. For example,
+setting this to single will cause the instance to start in
+single-user mode.</p>
+</dd>
+<dt>initrd_path</dt>
+<dd><p class="first">Valid for the Xen PVM and KVM hypervisors.</p>
+<p class="last">This option specifies the path (on the node) to the initrd to boot
+the instance with. Xen PVM instances can use this always, while
+for KVM if this option is only used if the <tt class="docutils literal"><span class="pre">kernel_path</span></tt> option
+is also specified. You can pass here either an absolute filename
+(the path to the initrd) if you want to use an initrd, or use the
+format no_initrd_path for no initrd.</p>
+</dd>
+<dt>root_path</dt>
+<dd><p class="first">Valid for the Xen PVM and KVM hypervisors.</p>
+<p>This options specifies the name of the root device. This is always
+needed for Xen PVM, while for KVM it is only used if the
+<tt class="docutils literal"><span class="pre">kernel_path</span></tt> option is also specified.</p>
+<p class="last">Please note, that if this setting is an empty string and the
+hypervisor is Xen it will not be written to the Xen configuration
+file</p>
+</dd>
+<dt>serial_console</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">This boolean option specifies whether to emulate a serial console
+for the instance. Note that some versions of KVM have a bug that
+will make an instance hang when configured to use the serial console
+unless a connection is made to it within about 2 seconds of the
+instance&#8217;s startup. For such case it&#8217;s recommended to disable this
+option, which is enabled by default.</p>
+</dd>
+<dt>serial_speed</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">This integer option specifies the speed of the serial console.
+Common values are 9600, 19200, 38400, 57600 and 115200: choose the
+one which works on your system. (The default is 38400 for historical
+reasons, but newer versions of kvm/qemu work with 115200)</p>
+</dd>
+<dt>disk_cache</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">The disk cache mode. It can be either default to not pass any
+cache option to KVM, or one of the KVM cache modes: none (for
+direct I/O), writethrough (to use the host cache but report
+completion to the guest only when the host has committed the
+changes to disk) or writeback (to use the host cache and report
+completion as soon as the data is in the host cache). Note that
+there are special considerations for the cache mode depending on
+version of KVM used and disk type (always raw file under Ganeti),
+please refer to the KVM documentation for more details.</p>
+</dd>
+<dt>security_model</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>The security model for kvm. Currently one of <em>none</em>, <em>user</em> or
+<em>pool</em>. Under <em>none</em>, the default, nothing is done and instances
+are run as the Ganeti daemon user (normally root).</p>
+<p>Under <em>user</em> kvm will drop privileges and become the user
+specified by the security_domain parameter.</p>
+<p class="last">Under <em>pool</em> a global cluster pool of users will be used, making
+sure no two instances share the same user on the same node. (this
+mode is not implemented yet)</p>
+</dd>
+<dt>security_domain</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>Under security model <em>user</em> the username to run the instance
+under.  It must be a valid username existing on the host.</p>
+<p class="last">Cannot be set under security model <em>none</em> or <em>pool</em>.</p>
+</dd>
+<dt>kvm_flag</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">If <em>enabled</em> the -enable-kvm flag is passed to kvm. If <em>disabled</em>
+-disable-kvm is passed. If unset no flag is passed, and the
+default running mode for your kvm binary will be used.</p>
+</dd>
+<dt>mem_path</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">This option passes the -mem-path argument to kvm with the path (on
+the node) to the mount point of the hugetlbfs file system, along
+with the -mem-prealloc argument too.</p>
+</dd>
+<dt>use_chroot</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>This boolean option determines whether to run the KVM instance in a
+chroot directory.</p>
+<p>If it is set to <tt class="docutils literal"><span class="pre">true</span></tt>, an empty directory is created before
+starting the instance and its path is passed via the -chroot flag
+to kvm. The directory is removed when the instance is stopped.</p>
+<p class="last">It is set to <tt class="docutils literal"><span class="pre">false</span></tt> by default.</p>
+</dd>
+<dt>migration_downtime</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>The maximum amount of time (in ms) a KVM instance is allowed to be
+frozen during a live migration, in order to copy dirty memory
+pages. Default value is 30ms, but you may need to increase this
+value for busy instances.</p>
+<p class="last">This option is only effective with kvm versions &gt;= 87 and qemu-kvm
+versions &gt;= 0.11.0.</p>
+</dd>
+<dt>cpu_mask</dt>
+<dd><p class="first">Valid for the Xen, KVM and LXC hypervisors.</p>
+<p>The processes belonging to the given instance are only scheduled
+on the specified CPUs.</p>
+<p>The format of the mask can be given in three forms. First, the word
+&#8220;all&#8221;, which signifies the common case where all VCPUs can live on
+any CPU, based on the hypervisor&#8217;s decisions.</p>
+<p>Second, a comma-separated list of CPU IDs or CPU ID ranges. The
+ranges are defined by a lower and higher boundary, separated by a
+dash, and the boundaries are inclusive. In this form, all VCPUs of
+the instance will be mapped on the selected list of CPUs. Example:
+<tt class="docutils literal"><span class="pre">0-2,5</span></tt>, mapping all VCPUs (no matter how many) onto physical CPUs
+0, 1, 2 and 5.</p>
+<p>The last form is used for explicit control of VCPU-CPU pinnings. In
+this form, the list of VCPU mappings is given as a colon (:)
+separated list, whose elements are the possible values for the
+second or first form above. In this form, the number of elements in
+the colon-separated list _must_ equal the number of VCPUs of the
+instance.</p>
+<p>Example:</p>
+<div class="last highlight-bash"><div class="highlight"><pre><span class="c"># Map the entire instance to CPUs 0-2</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>0-2 my-inst
+
+<span class="c"># Map vCPU 0 to physical CPU 1 and vCPU 1 to CPU 3 (assuming 2 vCPUs)</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>1:3 my-inst
+
+<span class="c"># Pin vCPU 0 to CPUs 1 or 2, and vCPU 1 to any CPU</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>1-2:all my-inst
+
+<span class="c"># Pin vCPU 0 to any CPU, vCPU 1 to CPUs 1, 3, 4 or 5, and CPU 2 to</span>
+<span class="c"># CPU 0 (backslashes for escaping the comma)</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>all:1<span class="se">\\</span>,3-5:0 my-inst
+
+<span class="c"># Pin entire VM to CPU 0</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>0 my-inst
+
+<span class="c"># Turn off CPU pinning (default setting)</span>
+gnt-instance modify -H <span class="nv">cpu_mask</span><span class="o">=</span>all my-inst
+</pre></div>
+</div>
+</dd>
+<dt>cpu_cap</dt>
+<dd><p class="first">Valid for the Xen hypervisor.</p>
+<p class="last">Set the maximum amount of cpu usage by the VM. The value is a percentage
+between 0 and (100 * number of VCPUs). Default cap is 0: unlimited.</p>
+</dd>
+<dt>cpu_weight</dt>
+<dd><p class="first">Valid for the Xen hypervisor.</p>
+<p class="last">Set the cpu time ratio to be allocated to the VM. Valid values are
+between 1 and 65535. Default weight is 256.</p>
+</dd>
+<dt>usb_mouse</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">This option specifies the usb mouse type to be used. It can be
+&#8220;mouse&#8221; or &#8220;tablet&#8221;. When using VNC it&#8217;s recommended to set it to
+&#8220;tablet&#8221;.</p>
+</dd>
+<dt>keymap</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">This option specifies the keyboard mapping to be used. It is only
+needed when using the VNC console. For example: &#8220;fr&#8221; or &#8220;en-gb&#8221;.</p>
+</dd>
+<dt>reboot_behavior</dt>
+<dd><p class="first">Valid for Xen PVM, Xen HVM and KVM hypervisors.</p>
+<p>Normally if an instance reboots, the hypervisor will restart it. If
+this option is set to <tt class="docutils literal"><span class="pre">exit</span></tt>, the hypervisor will treat a reboot
+as a shutdown instead.</p>
+<p class="last">It is set to <tt class="docutils literal"><span class="pre">reboot</span></tt> by default.</p>
+</dd>
+<dt>cpu_cores</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Number of emulated CPU cores.</p>
+</dd>
+<dt>cpu_threads</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Number of emulated CPU threads.</p>
+</dd>
+<dt>cpu_sockets</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Number of emulated CPU sockets.</p>
+</dd>
+<dt>soundhw</dt>
+<dd><p class="first">Valid for the KVM and XEN hypervisors.</p>
+<p class="last">Comma separated list of emulated sounds cards, or &#8220;all&#8221; to enable
+all the available ones.</p>
+</dd>
+<dt>cpuid</dt>
+<dd><p class="first">Valid for the XEN hypervisor.</p>
+<p>Modify the values returned by <a class="reference external" href="http://en.wikipedia.org/wiki/CPUID">CPUID</a> instructions run within instances.</p>
+<p>This allows you to enable migration between nodes with different CPU
+attributes like cores, threads, hyperthreading or SS4 support by hiding
+the extra features where needed.</p>
+<p class="last">See the XEN documentation for syntax and more information.</p>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>usb_devices</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Space separated list of usb devices. These can be emulated devices
+or passthrough ones, and each one gets passed to kvm with its own
+<tt class="docutils literal"><span class="pre">-usbdevice</span></tt> option. See the <strong>qemu</strong>(1) manpage for the syntax
+of the possible components. Note that values set with this
+parameter are split on a space character and currently don&#8217;t support
+quoting. For backwards compatibility reasons, the RAPI interface keeps
+accepting comma separated lists too.</p>
+</dd>
+<dt>vga</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Emulated vga mode, passed the the kvm -vga option.</p>
+</dd>
+<dt>kvm_extra</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Any other option to the KVM hypervisor, useful tweaking anything
+that Ganeti doesn&#8217;t support. Note that values set with this
+parameter are split on a space character and currently don&#8217;t support
+quoting.</p>
+</dd>
+<dt>machine_version</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Use in case an instance must be booted with an exact type of
+machine version (due to e.g. outdated drivers). In case it&#8217;s not set
+the default version supported by your version of kvm is used.</p>
+</dd>
+<dt>kvm_path</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p class="last">Path to the userspace KVM (or qemu) program.</p>
+</dd>
+<dt>vnet_hdr</dt>
+<dd><p class="first">Valid for the KVM hypervisor.</p>
+<p>This boolean option determines whether the tap devices used by the
+KVM paravirtual nics (virtio-net) will get created with VNET_HDR
+(IFF_VNET_HDR) support.</p>
+<p>If set to false, it effectively disables offloading on the virio-net
+interfaces, which prevents host kernel tainting and log flooding,
+when dealing with broken or malicious virtio-net drivers.</p>
+<p class="last">It is set to <tt class="docutils literal"><span class="pre">true</span></tt> by default.</p>
+</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-O</span> <span class="pre">(--os-parameters)</span></tt> option allows customisation of the OS
+parameters. The actual parameter names and values depends on the OS
+being used, but the syntax is the same key=value. For example, setting
+a hypothetical <tt class="docutils literal"><span class="pre">dhcp</span></tt> parameter to yes can be achieved by:</p>
+<div class="highlight-python"><pre>gnt-instance add -O dhcp=yes ...</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-I</span> <span class="pre">(--iallocator)</span></tt> option specifies the instance allocator plugin
+to use (<tt class="docutils literal"><span class="pre">.</span></tt> means the default allocator). If you pass in this option
+the allocator will select nodes for this instance automatically, so you
+don&#8217;t need to pass them with the <tt class="docutils literal"><span class="pre">-n</span></tt> option. For more information
+please refer to the instance allocator documentation.</p>
+<p>The <tt class="docutils literal"><span class="pre">-t</span> <span class="pre">(--disk-template)</span></tt> options specifies the disk layout type
+for the instance. If no disk template is specified, the default disk
+template is used. The default disk template is the first in the list
+of enabled disk templates, which can be adjusted cluster-wide with
+<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">modify</span></tt>. The available choices for disk templates are:</p>
+<dl class="docutils">
+<dt>diskless</dt>
+<dd>This creates an instance with no disks. Its useful for testing only
+(or other special cases).</dd>
+<dt>file</dt>
+<dd>Disk devices will be regular files.</dd>
+<dt>sharedfile</dt>
+<dd>Disk devices will be regulare files on a shared directory.</dd>
+<dt>plain</dt>
+<dd>Disk devices will be logical volumes.</dd>
+<dt>drbd</dt>
+<dd>Disk devices will be drbd (version 8.x) on top of lvm volumes.</dd>
+<dt>rbd</dt>
+<dd>Disk devices will be rbd volumes residing inside a RADOS cluster.</dd>
+<dt>blockdev</dt>
+<dd>Disk devices will be adopted pre-existent block devices.</dd>
+<dt>ext</dt>
+<dd>Disk devices will be provided by external shared storage,
+through the ExtStorage Interface using ExtStorage providers.</dd>
+</dl>
+<p>The optional second value of the <tt class="docutils literal"><span class="pre">-n</span> <span class="pre">(--node)</span></tt> is used for the drbd
+template type and specifies the remote node.</p>
+<p>If you do not want gnt-instance to wait for the disk mirror to be
+synced, use the <tt class="docutils literal"><span class="pre">--no-wait-for-sync</span></tt> option.</p>
+<p>The <tt class="docutils literal"><span class="pre">--file-storage-dir</span></tt> specifies the relative path under the
+cluster-wide file storage directory to store file-based disks. It is
+useful for having different subdirectories for different
+instances. The full path of the directory where the disk files are
+stored will consist of cluster-wide file storage directory + optional
+subdirectory + instance name. This option is only relevant for
+instances using the file storage backend.</p>
+<p>The <tt class="docutils literal"><span class="pre">--file-driver</span></tt> specifies the driver to use for file-based
+disks. Note that currently these drivers work with the xen hypervisor
+only. This option is only relevant for instances using the file
+storage backend. The available choices are:</p>
+<dl class="docutils">
+<dt>loop</dt>
+<dd>Kernel loopback driver. This driver uses loopback devices to
+access the filesystem within the file. However, running I/O
+intensive applications in your instance using the loop driver
+might result in slowdowns. Furthermore, if you use the loopback
+driver consider increasing the maximum amount of loopback devices
+(on most systems it&#8217;s 8) using the max_loop param.</dd>
+<dt>blktap</dt>
+<dd>The blktap driver (for Xen hypervisors). In order to be able to
+use the blktap driver you should check if the &#8216;blktapctrl&#8217; user
+space disk agent is running (usually automatically started via
+xend).  This user-level disk I/O interface has the advantage of
+better performance. Especially if you use a network file system
+(e.g. NFS) to store your instances this is the recommended choice.</dd>
+<dt>blktap2</dt>
+<dd>Analogous to the blktap driver, but used by newer versions of Xen.</dd>
+</dl>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><pre># gnt-instance add -t file --disk 0:size=30g -B maxmem=512 -o debian-etch \
+  -n node1.example.com --file-storage-dir=mysubdir instance1.example.com
+# gnt-instance add -t plain --disk 0:size=30g -B maxmem=1024,minmem=512 \
+  -o debian-etch -n node1.example.com instance1.example.com
+# gnt-instance add -t plain --disk 0:size=30g --disk 1:size=100g,vg=san \
+  -B maxmem=512 -o debian-etch -n node1.example.com instance1.example.com
+# gnt-instance add -t drbd --disk 0:size=30g -B maxmem=512 -o debian-etch \
+  -n node1.example.com:node2.example.com instance2.example.com
+# gnt-instance add -t rbd --disk 0:size=30g -B maxmem=512 -o debian-etch \
+  -n node1.example.com instance1.example.com
+# gnt-instance add -t ext --disk 0:size=30g,provider=pvdr1 -B maxmem=512 \
+  -o debian-etch -n node1.example.com instance1.example.com
+# gnt-instance add -t ext --disk 0:size=30g,provider=pvdr1,param1=val1 \
+  --disk 1:size=40g,provider=pvdr2,param2=val2,param3=val3 -B maxmem=512 \
+  -o debian-etch -n node1.example.com instance1.example.com</pre>
+</div>
+</div>
+<div class="section" id="batch-create">
+<h4>BATCH-CREATE<a class="headerlink" href="#batch-create" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>batch-create</strong></div>
+<div class="line">[{-I|&#8211;iallocator} <em>instance allocator</em>]</div>
+<div class="line">{instances_file.json}</div>
+</div>
+<p>This command (similar to the Ganeti 1.2 <strong>batcher</strong> tool) submits
+multiple instance creation jobs based on a definition file. This
+file can contain all options which are valid when adding an instance
+with the exception of the <tt class="docutils literal"><span class="pre">iallocator</span></tt> field. The IAllocator is,
+for optimization purposes, only allowed to be set for the whole batch
+operation using the <tt class="docutils literal"><span class="pre">--iallocator</span></tt> parameter.</p>
+<p>The instance file must be a valid-formed JSON file, containing an
+array of dictionaries with instance creation parameters. All parameters
+(except <tt class="docutils literal"><span class="pre">iallocator</span></tt>) which are valid for the instance creation
+OP code are allowed. The most important ones are:</p>
+<dl class="docutils">
+<dt>instance_name</dt>
+<dd>The FQDN of the new instance.</dd>
+<dt>disk_template</dt>
+<dd>The disk template to use for the instance, the same as in the
+<strong>add</strong> command.</dd>
+<dt>disks</dt>
+<dd>Array of disk specifications. Each entry describes one disk as a
+dictionary of disk parameters.</dd>
+<dt>beparams</dt>
+<dd>A dictionary of backend parameters.</dd>
+<dt>hypervisor</dt>
+<dd>The hypervisor for the instance.</dd>
+<dt>hvparams</dt>
+<dd>A dictionary with the hypervisor options. If not passed, the default
+hypervisor options will be inherited.</dd>
+<dt>nics</dt>
+<dd>List of NICs that will be created for the instance. Each entry
+should be a dict, with mac, ip, mode and link as possible keys.
+Please don&#8217;t provide the &#8220;mac, ip, mode, link&#8221; parent keys if you
+use this method for specifying NICs.</dd>
+<dt>pnode, snode</dt>
+<dd>The primary and optionally the secondary node to use for the
+instance (in case an iallocator script is not used). If those
+parameters are given, they have to be given consistently for all
+instances in the batch operation.</dd>
+<dt>start</dt>
+<dd>whether to start the instance</dd>
+<dt>ip_check</dt>
+<dd>Skip the check for already-in-use instance; see the description in
+the <strong>add</strong> command for details.</dd>
+<dt>name_check</dt>
+<dd>Skip the name check for instances; see the description in the
+<strong>add</strong> command for details.</dd>
+<dt>file_storage_dir, file_driver</dt>
+<dd>Configuration for the file disk type, see the <strong>add</strong> command for
+details.</dd>
+</dl>
+<p>A simple definition for one instance can be (with most of the
+parameters taken from the cluster defaults):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+    <span class="s">&quot;instance_name&quot;</span><span class="p">:</span> <span class="s">&quot;instance1.example.com&quot;</span><span class="p">,</span>
+    <span class="s">&quot;disk_template&quot;</span><span class="p">:</span> <span class="s">&quot;drbd&quot;</span><span class="p">,</span>
+    <span class="s">&quot;os_type&quot;</span><span class="p">:</span> <span class="s">&quot;debootstrap&quot;</span><span class="p">,</span>
+    <span class="s">&quot;disks&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;size&quot;</span><span class="p">:</span><span class="s">&quot;1024&quot;</span><span class="p">}],</span>
+    <span class="s">&quot;nics&quot;</span><span class="p">:</span> <span class="p">[{}],</span>
+    <span class="s">&quot;hypervisor&quot;</span><span class="p">:</span> <span class="s">&quot;xen-pvm&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+    <span class="s">&quot;instance_name&quot;</span><span class="p">:</span> <span class="s">&quot;instance2.example.com&quot;</span><span class="p">,</span>
+    <span class="s">&quot;disk_template&quot;</span><span class="p">:</span> <span class="s">&quot;drbd&quot;</span><span class="p">,</span>
+    <span class="s">&quot;os_type&quot;</span><span class="p">:</span> <span class="s">&quot;debootstrap&quot;</span><span class="p">,</span>
+    <span class="s">&quot;disks&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&quot;size&quot;</span><span class="p">:</span><span class="s">&quot;4096&quot;</span><span class="p">,</span> <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;rw&quot;</span><span class="p">,</span> <span class="s">&quot;vg&quot;</span><span class="p">:</span> <span class="s">&quot;xenvg&quot;</span><span class="p">}],</span>
+    <span class="s">&quot;nics&quot;</span><span class="p">:</span> <span class="p">[{}],</span>
+    <span class="s">&quot;hypervisor&quot;</span><span class="p">:</span> <span class="s">&quot;xen-hvm&quot;</span><span class="p">,</span>
+    <span class="s">&quot;hvparams&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;acpi&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">},</span>
+    <span class="s">&quot;beparams&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;maxmem&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s">&quot;minmem&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The command will display the job id for each submitted instance, as
+follows:</p>
+<div class="highlight-python"><pre># gnt-instance batch-create instances.json
+Submitted jobs 37, 38</pre>
+</div>
+<p>Note: If the allocator is used for computing suitable nodes for the
+instances, it will only take into account disk information for the
+default disk template. That means, even if other disk templates are
+specified for the instances, storage space information of these disk
+templates will not be considered in the allocation computation.</p>
+</div>
+<div class="section" id="remove">
+<h4>REMOVE<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>remove</strong> [&#8211;ignore-failures] [&#8211;shutdown-timeout=*N*] [&#8211;submit]</div>
+<div class="line">[&#8211;print-job-id] [&#8211;force] {<em>instance</em>}</div>
+</div>
+<p>Remove an instance. This will remove all data from the instance and
+there is <em>no way back</em>. If you are not sure if you use an instance
+again, use <strong>shutdown</strong> first and leave it in the shutdown state for a
+while.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-failures</span></tt> option will cause the removal to proceed
+even in the presence of errors during the removal of the instance
+(e.g. during the shutdown or the disk removal). If this option is not
+given, the command will stop at the first error.</p>
+<p>The <tt class="docutils literal"><span class="pre">--shutdown-timeout</span></tt> is used to specify how much time to wait
+before forcing the shutdown (e.g. <tt class="docutils literal"><span class="pre">xm</span> <span class="pre">destroy</span></tt> in Xen, killing the
+kvm process for KVM, etc.). By default two minutes are given to each
+instance to stop.</p>
+<p>The <tt class="docutils literal"><span class="pre">--force</span></tt> option is used to skip the interactive confirmation.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance remove instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list">
+<h4>LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>list</strong></div>
+<div class="line">[&#8211;no-headers] [&#8211;separator=*SEPARATOR*] [&#8211;units=*UNITS*] [-v]</div>
+<div class="line">[{-o|&#8211;output} <em>[+]FIELD,...</em>] [&#8211;filter] [instance...]</div>
+</div>
+<p>Shows the currently configured instances with memory usage, disk
+usage, the node they are running on, and their run status.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The units used to display the numeric values in the output varies,
+depending on the options given. By default, the values will be
+formatted in the most appropriate unit. If the <tt class="docutils literal"><span class="pre">--separator</span></tt> option
+is given, then the values are shown in mebibytes to allow parsing by
+scripts. In both cases, the <tt class="docutils literal"><span class="pre">--units</span></tt> option can be used to enforce
+a given output unit.</p>
+<p>The <tt class="docutils literal"><span class="pre">-v</span></tt> option activates verbose mode, which changes the display of
+special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--output)</span></tt> option takes a comma-separated list of output
+fields. The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">admin_state</span></tt></dt>
+<dd>Desired state of instance</dd>
+<dt><tt class="docutils literal"><span class="pre">admin_up</span></tt></dt>
+<dd>Desired state of instance</dd>
+<dt><tt class="docutils literal"><span class="pre">be/always_failover</span></tt></dt>
+<dd>The &#8220;always_failover&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/auto_balance</span></tt></dt>
+<dd>The &#8220;auto_balance&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/maxmem</span></tt></dt>
+<dd>The &#8220;maxmem&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/memory</span></tt></dt>
+<dd>The &#8220;maxmem&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/minmem</span></tt></dt>
+<dd>The &#8220;minmem&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/spindle_use</span></tt></dt>
+<dd>The &#8220;spindle_use&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">be/vcpus</span></tt></dt>
+<dd>The &#8220;vcpus&#8221; backend parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">beparams</span></tt></dt>
+<dd>Backend parameters (merged)</dd>
+<dt><tt class="docutils literal"><span class="pre">bridge</span></tt></dt>
+<dd>Bridge of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">console</span></tt></dt>
+<dd>Instance console information</dd>
+<dt><tt class="docutils literal"><span class="pre">ctime</span></tt></dt>
+<dd>Creation timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_beparams</span></tt></dt>
+<dd>Custom backend parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_hvparams</span></tt></dt>
+<dd>Custom hypervisor parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_nicparams</span></tt></dt>
+<dd>Custom network interface parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_osparams</span></tt></dt>
+<dd>Custom operating system parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.count</span></tt></dt>
+<dd>Number of disks</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/0</span></tt></dt>
+<dd>Name of 1st disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/1</span></tt></dt>
+<dd>Name of 2nd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/2</span></tt></dt>
+<dd>Name of 3rd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/3</span></tt></dt>
+<dd>Name of 4th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/4</span></tt></dt>
+<dd>Name of 5th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/5</span></tt></dt>
+<dd>Name of 6th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/6</span></tt></dt>
+<dd>Name of 7th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/7</span></tt></dt>
+<dd>Name of 8th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/8</span></tt></dt>
+<dd>Name of 9th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/9</span></tt></dt>
+<dd>Name of 10th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/10</span></tt></dt>
+<dd>Name of 11th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/11</span></tt></dt>
+<dd>Name of 12th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/12</span></tt></dt>
+<dd>Name of 13th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/13</span></tt></dt>
+<dd>Name of 14th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/14</span></tt></dt>
+<dd>Name of 15th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.name/15</span></tt></dt>
+<dd>Name of 16th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.names</span></tt></dt>
+<dd>List of disk names</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/0</span></tt></dt>
+<dd>Disk size of 1st disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/1</span></tt></dt>
+<dd>Disk size of 2nd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/2</span></tt></dt>
+<dd>Disk size of 3rd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/3</span></tt></dt>
+<dd>Disk size of 4th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/4</span></tt></dt>
+<dd>Disk size of 5th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/5</span></tt></dt>
+<dd>Disk size of 6th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/6</span></tt></dt>
+<dd>Disk size of 7th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/7</span></tt></dt>
+<dd>Disk size of 8th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/8</span></tt></dt>
+<dd>Disk size of 9th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/9</span></tt></dt>
+<dd>Disk size of 10th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/10</span></tt></dt>
+<dd>Disk size of 11th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/11</span></tt></dt>
+<dd>Disk size of 12th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/12</span></tt></dt>
+<dd>Disk size of 13th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/13</span></tt></dt>
+<dd>Disk size of 14th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/14</span></tt></dt>
+<dd>Disk size of 15th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.size/15</span></tt></dt>
+<dd>Disk size of 16th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.sizes</span></tt></dt>
+<dd>List of disk sizes</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles</span></tt></dt>
+<dd>List of disk spindles</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/0</span></tt></dt>
+<dd>Spindles of 1st disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/1</span></tt></dt>
+<dd>Spindles of 2nd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/2</span></tt></dt>
+<dd>Spindles of 3rd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/3</span></tt></dt>
+<dd>Spindles of 4th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/4</span></tt></dt>
+<dd>Spindles of 5th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/5</span></tt></dt>
+<dd>Spindles of 6th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/6</span></tt></dt>
+<dd>Spindles of 7th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/7</span></tt></dt>
+<dd>Spindles of 8th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/8</span></tt></dt>
+<dd>Spindles of 9th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/9</span></tt></dt>
+<dd>Spindles of 10th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/10</span></tt></dt>
+<dd>Spindles of 11th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/11</span></tt></dt>
+<dd>Spindles of 12th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/12</span></tt></dt>
+<dd>Spindles of 13th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/13</span></tt></dt>
+<dd>Spindles of 14th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/14</span></tt></dt>
+<dd>Spindles of 15th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.spindles/15</span></tt></dt>
+<dd>Spindles of 16th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/0</span></tt></dt>
+<dd>UUID of 1st disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/1</span></tt></dt>
+<dd>UUID of 2nd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/2</span></tt></dt>
+<dd>UUID of 3rd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/3</span></tt></dt>
+<dd>UUID of 4th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/4</span></tt></dt>
+<dd>UUID of 5th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/5</span></tt></dt>
+<dd>UUID of 6th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/6</span></tt></dt>
+<dd>UUID of 7th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/7</span></tt></dt>
+<dd>UUID of 8th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/8</span></tt></dt>
+<dd>UUID of 9th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/9</span></tt></dt>
+<dd>UUID of 10th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/10</span></tt></dt>
+<dd>UUID of 11th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/11</span></tt></dt>
+<dd>UUID of 12th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/12</span></tt></dt>
+<dd>UUID of 13th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/13</span></tt></dt>
+<dd>UUID of 14th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/14</span></tt></dt>
+<dd>UUID of 15th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuid/15</span></tt></dt>
+<dd>UUID of 16th disk</dd>
+<dt><tt class="docutils literal"><span class="pre">disk.uuids</span></tt></dt>
+<dd>List of disk UUIDs</dd>
+<dt><tt class="docutils literal"><span class="pre">disk_template</span></tt></dt>
+<dd>Instance disk template</dd>
+<dt><tt class="docutils literal"><span class="pre">disk_usage</span></tt></dt>
+<dd>Total disk space used by instance on each of its nodes; this is not the disk size visible to the instance, but the usage on the node</dd>
+<dt><tt class="docutils literal"><span class="pre">disks_active</span></tt></dt>
+<dd>Desired state of instance disks</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/acpi</span></tt></dt>
+<dd>The &#8220;acpi&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/blockdev_prefix</span></tt></dt>
+<dd>The &#8220;blockdev_prefix&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/boot_order</span></tt></dt>
+<dd>The &#8220;boot_order&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/bootloader_args</span></tt></dt>
+<dd>The &#8220;bootloader_args&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/bootloader_path</span></tt></dt>
+<dd>The &#8220;bootloader_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cdrom2_image_path</span></tt></dt>
+<dd>The &#8220;cdrom2_image_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cdrom_disk_type</span></tt></dt>
+<dd>The &#8220;cdrom_disk_type&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cdrom_image_path</span></tt></dt>
+<dd>The &#8220;cdrom_image_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_cap</span></tt></dt>
+<dd>The &#8220;cpu_cap&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_cores</span></tt></dt>
+<dd>The &#8220;cpu_cores&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_mask</span></tt></dt>
+<dd>The &#8220;cpu_mask&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_sockets</span></tt></dt>
+<dd>The &#8220;cpu_sockets&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_threads</span></tt></dt>
+<dd>The &#8220;cpu_threads&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_type</span></tt></dt>
+<dd>The &#8220;cpu_type&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpu_weight</span></tt></dt>
+<dd>The &#8220;cpu_weight&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/cpuid</span></tt></dt>
+<dd>The &#8220;cpuid&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/device_model</span></tt></dt>
+<dd>The &#8220;device_model&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/disk_cache</span></tt></dt>
+<dd>The &#8220;disk_cache&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/disk_type</span></tt></dt>
+<dd>The &#8220;disk_type&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/floppy_image_path</span></tt></dt>
+<dd>The &#8220;floppy_image_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/init_script</span></tt></dt>
+<dd>The &#8220;init_script&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/initrd_path</span></tt></dt>
+<dd>The &#8220;initrd_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/kernel_args</span></tt></dt>
+<dd>The &#8220;kernel_args&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/kernel_path</span></tt></dt>
+<dd>The &#8220;kernel_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/keymap</span></tt></dt>
+<dd>The &#8220;keymap&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/kvm_extra</span></tt></dt>
+<dd>The &#8220;kvm_extra&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/kvm_flag</span></tt></dt>
+<dd>The &#8220;kvm_flag&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/kvm_path</span></tt></dt>
+<dd>The &#8220;kvm_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/machine_version</span></tt></dt>
+<dd>The &#8220;machine_version&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/mem_path</span></tt></dt>
+<dd>The &#8220;mem_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/migration_downtime</span></tt></dt>
+<dd>The &#8220;migration_downtime&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/nic_type</span></tt></dt>
+<dd>The &#8220;nic_type&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/pae</span></tt></dt>
+<dd>The &#8220;pae&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/pci_pass</span></tt></dt>
+<dd>The &#8220;pci_pass&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/reboot_behavior</span></tt></dt>
+<dd>The &#8220;reboot_behavior&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/root_path</span></tt></dt>
+<dd>The &#8220;root_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/security_domain</span></tt></dt>
+<dd>The &#8220;security_domain&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/security_model</span></tt></dt>
+<dd>The &#8220;security_model&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/serial_console</span></tt></dt>
+<dd>The &#8220;serial_console&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/serial_speed</span></tt></dt>
+<dd>The &#8220;serial_speed&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/soundhw</span></tt></dt>
+<dd>The &#8220;soundhw&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_bind</span></tt></dt>
+<dd>The &#8220;spice_bind&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_image_compression</span></tt></dt>
+<dd>The &#8220;spice_image_compression&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_ip_version</span></tt></dt>
+<dd>The &#8220;spice_ip_version&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_jpeg_wan_compression</span></tt></dt>
+<dd>The &#8220;spice_jpeg_wan_compression&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_password_file</span></tt></dt>
+<dd>The &#8220;spice_password_file&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_playback_compression</span></tt></dt>
+<dd>The &#8220;spice_playback_compression&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_streaming_video</span></tt></dt>
+<dd>The &#8220;spice_streaming_video&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_tls_ciphers</span></tt></dt>
+<dd>The &#8220;spice_tls_ciphers&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_use_tls</span></tt></dt>
+<dd>The &#8220;spice_use_tls&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_use_vdagent</span></tt></dt>
+<dd>The &#8220;spice_use_vdagent&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/spice_zlib_glz_wan_compression</span></tt></dt>
+<dd>The &#8220;spice_zlib_glz_wan_compression&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/usb_devices</span></tt></dt>
+<dd>The &#8220;usb_devices&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/usb_mouse</span></tt></dt>
+<dd>The &#8220;usb_mouse&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/use_bootloader</span></tt></dt>
+<dd>The &#8220;use_bootloader&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/use_chroot</span></tt></dt>
+<dd>The &#8220;use_chroot&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/use_localtime</span></tt></dt>
+<dd>The &#8220;use_localtime&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vga</span></tt></dt>
+<dd>The &#8220;vga&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vhost_net</span></tt></dt>
+<dd>The &#8220;vhost_net&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vif_script</span></tt></dt>
+<dd>The &#8220;vif_script&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vif_type</span></tt></dt>
+<dd>The &#8220;vif_type&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/viridian</span></tt></dt>
+<dd>The &#8220;viridian&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnc_bind_address</span></tt></dt>
+<dd>The &#8220;vnc_bind_address&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnc_password_file</span></tt></dt>
+<dd>The &#8220;vnc_password_file&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnc_tls</span></tt></dt>
+<dd>The &#8220;vnc_tls&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnc_x509_path</span></tt></dt>
+<dd>The &#8220;vnc_x509_path&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnc_x509_verify</span></tt></dt>
+<dd>The &#8220;vnc_x509_verify&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hv/vnet_hdr</span></tt></dt>
+<dd>The &#8220;vnet_hdr&#8221; hypervisor parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">hvparams</span></tt></dt>
+<dd>Hypervisor parameters (merged)</dd>
+<dt><tt class="docutils literal"><span class="pre">hypervisor</span></tt></dt>
+<dd>Hypervisor name</dd>
+<dt><tt class="docutils literal"><span class="pre">ip</span></tt></dt>
+<dd>IP address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">mac</span></tt></dt>
+<dd>MAC address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">mtime</span></tt></dt>
+<dd>Modification timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">name</span></tt></dt>
+<dd>Instance name</dd>
+<dt><tt class="docutils literal"><span class="pre">network_port</span></tt></dt>
+<dd>Instance network port if available (e.g. for VNC console)</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/0</span></tt></dt>
+<dd>Bridge of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/1</span></tt></dt>
+<dd>Bridge of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/2</span></tt></dt>
+<dd>Bridge of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/3</span></tt></dt>
+<dd>Bridge of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/4</span></tt></dt>
+<dd>Bridge of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/5</span></tt></dt>
+<dd>Bridge of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/6</span></tt></dt>
+<dd>Bridge of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridge/7</span></tt></dt>
+<dd>Bridge of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.bridges</span></tt></dt>
+<dd>List containing each network interface&#8217;s bridge</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.count</span></tt></dt>
+<dd>Number of network interfaces</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/0</span></tt></dt>
+<dd>IP address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/1</span></tt></dt>
+<dd>IP address of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/2</span></tt></dt>
+<dd>IP address of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/3</span></tt></dt>
+<dd>IP address of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/4</span></tt></dt>
+<dd>IP address of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/5</span></tt></dt>
+<dd>IP address of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/6</span></tt></dt>
+<dd>IP address of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ip/7</span></tt></dt>
+<dd>IP address of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.ips</span></tt></dt>
+<dd>List containing each network interface&#8217;s IP address</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/0</span></tt></dt>
+<dd>Link of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/1</span></tt></dt>
+<dd>Link of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/2</span></tt></dt>
+<dd>Link of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/3</span></tt></dt>
+<dd>Link of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/4</span></tt></dt>
+<dd>Link of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/5</span></tt></dt>
+<dd>Link of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/6</span></tt></dt>
+<dd>Link of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.link/7</span></tt></dt>
+<dd>Link of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.links</span></tt></dt>
+<dd>List containing each network interface&#8217;s link</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/0</span></tt></dt>
+<dd>MAC address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/1</span></tt></dt>
+<dd>MAC address of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/2</span></tt></dt>
+<dd>MAC address of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/3</span></tt></dt>
+<dd>MAC address of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/4</span></tt></dt>
+<dd>MAC address of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/5</span></tt></dt>
+<dd>MAC address of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/6</span></tt></dt>
+<dd>MAC address of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mac/7</span></tt></dt>
+<dd>MAC address of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.macs</span></tt></dt>
+<dd>List containing each network interface&#8217;s MAC address</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/0</span></tt></dt>
+<dd>Mode of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/1</span></tt></dt>
+<dd>Mode of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/2</span></tt></dt>
+<dd>Mode of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/3</span></tt></dt>
+<dd>Mode of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/4</span></tt></dt>
+<dd>Mode of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/5</span></tt></dt>
+<dd>Mode of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/6</span></tt></dt>
+<dd>Mode of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.mode/7</span></tt></dt>
+<dd>Mode of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.modes</span></tt></dt>
+<dd>List containing each network interface&#8217;s mode</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/0</span></tt></dt>
+<dd>Name address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/1</span></tt></dt>
+<dd>Name address of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/2</span></tt></dt>
+<dd>Name address of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/3</span></tt></dt>
+<dd>Name address of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/4</span></tt></dt>
+<dd>Name address of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/5</span></tt></dt>
+<dd>Name address of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/6</span></tt></dt>
+<dd>Name address of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.name/7</span></tt></dt>
+<dd>Name address of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.names</span></tt></dt>
+<dd>List containing each network interface&#8217;s name</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/0</span></tt></dt>
+<dd>Network name of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/1</span></tt></dt>
+<dd>Network name of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/2</span></tt></dt>
+<dd>Network name of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/3</span></tt></dt>
+<dd>Network name of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/4</span></tt></dt>
+<dd>Network name of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/5</span></tt></dt>
+<dd>Network name of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/6</span></tt></dt>
+<dd>Network name of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network.name/7</span></tt></dt>
+<dd>Network name of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/0</span></tt></dt>
+<dd>Network of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/1</span></tt></dt>
+<dd>Network of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/2</span></tt></dt>
+<dd>Network of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/3</span></tt></dt>
+<dd>Network of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/4</span></tt></dt>
+<dd>Network of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/5</span></tt></dt>
+<dd>Network of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/6</span></tt></dt>
+<dd>Network of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.network/7</span></tt></dt>
+<dd>Network of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.networks</span></tt></dt>
+<dd>List containing each interface&#8217;s network</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.networks.names</span></tt></dt>
+<dd>List containing each interface&#8217;s network</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/0</span></tt></dt>
+<dd>UUID address of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/1</span></tt></dt>
+<dd>UUID address of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/2</span></tt></dt>
+<dd>UUID address of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/3</span></tt></dt>
+<dd>UUID address of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/4</span></tt></dt>
+<dd>UUID address of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/5</span></tt></dt>
+<dd>UUID address of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/6</span></tt></dt>
+<dd>UUID address of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuid/7</span></tt></dt>
+<dd>UUID address of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.uuids</span></tt></dt>
+<dd>List containing each network interface&#8217;s UUID</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/0</span></tt></dt>
+<dd>VLAN of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/1</span></tt></dt>
+<dd>VLAN of 2nd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/2</span></tt></dt>
+<dd>VLAN of 3rd network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/3</span></tt></dt>
+<dd>VLAN of 4th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/4</span></tt></dt>
+<dd>VLAN of 5th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/5</span></tt></dt>
+<dd>VLAN of 6th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/6</span></tt></dt>
+<dd>VLAN of 7th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlan/7</span></tt></dt>
+<dd>VLAN of 8th network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic.vlans</span></tt></dt>
+<dd>List containing each network interface&#8217;s VLAN</dd>
+<dt><tt class="docutils literal"><span class="pre">nic_link</span></tt></dt>
+<dd>Link of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic_mode</span></tt></dt>
+<dd>Mode of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">nic_network</span></tt></dt>
+<dd>Network of 1st network interface</dd>
+<dt><tt class="docutils literal"><span class="pre">oper_ram</span></tt></dt>
+<dd>Actual memory usage as seen by hypervisor</dd>
+<dt><tt class="docutils literal"><span class="pre">oper_state</span></tt></dt>
+<dd>Actual state of instance</dd>
+<dt><tt class="docutils literal"><span class="pre">oper_vcpus</span></tt></dt>
+<dd>Actual number of VCPUs as seen by hypervisor</dd>
+<dt><tt class="docutils literal"><span class="pre">os</span></tt></dt>
+<dd>Operating system</dd>
+<dt><tt class="docutils literal"><span class="pre">osparams</span></tt></dt>
+<dd>Operating system parameters (merged)</dd>
+<dt><tt class="docutils literal"><span class="pre">pnode</span></tt></dt>
+<dd>Primary node</dd>
+<dt><tt class="docutils literal"><span class="pre">pnode.group</span></tt></dt>
+<dd>Primary node&#8217;s group</dd>
+<dt><tt class="docutils literal"><span class="pre">pnode.group.uuid</span></tt></dt>
+<dd>Primary node&#8217;s group UUID</dd>
+<dt><tt class="docutils literal"><span class="pre">sda_size</span></tt></dt>
+<dd>Disk size of 1st disk</dd>
+<dt><tt class="docutils literal"><span class="pre">sdb_size</span></tt></dt>
+<dd>Disk size of 2nd disk</dd>
+<dt><tt class="docutils literal"><span class="pre">serial_no</span></tt></dt>
+<dd>Instance object serial number, incremented on each modification</dd>
+<dt><tt class="docutils literal"><span class="pre">snodes</span></tt></dt>
+<dd>Secondary nodes; usually this will just be one node</dd>
+<dt><tt class="docutils literal"><span class="pre">snodes.group</span></tt></dt>
+<dd>Node groups of secondary nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">snodes.group.uuid</span></tt></dt>
+<dd>Node group UUIDs of secondary nodes</dd>
+<dt><tt class="docutils literal"><span class="pre">status</span></tt></dt>
+<dd>Instance status; &#8220;running&#8221; if instance is set to be running and actually is, &#8220;ADMIN_down&#8221; if instance is stopped and is not running, &#8220;ERROR_wrongnode&#8221; if instance running, but not on its designated primary node, &#8220;ERROR_up&#8221; if instance should be stopped, but is actually running, &#8220;ERROR_down&#8221; if instance should run, but doesn&#8217;t, &#8220;ERROR_nodedown&#8221; if instance&#8217;s primary node is down, &#8220;ERROR_nodeoffline&#8221; if instance&#8217;s primary node is marked offline, &#8220;ADMIN_offline&#8221; if instance is offline and does not use dynamic resources</dd>
+<dt><tt class="docutils literal"><span class="pre">tags</span></tt></dt>
+<dd>Tags</dd>
+<dt><tt class="docutils literal"><span class="pre">uuid</span></tt></dt>
+<dd>Instance UUID</dd>
+<dt><tt class="docutils literal"><span class="pre">vcpus</span></tt></dt>
+<dd>The &#8220;vcpus&#8221; backend parameter</dd>
+</dl>
+<p>If the value of the option starts with the character <tt class="docutils literal"><span class="pre">+</span></tt>, the new
+field(s) will be added to the default list. This allows one to quickly
+see the default list plus a few other fields, instead of retyping the
+entire list of fields.</p>
+<p>There is a subtle grouping about the available output fields: all
+fields except for <tt class="docutils literal"><span class="pre">oper_state</span></tt>, <tt class="docutils literal"><span class="pre">oper_ram</span></tt>, <tt class="docutils literal"><span class="pre">oper_vcpus</span></tt> and
+<tt class="docutils literal"><span class="pre">status</span></tt> are configuration value and not run-time values. So if you
+don&#8217;t select any of the these fields, the query will be satisfied
+instantly from the cluster configuration, without having to ask the
+remote nodes for the data. This can be helpful for big clusters when
+you only want some data and it makes sense to specify a reduced set of
+output fields.</p>
+<p>If exactly one argument is given and it appears to be a query filter
+(see <strong>ganeti</strong>(7)), the query result is filtered accordingly. For
+ambiguous cases (e.g. a single field name as a filter) the <tt class="docutils literal"><span class="pre">--filter</span></tt>
+(<tt class="docutils literal"><span class="pre">-F</span></tt>) option forces the argument to be treated as a filter (e.g.
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">list</span> <span class="pre">-F</span> <span class="pre">admin_state</span></tt>).</p>
+<p>The default output field list is: <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">os</span></tt>, <tt class="docutils literal"><span class="pre">pnode</span></tt>,
+<tt class="docutils literal"><span class="pre">admin_state</span></tt>, <tt class="docutils literal"><span class="pre">oper_state</span></tt>, <tt class="docutils literal"><span class="pre">oper_ram</span></tt>.</p>
+</div>
+<div class="section" id="list-fields">
+<h4>LIST-FIELDS<a class="headerlink" href="#list-fields" title="Permalink to this headline">¶</a></h4>
+<p><strong>list-fields</strong> [field...]</p>
+<p>Lists available fields for instances.</p>
+</div>
+<div class="section" id="info">
+<h4>INFO<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h4>
+<p><strong>info</strong> [-s | &#8211;static] [&#8211;roman] {&#8211;all | <em>instance</em>}</p>
+<p>Show detailed information about the given instance(s). This is
+different from <strong>list</strong> as it shows detailed data about the instance&#8217;s
+disks (especially useful for the drbd disk template).</p>
+<p>If the option <tt class="docutils literal"><span class="pre">-s</span></tt> is used, only information available in the
+configuration file is returned, without querying nodes, making the
+operation faster.</p>
+<p>Use the <tt class="docutils literal"><span class="pre">--all</span></tt> to get info about all instances, rather than
+explicitly passing the ones you&#8217;re interested in.</p>
+<p>The <tt class="docutils literal"><span class="pre">--roman</span></tt> option can be used to cause envy among people who like
+ancient cultures, but are stuck with non-latin-friendly cluster
+virtualization technologies.</p>
+</div>
+<div class="section" id="modify">
+<h4>MODIFY<a class="headerlink" href="#modify" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>modify</strong></div>
+<div class="line">[{-H|&#8211;hypervisor-parameters} <em>HYPERVISOR_PARAMETERS</em>]</div>
+<div class="line">[{-B|&#8211;backend-parameters} <em>BACKEND_PARAMETERS</em>]</div>
+<div class="line">[{-m|&#8211;runtime-memory} <em>SIZE</em>]</div>
+<div class="line">[&#8211;net add[:options...] |</div>
+<div class="line-block">
+<div class="line">&#8211;net [<em>N</em>:]add[,options...] |</div>
+<div class="line">&#8211;net [<em>ID</em>:]remove |</div>
+<div class="line">&#8211;net <em>ID</em>:modify[,options...]]</div>
+</div>
+<div class="line">[&#8211;disk add:size=*SIZE*[,options...] |</div>
+<div class="line-block">
+<div class="line">&#8211;disk <em>N</em>:add,size=*SIZE*[,options...] |</div>
+<div class="line">&#8211;disk <em>N</em>:add,size=*SIZE*,provider=*PROVIDER*[,options...][,param=*value*... ] |</div>
+<div class="line">&#8211;disk <em>ID</em>:modify[,options...]</div>
+<div class="line">&#8211;disk [<em>ID</em>:]remove]</div>
+</div>
+<div class="line">[{-t|&#8211;disk-template} plain | {-t|&#8211;disk-template} drbd -n <em>new_secondary</em>] [&#8211;no-wait-for-sync]</div>
+<div class="line">[&#8211;new-primary=*node*]</div>
+<div class="line">[&#8211;os-type=*OS* [&#8211;force-variant]]</div>
+<div class="line">[{-O|&#8211;os-parameters} <em>param*=*value</em>... ]</div>
+<div class="line">[&#8211;offline | &#8211;online]</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;ignore-ipolicy]</div>
+<div class="line">[&#8211;hotplug]</div>
+<div class="line">[&#8211;hotplug-if-possible]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Modifies the memory size, number of vcpus, ip address, MAC address
+and/or NIC parameters for an instance. It can also add and remove
+disks and NICs to/from the instance. Note that you need to give at
+least one of the arguments, otherwise the command complains.</p>
+<p>The <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">(--hypervisor-parameters)</span></tt>, <tt class="docutils literal"><span class="pre">-B</span> <span class="pre">(--backend-parameters)</span></tt>
+and <tt class="docutils literal"><span class="pre">-O</span> <span class="pre">(--os-parameters)</span></tt> options specifies hypervisor, backend and
+OS parameter options in the form of name=value[,...]. For details
+which options can be specified, see the <strong>add</strong> command.</p>
+<p>The <tt class="docutils literal"><span class="pre">-t</span> <span class="pre">(--disk-template)</span></tt> option will change the disk template of
+the instance.  Currently only conversions between the plain and drbd
+disk templates are supported, and the instance must be stopped before
+attempting the conversion. When changing from the plain to the drbd
+disk template, a new secondary node must be specified via the <tt class="docutils literal"><span class="pre">-n</span></tt>
+option. The option <tt class="docutils literal"><span class="pre">--no-wait-for-sync</span></tt> can be used when converting
+to the <tt class="docutils literal"><span class="pre">drbd</span></tt> template in order to make the instance available for
+startup before DRBD has finished resyncing.</p>
+<p>The <tt class="docutils literal"><span class="pre">-m</span> <span class="pre">(--runtime-memory)</span></tt> option will change an instance&#8217;s runtime
+memory to the given size (in MB if a different suffix is not specified),
+by ballooning it up or down to the new value.</p>
+<p>The <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">add:size=*SIZE*,[options..]</span></tt> option adds a disk to the
+instance, and <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">*N*:add:size=*SIZE*,[options..]</span></tt> will add a disk
+to the the instance at a specific index. The available options are the
+same as in the <strong>add</strong> command(<tt class="docutils literal"><span class="pre">spindles</span></tt>, <tt class="docutils literal"><span class="pre">mode</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">vg</span></tt>,
+<tt class="docutils literal"><span class="pre">metavg</span></tt>). Per default, gnt-instance waits for the disk mirror to sync.
+If you do not want this behavior, use the <tt class="docutils literal"><span class="pre">--no-wait-for-sync</span></tt> option.
+When adding an ExtStorage disk, the <tt class="docutils literal"><span class="pre">provider=*PROVIDER*</span></tt> option is
+also mandatory and specifies the ExtStorage provider. Also, for
+ExtStorage disks arbitrary parameters can be passed as additional comma
+separated options, same as in the <strong>add</strong> command. The <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">remove</span></tt>
+option will remove the last disk of the instance. Use
+<tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">``</span> <span class="pre">*ID*</span></tt>:remove`` to remove a disk by its identifier. <em>ID</em>
+can be the index of the disk, the disks&#8217;s name or the disks&#8217;s UUID. The
+<tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">*ID*:modify[,options...]</span></tt> will change the options of the disk.
+Available options are:</p>
+<dl class="docutils">
+<dt>mode</dt>
+<dd>The access mode. Either <tt class="docutils literal"><span class="pre">ro</span></tt> (read-only) or the default <tt class="docutils literal"><span class="pre">rw</span></tt> (read-write).</dd>
+<dt>name</dt>
+<dd>This option specifies a name for the disk, which can be used as a disk
+identifier. An instance can not have two disks with the same name.</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">--net</span> <span class="pre">*N*:add[,options..]</span></tt> will add a new network interface to
+the instance. The available options are the same as in the <strong>add</strong>
+command (<tt class="docutils literal"><span class="pre">mac</span></tt>, <tt class="docutils literal"><span class="pre">ip</span></tt>, <tt class="docutils literal"><span class="pre">link</span></tt>, <tt class="docutils literal"><span class="pre">mode</span></tt>, <tt class="docutils literal"><span class="pre">network</span></tt>). The
+<tt class="docutils literal"><span class="pre">--net</span> <span class="pre">*ID*,remove</span></tt> will remove the intances&#8217; NIC with <em>ID</em> identifier,
+which can be the index of the NIC, the NIC&#8217;s name or the NIC&#8217;s UUID.
+The <tt class="docutils literal"><span class="pre">--net</span> <span class="pre">*ID*:modify[,options..]</span></tt> option will change the parameters of
+the instance network interface with the <em>ID</em> identifier.</p>
+<p>The option <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--os-type)</span></tt> will change the OS name for the instance
+(without reinstallation). In case an OS variant is specified that is
+not found, then by default the modification is refused, unless
+<tt class="docutils literal"><span class="pre">--force-variant</span></tt> is passed. An invalid OS will also be refused,
+unless the <tt class="docutils literal"><span class="pre">--force</span></tt> option is given.</p>
+<p>The option <tt class="docutils literal"><span class="pre">--new-primary</span></tt> will set the new primary node of an instance
+assuming the disks have already been moved manually. Unless the <tt class="docutils literal"><span class="pre">--force</span></tt>
+option is given, it is verified that the instance is no longer running
+on its current primary node.</p>
+<p>The <tt class="docutils literal"><span class="pre">--online</span></tt> and <tt class="docutils literal"><span class="pre">--offline</span></tt> options are used to transition an
+instance into and out of the <tt class="docutils literal"><span class="pre">offline</span></tt> state. An instance can be
+turned offline only if it was previously down. The <tt class="docutils literal"><span class="pre">--online</span></tt> option
+fails if the instance was not in the <tt class="docutils literal"><span class="pre">offline</span></tt> state, otherwise it
+changes instance&#8217;s state to <tt class="docutils literal"><span class="pre">down</span></tt>. These modifications take effect
+immediately.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>If <tt class="docutils literal"><span class="pre">--hotplug</span></tt> is given any disk and NIC modifications will take
+effect without the need of actual reboot. Please note that this feature
+is currently supported only for KVM hypervisor and there are some
+restrictions: a) KVM versions &gt;= 1.0 support it b) instances with chroot
+or uid pool security model do not support disk hotplug c) RBD disks with
+userspace access mode can not be hotplugged (yet) d) if hotplug fails
+(for any reason) a warning is printed but execution is continued e)
+for existing NIC modification interactive verification is needed unless
+<tt class="docutils literal"><span class="pre">--force</span></tt> option is passed.</p>
+<p>If <tt class="docutils literal"><span class="pre">--hotplug-if-possible</span></tt> is given then ganeti won&#8217;t abort in case
+hotplug is not supported. It will continue execution and modification
+will take place after reboot. This covers use cases where instances are
+not running or hypervisor is not KVM.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Most of the changes take effect at the next restart. If the instance is
+running, there is no effect on the instance.</p>
+</div>
+<div class="section" id="reinstall">
+<h4>REINSTALL<a class="headerlink" href="#reinstall" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>reinstall</strong> [{-o|&#8211;os-type} <em>os-type</em>] [&#8211;select-os] [-f <em>force</em>]</div>
+<div class="line">[&#8211;force-multiple]</div>
+<div class="line">[&#8211;instance | &#8211;node | &#8211;primary | &#8211;secondary | &#8211;all]</div>
+<div class="line">[{-O|&#8211;os-parameters} <em>OS_PARAMETERS</em>] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">{<em>instance</em>...}</div>
+</div>
+<p>Reinstalls the operating system on the given instance(s). The
+instance(s) must be stopped when running this command. If the <tt class="docutils literal"><span class="pre">-o</span>
+<span class="pre">(--os-type)</span></tt> is specified, the operating system is changed.</p>
+<p>The <tt class="docutils literal"><span class="pre">--select-os</span></tt> option switches to an interactive OS reinstall.
+The user is prompted to select the OS template from the list of
+available OS templates. OS parameters can be overridden using <tt class="docutils literal"><span class="pre">-O</span>
+<span class="pre">(--os-parameters)</span></tt> (more documentation for this option under the
+<strong>add</strong> command).</p>
+<p>Since this is a potentially dangerous command, the user will be
+required to confirm this action, unless the <tt class="docutils literal"><span class="pre">-f</span></tt> flag is passed.
+When multiple instances are selected (either by passing multiple
+arguments or by using the <tt class="docutils literal"><span class="pre">--node</span></tt>, <tt class="docutils literal"><span class="pre">--primary</span></tt>, <tt class="docutils literal"><span class="pre">--secondary</span></tt>
+or <tt class="docutils literal"><span class="pre">--all</span></tt> options), the user must pass the <tt class="docutils literal"><span class="pre">--force-multiple</span></tt>
+options to skip the interactive confirmation.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="rename">
+<h4>RENAME<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>rename</strong> [&#8211;no-ip-check] [&#8211;no-name-check] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">{<em>instance</em>} {<em>new_name</em>}</div>
+</div>
+<p>Renames the given instance. The instance must be stopped when running
+this command. The requirements for the new name are the same as for
+adding an instance: the new name must be resolvable and the IP it
+resolves to must not be reachable (in order to prevent duplicate IPs
+the next time the instance is started). The IP test can be skipped if
+the <tt class="docutils literal"><span class="pre">--no-ip-check</span></tt> option is passed.</p>
+<p>Note that you can rename an instance to its same name, to force
+re-executing the os-specific rename script for that instance, if
+needed.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-name-check</span></tt> skips the check for the new instance name via
+the resolver (e.g. in DNS or /etc/hosts, depending on your setup) and
+that the resolved name matches the provided name. Since the name check
+is used to compute the IP address, if you pass this option you must also
+pass the <tt class="docutils literal"><span class="pre">--no-ip-check</span></tt> option.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+</div>
+<div class="section" id="starting-stopping-connecting-to-console">
+<h3>Starting/stopping/connecting to console<a class="headerlink" href="#starting-stopping-connecting-to-console" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="startup">
+<h4>STARTUP<a class="headerlink" href="#startup" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>startup</strong></div>
+<div class="line">[&#8211;force] [&#8211;ignore-offline]</div>
+<div class="line">[&#8211;force-multiple] [&#8211;no-remember]</div>
+<div class="line">[&#8211;instance | &#8211;node | &#8211;primary | &#8211;secondary | &#8211;all |</div>
+<div class="line">&#8211;tags | &#8211;node-tags | &#8211;pri-node-tags | &#8211;sec-node-tags]</div>
+<div class="line">[{-H|&#8211;hypervisor-parameters} <tt class="docutils literal"><span class="pre">key=value...</span></tt>]</div>
+<div class="line">[{-B|&#8211;backend-parameters} <tt class="docutils literal"><span class="pre">key=value...</span></tt>]</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id] [&#8211;paused]</div>
+<div class="line">{<em>name</em>...}</div>
+</div>
+<p>Starts one or more instances, depending on the following options.  The
+four available modes are:</p>
+<dl class="docutils">
+<dt>&#8211;instance</dt>
+<dd>will start the instances given as arguments (at least one argument
+required); this is the default selection</dd>
+<dt>&#8211;node</dt>
+<dd>will start the instances who have the given node as either primary
+or secondary</dd>
+<dt>&#8211;primary</dt>
+<dd>will start all instances whose primary node is in the list of nodes
+passed as arguments (at least one node required)</dd>
+<dt>&#8211;secondary</dt>
+<dd>will start all instances whose secondary node is in the list of
+nodes passed as arguments (at least one node required)</dd>
+<dt>&#8211;all</dt>
+<dd>will start all instances in the cluster (no arguments accepted)</dd>
+<dt>&#8211;tags</dt>
+<dd>will start all instances in the cluster with the tags given as
+arguments</dd>
+<dt>&#8211;node-tags</dt>
+<dd>will start all instances in the cluster on nodes with the tags
+given as arguments</dd>
+<dt>&#8211;pri-node-tags</dt>
+<dd>will start all instances in the cluster on primary nodes with the
+tags given as arguments</dd>
+<dt>&#8211;sec-node-tags</dt>
+<dd>will start all instances in the cluster on secondary nodes with the
+tags given as arguments</dd>
+</dl>
+<p>Note that although you can pass more than one selection option, the
+last one wins, so in order to guarantee the desired result, don&#8217;t pass
+more than one such option.</p>
+<p>Use <tt class="docutils literal"><span class="pre">--force</span></tt> to start even if secondary disks are failing.
+<tt class="docutils literal"><span class="pre">--ignore-offline</span></tt> can be used to ignore offline primary nodes and
+mark the instance as started even if the primary is not available.</p>
+<p>The <tt class="docutils literal"><span class="pre">--force-multiple</span></tt> will skip the interactive confirmation in the
+case the more than one instance will be affected.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-remember</span></tt> option will perform the startup but not change
+the state of the instance in the configuration file (if it was stopped
+before, Ganeti will still think it needs to be stopped). This can be
+used for testing, or for a one shot-start where you don&#8217;t want the
+watcher to restart the instance if it crashes.</p>
+<p>The <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">(--hypervisor-parameters)</span></tt> and <tt class="docutils literal"><span class="pre">-B</span> <span class="pre">(--backend-parameters)</span></tt>
+options specify temporary hypervisor and backend parameters that can
+be used to start an instance with modified parameters. They can be
+useful for quick testing without having to modify an instance back and
+forth, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance start -H kernel_args=&quot;single&quot; instance1</span>
+<span class="c"># gnt-instance start -B maxmem=2048 instance2</span>
+</pre></div>
+</div>
+<p>The first form will start the instance instance1 in single-user mode,
+and the instance instance2 with 2GB of RAM (this time only, unless
+that is the actual instance memory size already). Note that the values
+override the instance parameters (and not extend them): an instance
+with &#8220;kernel_args=ro&#8221; when started with -H kernel_args=single will
+result in &#8220;single&#8221;, not &#8220;ro single&#8221;.</p>
+<p>The <tt class="docutils literal"><span class="pre">--paused</span></tt> option is only valid for Xen and kvm hypervisors.  This
+pauses the instance at the start of bootup, awaiting <tt class="docutils literal"><span class="pre">gnt-instance</span>
+<span class="pre">console</span></tt> to unpause it, allowing the entire boot process to be
+monitored for debugging.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance start instance1.example.com</span>
+<span class="c"># gnt-instance start --node node1.example.com node2.example.com</span>
+<span class="c"># gnt-instance start --all</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="shutdown">
+<h4>SHUTDOWN<a class="headerlink" href="#shutdown" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>shutdown</strong></div>
+<div class="line">[&#8211;timeout=*N*]</div>
+<div class="line">[&#8211;force] [&#8211;force-multiple] [&#8211;ignore-offline] [&#8211;no-remember]</div>
+<div class="line">[&#8211;instance | &#8211;node | &#8211;primary | &#8211;secondary | &#8211;all |</div>
+<div class="line">&#8211;tags | &#8211;node-tags | &#8211;pri-node-tags | &#8211;sec-node-tags]</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">{<em>name</em>...}</div>
+</div>
+<p>Stops one or more instances. If the instance cannot be cleanly stopped
+during a hardcoded interval (currently 2 minutes), it will forcibly
+stop the instance (equivalent to switching off the power on a physical
+machine).</p>
+<p>The <tt class="docutils literal"><span class="pre">--timeout</span></tt> is used to specify how much time to wait before
+forcing the shutdown (e.g. <tt class="docutils literal"><span class="pre">xm</span> <span class="pre">destroy</span></tt> in Xen, killing the kvm
+process for KVM, etc.). By default two minutes are given to each
+instance to stop.</p>
+<p>The <tt class="docutils literal"><span class="pre">--instance</span></tt>, <tt class="docutils literal"><span class="pre">--node</span></tt>, <tt class="docutils literal"><span class="pre">--primary</span></tt>, <tt class="docutils literal"><span class="pre">--secondary</span></tt>,
+<tt class="docutils literal"><span class="pre">--all</span></tt>, <tt class="docutils literal"><span class="pre">--tags</span></tt>, <tt class="docutils literal"><span class="pre">--node-tags</span></tt>, <tt class="docutils literal"><span class="pre">--pri-node-tags</span></tt> and
+<tt class="docutils literal"><span class="pre">--sec-node-tags</span></tt> options are similar as for the <strong>startup</strong> command
+and they influence the actual instances being shutdown.</p>
+<p><tt class="docutils literal"><span class="pre">--ignore-offline</span></tt> can be used to ignore offline primary nodes and
+force the instance to be marked as stopped. This option should be used
+with care as it can lead to an inconsistent cluster state.</p>
+<p>Use <tt class="docutils literal"><span class="pre">--force</span></tt> to be able to shutdown an instance even when it&#8217;s marked
+as offline. This is useful is an offline instance ends up in the
+<tt class="docutils literal"><span class="pre">ERROR_up</span></tt> state, for example.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-remember</span></tt> option will perform the shutdown but not change
+the state of the instance in the configuration file (if it was running
+before, Ganeti will still thinks it needs to be running). This can be
+useful for a cluster-wide shutdown, where some instances are marked as
+up and some as down, and you don&#8217;t want to change the running state:
+you just need to disable the watcher, shutdown all instances with
+<tt class="docutils literal"><span class="pre">--no-remember</span></tt>, and when the watcher is activated again it will
+restore the correct runtime state for all instances.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance shutdown instance1.example.com</span>
+<span class="c"># gnt-instance shutdown --all</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="reboot">
+<h4>REBOOT<a class="headerlink" href="#reboot" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>reboot</strong></div>
+<div class="line">[{-t|&#8211;type} <em>REBOOT-TYPE</em>]</div>
+<div class="line">[&#8211;ignore-secondaries]</div>
+<div class="line">[&#8211;shutdown-timeout=*N*]</div>
+<div class="line">[&#8211;force-multiple]</div>
+<div class="line">[&#8211;instance | &#8211;node | &#8211;primary | &#8211;secondary | &#8211;all |</div>
+<div class="line">&#8211;tags | &#8211;node-tags | &#8211;pri-node-tags | &#8211;sec-node-tags]</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[<em>name</em>...]</div>
+</div>
+<p>Reboots one or more instances. The type of reboot depends on the value
+of <tt class="docutils literal"><span class="pre">-t</span> <span class="pre">(--type)</span></tt>. A soft reboot does a hypervisor reboot, a hard reboot
+does a instance stop, recreates the hypervisor config for the instance
+and starts the instance. A full reboot does the equivalent of
+<strong>gnt-instance shutdown &amp;&amp; gnt-instance startup</strong>.  The default is
+hard reboot.</p>
+<p>For the hard reboot the option <tt class="docutils literal"><span class="pre">--ignore-secondaries</span></tt> ignores errors
+for the secondary node while re-assembling the instance disks.</p>
+<p>The <tt class="docutils literal"><span class="pre">--instance</span></tt>, <tt class="docutils literal"><span class="pre">--node</span></tt>, <tt class="docutils literal"><span class="pre">--primary</span></tt>, <tt class="docutils literal"><span class="pre">--secondary</span></tt>,
+<tt class="docutils literal"><span class="pre">--all</span></tt>, <tt class="docutils literal"><span class="pre">--tags</span></tt>, <tt class="docutils literal"><span class="pre">--node-tags</span></tt>, <tt class="docutils literal"><span class="pre">--pri-node-tags</span></tt> and
+<tt class="docutils literal"><span class="pre">--sec-node-tags</span></tt> options are similar as for the <strong>startup</strong> command
+and they influence the actual instances being rebooted.</p>
+<p>The <tt class="docutils literal"><span class="pre">--shutdown-timeout</span></tt> is used to specify how much time to wait
+before forcing the shutdown (xm destroy in xen, killing the kvm
+process, for kvm). By default two minutes are given to each instance
+to stop.</p>
+<p>The <tt class="docutils literal"><span class="pre">--force-multiple</span></tt> will skip the interactive confirmation in the
+case the more than one instance will be affected.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance reboot instance1.example.com</span>
+<span class="c"># gnt-instance reboot --type=full instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="console">
+<h4>CONSOLE<a class="headerlink" href="#console" title="Permalink to this headline">¶</a></h4>
+<p><strong>console</strong> [&#8211;show-cmd] {<em>instance</em>}</p>
+<p>Connects to the console of the given instance. If the instance is not
+up, an error is returned. Use the <tt class="docutils literal"><span class="pre">--show-cmd</span></tt> option to display the
+command instead of executing it.</p>
+<p>For HVM instances, this will attempt to connect to the serial console
+of the instance. To connect to the virtualized &#8220;physical&#8221; console of a
+HVM instance, use a VNC client with the connection info from the
+<strong>info</strong> command.</p>
+<p>For Xen/kvm instances, if the instance is paused, this attempts to
+unpause the instance after waiting a few seconds for the connection to
+the console to be made.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance console instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="disk-management">
+<h3>Disk management<a class="headerlink" href="#disk-management" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="replace-disks">
+<h4>REPLACE-DISKS<a class="headerlink" href="#replace-disks" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>replace-disks</strong> [&#8211;submit] [&#8211;print-job-id] [&#8211;early-release]</div>
+<div class="line">[&#8211;ignore-ipolicy] {-p} [&#8211;disks <em>idx</em>] {<em>instance</em>}</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>replace-disks</strong> [&#8211;submit] [&#8211;print-job-id] [&#8211;early-release]</div>
+<div class="line">[&#8211;ignore-ipolicy] {-s} [&#8211;disks <em>idx</em>] {<em>instance</em>}</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>replace-disks</strong> [&#8211;submit] [&#8211;print-job-id] [&#8211;early-release]</div>
+<div class="line">[&#8211;ignore-ipolicy]</div>
+<div class="line">{{-I|&#8211;iallocator} <em>name</em> | {{-n|&#8211;new-secondary} <em>node</em> } {<em>instance</em>}</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>replace-disks</strong> [&#8211;submit] [&#8211;print-job-id] [&#8211;early-release]</div>
+<div class="line">[&#8211;ignore-ipolicy] {-a|&#8211;auto} {<em>instance</em>}</div>
+</div>
+<p>This command is a generalized form for replacing disks. It is
+currently only valid for the mirrored (DRBD) disk template.</p>
+<p>The first form (when passing the <tt class="docutils literal"><span class="pre">-p</span></tt> option) will replace the disks
+on the primary, while the second form (when passing the <tt class="docutils literal"><span class="pre">-s</span></tt> option
+will replace the disks on the secondary node. For these two cases (as
+the node doesn&#8217;t change), it is possible to only run the replace for a
+subset of the disks, using the option <tt class="docutils literal"><span class="pre">--disks</span></tt> which takes a list
+of comma-delimited disk indices (zero-based), e.g. 0,2 to replace only
+the first and third disks.</p>
+<p>The third form (when passing either the <tt class="docutils literal"><span class="pre">--iallocator</span></tt> or the
+<tt class="docutils literal"><span class="pre">--new-secondary</span></tt> option) is designed to change secondary node of the
+instance. Specifying <tt class="docutils literal"><span class="pre">--iallocator</span></tt> makes the new secondary be
+selected automatically by the specified allocator plugin (use <tt class="docutils literal"><span class="pre">.</span></tt> to
+indicate the default allocator), otherwise the new secondary node will
+be the one chosen manually via the <tt class="docutils literal"><span class="pre">--new-secondary</span></tt> option.</p>
+<p>Note that it is not possible to select an offline or drained node as a
+new secondary.</p>
+<p>The fourth form (when using <tt class="docutils literal"><span class="pre">--auto</span></tt>) will automatically determine
+which disks of an instance are faulty and replace them within the same
+node. The <tt class="docutils literal"><span class="pre">--auto</span></tt> option works only when an instance has only
+faulty disks on either the primary or secondary node; it doesn&#8217;t work
+when both sides have faulty disks.</p>
+<p>The <tt class="docutils literal"><span class="pre">--early-release</span></tt> changes the code so that the old storage on
+secondary node(s) is removed early (before the resync is completed)
+and the internal Ganeti locks for the current (and new, if any)
+secondary node are also released, thus allowing more parallelism in
+the cluster operation. This should be used only when recovering from a
+disk failure on the current secondary (thus the old storage is already
+broken) or when the storage on the primary node is known to be fine
+(thus we won&#8217;t need the old storage for potential recovery).</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> let the command ignore instance policy
+violations if replace-disks changes groups and the instance would
+violate the new groups instance policy.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="activate-disks">
+<h4>ACTIVATE-DISKS<a class="headerlink" href="#activate-disks" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>activate-disks</strong> [&#8211;submit] [&#8211;print-job-id] [&#8211;ignore-size]</div>
+<div class="line">[&#8211;wait-for-sync] {<em>instance</em>}</div>
+</div>
+<p>Activates the block devices of the given instance. If successful, the
+command will show the location and name of the block devices:</p>
+<div class="highlight-python"><pre>node1.example.com:disk/0:/dev/drbd0
+node1.example.com:disk/1:/dev/drbd1</pre>
+</div>
+<p>In this example, <em>node1.example.com</em> is the name of the node on which
+the devices have been activated. The <em>disk/0</em> and <em>disk/1</em> are the
+Ganeti-names of the instance disks; how they are visible inside the
+instance is hypervisor-specific. <em>/dev/drbd0</em> and <em>/dev/drbd1</em> are the
+actual block devices as visible on the node.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-size</span></tt> option can be used to activate disks ignoring
+the currently configured size in Ganeti. This can be used in cases
+where the configuration has gotten out of sync with the real-world
+(e.g. after a partially-failed grow-disk operation or due to rounding
+in LVM devices). This should not be used in normal cases, but only
+when activate-disks fails without it.</p>
+<p>The <tt class="docutils literal"><span class="pre">--wait-for-sync</span></tt> option will ensure that the command returns only
+after the instance&#8217;s disks are synchronised (mostly for DRBD); this can
+be useful to ensure consistency, as otherwise there are no commands that
+can wait until synchronisation is done. However when passing this
+option, the command will have additional output, making it harder to
+parse the disk information.</p>
+<p>Note that it is safe to run this command while the instance is already
+running.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="deactivate-disks">
+<h4>DEACTIVATE-DISKS<a class="headerlink" href="#deactivate-disks" title="Permalink to this headline">¶</a></h4>
+<p><strong>deactivate-disks</strong> [-f] [&#8211;submit] [&#8211;print-job-id] {<em>instance</em>}</p>
+<p>De-activates the block devices of the given instance. Note that if you
+run this command for an instance with a drbd disk template, while it
+is running, it will not be able to shutdown the block devices on the
+primary node, but it will shutdown the block devices on the secondary
+nodes, thus breaking the replication.</p>
+<p>The <tt class="docutils literal"><span class="pre">-f</span></tt>/<tt class="docutils literal"><span class="pre">--force</span></tt> option will skip checks that the instance is
+down; in case the hypervisor is confused and we can&#8217;t talk to it,
+normally Ganeti will refuse to deactivate the disks, but with this
+option passed it will skip this check and directly try to deactivate
+the disks. This can still fail due to the instance actually running or
+other issues.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="grow-disk">
+<h4>GROW-DISK<a class="headerlink" href="#grow-disk" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>grow-disk</strong> [&#8211;no-wait-for-sync] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;absolute]</div>
+<div class="line">{<em>instance</em>} {<em>disk</em>} {<em>amount</em>}</div>
+</div>
+<p>Grows an instance&#8217;s disk. This is only possible for instances having a
+plain, drbd, file, sharedfile, rbd or ext disk template. For the ext
+template to work, the ExtStorage provider should also support growing.
+This means having a <tt class="docutils literal"><span class="pre">grow</span></tt> script that actually grows the volume of
+the external shared storage.</p>
+<p>Note that this command only change the block device size; it will not
+grow the actual filesystems, partitions, etc. that live on that
+disk. Usually, you will need to:</p>
+<ol class="arabic simple">
+<li>use <strong>gnt-instance grow-disk</strong></li>
+<li>reboot the instance (later, at a convenient time)</li>
+<li>use a filesystem resizer, such as <strong>ext2online</strong>(8) or
+<strong>xfs_growfs</strong>(8) to resize the filesystem, or use <strong>fdisk</strong>(8) to
+change the partition table on the disk</li>
+</ol>
+<p>The <em>disk</em> argument is the index of the instance disk to grow. The
+<em>amount</em> argument is given as a number which can have a suffix (like the
+disk size in instance create); if the suffix is missing, the value will
+be interpreted as mebibytes.</p>
+<p>By default, the <em>amount</em> value represents the desired increase in the
+disk size (e.g. an amount of 1G will take a disk of size 3G to 4G). If
+the optional <tt class="docutils literal"><span class="pre">--absolute</span></tt> parameter is passed, then the <em>amount</em>
+argument doesn&#8217;t represent the delta, but instead the desired final disk
+size (e.g. an amount of 8G will take a disk of size 4G to 8G).</p>
+<p>For instances with a drbd template, note that the disk grow operation
+might complete on one node but fail on the other; this will leave the
+instance with different-sized LVs on the two nodes, but this will not
+create problems (except for unused space).</p>
+<p>If you do not want gnt-instance to wait for the new disk region to be
+synced, use the <tt class="docutils literal"><span class="pre">--no-wait-for-sync</span></tt> option.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example (increase the first disk for instance1 by 16GiB):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance grow-disk instance1.example.com 0 16g</span>
+</pre></div>
+</div>
+<p>Example for increasing the disk size to a certain size:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance grow-disk --absolute instance1.example.com 0 32g</span>
+</pre></div>
+</div>
+<p>Also note that disk shrinking is not supported; use <strong>gnt-backup
+export</strong> and then <strong>gnt-backup import</strong> to reduce the disk size of an
+instance.</p>
+</div>
+<div class="section" id="recreate-disks">
+<h4>RECREATE-DISKS<a class="headerlink" href="#recreate-disks" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>recreate-disks</strong> [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[{-n node1:[node2] | {-I|&#8211;iallocator <em>name</em>}}]</div>
+<div class="line">[&#8211;disk=*N*[:[size=*VAL*][,spindles=*VAL*][,mode=*ro|rw*]]] {<em>instance</em>}</div>
+</div>
+<p>Recreates all or a subset of disks of the given instance.</p>
+<p>Note that this functionality should only be used for missing disks; if
+any of the given disks already exists, the operation will fail.  While
+this is suboptimal, recreate-disks should hopefully not be needed in
+normal operation and as such the impact of this is low.</p>
+<p>If only a subset should be recreated, any number of <tt class="docutils literal"><span class="pre">disk</span></tt> options can
+be specified. It expects a disk index and an optional list of disk
+parameters to change. Only <tt class="docutils literal"><span class="pre">size</span></tt>, <tt class="docutils literal"><span class="pre">spindles</span></tt>, and <tt class="docutils literal"><span class="pre">mode</span></tt> can be
+changed while recreating disks. To recreate all disks while changing
+parameters on a subset only, a <tt class="docutils literal"><span class="pre">--disk</span></tt> option must be given for every
+disk of the instance.</p>
+<p>Optionally the instance&#8217;s disks can be recreated on different
+nodes. This can be useful if, for example, the original nodes of the
+instance have gone down (and are marked offline), so we can&#8217;t recreate
+on the same nodes. To do this, pass the new node(s) via <tt class="docutils literal"><span class="pre">-n</span></tt> option,
+with a syntax similar to the <strong>add</strong> command. The number of nodes
+passed must equal the number of nodes that the instance currently
+has. Note that changing nodes is only allowed when all disks are
+replaced, e.g. when no <tt class="docutils literal"><span class="pre">--disk</span></tt> option is passed.</p>
+<p>Another method of choosing which nodes to place the instance on is by
+using the specified iallocator, passing the <tt class="docutils literal"><span class="pre">--iallocator</span></tt> option.
+The primary and secondary nodes will be chosen by the specified
+iallocator plugin, or by the default allocator if <tt class="docutils literal"><span class="pre">.</span></tt> is specified.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+</div>
+<div class="section" id="recovery-moving">
+<h3>Recovery/moving<a class="headerlink" href="#recovery-moving" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="failover">
+<h4>FAILOVER<a class="headerlink" href="#failover" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>failover</strong> [-f] [&#8211;ignore-consistency] [&#8211;ignore-ipolicy]</div>
+<div class="line">[&#8211;shutdown-timeout=*N*]</div>
+<div class="line">[{-n|&#8211;target-node} <em>node</em> | {-I|&#8211;iallocator} <em>name</em>]</div>
+<div class="line">[&#8211;cleanup]</div>
+<div class="line">[&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Failover will stop the instance (if running), change its primary node,
+and if it was originally running it will start it again (on the new
+primary). This works for instances with drbd template (in which case you
+can only fail to the secondary node) and for externally mirrored
+templates (sharedfile, blockdev, rbd and ext) (in which case you can
+fail to any other node).</p>
+<p>If the instance&#8217;s disk template is of type sharedfile, blockdev, rbd or
+ext, then you can explicitly specify the target node (which can be any
+node) using the <tt class="docutils literal"><span class="pre">-n</span></tt> or <tt class="docutils literal"><span class="pre">--target-node</span></tt> option, or specify an
+iallocator plugin using the <tt class="docutils literal"><span class="pre">-I</span></tt> or <tt class="docutils literal"><span class="pre">--iallocator</span></tt> option. If you
+omit both, the default iallocator will be used to specify the target
+node.</p>
+<p>If the instance&#8217;s disk template is of type drbd, the target node is
+automatically selected as the drbd&#8217;s secondary node. Changing the
+secondary node is possible with a replace-disks operation.</p>
+<p>Normally the failover will check the consistency of the disks before
+failing over the instance. If you are trying to migrate instances off
+a dead node, this will fail. Use the <tt class="docutils literal"><span class="pre">--ignore-consistency</span></tt> option
+for this purpose. Note that this option can be dangerous as errors in
+shutting down the instance will be ignored, resulting in possibly
+having the instance running on two machines in parallel (on
+disconnected DRBD drives).</p>
+<p>The <tt class="docutils literal"><span class="pre">--shutdown-timeout</span></tt> is used to specify how much time to wait
+before forcing the shutdown (xm destroy in xen, killing the kvm
+process, for kvm). By default two minutes are given to each instance
+to stop.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--cleanup</span></tt> option is passed, the operation changes from
+performin a failover to attempting recovery from a failed previous failover.
+In this mode, Ganeti checks if the instance runs on the correct node (and
+updates its configuration if not) and ensures the instances&#8217; disks
+are configured correctly.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance failover instance1.example.com</span>
+</pre></div>
+</div>
+<p>For externally mirrored templates also <tt class="docutils literal"><span class="pre">-n</span></tt> is available:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance failover -n node3.example.com instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="migrate">
+<h4>MIGRATE<a class="headerlink" href="#migrate" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>migrate</strong> [-f] [&#8211;allow-failover] [&#8211;non-live]</div>
+<div class="line">[&#8211;migration-mode=live|non-live] [&#8211;ignore-ipolicy]</div>
+<div class="line">[&#8211;no-runtime-changes] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[{-n|&#8211;target-node} <em>node</em> | {-I|&#8211;iallocator} <em>name</em>] {<em>instance</em>}</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>migrate</strong> [-f] &#8211;cleanup [&#8211;submit] [&#8211;print-job-id] {<em>instance</em>}</div>
+</div>
+<p>Migrate will move the instance to its secondary node without shutdown.
+As with failover, it works for instances having the drbd disk template
+or an externally mirrored disk template type such as sharedfile,
+blockdev, rbd or ext.</p>
+<p>If the instance&#8217;s disk template is of type sharedfile, blockdev, rbd or
+ext, then you can explicitly specify the target node (which can be any
+node) using the <tt class="docutils literal"><span class="pre">-n</span></tt> or <tt class="docutils literal"><span class="pre">--target-node</span></tt> option, or specify an
+iallocator plugin using the <tt class="docutils literal"><span class="pre">-I</span></tt> or <tt class="docutils literal"><span class="pre">--iallocator</span></tt> option. If you
+omit both, the default iallocator will be used to specify the target
+node.  Alternatively, the default iallocator can be requested by
+specifying <tt class="docutils literal"><span class="pre">.</span></tt> as the name of the plugin.</p>
+<p>If the instance&#8217;s disk template is of type drbd, the target node is
+automatically selected as the drbd&#8217;s secondary node. Changing the
+secondary node is possible with a replace-disks operation.</p>
+<p>The migration command needs a perfectly healthy instance for drbd
+instances, as we rely on the dual-master capability of drbd8 and the
+disks of the instance are not allowed to be degraded.</p>
+<p>The <tt class="docutils literal"><span class="pre">--non-live</span></tt> and <tt class="docutils literal"><span class="pre">--migration-mode=non-live</span></tt> options will
+switch (for the hypervisors that support it) between a &#8220;fully live&#8221;
+(i.e. the interruption is as minimal as possible) migration and one in
+which the instance is frozen, its state saved and transported to the
+remote node, and then resumed there. This all depends on the
+hypervisor support for two different methods. In any case, it is not
+an error to pass this parameter (it will just be ignored if the
+hypervisor doesn&#8217;t support it). The option <tt class="docutils literal"><span class="pre">--migration-mode=live</span></tt>
+option will request a fully-live migration. The default, when neither
+option is passed, depends on the hypervisor parameters (and can be
+viewed with the <strong>gnt-cluster info</strong> command).</p>
+<p>If the <tt class="docutils literal"><span class="pre">--cleanup</span></tt> option is passed, the operation changes from
+migration to attempting recovery from a failed previous migration. In
+this mode, Ganeti checks if the instance runs on the correct node (and
+updates its configuration if not) and ensures the instances&#8217; disks
+are configured correctly. In this mode, the <tt class="docutils literal"><span class="pre">--non-live</span></tt> option is
+ignored.</p>
+<p>The option <tt class="docutils literal"><span class="pre">-f</span></tt> will skip the prompting for confirmation.</p>
+<p>If <tt class="docutils literal"><span class="pre">--allow-failover</span></tt> is specified it tries to fallback to failover if
+it already can determine that a migration won&#8217;t work (e.g. if the
+instance is shut down). Please note that the fallback will not happen
+during execution. If a migration fails during execution it still fails.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-runtime-changes</span></tt> option forbids migrate to alter an
+instance&#8217;s runtime before migrating it (eg. ballooning an instance
+down because the target node doesn&#8217;t have enough available memory).</p>
+<p>If an instance has the backend parameter <tt class="docutils literal"><span class="pre">always_failover</span></tt> set to
+true, then the migration is automatically converted into a failover.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example (and expected output):</p>
+<div class="highlight-python"><pre># gnt-instance migrate instance1
+Instance instance1 will be migrated. Note that migration
+might impact the instance if anything goes wrong (e.g. due to bugs in
+the hypervisor). Continue?
+y/[n]/?: y
+Migrating instance instance1.example.com
+* checking disk consistency between source and target
+* switching node node2.example.com to secondary mode
+* changing into standalone mode
+* changing disks into dual-master mode
+* wait until resync is done
+* preparing node2.example.com to accept the instance
+* migrating instance to node2.example.com
+* switching node node1.example.com to secondary mode
+* wait until resync is done
+* changing into standalone mode
+* changing disks into single-master mode
+* wait until resync is done
+* done
+#</pre>
+</div>
+</div>
+<div class="section" id="move">
+<h4>MOVE<a class="headerlink" href="#move" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>move</strong> [-f] [&#8211;ignore-consistency]</div>
+<div class="line">[-n <em>node</em>] [&#8211;shutdown-timeout=*N*] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;ignore-ipolicy]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Move will move the instance to an arbitrary node in the cluster. This
+works only for instances having a plain or file disk template.</p>
+<p>Note that since this operation is done via data copy, it will take a
+long time for big disks (similar to replace-disks for a drbd
+instance).</p>
+<p>The <tt class="docutils literal"><span class="pre">--shutdown-timeout</span></tt> is used to specify how much time to wait
+before forcing the shutdown (e.g. <tt class="docutils literal"><span class="pre">xm</span> <span class="pre">destroy</span></tt> in XEN, killing the
+kvm process for KVM, etc.). By default two minutes are given to each
+instance to stop.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-consistency</span></tt> option will make Ganeti ignore any errors
+in trying to shutdown the instance on its node; useful if the
+hypervisor is broken and you want to recover the data.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance move -n node3.example.com instance1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="change-group">
+<h4>CHANGE-GROUP<a class="headerlink" href="#change-group" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><strong>change-group</strong> [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[&#8211;iallocator <em>NAME</em>] [&#8211;to <em>GROUP</em>...] {<em>instance</em>}</div>
+</div>
+<p>This command moves an instance to another node group. The move is
+calculated by an iallocator, either given on the command line or as a
+cluster default. Note that the iallocator does only consider disk
+information of the default disk template, even if the instances&#8217;
+disk templates differ from that.</p>
+<p>If no specific destination groups are specified using <tt class="docutils literal"><span class="pre">--to</span></tt>, all
+groups except the one containing the instance are considered.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance change-group -I hail --to rack2 inst1.example.com</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="tags">
+<h3>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="add-tags">
+<h4>ADD-TAGS<a class="headerlink" href="#add-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>add-tags</strong> [&#8211;from <em>file</em>] {<em>instancename</em>} {<em>tag</em>...}</p>
+<p>Add tags to the given instance. If any of the tags contains invalid
+characters, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags will be extended
+with the contents of that file (each line becomes a tag).  In this
+case, there is not need to pass tags on the command line (if you do,
+both sources will be used). A file name of <tt class="docutils literal"><span class="pre">-</span></tt> will be interpreted
+as stdin.</p>
+</div>
+<div class="section" id="list-tags">
+<h4>LIST-TAGS<a class="headerlink" href="#list-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>list-tags</strong> {<em>instancename</em>}</p>
+<p>List the tags of the given instance.</p>
+</div>
+<div class="section" id="remove-tags">
+<h4>REMOVE-TAGS<a class="headerlink" href="#remove-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>remove-tags</strong> [&#8211;from <em>file</em>] {<em>instancename</em>} {<em>tag</em>...}</p>
+<p>Remove tags from the given instance. If any of the tags are not
+existing on the node, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags to be removed will
+be extended with the contents of that file (each line becomes a tag).
+In this case, there is not need to pass tags on the command line (if
+you do, tags from both sources will be removed). A file name of <tt class="docutils literal"><span class="pre">-</span></tt>
+will be interpreted as stdin.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gnt-instance</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#commands">COMMANDS</a><ul>
+<li><a class="reference internal" href="#creation-removal-querying">Creation/removal/querying</a><ul>
+<li><a class="reference internal" href="#add">ADD</a></li>
+<li><a class="reference internal" href="#batch-create">BATCH-CREATE</a></li>
+<li><a class="reference internal" href="#remove">REMOVE</a></li>
+<li><a class="reference internal" href="#list">LIST</a></li>
+<li><a class="reference internal" href="#list-fields">LIST-FIELDS</a></li>
+<li><a class="reference internal" href="#info">INFO</a></li>
+<li><a class="reference internal" href="#modify">MODIFY</a></li>
+<li><a class="reference internal" href="#reinstall">REINSTALL</a></li>
+<li><a class="reference internal" href="#rename">RENAME</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#starting-stopping-connecting-to-console">Starting/stopping/connecting to console</a><ul>
+<li><a class="reference internal" href="#startup">STARTUP</a></li>
+<li><a class="reference internal" href="#shutdown">SHUTDOWN</a></li>
+<li><a class="reference internal" href="#reboot">REBOOT</a></li>
+<li><a class="reference internal" href="#console">CONSOLE</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#disk-management">Disk management</a><ul>
+<li><a class="reference internal" href="#replace-disks">REPLACE-DISKS</a></li>
+<li><a class="reference internal" href="#activate-disks">ACTIVATE-DISKS</a></li>
+<li><a class="reference internal" href="#deactivate-disks">DEACTIVATE-DISKS</a></li>
+<li><a class="reference internal" href="#grow-disk">GROW-DISK</a></li>
+<li><a class="reference internal" href="#recreate-disks">RECREATE-DISKS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#recovery-moving">Recovery/moving</a><ul>
+<li><a class="reference internal" href="#failover">FAILOVER</a></li>
+<li><a class="reference internal" href="#migrate">MIGRATE</a></li>
+<li><a class="reference internal" href="#move">MOVE</a></li>
+<li><a class="reference internal" href="#change-group">CHANGE-GROUP</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tags">Tags</a><ul>
+<li><a class="reference internal" href="#add-tags">ADD-TAGS</a></li>
+<li><a class="reference internal" href="#list-tags">LIST-TAGS</a></li>
+<li><a class="reference internal" href="#remove-tags">REMOVE-TAGS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-gnt-group.html"
+                        title="previous chapter">gnt-group</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-job.html"
+                        title="next chapter">gnt-job</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-gnt-instance.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-job.html" title="gnt-job"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-gnt-group.html" title="gnt-group"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

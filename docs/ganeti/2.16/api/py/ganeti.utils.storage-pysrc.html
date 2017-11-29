@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.utils.storage</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.utils-module.html">Package&nbsp;utils</a> ::
+        Module&nbsp;storage
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.utils.storage-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.utils.storage-module.html">Module ganeti.utils.storage</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">"""Utility functions for storage.</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-3', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-5" class="py-name" targets="Module ganeti.config.utils=ganeti.config.utils-module.html,Package ganeti.utils=ganeti.utils-module.html"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-5', 'utils', 'link-5');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Module ganeti.utils.io=ganeti.utils.io-module.html"><a title="ganeti.utils.io" class="py-name" href="#" onclick="return doclink('link-6', 'io', 'link-6');">io</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">utils_io</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-7', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-8" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-8', 'utils', 'link-5');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Module ganeti.utils.process=ganeti.utils.process-module.html"><a title="ganeti.utils.process" class="py-name" href="#" onclick="return doclink('link-9', 'process', 'link-9');">process</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">utils_process</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="GetDiskTemplatesOfStorageTypes"></a><div id="GetDiskTemplatesOfStorageTypes-def"><a name="L42"></a><tt class="py-lineno"> 42</tt> <a class="py-toggle" href="#" id="GetDiskTemplatesOfStorageTypes-toggle" onclick="return toggle('GetDiskTemplatesOfStorageTypes');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#GetDiskTemplatesOfStorageTypes">GetDiskTemplatesOfStorageTypes</a><tt class="py-op">(</tt><tt class="py-op">*</tt><tt class="py-param">storage_types</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetDiskTemplatesOfStorageTypes-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetDiskTemplatesOfStorageTypes-expanded"><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">  <tt class="py-docstring">"""Given the storage type, returns a list of disk templates based on that</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-docstring">     storage type."""</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-op">[</tt><tt class="py-name">dt</tt> <tt class="py-keyword">for</tt> <tt class="py-name">dt</tt> <tt class="py-keyword">in</tt> <tt id="link-10" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-10', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Variable ganeti._constants.DISK_TEMPLATES=ganeti._constants-module.html#DISK_TEMPLATES"><a title="ganeti._constants.DISK_TEMPLATES" class="py-name" href="#" onclick="return doclink('link-11', 'DISK_TEMPLATES', 'link-11');">DISK_TEMPLATES</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">          <tt class="py-keyword">if</tt> <tt id="link-12" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-12', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Variable ganeti._constants.MAP_DISK_TEMPLATE_STORAGE_TYPE=ganeti._constants-module.html#MAP_DISK_TEMPLATE_STORAGE_TYPE"><a title="ganeti._constants.MAP_DISK_TEMPLATE_STORAGE_TYPE" class="py-name" href="#" onclick="return doclink('link-13', 'MAP_DISK_TEMPLATE_STORAGE_TYPE', 'link-13');">MAP_DISK_TEMPLATE_STORAGE_TYPE</a></tt><tt class="py-op">[</tt><tt class="py-name">dt</tt><tt class="py-op">]</tt> <tt class="py-keyword">in</tt> <tt class="py-name">storage_types</tt><tt class="py-op">]</tt> </tt>
+</div><a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="IsDiskTemplateEnabled"></a><div id="IsDiskTemplateEnabled-def"><a name="L49"></a><tt class="py-lineno"> 49</tt> <a class="py-toggle" href="#" id="IsDiskTemplateEnabled-toggle" onclick="return toggle('IsDiskTemplateEnabled');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#IsDiskTemplateEnabled">IsDiskTemplateEnabled</a><tt class="py-op">(</tt><tt class="py-param">disk_template</tt><tt class="py-op">,</tt> <tt class="py-param">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IsDiskTemplateEnabled-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IsDiskTemplateEnabled-expanded"><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if a particular disk template is enabled.</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">disk_template</tt> <tt class="py-keyword">in</tt> <tt class="py-name">enabled_disk_templates</tt> </tt>
+</div><a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="IsFileStorageEnabled"></a><div id="IsFileStorageEnabled-def"><a name="L56"></a><tt class="py-lineno"> 56</tt> <a class="py-toggle" href="#" id="IsFileStorageEnabled-toggle" onclick="return toggle('IsFileStorageEnabled');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#IsFileStorageEnabled">IsFileStorageEnabled</a><tt class="py-op">(</tt><tt class="py-param">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IsFileStorageEnabled-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IsFileStorageEnabled-expanded"><a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if file storage is enabled.</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-14" class="py-name" targets="Method ganeti.objects.Cluster.IsDiskTemplateEnabled()=ganeti.objects.Cluster-class.html#IsDiskTemplateEnabled,Function ganeti.utils.storage.IsDiskTemplateEnabled()=ganeti.utils.storage-module.html#IsDiskTemplateEnabled"><a title="ganeti.objects.Cluster.IsDiskTemplateEnabled
+ganeti.utils.storage.IsDiskTemplateEnabled" class="py-name" href="#" onclick="return doclink('link-14', 'IsDiskTemplateEnabled', 'link-14');">IsDiskTemplateEnabled</a></tt><tt class="py-op">(</tt><tt id="link-15" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-15', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Variable ganeti._constants.DT_FILE=ganeti._constants-module.html#DT_FILE"><a title="ganeti._constants.DT_FILE" class="py-name" href="#" onclick="return doclink('link-16', 'DT_FILE', 'link-16');">DT_FILE</a></tt><tt class="py-op">,</tt> <tt class="py-name">enabled_disk_templates</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"> </tt>
+<a name="IsSharedFileStorageEnabled"></a><div id="IsSharedFileStorageEnabled-def"><a name="L63"></a><tt class="py-lineno"> 63</tt> <a class="py-toggle" href="#" id="IsSharedFileStorageEnabled-toggle" onclick="return toggle('IsSharedFileStorageEnabled');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#IsSharedFileStorageEnabled">IsSharedFileStorageEnabled</a><tt class="py-op">(</tt><tt class="py-param">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IsSharedFileStorageEnabled-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IsSharedFileStorageEnabled-expanded"><a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if shared file storage is enabled.</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-17" class="py-name"><a title="ganeti.objects.Cluster.IsDiskTemplateEnabled
+ganeti.utils.storage.IsDiskTemplateEnabled" class="py-name" href="#" onclick="return doclink('link-17', 'IsDiskTemplateEnabled', 'link-14');">IsDiskTemplateEnabled</a></tt><tt class="py-op">(</tt><tt id="link-18" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-18', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Variable ganeti._constants.DT_SHARED_FILE=ganeti._constants-module.html#DT_SHARED_FILE"><a title="ganeti._constants.DT_SHARED_FILE" class="py-name" href="#" onclick="return doclink('link-19', 'DT_SHARED_FILE', 'link-19');">DT_SHARED_FILE</a></tt><tt class="py-op">,</tt> <tt class="py-name">enabled_disk_templates</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"> </tt>
+<a name="IsLvmEnabled"></a><div id="IsLvmEnabled-def"><a name="L70"></a><tt class="py-lineno"> 70</tt> <a class="py-toggle" href="#" id="IsLvmEnabled-toggle" onclick="return toggle('IsLvmEnabled');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#IsLvmEnabled">IsLvmEnabled</a><tt class="py-op">(</tt><tt class="py-param">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="IsLvmEnabled-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="IsLvmEnabled-expanded"><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">  <tt class="py-docstring">"""Check whether or not any lvm-based disk templates are enabled."""</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt id="link-20" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-20', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-21" class="py-name" targets="Variable ganeti._constants.DTS_LVM=ganeti._constants-module.html#DTS_LVM"><a title="ganeti._constants.DTS_LVM" class="py-name" href="#" onclick="return doclink('link-21', 'DTS_LVM', 'link-21');">DTS_LVM</a></tt> <tt class="py-op">&amp;</tt> <tt class="py-name">set</tt><tt class="py-op">(</tt><tt class="py-name">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">0</tt> </tt>
+</div><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="LvmGetsEnabled"></a><div id="LvmGetsEnabled-def"><a name="L75"></a><tt class="py-lineno"> 75</tt> <a class="py-toggle" href="#" id="LvmGetsEnabled-toggle" onclick="return toggle('LvmGetsEnabled');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#LvmGetsEnabled">LvmGetsEnabled</a><tt class="py-op">(</tt><tt class="py-param">enabled_disk_templates</tt><tt class="py-op">,</tt> <tt class="py-param">new_enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LvmGetsEnabled-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LvmGetsEnabled-expanded"><a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks whether lvm was not enabled before, but will be enabled after</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">     the operation.</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt id="link-22" class="py-name" targets="Function ganeti.utils.storage.IsLvmEnabled()=ganeti.utils.storage-module.html#IsLvmEnabled"><a title="ganeti.utils.storage.IsLvmEnabled" class="py-name" href="#" onclick="return doclink('link-22', 'IsLvmEnabled', 'link-22');">IsLvmEnabled</a></tt><tt class="py-op">(</tt><tt class="py-name">enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt id="link-23" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-23', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-24" class="py-name"><a title="ganeti._constants.DTS_LVM" class="py-name" href="#" onclick="return doclink('link-24', 'DTS_LVM', 'link-21');">DTS_LVM</a></tt> <tt class="py-op">&amp;</tt> <tt class="py-name">set</tt><tt class="py-op">(</tt><tt class="py-name">new_enabled_disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">0</tt> </tt>
+</div><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"> </tt>
+<a name="_GetDefaultStorageUnitForDiskTemplate"></a><div id="_GetDefaultStorageUnitForDiskTemplate-def"><a name="L85"></a><tt class="py-lineno"> 85</tt> <a class="py-toggle" href="#" id="_GetDefaultStorageUnitForDiskTemplate-toggle" onclick="return toggle('_GetDefaultStorageUnitForDiskTemplate');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#_GetDefaultStorageUnitForDiskTemplate">_GetDefaultStorageUnitForDiskTemplate</a><tt class="py-op">(</tt><tt class="py-param">cfg</tt><tt class="py-op">,</tt> <tt class="py-param">disk_template</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_GetDefaultStorageUnitForDiskTemplate-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_GetDefaultStorageUnitForDiskTemplate-expanded"><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">  <tt class="py-docstring">"""Retrieves the identifier of the default storage entity for the given</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-docstring">  storage type.</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring">  @type cfg: C{objects.ConfigData}</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">  @param cfg: the configuration data</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">  @type disk_template: string</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">  @param disk_template: a disk template, for example 'drbd'</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: string</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">  @return: identifier for a storage unit, for example the vg_name for lvm</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">     storage</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">  <tt class="py-name">storage_type</tt> <tt class="py-op">=</tt> <tt id="link-25" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-25', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-26" class="py-name"><a title="ganeti._constants.MAP_DISK_TEMPLATE_STORAGE_TYPE" class="py-name" href="#" onclick="return doclink('link-26', 'MAP_DISK_TEMPLATE_STORAGE_TYPE', 'link-13');">MAP_DISK_TEMPLATE_STORAGE_TYPE</a></tt><tt class="py-op">[</tt><tt class="py-name">disk_template</tt><tt class="py-op">]</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">  <tt id="link-27" class="py-name" targets="Package ganeti.cmdlib.cluster=ganeti.cmdlib.cluster-module.html"><a title="ganeti.cmdlib.cluster" class="py-name" href="#" onclick="return doclink('link-27', 'cluster', 'link-27');">cluster</a></tt> <tt class="py-op">=</tt> <tt class="py-name">cfg</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name" targets="Method ganeti.config.ConfigWriter.GetClusterInfo()=ganeti.config.ConfigWriter-class.html#GetClusterInfo"><a title="ganeti.config.ConfigWriter.GetClusterInfo" class="py-name" href="#" onclick="return doclink('link-28', 'GetClusterInfo', 'link-28');">GetClusterInfo</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">disk_template</tt> <tt class="py-keyword">in</tt> <tt id="link-29" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-29', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-30" class="py-name"><a title="ganeti._constants.DTS_LVM" class="py-name" href="#" onclick="return doclink('link-30', 'DTS_LVM', 'link-21');">DTS_LVM</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">storage_type</tt><tt class="py-op">,</tt> <tt class="py-name">cfg</tt><tt class="py-op">.</tt><tt id="link-31" class="py-name" targets="Method ganeti.config.ConfigWriter.GetVGName()=ganeti.config.ConfigWriter-class.html#GetVGName"><a title="ganeti.config.ConfigWriter.GetVGName" class="py-name" href="#" onclick="return doclink('link-31', 'GetVGName', 'link-31');">GetVGName</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">  <tt class="py-keyword">elif</tt> <tt class="py-name">disk_template</tt> <tt class="py-op">==</tt> <tt id="link-32" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-32', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-33" class="py-name"><a title="ganeti._constants.DT_FILE" class="py-name" href="#" onclick="return doclink('link-33', 'DT_FILE', 'link-16');">DT_FILE</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">storage_type</tt><tt class="py-op">,</tt> <tt id="link-34" class="py-name"><a title="ganeti.cmdlib.cluster" class="py-name" href="#" onclick="return doclink('link-34', 'cluster', 'link-27');">cluster</a></tt><tt class="py-op">.</tt><tt class="py-name">file_storage_dir</tt><tt class="py-op">)</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">  <tt class="py-keyword">elif</tt> <tt class="py-name">disk_template</tt> <tt class="py-op">==</tt> <tt id="link-35" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-35', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-36" class="py-name"><a title="ganeti._constants.DT_SHARED_FILE" class="py-name" href="#" onclick="return doclink('link-36', 'DT_SHARED_FILE', 'link-19');">DT_SHARED_FILE</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">storage_type</tt><tt class="py-op">,</tt> <tt id="link-37" class="py-name"><a title="ganeti.cmdlib.cluster" class="py-name" href="#" onclick="return doclink('link-37', 'cluster', 'link-27');">cluster</a></tt><tt class="py-op">.</tt><tt class="py-name">shared_file_storage_dir</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">  <tt class="py-keyword">elif</tt> <tt class="py-name">disk_template</tt> <tt class="py-op">==</tt> <tt id="link-38" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-38', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-39" class="py-name" targets="Variable ganeti._constants.DT_GLUSTER=ganeti._constants-module.html#DT_GLUSTER"><a title="ganeti._constants.DT_GLUSTER" class="py-name" href="#" onclick="return doclink('link-39', 'DT_GLUSTER', 'link-39');">DT_GLUSTER</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">storage_type</tt><tt class="py-op">,</tt> <tt id="link-40" class="py-name"><a title="ganeti.cmdlib.cluster" class="py-name" href="#" onclick="return doclink('link-40', 'cluster', 'link-27');">cluster</a></tt><tt class="py-op">.</tt><tt class="py-name">gluster_storage_dir</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">storage_type</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"> </tt>
+<a name="DiskTemplateSupportsSpaceReporting"></a><div id="DiskTemplateSupportsSpaceReporting-def"><a name="L112"></a><tt class="py-lineno">112</tt> <a class="py-toggle" href="#" id="DiskTemplateSupportsSpaceReporting-toggle" onclick="return toggle('DiskTemplateSupportsSpaceReporting');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#DiskTemplateSupportsSpaceReporting">DiskTemplateSupportsSpaceReporting</a><tt class="py-op">(</tt><tt class="py-param">disk_template</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="DiskTemplateSupportsSpaceReporting-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="DiskTemplateSupportsSpaceReporting-expanded"><a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">  <tt class="py-docstring">"""Check whether the disk template supports storage space reporting."""</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt id="link-41" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-41', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-42" class="py-name"><a title="ganeti._constants.MAP_DISK_TEMPLATE_STORAGE_TYPE" class="py-name" href="#" onclick="return doclink('link-42', 'MAP_DISK_TEMPLATE_STORAGE_TYPE', 'link-13');">MAP_DISK_TEMPLATE_STORAGE_TYPE</a></tt><tt class="py-op">[</tt><tt class="py-name">disk_template</tt><tt class="py-op">]</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">          <tt class="py-keyword">in</tt> <tt id="link-43" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-43', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-44" class="py-name" targets="Variable ganeti._constants.STS_REPORT=ganeti._constants-module.html#STS_REPORT"><a title="ganeti._constants.STS_REPORT" class="py-name" href="#" onclick="return doclink('link-44', 'STS_REPORT', 'link-44');">STS_REPORT</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"> </tt>
+<a name="GetStorageUnits"></a><div id="GetStorageUnits-def"><a name="L118"></a><tt class="py-lineno">118</tt> <a class="py-toggle" href="#" id="GetStorageUnits-toggle" onclick="return toggle('GetStorageUnits');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#GetStorageUnits">GetStorageUnits</a><tt class="py-op">(</tt><tt class="py-param">cfg</tt><tt class="py-op">,</tt> <tt class="py-param">disk_templates</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetStorageUnits-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetStorageUnits-expanded"><a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">  <tt class="py-docstring">"""Get the cluster's storage units for the given disk templates.</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">  If any lvm-based disk template is requested, spindle information</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">  is added to the request.</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">  @type cfg: L{config.ConfigWriter}</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt class="py-docstring">  @param cfg: Cluster configuration</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-docstring">  @type disk_templates: list of string</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"><tt class="py-docstring">  @param disk_templates: list of disk templates for which the storage</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">    units will be computed</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: list of tuples (string, string)</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">  @return: list of storage units, each storage unit being a tuple of</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">    (storage_type, storage_key); storage_type is in</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">    C{constants.STORAGE_TYPES} and the storage_key a string to</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring">    identify an entity of that storage type, for example a volume group</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">    name for LVM storage or a file for file storage.</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">  <tt class="py-name">storage_units</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">disk_template</tt> <tt class="py-keyword">in</tt> <tt class="py-name">disk_templates</tt><tt class="py-op">:</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-45" class="py-name" targets="Function ganeti.utils.storage.DiskTemplateSupportsSpaceReporting()=ganeti.utils.storage-module.html#DiskTemplateSupportsSpaceReporting"><a title="ganeti.utils.storage.DiskTemplateSupportsSpaceReporting" class="py-name" href="#" onclick="return doclink('link-45', 'DiskTemplateSupportsSpaceReporting', 'link-45');">DiskTemplateSupportsSpaceReporting</a></tt><tt class="py-op">(</tt><tt class="py-name">disk_template</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">      <tt class="py-name">storage_units</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">          <tt id="link-46" class="py-name" targets="Function ganeti.utils.storage._GetDefaultStorageUnitForDiskTemplate()=ganeti.utils.storage-module.html#_GetDefaultStorageUnitForDiskTemplate"><a title="ganeti.utils.storage._GetDefaultStorageUnitForDiskTemplate" class="py-name" href="#" onclick="return doclink('link-46', '_GetDefaultStorageUnitForDiskTemplate', 'link-46');">_GetDefaultStorageUnitForDiskTemplate</a></tt><tt class="py-op">(</tt><tt class="py-name">cfg</tt><tt class="py-op">,</tt> <tt class="py-name">disk_template</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">storage_units</tt> </tt>
+</div><a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"> </tt>
+<a name="LookupSpaceInfoByDiskTemplate"></a><div id="LookupSpaceInfoByDiskTemplate-def"><a name="L145"></a><tt class="py-lineno">145</tt> <a class="py-toggle" href="#" id="LookupSpaceInfoByDiskTemplate-toggle" onclick="return toggle('LookupSpaceInfoByDiskTemplate');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#LookupSpaceInfoByDiskTemplate">LookupSpaceInfoByDiskTemplate</a><tt class="py-op">(</tt><tt class="py-param">storage_space_info</tt><tt class="py-op">,</tt> <tt class="py-param">disk_template</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LookupSpaceInfoByDiskTemplate-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LookupSpaceInfoByDiskTemplate-expanded"><a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">  <tt class="py-docstring">"""Looks up the storage space info for a given disk template.</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">  @type storage_space_info: list of dicts</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">  @param storage_space_info: result of C{GetNodeInfo}</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">  @type disk_template: string</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">  @param disk_template: disk template to get storage space info</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: tuple</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"><tt class="py-docstring">  @return: returns the element of storage_space_info that matches the given</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"><tt class="py-docstring">    disk template</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">  <tt class="py-name">storage_type</tt> <tt class="py-op">=</tt> <tt id="link-47" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-47', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-48" class="py-name"><a title="ganeti._constants.MAP_DISK_TEMPLATE_STORAGE_TYPE" class="py-name" href="#" onclick="return doclink('link-48', 'MAP_DISK_TEMPLATE_STORAGE_TYPE', 'link-13');">MAP_DISK_TEMPLATE_STORAGE_TYPE</a></tt><tt class="py-op">[</tt><tt class="py-name">disk_template</tt><tt class="py-op">]</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-49" class="py-name" targets="Function ganeti.utils.storage.LookupSpaceInfoByStorageType()=ganeti.utils.storage-module.html#LookupSpaceInfoByStorageType"><a title="ganeti.utils.storage.LookupSpaceInfoByStorageType" class="py-name" href="#" onclick="return doclink('link-49', 'LookupSpaceInfoByStorageType', 'link-49');">LookupSpaceInfoByStorageType</a></tt><tt class="py-op">(</tt><tt class="py-name">storage_space_info</tt><tt class="py-op">,</tt> <tt class="py-name">storage_type</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"> </tt>
+<a name="LookupSpaceInfoByStorageType"></a><div id="LookupSpaceInfoByStorageType-def"><a name="L161"></a><tt class="py-lineno">161</tt> <a class="py-toggle" href="#" id="LookupSpaceInfoByStorageType-toggle" onclick="return toggle('LookupSpaceInfoByStorageType');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#LookupSpaceInfoByStorageType">LookupSpaceInfoByStorageType</a><tt class="py-op">(</tt><tt class="py-param">storage_space_info</tt><tt class="py-op">,</tt> <tt class="py-param">storage_type</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="LookupSpaceInfoByStorageType-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="LookupSpaceInfoByStorageType-expanded"><a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">  <tt class="py-docstring">"""Looks up the storage space info for a given storage type.</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"><tt class="py-docstring">  Note that this lookup can be ambiguous if storage space reporting for several</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"><tt class="py-docstring">  units of the same storage type was requested. This function is only supposed</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"><tt class="py-docstring">  to be used for legacy code in situations where it actually is unambiguous.</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-docstring">  @type storage_space_info: list of dicts</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring">  @param storage_space_info: result of C{GetNodeInfo}</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"><tt class="py-docstring">  @type storage_type: string</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring">  @param storage_type: a storage type, which is included in the storage_units</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"><tt class="py-docstring">    list</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: tuple</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"><tt class="py-docstring">  @return: returns the element of storage_space_info that matches the given</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line"><tt class="py-docstring">    storage type</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">unit_info</tt> <tt class="py-keyword">in</tt> <tt class="py-name">storage_space_info</tt><tt class="py-op">:</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">unit_info</tt><tt class="py-op">[</tt><tt class="py-string">"type"</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-name">storage_type</tt><tt class="py-op">:</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">result</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line">        <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">unit_info</tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line">        <tt class="py-comment"># There is more than one storage type in the query, log a warning</tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line">        <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">warning</tt><tt class="py-op">(</tt><tt class="py-string">"Storage space information requested for"</tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line">                        <tt class="py-string">" ambiguous storage type '%s'."</tt><tt class="py-op">,</tt> <tt class="py-name">storage_type</tt><tt class="py-op">)</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">result</tt> </tt>
+</div><a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"> </tt>
+<a name="GetDiskLabels"></a><div id="GetDiskLabels-def"><a name="L190"></a><tt class="py-lineno">190</tt> <a class="py-toggle" href="#" id="GetDiskLabels-toggle" onclick="return toggle('GetDiskLabels');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#GetDiskLabels">GetDiskLabels</a><tt class="py-op">(</tt><tt class="py-param">prefix</tt><tt class="py-op">,</tt> <tt class="py-param">num_disks</tt><tt class="py-op">,</tt> <tt class="py-param">start</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetDiskLabels-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetDiskLabels-expanded"><a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line">  <tt class="py-docstring">"""Generate disk labels for a number of disks</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line"><tt class="py-docstring">  Note that disk labels are generated in the range [start..num_disks[</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line"><tt class="py-docstring">  (e.g., as in range(start, num_disks))</tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line"><tt class="py-docstring">  @type prefix: string</tt> </tt>
+<a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"><tt class="py-docstring">  @param prefix: disk label prefix (e.g., "/dev/sd")</tt> </tt>
+<a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line"><tt class="py-docstring">  @type num_disks: int</tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line"><tt class="py-docstring">  @param num_disks: number of disks (i.e., disk labels)</tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line"><tt class="py-docstring">  @type start: int</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"><tt class="py-docstring">  @param start: optional start index</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: generator</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line"><tt class="py-docstring">  @return: generator for the disk labels</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line">  <tt class="py-keyword">def</tt> <tt class="py-def-name">_GetDiskSuffix</tt><tt class="py-op">(</tt><tt class="py-param">i</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">    <tt class="py-name">n</tt> <tt class="py-op">=</tt> <tt class="py-name">ord</tt><tt class="py-op">(</tt><tt class="py-string">'z'</tt><tt class="py-op">)</tt> <tt class="py-op">-</tt> <tt class="py-name">ord</tt><tt class="py-op">(</tt><tt class="py-string">'a'</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-number">1</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">i</tt> <tt class="py-op">&lt;</tt> <tt class="py-name">n</tt><tt class="py-op">:</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-name">chr</tt><tt class="py-op">(</tt><tt class="py-name">ord</tt><tt class="py-op">(</tt><tt class="py-string">'a'</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-name">i</tt><tt class="py-op">)</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">      <tt class="py-name">mod</tt> <tt class="py-op">=</tt> <tt class="py-name">int</tt><tt class="py-op">(</tt><tt class="py-name">i</tt> <tt class="py-op">%</tt> <tt class="py-name">n</tt><tt class="py-op">)</tt> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">      <tt class="py-name">pref</tt> <tt class="py-op">=</tt> <tt class="py-name">_GetDiskSuffix</tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">i</tt> <tt class="py-op">-</tt> <tt class="py-name">mod</tt><tt class="py-op">)</tt> <tt class="py-op">/</tt> <tt class="py-op">(</tt><tt class="py-name">n</tt> <tt class="py-op">+</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line">      <tt class="py-name">suf</tt> <tt class="py-op">=</tt> <tt class="py-name">_GetDiskSuffix</tt><tt class="py-op">(</tt><tt class="py-name">mod</tt><tt class="py-op">)</tt> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-name">pref</tt> <tt class="py-op">+</tt> <tt class="py-name">suf</tt> </tt>
+</div><a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"> </tt>
+<a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">i</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-name">start</tt><tt class="py-op">,</tt> <tt class="py-name">num_disks</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line">    <tt class="py-keyword">yield</tt> <tt class="py-name">prefix</tt> <tt class="py-op">+</tt> <tt class="py-name">_GetDiskSuffix</tt><tt class="py-op">(</tt><tt class="py-name">i</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"> </tt>
+<a name="CreateBdevPartitionMapping"></a><div id="CreateBdevPartitionMapping-def"><a name="L223"></a><tt class="py-lineno">223</tt> <a class="py-toggle" href="#" id="CreateBdevPartitionMapping-toggle" onclick="return toggle('CreateBdevPartitionMapping');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#CreateBdevPartitionMapping">CreateBdevPartitionMapping</a><tt class="py-op">(</tt><tt class="py-param">image_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CreateBdevPartitionMapping-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="CreateBdevPartitionMapping-expanded"><a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line">  <tt class="py-docstring">"""Create dm device for each partition of disk image.</tt> </tt>
+<a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line"><tt class="py-docstring">  This operation will allocate a loopback and a device-mapper device to map</tt> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line"><tt class="py-docstring">  partitions.</tt> </tt>
+<a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line"><tt class="py-docstring">  You must call L{ReleaseBdevPartitionMapping} to clean up resources allocated</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"><tt class="py-docstring">  by this function call.</tt> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line"><tt class="py-docstring">  @type image_path: string</tt> </tt>
+<a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"><tt class="py-docstring">  @param image_path: path of multi-partition disk image</tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: tuple(string, list(string)) or NoneType</tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"><tt class="py-docstring">  @return: returns the tuple(loopback_device, list(device_mapper_files)) if</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"><tt class="py-docstring">    image_path is a multi-partition disk image. otherwise, returns None.</tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line">  <tt class="py-comment"># Unfortunately, there are two different losetup commands in this world.</tt> </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line">  <tt class="py-comment"># One has the '-s' switch and the other has the '--show' switch to provide the</tt> </tt>
+<a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line">  <tt class="py-comment"># same functionality.</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-50" class="py-name" targets="Function ganeti.utils.process.RunCmd()=ganeti.utils.process-module.html#RunCmd"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-50', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"losetup"</tt><tt class="py-op">,</tt> <tt class="py-string">"-f"</tt><tt class="py-op">,</tt> <tt class="py-string">"-s"</tt><tt class="py-op">,</tt> <tt class="py-name">image_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt> <tt class="py-keyword">and</tt> <tt class="py-string">"invalid option -- 's'"</tt> <tt class="py-keyword">in</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">stderr</tt><tt class="py-op">:</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line">    <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-51', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"losetup"</tt><tt class="py-op">,</tt> <tt class="py-string">"-f"</tt><tt class="py-op">,</tt> <tt class="py-string">"--show"</tt><tt class="py-op">,</tt> <tt class="py-name">image_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-52" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-52', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-53" class="py-name" targets="Class ganeti.errors.CommandError=ganeti.errors.CommandError-class.html"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-53', 'CommandError', 'link-53');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to setup loop device for %s: %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line">                              <tt class="py-op">(</tt><tt class="py-name">image_path</tt><tt class="py-op">,</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-54" class="py-name" targets="Variable ganeti.utils.process.RunResult.output=ganeti.utils.process.RunResult-class.html#output"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-54', 'output', 'link-54');">output</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line">  <tt class="py-name">loop_dev_path</tt> <tt class="py-op">=</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">stdout</tt><tt class="py-op">.</tt><tt class="py-name">strip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line">  <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Loop dev %s allocated for %s"</tt><tt class="py-op">,</tt> <tt class="py-name">loop_dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">image_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line"> </tt>
+<a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-55" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-55', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"kpartx"</tt><tt class="py-op">,</tt> <tt class="py-string">"-a"</tt><tt class="py-op">,</tt> <tt class="py-string">"-v"</tt><tt class="py-op">,</tt> <tt class="py-name">loop_dev_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line">    <tt class="py-comment"># Just try to cleanup allocated loop device</tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line">    <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-56" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-56', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"losetup"</tt><tt class="py-op">,</tt> <tt class="py-string">"-d"</tt><tt class="py-op">,</tt> <tt class="py-name">loop_dev_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-57" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-57', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-58" class="py-name"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-58', 'CommandError', 'link-53');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to add partition mapping for %s: %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line">                              <tt class="py-op">(</tt><tt class="py-name">image_path</tt><tt class="py-op">,</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-59" class="py-name"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-59', 'output', 'link-54');">output</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line">  <tt class="py-name">dm_devs</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-string">" "</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">stdout</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-string">"\n"</tt><tt class="py-op">)</tt> <tt class="py-keyword">if</tt> <tt class="py-name">x</tt><tt class="py-op">]</tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">dm_devs</tt><tt class="py-op">:</tt> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line">    <tt class="py-name">dm_dev_paths</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">utils_io</tt><tt class="py-op">.</tt><tt class="py-name">PathJoin</tt><tt class="py-op">(</tt><tt class="py-string">"/dev/mapper"</tt><tt class="py-op">,</tt> <tt class="py-name">x</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">dm_devs</tt><tt class="py-op">]</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">loop_dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">dm_dev_paths</tt><tt class="py-op">)</tt> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line">    <tt class="py-comment"># image_path is not a multi partition disk image, no need to use</tt> </tt>
+<a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">    <tt class="py-comment"># device-mapper.</tt> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line">    <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"Release loop dev %s allocated for %s"</tt><tt class="py-op">,</tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line">                  <tt class="py-name">loop_dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">image_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">    <tt id="link-60" class="py-name" targets="Function ganeti.utils.storage.ReleaseBdevPartitionMapping()=ganeti.utils.storage-module.html#ReleaseBdevPartitionMapping"><a title="ganeti.utils.storage.ReleaseBdevPartitionMapping" class="py-name" href="#" onclick="return doclink('link-60', 'ReleaseBdevPartitionMapping', 'link-60');">ReleaseBdevPartitionMapping</a></tt><tt class="py-op">(</tt><tt class="py-name">loop_dev_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line"> </tt>
+<a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"> </tt>
+<a name="ReleaseBdevPartitionMapping"></a><div id="ReleaseBdevPartitionMapping-def"><a name="L269"></a><tt class="py-lineno">269</tt> <a class="py-toggle" href="#" id="ReleaseBdevPartitionMapping-toggle" onclick="return toggle('ReleaseBdevPartitionMapping');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#ReleaseBdevPartitionMapping">ReleaseBdevPartitionMapping</a><tt class="py-op">(</tt><tt class="py-param">loop_dev_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ReleaseBdevPartitionMapping-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ReleaseBdevPartitionMapping-expanded"><a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line">  <tt class="py-docstring">"""Release allocated dm devices and loopback devices.</tt> </tt>
+<a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line"><tt class="py-docstring">  @type loop_dev_path: string</tt> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line"><tt class="py-docstring">  @param loop_dev_path: path of loopback device returned by</tt> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line"><tt class="py-docstring">  L{CreateBdevPartitionMapping}</tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-61" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-61', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"kpartx"</tt><tt class="py-op">,</tt> <tt class="py-string">"-d"</tt><tt class="py-op">,</tt> <tt class="py-name">loop_dev_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-62" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-62', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-63" class="py-name"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-63', 'CommandError', 'link-53');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to release partition mapping of %s: %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line">                              <tt class="py-op">(</tt><tt class="py-name">loop_dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-64" class="py-name"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-64', 'output', 'link-54');">output</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line"> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line">  <tt class="py-comment"># The invocation of udevadm settle was added here because users had issues</tt> </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line">  <tt class="py-comment"># with the loopback device still being busy after kpartx / earlier commands</tt> </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">  <tt class="py-comment"># did their work.</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-65" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-65', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"udevadm"</tt><tt class="py-op">,</tt> <tt class="py-string">"settle"</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-66" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-66', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-67" class="py-name"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-67', 'CommandError', 'link-53');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Waiting on udev failed: %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-68" class="py-name"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-68', 'output', 'link-54');">output</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line"> </tt>
+<a name="L289"></a><tt class="py-lineno">289</tt>  <tt class="py-line">  <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">utils_process</tt><tt class="py-op">.</tt><tt id="link-69" class="py-name"><a title="ganeti.utils.process.RunCmd" class="py-name" href="#" onclick="return doclink('link-69', 'RunCmd', 'link-50');">RunCmd</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">"losetup"</tt><tt class="py-op">,</tt> <tt class="py-string">"-d"</tt><tt class="py-op">,</tt> <tt class="py-name">loop_dev_path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">failed</tt><tt class="py-op">:</tt> </tt>
+<a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-70" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-70', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-71" class="py-name"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-71', 'CommandError', 'link-53');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to detach %s: %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line">                              <tt class="py-op">(</tt><tt class="py-name">loop_dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt id="link-72" class="py-name"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-72', 'output', 'link-54');">output</a></tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line"> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line"> </tt>
+<a name="osminor"></a><div id="osminor-def"><a name="L295"></a><tt class="py-lineno">295</tt> <a class="py-toggle" href="#" id="osminor-toggle" onclick="return toggle('osminor');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.utils.storage-module.html#osminor">osminor</a><tt class="py-op">(</tt><tt class="py-param">dev</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="osminor-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="osminor-expanded"><a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line">  <tt class="py-docstring">"""Return the device minor number from a raw device number.</tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line"><tt class="py-docstring">  This is a replacement for os.minor working around the issue that</tt> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line"><tt class="py-docstring">  Python's os.minor still has the old definition. See Ganeti issue</tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line"><tt class="py-docstring">  1058 for more details.</tt> </tt>
+<a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L302"></a><tt class="py-lineno">302</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-name">dev</tt> <tt class="py-op">&amp;</tt> <tt class="py-number">0xff</tt><tt class="py-op">)</tt> <tt class="py-op">|</tt> <tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">dev</tt> <tt class="py-op">&gt;&gt;</tt> <tt class="py-number">12</tt><tt class="py-op">)</tt> <tt class="py-op">&amp;</tt> <tt class="py-op">~</tt><tt class="py-number">0xff</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L303"></a><tt class="py-lineno">303</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Apr 12 13:39:04 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

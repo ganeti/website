@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design for adding ifdown script to KVM &mdash; Ganeti 2.14.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.14.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Improving location awareness of Ganeti" href="design-location.html" />
+    <link rel="prev" title="Improvements of Node Security" href="design-node-security.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-location.html" title="Improving location awareness of Ganeti"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-node-security.html" title="Improvements of Node Security"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-for-adding-ifdown-script-to-kvm">
+<h1><a class="toc-backref" href="#id1">Design for adding ifdown script to KVM</a><a class="headerlink" href="#design-for-adding-ifdown-script-to-kvm" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#design-for-adding-ifdown-script-to-kvm" id="id1">Design for adding ifdown script to KVM</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed Changes</a></li>
+<li><a class="reference internal" href="#implementation-details" id="id4">Implementation Details</a><ul>
+<li><a class="reference internal" href="#configuration-changes" id="id5">Configuration Changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document about adding support for an ifdown script responsible
+for deconfiguring network devices and cleanup changes made by the ifup script. The
+first implementation will target KVM but it could be ported to Xen as well
+especially when hotplug gets implemented.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, KVM before instance startup, instance migration and NIC hotplug, it
+creates a tap and invokes explicitly the kvm-ifup script with the relevant
+environment (INTERFACE, MAC, IP, MODE, LINK, TAGS, and all the network info if
+any; NETWORK_SUBNET, NETWORK_TAGS, etc).</p>
+<p>For Xen we have the <cite>vif-ganeti</cite> script (associated with vif-script hypervisor
+parameter). The main difference is that Xen calls it by itself by passing it as
+an extra option in the configuration file.</p>
+<p>This ifup script can do several things; bridge a tap to a bridge, add ip rules,
+update a external DNS or DHCP server, enable proxy ARP or proxy NDP, issue
+openvswitch commands, etc.  In general we can divide those actions in two
+categories:</p>
+<ol class="arabic simple">
+<li>Commands that change the state of the host</li>
+<li>Commands that change the state of external components.</li>
+</ol>
+<p>Currently those changes do not get cleaned up or modified upon instance
+shutdown, remove, migrate, or NIC hot-unplug. Thus we have stale entries in
+hosts and most important might have stale/invalid configuration on external
+components like routers that could affect connectivity.</p>
+<p>A workaround could be hooks but:</p>
+<p>1) During migrate hooks the environment is the one held in config data
+and not in runtime files. The NIC configuration might have changed on
+master but not on the running KVM process (unless hotplug is used).
+Plus the NIC order in config data might not be the same one on the KVM
+process.</p>
+<p>2) On instance modification, changes are not available on hooks. With
+other words we do not know the configuration before and after modification.</p>
+<p>Since Ganeti is the orchestrator and is the one who explicitly configures
+host devices (tap, vif) it should be the one responsible for cleanup/
+deconfiguration. Especially on a SDN approach this kind of script might
+be useful to cleanup flows in the cluster in order to ensure correct paths
+without ping pongs between hosts or connectivity loss for the instance.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed Changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We add an new script, kvm-ifdown that is explicitly invoked after:</p>
+<ol class="arabic simple">
+<li>instance shutdown on primary node</li>
+<li>successful instance migration on source node</li>
+<li>failed instance migration on target node</li>
+<li>successful NIC hot-remove on primary node</li>
+</ol>
+<p>If an administrator&#8217;s custom ifdown script exists (e.g. <cite>kvm-ifdown-custom</cite>),
+the <cite>kvm-ifdown</cite> script executes that script, as happens with <cite>kvm-ifup</cite>.</p>
+<p>Along with that change we should rename custom ifup script from
+<cite>kvm-vif-bridge</cite> (which does not make any sense) to <cite>kvm-ifup-custom</cite>.</p>
+<p>In contrary to <cite>kvm-ifup</cite>, one cannot rely on <cite>kvm-ifdown</cite> script to be
+called. A node might die just after a successful migration or after an
+instance shutdown. In that case, all &#8220;undo&#8221; operations will not be invoked.
+Thus, this script should work &#8220;on a best effort basis&#8221; and the network
+should not rely on the script being called or being successful. Additionally
+it should modify <em>only</em> the node local dynamic configs (routes, arp entries,
+SDN, firewalls, etc.), whereas static ones (DNS, DHCP, etc.) should be modified
+via hooks.</p>
+</div>
+<div class="section" id="implementation-details">
+<h2><a class="toc-backref" href="#id4">Implementation Details</a><a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Where to get the NIC info?</li>
+</ol>
+<p>We cannot account on config data since it might have changed. So the only
+place we keep our valid data is inside the runtime file. During instance
+modifications (NIC hot-remove, hot-modify) we have the NIC object from
+the RPC. We take its UUID and search for the corresponding entry in the
+runtime file to get further info. After instance shutdown and migration
+we just take all NICs from the runtime file and invoke the ifdown script
+for each one</p>
+<ol class="arabic simple" start="2">
+<li>Where to find the corresponding TAP?</li>
+</ol>
+<p>Currently TAP names are kept under
+/var/run/ganeti/kvm-hypervisor/nics/&lt;instance&gt;/&lt;nic_index&gt;.
+This is not enough. As told above a NIC&#8217;s index might change during instance&#8217;s
+life. An example will make things clear:</p>
+<ul class="simple">
+<li>The admin starts an instance with three NICs.</li>
+<li>The admin removes the second without hotplug.</li>
+<li>The admin removes the first with hotplug.</li>
+</ul>
+<p>The index that will arrive with the RPC will be 1 and if we read the relevant
+NIC file we will get the tap of the NIC that has been removed on second
+step but is still existing in the KVM process.</p>
+<p>So upon TAP creation we write another file with the same info but named
+after the NIC&#8217;s UUID. The one named after its index can be left
+for compatibility (Ganeti does not use it; external tools might)
+Obviously this info will not be available for old instances in the cluster.
+The ifdown script should be aware of this corner case.</p>
+<ol class="arabic simple" start="3">
+<li>What should we cleanup/deconfigure?</li>
+</ol>
+<p>Upon NIC hot-remove we obviously want to wipe everything. But on instance
+migration we don&#8217;t want to reset external configuration like DNS.  So we choose
+to pass an extra positional argument to the ifdown script (it already has the
+TAP name) that will reflect the context it was invoked with. Please note that
+de-configuration of external components is not encouraged and should be
+done via hooks. Still we could easily support it via this extra argument.</p>
+<ol class="arabic simple" start="4">
+<li>What will be the script environment?</li>
+</ol>
+<p>In general the same environment passed to ifup script. Except instance&#8217;s
+tags. Those are the only info not kept in runtime file and it can
+change between ifup and ifdown script execution. The ifdown
+script must be aware of it and should cleanup everything that ifup script
+might setup depending on instance tags (e.g. firewalls, etc)</p>
+<div class="section" id="configuration-changes">
+<h3><a class="toc-backref" href="#id5">Configuration Changes</a><a class="headerlink" href="#configuration-changes" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>The <cite>kvm-ifdown</cite> script will be an extra file installed under the same dir
+<cite>kvm-ifup</cite> resides. We could have a single script (and symbolic links to it)
+that shares the same code, where a second positional argument or an extra
+environment variable would define if we are bringing the interface up or
+down. Still this is not the best practice since it is not equivalent
+with how KVM uses <cite>script</cite> and <cite>downscript</cite> in the <cite>netdev</cite> option; scripts
+are different files that get the tap name as positional argument. Of course
+common code will go in <cite>net-common</cite> so that it can be sourced from either
+Xen or KVM specific scripts.</li>
+<li>An extra file written upon TAP creation named after the NIC&#8217;s UUID and
+including the TAP&#8217;s name. Since this should be the correct file to keep
+backwards compatibility we create a symbolic link named after the NIC&#8217;s
+index and pointing to this new file.</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design for adding ifdown script to KVM</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed Changes</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation Details</a><ul>
+<li><a class="reference internal" href="#configuration-changes">Configuration Changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-node-security.html"
+                        title="previous chapter">Improvements of Node Security</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-location.html"
+                        title="next chapter">Improving location awareness of Ganeti</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-ifdown.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-location.html" title="Improving location awareness of Ganeti"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-node-security.html" title="Improvements of Node Security"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

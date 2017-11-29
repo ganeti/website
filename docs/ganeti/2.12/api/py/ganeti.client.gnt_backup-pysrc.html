@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.client.gnt_backup</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.client-module.html">Package&nbsp;client</a> ::
+        Module&nbsp;gnt_backup
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.client.gnt_backup-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.client.gnt_backup-module.html">Module ganeti.client.gnt_backup</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2006, 2007, 2010, 2011, 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">"""Backup related commands"""</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-comment"># pylint: disable=W0401,W0613,W0614,C0103</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-comment"># W0401: Wildcard import ganeti.cli</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-comment"># W0613: Unused argument, since all functions follow the same API</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-comment"># W0614: Unused import %s from wildcard import (since we need cli)</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-comment"># C0103: Invalid name gnt-backup</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Module ganeti.cli=ganeti.cli-module.html"><a title="ganeti.cli" class="py-name" href="#" onclick="return doclink('link-1', 'cli', 'link-1');">cli</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.opcodes=ganeti.opcodes-module.html"><a title="ganeti.opcodes" class="py-name" href="#" onclick="return doclink('link-3', 'opcodes', 'link-3');">opcodes</a></tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-5', 'constants', 'link-5');">constants</a></tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-7', 'errors', 'link-7');">errors</a></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-8" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-8', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Module ganeti.qlang=ganeti.qlang-module.html"><a title="ganeti.qlang" class="py-name" href="#" onclick="return doclink('link-9', 'qlang', 'link-9');">qlang</a></tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt id="link-10" class="py-name" targets="Variable ganeti.client.gnt_backup._LIST_DEF_FIELDS=ganeti.client.gnt_backup-module.html#_LIST_DEF_FIELDS,Variable ganeti.client.gnt_group._LIST_DEF_FIELDS=ganeti.client.gnt_group-module.html#_LIST_DEF_FIELDS,Variable ganeti.client.gnt_instance._LIST_DEF_FIELDS=ganeti.client.gnt_instance-module.html#_LIST_DEF_FIELDS,Variable ganeti.client.gnt_job._LIST_DEF_FIELDS=ganeti.client.gnt_job-module.html#_LIST_DEF_FIELDS,Variable ganeti.client.gnt_network._LIST_DEF_FIELDS=ganeti.client.gnt_network-module.html#_LIST_DEF_FIELDS,Variable ganeti.client.gnt_node._LIST_DEF_FIELDS=ganeti.client.gnt_node-module.html#_LIST_DEF_FIELDS"><a title="ganeti.client.gnt_backup._LIST_DEF_FIELDS
+ganeti.client.gnt_group._LIST_DEF_FIELDS
+ganeti.client.gnt_instance._LIST_DEF_FIELDS
+ganeti.client.gnt_job._LIST_DEF_FIELDS
+ganeti.client.gnt_network._LIST_DEF_FIELDS
+ganeti.client.gnt_node._LIST_DEF_FIELDS" class="py-name" href="#" onclick="return doclink('link-10', '_LIST_DEF_FIELDS', 'link-10');">_LIST_DEF_FIELDS</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-string">"node"</tt><tt class="py-op">,</tt> <tt class="py-string">"export"</tt><tt class="py-op">]</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="PrintExportList"></a><div id="PrintExportList-def"><a name="L48"></a><tt class="py-lineno"> 48</tt> <a class="py-toggle" href="#" id="PrintExportList-toggle" onclick="return toggle('PrintExportList');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#PrintExportList">PrintExportList</a><tt class="py-op">(</tt><tt class="py-param">opts</tt><tt class="py-op">,</tt> <tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="PrintExportList-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="PrintExportList-expanded"><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">  <tt class="py-docstring">"""Prints a list of all the exported system images.</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt class="py-docstring">  @param opts: the command line options selected by the user</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt class="py-docstring">  @type args: list</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"><tt class="py-docstring">  @param args: should be an empty list</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: int</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the desired exit code</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">  <tt class="py-name">selected_fields</tt> <tt class="py-op">=</tt> <tt id="link-11" class="py-name" targets="Function ganeti.cli.ParseFields()=ganeti.cli-module.html#ParseFields"><a title="ganeti.cli.ParseFields" class="py-name" href="#" onclick="return doclink('link-11', 'ParseFields', 'link-11');">ParseFields</a></tt><tt class="py-op">(</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Variable ganeti.utils.process.RunResult.output=ganeti.utils.process.RunResult-class.html#output"><a title="ganeti.utils.process.RunResult.output" class="py-name" href="#" onclick="return doclink('link-12', 'output', 'link-12');">output</a></tt><tt class="py-op">,</tt> <tt id="link-13" class="py-name"><a title="ganeti.client.gnt_backup._LIST_DEF_FIELDS
+ganeti.client.gnt_group._LIST_DEF_FIELDS
+ganeti.client.gnt_instance._LIST_DEF_FIELDS
+ganeti.client.gnt_job._LIST_DEF_FIELDS
+ganeti.client.gnt_network._LIST_DEF_FIELDS
+ganeti.client.gnt_node._LIST_DEF_FIELDS" class="py-name" href="#" onclick="return doclink('link-13', '_LIST_DEF_FIELDS', 'link-10');">_LIST_DEF_FIELDS</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">  <tt class="py-name">qfilter</tt> <tt class="py-op">=</tt> <tt id="link-14" class="py-name"><a title="ganeti.qlang" class="py-name" href="#" onclick="return doclink('link-14', 'qlang', 'link-9');">qlang</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Function ganeti.qlang.MakeSimpleFilter()=ganeti.qlang-module.html#MakeSimpleFilter"><a title="ganeti.qlang.MakeSimpleFilter" class="py-name" href="#" onclick="return doclink('link-15', 'MakeSimpleFilter', 'link-15');">MakeSimpleFilter</a></tt><tt class="py-op">(</tt><tt class="py-string">"node"</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">nodes</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">  <tt class="py-name">cl</tt> <tt class="py-op">=</tt> <tt id="link-16" class="py-name" targets="Method ganeti.rapi.baserlib.ResourceBase.GetClient()=ganeti.rapi.baserlib.ResourceBase-class.html#GetClient,Function ganeti.runtime.GetClient()=ganeti.runtime-module.html#GetClient"><a title="ganeti.rapi.baserlib.ResourceBase.GetClient
+ganeti.runtime.GetClient" class="py-name" href="#" onclick="return doclink('link-16', 'GetClient', 'link-16');">GetClient</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-17" class="py-name" targets="Function ganeti.cli.GenericList()=ganeti.cli-module.html#GenericList"><a title="ganeti.cli.GenericList" class="py-name" href="#" onclick="return doclink('link-17', 'GenericList', 'link-17');">GenericList</a></tt><tt class="py-op">(</tt><tt id="link-18" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-18', 'constants', 'link-5');">constants</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Variable ganeti._constants.QR_EXPORT=ganeti._constants-module.html#QR_EXPORT"><a title="ganeti._constants.QR_EXPORT" class="py-name" href="#" onclick="return doclink('link-19', 'QR_EXPORT', 'link-19');">QR_EXPORT</a></tt><tt class="py-op">,</tt> <tt class="py-name">selected_fields</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">units</tt><tt class="py-op">,</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">                     <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">separator</tt><tt class="py-op">,</tt> <tt class="py-keyword">not</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">no_headers</tt><tt class="py-op">,</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">                     <tt class="py-name">verbose</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">verbose</tt><tt class="py-op">,</tt> <tt class="py-name">qfilter</tt><tt class="py-op">=</tt><tt class="py-name">qfilter</tt><tt class="py-op">,</tt> <tt class="py-name">cl</tt><tt class="py-op">=</tt><tt class="py-name">cl</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="ListExportFields"></a><div id="ListExportFields-def"><a name="L69"></a><tt class="py-lineno"> 69</tt> <a class="py-toggle" href="#" id="ListExportFields-toggle" onclick="return toggle('ListExportFields');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#ListExportFields">ListExportFields</a><tt class="py-op">(</tt><tt class="py-param">opts</tt><tt class="py-op">,</tt> <tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ListExportFields-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ListExportFields-expanded"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">  <tt class="py-docstring">"""List export fields.</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">  @param opts: the command line options selected by the user</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">  @type args: list</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">  @param args: fields to list, or empty for all</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: int</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the desired exit code</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">  <tt class="py-name">cl</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="ganeti.rapi.baserlib.ResourceBase.GetClient
+ganeti.runtime.GetClient" class="py-name" href="#" onclick="return doclink('link-20', 'GetClient', 'link-16');">GetClient</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-21" class="py-name" targets="Function ganeti.cli.GenericListFields()=ganeti.cli-module.html#GenericListFields"><a title="ganeti.cli.GenericListFields" class="py-name" href="#" onclick="return doclink('link-21', 'GenericListFields', 'link-21');">GenericListFields</a></tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-22', 'constants', 'link-5');">constants</a></tt><tt class="py-op">.</tt><tt id="link-23" class="py-name"><a title="ganeti._constants.QR_EXPORT" class="py-name" href="#" onclick="return doclink('link-23', 'QR_EXPORT', 'link-19');">QR_EXPORT</a></tt><tt class="py-op">,</tt> <tt id="link-24" class="py-name" targets="Variable script-cfgupgrade.args=script-cfgupgrade-module.html#args,Variable script-cfgupgrade12.args=script-cfgupgrade12-module.html#args"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-24', 'args', 'link-24');">args</a></tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">separator</tt><tt class="py-op">,</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">                           <tt class="py-keyword">not</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">no_headers</tt><tt class="py-op">,</tt> <tt class="py-name">cl</tt><tt class="py-op">=</tt><tt class="py-name">cl</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"> </tt>
+<a name="ExportInstance"></a><div id="ExportInstance-def"><a name="L85"></a><tt class="py-lineno"> 85</tt> <a class="py-toggle" href="#" id="ExportInstance-toggle" onclick="return toggle('ExportInstance');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#ExportInstance">ExportInstance</a><tt class="py-op">(</tt><tt class="py-param">opts</tt><tt class="py-op">,</tt> <tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ExportInstance-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ExportInstance-expanded"><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">  <tt class="py-docstring">"""Export an instance to an image in the cluster.</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-docstring">  @param opts: the command line options selected by the user</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring">  @type args: list</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">  @param args: should contain only one element, the name</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">      of the instance to be exported</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: int</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the desired exit code</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">  <tt class="py-name">ignore_remove_failures</tt> <tt class="py-op">=</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">ignore_remove_failures</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">opts</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name" targets="Module ganeti.cmdlib.node=ganeti.cmdlib.node-module.html,Module ganeti.rpc.node=ganeti.rpc.node-module.html"><a title="ganeti.cmdlib.node
+ganeti.rpc.node" class="py-name" href="#" onclick="return doclink('link-25', 'node', 'link-25');">node</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-26" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-26', 'errors', 'link-7');">errors</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Class ganeti.errors.OpPrereqError=ganeti.errors.OpPrereqError-class.html"><a title="ganeti.errors.OpPrereqError" class="py-name" href="#" onclick="return doclink('link-27', 'OpPrereqError', 'link-27');">OpPrereqError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Target node must be specified"</tt><tt class="py-op">,</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">                               <tt id="link-28" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-28', 'errors', 'link-7');">errors</a></tt><tt class="py-op">.</tt><tt id="link-29" class="py-name" targets="Variable ganeti.errors.ECODE_INVAL=ganeti.errors-module.html#ECODE_INVAL,Variable ganeti.rapi.client.ECODE_INVAL=ganeti.rapi.client-module.html#ECODE_INVAL"><a title="ganeti.errors.ECODE_INVAL
+ganeti.rapi.client.ECODE_INVAL" class="py-name" href="#" onclick="return doclink('link-29', 'ECODE_INVAL', 'link-29');">ECODE_INVAL</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">  <tt class="py-name">op</tt> <tt class="py-op">=</tt> <tt id="link-30" class="py-name"><a title="ganeti.opcodes" class="py-name" href="#" onclick="return doclink('link-30', 'opcodes', 'link-3');">opcodes</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name" targets="Class ganeti.opcodes.OpBackupExport=ganeti.opcodes.OpBackupExport-class.html"><a title="ganeti.opcodes.OpBackupExport" class="py-name" href="#" onclick="return doclink('link-31', 'OpBackupExport', 'link-31');">OpBackupExport</a></tt><tt class="py-op">(</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">    <tt class="py-name">instance_name</tt><tt class="py-op">=</tt><tt id="link-32" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-32', 'args', 'link-24');">args</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">    <tt class="py-name">target_node</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name"><a title="ganeti.cmdlib.node
+ganeti.rpc.node" class="py-name" href="#" onclick="return doclink('link-33', 'node', 'link-25');">node</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt class="py-name">compress</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">transport_compression</tt><tt class="py-op">,</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">    <tt class="py-name">shutdown</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">shutdown</tt><tt class="py-op">,</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-name">shutdown_timeout</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">shutdown_timeout</tt><tt class="py-op">,</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-name">remove_instance</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">remove_instance</tt><tt class="py-op">,</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-name">ignore_remove_failures</tt><tt class="py-op">=</tt><tt class="py-name">ignore_remove_failures</tt><tt class="py-op">,</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt class="py-name">zero_free_space</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">zero_free_space</tt><tt class="py-op">,</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-name">zeroing_timeout_fixed</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">zeroing_timeout_fixed</tt><tt class="py-op">,</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-name">zeroing_timeout_per_mib</tt><tt class="py-op">=</tt><tt class="py-name">opts</tt><tt class="py-op">.</tt><tt class="py-name">zeroing_timeout_per_mib</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">  <tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">  <tt id="link-34" class="py-name" targets="Function ganeti.cli.SubmitOrSend()=ganeti.cli-module.html#SubmitOrSend"><a title="ganeti.cli.SubmitOrSend" class="py-name" href="#" onclick="return doclink('link-34', 'SubmitOrSend', 'link-34');">SubmitOrSend</a></tt><tt class="py-op">(</tt><tt class="py-name">op</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">)</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-number">0</tt> </tt>
+</div><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt>
+<a name="ImportInstance"></a><div id="ImportInstance-def"><a name="L119"></a><tt class="py-lineno">119</tt> <a class="py-toggle" href="#" id="ImportInstance-toggle" onclick="return toggle('ImportInstance');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#ImportInstance">ImportInstance</a><tt class="py-op">(</tt><tt class="py-param">opts</tt><tt class="py-op">,</tt> <tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ImportInstance-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ImportInstance-expanded"><a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">  <tt class="py-docstring">"""Add an instance to the cluster.</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">  This is just a wrapper over GenericInstanceCreate.</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-35" class="py-name" targets="Function ganeti.cli.GenericInstanceCreate()=ganeti.cli-module.html#GenericInstanceCreate"><a title="ganeti.cli.GenericInstanceCreate" class="py-name" href="#" onclick="return doclink('link-35', 'GenericInstanceCreate', 'link-35');">GenericInstanceCreate</a></tt><tt class="py-op">(</tt><tt id="link-36" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-36', 'constants', 'link-5');">constants</a></tt><tt class="py-op">.</tt><tt id="link-37" class="py-name" targets="Variable ganeti._constants.INSTANCE_IMPORT=ganeti._constants-module.html#INSTANCE_IMPORT"><a title="ganeti._constants.INSTANCE_IMPORT" class="py-name" href="#" onclick="return doclink('link-37', 'INSTANCE_IMPORT', 'link-37');">INSTANCE_IMPORT</a></tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">,</tt> <tt id="link-38" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-38', 'args', 'link-24');">args</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt>
+<a name="RemoveExport"></a><div id="RemoveExport-def"><a name="L128"></a><tt class="py-lineno">128</tt> <a class="py-toggle" href="#" id="RemoveExport-toggle" onclick="return toggle('RemoveExport');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#RemoveExport">RemoveExport</a><tt class="py-op">(</tt><tt class="py-param">opts</tt><tt class="py-op">,</tt> <tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="RemoveExport-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="RemoveExport-expanded"><a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">  <tt class="py-docstring">"""Remove an export from the cluster.</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">  @param opts: the command line options selected by the user</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">  @type args: list</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring">  @param args: should contain only one element, the name of the</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">      instance whose backup should be removed</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: int</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">  @return: the desired exit code</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">  <tt class="py-name">op</tt> <tt class="py-op">=</tt> <tt id="link-39" class="py-name"><a title="ganeti.opcodes" class="py-name" href="#" onclick="return doclink('link-39', 'opcodes', 'link-3');">opcodes</a></tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Class ganeti.opcodes.OpBackupRemove=ganeti.opcodes.OpBackupRemove-class.html"><a title="ganeti.opcodes.OpBackupRemove" class="py-name" href="#" onclick="return doclink('link-40', 'OpBackupRemove', 'link-40');">OpBackupRemove</a></tt><tt class="py-op">(</tt><tt class="py-name">instance_name</tt><tt class="py-op">=</tt><tt id="link-41" class="py-name"><a title="script-cfgupgrade.args
+script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-41', 'args', 'link-24');">args</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">  <tt id="link-42" class="py-name"><a title="ganeti.cli.SubmitOrSend" class="py-name" href="#" onclick="return doclink('link-42', 'SubmitOrSend', 'link-34');">SubmitOrSend</a></tt><tt class="py-op">(</tt><tt class="py-name">op</tt><tt class="py-op">,</tt> <tt class="py-name">opts</tt><tt class="py-op">)</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-number">0</tt> </tt>
+</div><a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-comment"># this is defined separately due to readability only</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt id="link-43" class="py-name" targets="Variable ganeti.client.gnt_backup.import_opts=ganeti.client.gnt_backup-module.html#import_opts"><a title="ganeti.client.gnt_backup.import_opts" class="py-name" href="#" onclick="return doclink('link-43', 'import_opts', 'link-43');">import_opts</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">  <tt id="link-44" class="py-name" targets="Variable ganeti.cli.IDENTIFY_DEFAULTS_OPT=ganeti.cli-module.html#IDENTIFY_DEFAULTS_OPT"><a title="ganeti.cli.IDENTIFY_DEFAULTS_OPT" class="py-name" href="#" onclick="return doclink('link-44', 'IDENTIFY_DEFAULTS_OPT', 'link-44');">IDENTIFY_DEFAULTS_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">  <tt id="link-45" class="py-name" targets="Variable ganeti.cli.SRC_DIR_OPT=ganeti.cli-module.html#SRC_DIR_OPT"><a title="ganeti.cli.SRC_DIR_OPT" class="py-name" href="#" onclick="return doclink('link-45', 'SRC_DIR_OPT', 'link-45');">SRC_DIR_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">  <tt id="link-46" class="py-name" targets="Variable ganeti.cli.SRC_NODE_OPT=ganeti.cli-module.html#SRC_NODE_OPT"><a title="ganeti.cli.SRC_NODE_OPT" class="py-name" href="#" onclick="return doclink('link-46', 'SRC_NODE_OPT', 'link-46');">SRC_NODE_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">  <tt id="link-47" class="py-name" targets="Variable ganeti.cli.COMPRESS_OPT=ganeti.cli-module.html#COMPRESS_OPT,Variable script-move_instance.COMPRESS_OPT=script-move_instance-module.html#COMPRESS_OPT"><a title="ganeti.cli.COMPRESS_OPT
+script-move_instance.COMPRESS_OPT" class="py-name" href="#" onclick="return doclink('link-47', 'COMPRESS_OPT', 'link-47');">COMPRESS_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">  <tt id="link-48" class="py-name" targets="Variable ganeti.cli.IGNORE_IPOLICY_OPT=ganeti.cli-module.html#IGNORE_IPOLICY_OPT"><a title="ganeti.cli.IGNORE_IPOLICY_OPT" class="py-name" href="#" onclick="return doclink('link-48', 'IGNORE_IPOLICY_OPT', 'link-48');">IGNORE_IPOLICY_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">  <tt id="link-49" class="py-name" targets="Variable ganeti.cli.HELPER_STARTUP_TIMEOUT_OPT=ganeti.cli-module.html#HELPER_STARTUP_TIMEOUT_OPT"><a title="ganeti.cli.HELPER_STARTUP_TIMEOUT_OPT" class="py-name" href="#" onclick="return doclink('link-49', 'HELPER_STARTUP_TIMEOUT_OPT', 'link-49');">HELPER_STARTUP_TIMEOUT_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">  <tt id="link-50" class="py-name" targets="Variable ganeti.cli.HELPER_SHUTDOWN_TIMEOUT_OPT=ganeti.cli-module.html#HELPER_SHUTDOWN_TIMEOUT_OPT"><a title="ganeti.cli.HELPER_SHUTDOWN_TIMEOUT_OPT" class="py-name" href="#" onclick="return doclink('link-50', 'HELPER_SHUTDOWN_TIMEOUT_OPT', 'link-50');">HELPER_SHUTDOWN_TIMEOUT_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">  <tt class="py-op">]</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line"> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"><tt id="link-51" class="py-name" targets="Variable ganeti.client.gnt_backup.commands=ganeti.client.gnt_backup-module.html#commands,Variable ganeti.client.gnt_cluster.commands=ganeti.client.gnt_cluster-module.html#commands,Variable ganeti.client.gnt_debug.commands=ganeti.client.gnt_debug-module.html#commands,Variable ganeti.client.gnt_group.commands=ganeti.client.gnt_group-module.html#commands,Variable ganeti.client.gnt_instance.commands=ganeti.client.gnt_instance-module.html#commands,Variable ganeti.client.gnt_job.commands=ganeti.client.gnt_job-module.html#commands,Variable ganeti.client.gnt_network.commands=ganeti.client.gnt_network-module.html#commands,Variable ganeti.client.gnt_node.commands=ganeti.client.gnt_node-module.html#commands,Variable ganeti.client.gnt_os.commands=ganeti.client.gnt_os-module.html#commands,Variable ganeti.client.gnt_storage.commands=ganeti.client.gnt_storage-module.html#commands,Variable script-burnin.commands=script-burnin-module.html#commands,Variable script-ensure_dirs.commands=script-ensure_dirs-module.html#commands,Variable script-ganeti_noded.commands=script-ganeti_noded-module.html#commands,Variable script-ganeti_rapi.commands=script-ganeti_rapi-module.html#commands,Variable script-ganeti_watcher.commands=script-ganeti_watcher-module.html#commands,Variable script-node_cleanup.commands=script-node_cleanup-module.html#commands,Variable script-node_daemon_setup.commands=script-node_daemon_setup-module.html#commands,Variable script-prepare_node_join.commands=script-prepare_node_join-module.html#commands,Variable script-ssl_update.commands=script-ssl_update-module.html#commands"><a title="ganeti.client.gnt_backup.commands
+ganeti.client.gnt_cluster.commands
+ganeti.client.gnt_debug.commands
+ganeti.client.gnt_group.commands
+ganeti.client.gnt_instance.commands
+ganeti.client.gnt_job.commands
+ganeti.client.gnt_network.commands
+ganeti.client.gnt_node.commands
+ganeti.client.gnt_os.commands
+ganeti.client.gnt_storage.commands
+script-burnin.commands
+script-ensure_dirs.commands
+script-ganeti_noded.commands
+script-ganeti_rapi.commands
+script-ganeti_watcher.commands
+script-node_cleanup.commands
+script-node_daemon_setup.commands
+script-prepare_node_join.commands
+script-ssl_update.commands" class="py-name" href="#" onclick="return doclink('link-51', 'commands', 'link-51');">commands</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">  <tt class="py-string">"list"</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">    <tt id="link-52" class="py-name" targets="Function ganeti.client.gnt_backup.PrintExportList()=ganeti.client.gnt_backup-module.html#PrintExportList"><a title="ganeti.client.gnt_backup.PrintExportList" class="py-name" href="#" onclick="return doclink('link-52', 'PrintExportList', 'link-52');">PrintExportList</a></tt><tt class="py-op">,</tt> <tt id="link-53" class="py-name" targets="Variable ganeti.cli.ARGS_NONE=ganeti.cli-module.html#ARGS_NONE"><a title="ganeti.cli.ARGS_NONE" class="py-name" href="#" onclick="return doclink('link-53', 'ARGS_NONE', 'link-53');">ARGS_NONE</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">    <tt class="py-op">[</tt><tt id="link-54" class="py-name" targets="Variable ganeti.cli.NODE_LIST_OPT=ganeti.cli-module.html#NODE_LIST_OPT"><a title="ganeti.cli.NODE_LIST_OPT" class="py-name" href="#" onclick="return doclink('link-54', 'NODE_LIST_OPT', 'link-54');">NODE_LIST_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-55" class="py-name" targets="Variable ganeti.cli.NOHDR_OPT=ganeti.cli-module.html#NOHDR_OPT"><a title="ganeti.cli.NOHDR_OPT" class="py-name" href="#" onclick="return doclink('link-55', 'NOHDR_OPT', 'link-55');">NOHDR_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-56" class="py-name" targets="Variable ganeti.cli.SEP_OPT=ganeti.cli-module.html#SEP_OPT"><a title="ganeti.cli.SEP_OPT" class="py-name" href="#" onclick="return doclink('link-56', 'SEP_OPT', 'link-56');">SEP_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-57" class="py-name" targets="Variable ganeti.cli.USEUNITS_OPT=ganeti.cli-module.html#USEUNITS_OPT"><a title="ganeti.cli.USEUNITS_OPT" class="py-name" href="#" onclick="return doclink('link-57', 'USEUNITS_OPT', 'link-57');">USEUNITS_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-58" class="py-name" targets="Variable ganeti.cli.FIELDS_OPT=ganeti.cli-module.html#FIELDS_OPT"><a title="ganeti.cli.FIELDS_OPT" class="py-name" href="#" onclick="return doclink('link-58', 'FIELDS_OPT', 'link-58');">FIELDS_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-59" class="py-name" targets="Variable ganeti.cli.VERBOSE_OPT=ganeti.cli-module.html#VERBOSE_OPT"><a title="ganeti.cli.VERBOSE_OPT" class="py-name" href="#" onclick="return doclink('link-59', 'VERBOSE_OPT', 'link-59');">VERBOSE_OPT</a></tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">    <tt class="py-string">""</tt><tt class="py-op">,</tt> <tt class="py-string">"Lists instance exports available in the ganeti cluster"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">  <tt class="py-string">"list-fields"</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">    <tt id="link-60" class="py-name" targets="Function ganeti.client.gnt_backup.ListExportFields()=ganeti.client.gnt_backup-module.html#ListExportFields"><a title="ganeti.client.gnt_backup.ListExportFields" class="py-name" href="#" onclick="return doclink('link-60', 'ListExportFields', 'link-60');">ListExportFields</a></tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt id="link-61" class="py-name" targets="Class ganeti.cli.ArgUnknown=ganeti.cli.ArgUnknown-class.html"><a title="ganeti.cli.ArgUnknown" class="py-name" href="#" onclick="return doclink('link-61', 'ArgUnknown', 'link-61');">ArgUnknown</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">    <tt class="py-op">[</tt><tt id="link-62" class="py-name"><a title="ganeti.cli.NOHDR_OPT" class="py-name" href="#" onclick="return doclink('link-62', 'NOHDR_OPT', 'link-55');">NOHDR_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-63" class="py-name"><a title="ganeti.cli.SEP_OPT" class="py-name" href="#" onclick="return doclink('link-63', 'SEP_OPT', 'link-56');">SEP_OPT</a></tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">    <tt class="py-string">"[fields...]"</tt><tt class="py-op">,</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">    <tt class="py-string">"Lists all available fields for exports"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">  <tt class="py-string">"export"</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line">    <tt id="link-64" class="py-name" targets="Function ganeti.client.gnt_backup.ExportInstance()=ganeti.client.gnt_backup-module.html#ExportInstance,Method ganeti.rapi.client.GanetiRapiClient.ExportInstance()=ganeti.rapi.client.GanetiRapiClient-class.html#ExportInstance"><a title="ganeti.client.gnt_backup.ExportInstance
+ganeti.rapi.client.GanetiRapiClient.ExportInstance" class="py-name" href="#" onclick="return doclink('link-64', 'ExportInstance', 'link-64');">ExportInstance</a></tt><tt class="py-op">,</tt> <tt id="link-65" class="py-name" targets="Variable ganeti.cli.ARGS_ONE_INSTANCE=ganeti.cli-module.html#ARGS_ONE_INSTANCE"><a title="ganeti.cli.ARGS_ONE_INSTANCE" class="py-name" href="#" onclick="return doclink('link-65', 'ARGS_ONE_INSTANCE', 'link-65');">ARGS_ONE_INSTANCE</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">    <tt class="py-op">[</tt><tt id="link-66" class="py-name" targets="Variable ganeti.cli.FORCE_OPT=ganeti.cli-module.html#FORCE_OPT"><a title="ganeti.cli.FORCE_OPT" class="py-name" href="#" onclick="return doclink('link-66', 'FORCE_OPT', 'link-66');">FORCE_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-67" class="py-name" targets="Variable ganeti.cli.SINGLE_NODE_OPT=ganeti.cli-module.html#SINGLE_NODE_OPT"><a title="ganeti.cli.SINGLE_NODE_OPT" class="py-name" href="#" onclick="return doclink('link-67', 'SINGLE_NODE_OPT', 'link-67');">SINGLE_NODE_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-68" class="py-name" targets="Variable ganeti.cli.TRANSPORT_COMPRESSION_OPT=ganeti.cli-module.html#TRANSPORT_COMPRESSION_OPT"><a title="ganeti.cli.TRANSPORT_COMPRESSION_OPT" class="py-name" href="#" onclick="return doclink('link-68', 'TRANSPORT_COMPRESSION_OPT', 'link-68');">TRANSPORT_COMPRESSION_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-69" class="py-name" targets="Variable ganeti.cli.NOSHUTDOWN_OPT=ganeti.cli-module.html#NOSHUTDOWN_OPT"><a title="ganeti.cli.NOSHUTDOWN_OPT" class="py-name" href="#" onclick="return doclink('link-69', 'NOSHUTDOWN_OPT', 'link-69');">NOSHUTDOWN_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">     <tt id="link-70" class="py-name" targets="Variable ganeti.cli.SHUTDOWN_TIMEOUT_OPT=ganeti.cli-module.html#SHUTDOWN_TIMEOUT_OPT"><a title="ganeti.cli.SHUTDOWN_TIMEOUT_OPT" class="py-name" href="#" onclick="return doclink('link-70', 'SHUTDOWN_TIMEOUT_OPT', 'link-70');">SHUTDOWN_TIMEOUT_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-71" class="py-name" targets="Variable ganeti.cli.REMOVE_INSTANCE_OPT=ganeti.cli-module.html#REMOVE_INSTANCE_OPT"><a title="ganeti.cli.REMOVE_INSTANCE_OPT" class="py-name" href="#" onclick="return doclink('link-71', 'REMOVE_INSTANCE_OPT', 'link-71');">REMOVE_INSTANCE_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-72" class="py-name" targets="Variable ganeti.cli.IGNORE_REMOVE_FAILURES_OPT=ganeti.cli-module.html#IGNORE_REMOVE_FAILURES_OPT"><a title="ganeti.cli.IGNORE_REMOVE_FAILURES_OPT" class="py-name" href="#" onclick="return doclink('link-72', 'IGNORE_REMOVE_FAILURES_OPT', 'link-72');">IGNORE_REMOVE_FAILURES_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">     <tt id="link-73" class="py-name" targets="Variable ganeti.cli.DRY_RUN_OPT=ganeti.cli-module.html#DRY_RUN_OPT"><a title="ganeti.cli.DRY_RUN_OPT" class="py-name" href="#" onclick="return doclink('link-73', 'DRY_RUN_OPT', 'link-73');">DRY_RUN_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-74" class="py-name" targets="Variable ganeti.cli.PRIORITY_OPT=ganeti.cli-module.html#PRIORITY_OPT"><a title="ganeti.cli.PRIORITY_OPT" class="py-name" href="#" onclick="return doclink('link-74', 'PRIORITY_OPT', 'link-74');">PRIORITY_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-75" class="py-name" targets="Variable ganeti.cli.ZERO_FREE_SPACE_OPT=ganeti.cli-module.html#ZERO_FREE_SPACE_OPT"><a title="ganeti.cli.ZERO_FREE_SPACE_OPT" class="py-name" href="#" onclick="return doclink('link-75', 'ZERO_FREE_SPACE_OPT', 'link-75');">ZERO_FREE_SPACE_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-76" class="py-name" targets="Variable ganeti.cli.ZEROING_TIMEOUT_FIXED_OPT=ganeti.cli-module.html#ZEROING_TIMEOUT_FIXED_OPT"><a title="ganeti.cli.ZEROING_TIMEOUT_FIXED_OPT" class="py-name" href="#" onclick="return doclink('link-76', 'ZEROING_TIMEOUT_FIXED_OPT', 'link-76');">ZEROING_TIMEOUT_FIXED_OPT</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">     <tt id="link-77" class="py-name" targets="Variable ganeti.cli.ZEROING_TIMEOUT_PER_MIB_OPT=ganeti.cli-module.html#ZEROING_TIMEOUT_PER_MIB_OPT"><a title="ganeti.cli.ZEROING_TIMEOUT_PER_MIB_OPT" class="py-name" href="#" onclick="return doclink('link-77', 'ZEROING_TIMEOUT_PER_MIB_OPT', 'link-77');">ZEROING_TIMEOUT_PER_MIB_OPT</a></tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt id="link-78" class="py-name" targets="Variable ganeti.cli.SUBMIT_OPTS=ganeti.cli-module.html#SUBMIT_OPTS"><a title="ganeti.cli.SUBMIT_OPTS" class="py-name" href="#" onclick="return doclink('link-78', 'SUBMIT_OPTS', 'link-78');">SUBMIT_OPTS</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">    <tt class="py-string">"-n &lt;target_node&gt; [opts...] &lt;name&gt;"</tt><tt class="py-op">,</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line">    <tt class="py-string">"Exports an instance to an image"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">  <tt class="py-string">"import"</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">    <tt id="link-79" class="py-name" targets="Function ganeti.client.gnt_backup.ImportInstance()=ganeti.client.gnt_backup-module.html#ImportInstance"><a title="ganeti.client.gnt_backup.ImportInstance" class="py-name" href="#" onclick="return doclink('link-79', 'ImportInstance', 'link-79');">ImportInstance</a></tt><tt class="py-op">,</tt> <tt id="link-80" class="py-name"><a title="ganeti.cli.ARGS_ONE_INSTANCE" class="py-name" href="#" onclick="return doclink('link-80', 'ARGS_ONE_INSTANCE', 'link-65');">ARGS_ONE_INSTANCE</a></tt><tt class="py-op">,</tt> <tt id="link-81" class="py-name" targets="Variable ganeti.cli.COMMON_CREATE_OPTS=ganeti.cli-module.html#COMMON_CREATE_OPTS"><a title="ganeti.cli.COMMON_CREATE_OPTS" class="py-name" href="#" onclick="return doclink('link-81', 'COMMON_CREATE_OPTS', 'link-81');">COMMON_CREATE_OPTS</a></tt> <tt class="py-op">+</tt> <tt id="link-82" class="py-name"><a title="ganeti.client.gnt_backup.import_opts" class="py-name" href="#" onclick="return doclink('link-82', 'import_opts', 'link-43');">import_opts</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">    <tt class="py-string">"[...] -t disk-type -n node[:secondary-node] &lt;name&gt;"</tt><tt class="py-op">,</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">    <tt class="py-string">"Imports an instance from an exported image"</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">  <tt class="py-string">"remove"</tt><tt class="py-op">:</tt> <tt class="py-op">(</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line">    <tt id="link-83" class="py-name" targets="Function ganeti.backend.RemoveExport()=ganeti.backend-module.html#RemoveExport,Function ganeti.client.gnt_backup.RemoveExport()=ganeti.client.gnt_backup-module.html#RemoveExport"><a title="ganeti.backend.RemoveExport
+ganeti.client.gnt_backup.RemoveExport" class="py-name" href="#" onclick="return doclink('link-83', 'RemoveExport', 'link-83');">RemoveExport</a></tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt id="link-84" class="py-name"><a title="ganeti.cli.ArgUnknown" class="py-name" href="#" onclick="return doclink('link-84', 'ArgUnknown', 'link-61');">ArgUnknown</a></tt><tt class="py-op">(</tt><tt class="py-name">min</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">,</tt> <tt class="py-name">max</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">    <tt class="py-op">[</tt><tt id="link-85" class="py-name"><a title="ganeti.cli.DRY_RUN_OPT" class="py-name" href="#" onclick="return doclink('link-85', 'DRY_RUN_OPT', 'link-73');">DRY_RUN_OPT</a></tt><tt class="py-op">,</tt> <tt id="link-86" class="py-name"><a title="ganeti.cli.PRIORITY_OPT" class="py-name" href="#" onclick="return doclink('link-86', 'PRIORITY_OPT', 'link-74');">PRIORITY_OPT</a></tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt id="link-87" class="py-name"><a title="ganeti.cli.SUBMIT_OPTS" class="py-name" href="#" onclick="return doclink('link-87', 'SUBMIT_OPTS', 'link-78');">SUBMIT_OPTS</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line">    <tt class="py-string">"&lt;name&gt;"</tt><tt class="py-op">,</tt> <tt class="py-string">"Remove exports of named instance from the filesystem."</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line">  <tt class="py-op">}</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"> </tt>
+<a name="Main"></a><div id="Main-def"><a name="L186"></a><tt class="py-lineno">186</tt> <a class="py-toggle" href="#" id="Main-toggle" onclick="return toggle('Main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.client.gnt_backup-module.html#Main">Main</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Main-expanded"><a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-88" class="py-name" targets="Function ganeti.cli.GenericMain()=ganeti.cli-module.html#GenericMain,Function ganeti.daemon.GenericMain()=ganeti.daemon-module.html#GenericMain"><a title="ganeti.cli.GenericMain
+ganeti.daemon.GenericMain" class="py-name" href="#" onclick="return doclink('link-88', 'GenericMain', 'link-88');">GenericMain</a></tt><tt class="py-op">(</tt><tt id="link-89" class="py-name"><a title="ganeti.client.gnt_backup.commands
+ganeti.client.gnt_cluster.commands
+ganeti.client.gnt_debug.commands
+ganeti.client.gnt_group.commands
+ganeti.client.gnt_instance.commands
+ganeti.client.gnt_job.commands
+ganeti.client.gnt_network.commands
+ganeti.client.gnt_node.commands
+ganeti.client.gnt_os.commands
+ganeti.client.gnt_storage.commands
+script-burnin.commands
+script-ensure_dirs.commands
+script-ganeti_noded.commands
+script-ganeti_rapi.commands
+script-ganeti_watcher.commands
+script-node_cleanup.commands
+script-node_daemon_setup.commands
+script-prepare_node_join.commands
+script-ssl_update.commands" class="py-name" href="#" onclick="return doclink('link-89', 'commands', 'link-51');">commands</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Jan 12 17:29:17 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Disks &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="File-based Storage" href="design-file-based-storage.html" />
+    <link rel="prev" title="Conversion between disk templates" href="design-disk-conversion.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-storage.html" title="File-based Storage"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-disk-conversion.html" title="Conversion between disk templates"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="disks">
+<h1><a class="toc-backref" href="#id1">Disks</a><a class="headerlink" href="#disks" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#disks" id="id1">Disks</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a></li>
+<li><a class="reference internal" href="#design-decisions" id="id4">Design decisions</a><ul>
+<li><a class="reference internal" href="#disks-as-config-top-level-citizens" id="id5">Disks as config top-level citizens</a><ul>
+<li><a class="reference internal" href="#disk-representation" id="id6">Disk representation</a></li>
+<li><a class="reference internal" href="#get-instance-s-disks" id="id7">Get instance&#8217;s disks</a></li>
+<li><a class="reference internal" href="#configuration-changes" id="id8">Configuration changes</a></li>
+<li><a class="reference internal" href="#apply-disk-modifications" id="id9">Apply Disk modifications</a></li>
+<li><a class="reference internal" href="#backend-changes" id="id10">Backend changes</a></li>
+<li><a class="reference internal" href="#supporting-the-old-interface" id="id11">Supporting the old interface</a></li>
+<li><a class="reference internal" href="#eliminating-the-disk-template-from-the-instance" id="id12">Eliminating the disk template from the instance</a></li>
+<li><a class="reference internal" href="#attach-detach-disks-from-cli" id="id13">Attach/Detach disks from cli</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the implementation of disks as a new
+top-level citizen in the config file (just like instances, nodes etc).</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, Disks are stored in Ganeti&#8217;s config file as a list
+(container) of Disk objects under the Instance in which they belong.
+This implementation imposes a number of limitations:</p>
+<ul class="simple">
+<li>A Disk object cannot live outside an Instance. This means that one
+cannot detach a disk from an instance (without destroying the disk)
+and then reattach it (to the same or even to a different instance).</li>
+<li>Disks are not taggable objects, as only top-level citizens of the
+config file can be made taggable. Having taggable disks will allow for
+further customizations.</li>
+<li>All disks of an instance have to be of the same template. Dropping
+this constraint would allow mixing different kinds of storage (e.g. an
+instance might have a local <tt class="docutils literal"><span class="pre">plain</span></tt> storage for the OS and a
+remotely replicated <tt class="docutils literal"><span class="pre">sharedstorage</span></tt> for the data).</li>
+</ul>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The implementation is going to be split in four parts:</p>
+<ul class="simple">
+<li>Make disks a top-level citizen in config file. The Instance object
+will no longer contain a list of Disk objects, but a list of disk
+UUIDs.</li>
+<li>Add locks for Disk objects and make them taggable.</li>
+<li>Allow to attach/detach an existing disk to/from an instance.</li>
+<li>Allow creation/modification/deletion of disks that are not attached to
+any instance (requires new LUs for disks).</li>
+<li>Allow disks of a single instance to be of different templates.</li>
+<li>Remove all unnecessary distinction between disk templates and disk
+types.</li>
+</ul>
+</div>
+<div class="section" id="design-decisions">
+<h2><a class="toc-backref" href="#id4">Design decisions</a><a class="headerlink" href="#design-decisions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disks-as-config-top-level-citizens">
+<h3><a class="toc-backref" href="#id5">Disks as config top-level citizens</a><a class="headerlink" href="#disks-as-config-top-level-citizens" title="Permalink to this headline">¶</a></h3>
+<p>The first patch-series is going to add a new top-level citizen in the
+config object (namely <tt class="docutils literal"><span class="pre">disks</span></tt>) and separate the disk objects from the
+instances. In doing so there are a number of problems that we have to
+overcome:</p>
+<ul class="simple">
+<li>How the Disk object will be represented in the config file and how it
+is going to be connected with the instance it belongs to.</li>
+<li>How the existing code will get the disks belonging to an instance.</li>
+<li>What it means for a disk to be attached/detached to/from an instance.</li>
+<li>How disks are going to be created/deleted, attached/detached using
+the existing code.</li>
+</ul>
+<div class="section" id="disk-representation">
+<h4><a class="toc-backref" href="#id6">Disk representation</a><a class="headerlink" href="#disk-representation" title="Permalink to this headline">¶</a></h4>
+<p>The <tt class="docutils literal"><span class="pre">Disk</span></tt> object gets two extra slots, <tt class="docutils literal"><span class="pre">_TIMESTAMPS</span></tt> and
+<tt class="docutils literal"><span class="pre">serial_no</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">Instance</span></tt> object will no longer contain the list of disk objects
+that are attached to it or a disk template.
+Instead, an Instance object will refer to its
+disks using their UUIDs and the disks will contain their own template.
+Since the order in which the disks are attached
+to an instance is important we are going to have a list of disk UUIDs
+under the Instance object which will denote the disks attached to the
+instance and their order at the same time. So the Instance&#8217;s <tt class="docutils literal"><span class="pre">disks</span></tt>
+slot is going to be a list of disk UUIDs. The <cite>Disk</cite> object is not going
+to have a slot pointing to the <cite>Instance</cite> in which it belongs since this
+is redundant.</p>
+</div>
+<div class="section" id="get-instance-s-disks">
+<h4><a class="toc-backref" href="#id7">Get instance&#8217;s disks</a><a class="headerlink" href="#get-instance-s-disks" title="Permalink to this headline">¶</a></h4>
+<p>A new function <tt class="docutils literal"><span class="pre">GetInstanceDisks</span></tt> will be added to the config that given an
+instance will return a list of Disk objects with the disks attached to this
+instance. This list will be exactly the same as &#8216;instance.disks&#8217; was before.
+Everywhere in the code we are going to replace the &#8216;instance.disks&#8217; (which from
+now one will contain a list of disk UUIDs) with the function
+<tt class="docutils literal"><span class="pre">GetInstanceDisks</span></tt>.</p>
+<p>Since disks will not be part of the <cite>Instance</cite> object any more, &#8216;all_nodes&#8217; and
+&#8216;secondary_nodes&#8217; can not be <cite>Instance</cite>&#8216;s properties. Instead we will use the
+functions <tt class="docutils literal"><span class="pre">GetInstanceNodes</span></tt> and <tt class="docutils literal"><span class="pre">GetInstanceSecondaryNodes</span></tt> from the
+config to compute these values.</p>
+</div>
+<div class="section" id="configuration-changes">
+<h4><a class="toc-backref" href="#id8">Configuration changes</a><a class="headerlink" href="#configuration-changes" title="Permalink to this headline">¶</a></h4>
+<p>The <tt class="docutils literal"><span class="pre">ConfigData</span></tt> object gets one extra slot: <tt class="docutils literal"><span class="pre">disks</span></tt>. Also there
+will be two new functions, <tt class="docutils literal"><span class="pre">AddDisk</span></tt> and <tt class="docutils literal"><span class="pre">RemoveDisk</span></tt> that will
+create/remove a disk objects from the config.</p>
+<p>The <tt class="docutils literal"><span class="pre">VerifyConfig</span></tt> function will be changed so it can check that there
+are no dangling pointers from instances to disks (i.e. an instance
+points to a disk that doesn&#8217;t exist in the config).</p>
+<p>The &#8216;upgrade&#8217; operation for the config should check if disks are top level
+citizens and if not it has to extract the disk objects from the instances,
+replace them with their uuids, and copy the disk template. In case of the &#8216;downgrade&#8217; operation (where
+disks will be made again part of the <cite>Instance</cite> object) all disks that are not
+attached to any instance at all will be ignored (removed from config).
+The disk template of the
+instance is set to the disk template of any disk attached to it. If
+there are multiple disk templates present, the downgrade fails and the
+user is requested to detach disks from the instances.</p>
+</div>
+<div class="section" id="apply-disk-modifications">
+<h4><a class="toc-backref" href="#id9">Apply Disk modifications</a><a class="headerlink" href="#apply-disk-modifications" title="Permalink to this headline">¶</a></h4>
+<p>There are four operations that can be performed to a <cite>Disk</cite> object:</p>
+<ul class="simple">
+<li>Create a new <cite>Disk</cite> object of a given template and save it to the
+config.</li>
+<li>Remove an existing <cite>Disk</cite> object from the config.</li>
+<li>Attach an existing <cite>Disk</cite> to an existing <cite>Instance</cite>.</li>
+<li>Detach an existing <cite>Disk</cite> from an existing <cite>Instance</cite>.</li>
+</ul>
+<p>The first two operations will be performed using the config functions
+<tt class="docutils literal"><span class="pre">AddDisk</span></tt> and <tt class="docutils literal"><span class="pre">RemoveDisk</span></tt> respectively where the last two operations
+will be performed using the functions <tt class="docutils literal"><span class="pre">AttachInstanceDisk</span></tt> and
+<tt class="docutils literal"><span class="pre">DetachInstanceDisk</span></tt>.</p>
+<p>More specifically, the <cite>add</cite> operation will add and attach a disk at the same
+time, using a wrapper that calls the <tt class="docutils literal"><span class="pre">AddDisk</span></tt> and <tt class="docutils literal"><span class="pre">AttachInstanceDisk</span></tt>
+functions. On the same vein, the <cite>remove</cite> operation will detach and remove a
+disk using a wrapper that calls the <tt class="docutils literal"><span class="pre">DetachInstanceDisk</span></tt> and
+<tt class="docutils literal"><span class="pre">RemoveInstanceDisk</span></tt>. The <cite>attach</cite> and <cite>detach</cite> operations are simpler, in
+the sense that they only call the <tt class="docutils literal"><span class="pre">AttachInstanceDisk</span></tt> and
+<tt class="docutils literal"><span class="pre">DetachInstanceDisk</span></tt> functions respectively.</p>
+<p>It is important to note that the <cite>detach</cite> operation introduces the notion of
+disks that are not attached to any instance. For this reason, the configuration
+checks for detached disks will be removed, as the detached disks can be handled
+by the code.</p>
+<p>In addition since Ganeti doesn&#8217;t allow for a <cite>Disk</cite> object to be attached to
+more than one <cite>Instance</cite> at once, when attaching a disk to an instance we have
+to make sure that the disk is not attached anywhere else.</p>
+</div>
+<div class="section" id="backend-changes">
+<h4><a class="toc-backref" href="#id10">Backend changes</a><a class="headerlink" href="#backend-changes" title="Permalink to this headline">¶</a></h4>
+<p>The backend needs access to the disks of an <cite>Instance</cite> but doesn&#8217;t have access to
+the <cite>GetInstanceDisks</cite> function from the config file. Thus we will create a new
+<cite>Instance</cite> slot (namely <tt class="docutils literal"><span class="pre">disks_info</span></tt>) that will get annotated (during RPC)
+with the instance&#8217;s disk objects. So in the backend we will only have to
+replace the <tt class="docutils literal"><span class="pre">disks</span></tt> slot with <tt class="docutils literal"><span class="pre">disks_info</span></tt>.</p>
+</div>
+<div class="section" id="supporting-the-old-interface">
+<h4><a class="toc-backref" href="#id11">Supporting the old interface</a><a class="headerlink" href="#supporting-the-old-interface" title="Permalink to this headline">¶</a></h4>
+<p>The current interface is designed with a uniform disk type in mind and
+this interface should still be supported to not break tools and
+workflows downstream.</p>
+<p>The behaviour is fully compatible for instances with constantly
+attached, uniform disks.</p>
+<p>Whenever an operation operates on an instance, the operation will only
+consider the disks attached. If the operation is specific to a disk
+type, it will throw an error if any disks of a type not supported are
+attached.</p>
+<p>When setting the disk template of an instance, we convert all currently
+attached disks to that template. This means that all disk types
+currently attached must be convertible to the new template.</p>
+<p>Since the disk template as a configuration value is going away, it needs
+to be replaced for queries. If the instance has no disks, the
+disk_template will be &#8216;diskless&#8217;, if it has disks of a single type, its
+disk_template will be that type, and if it has disks of multiple types,
+the new disk template &#8216;mixed&#8217; will be returned.</p>
+</div>
+<div class="section" id="eliminating-the-disk-template-from-the-instance">
+<h4><a class="toc-backref" href="#id12">Eliminating the disk template from the instance</a><a class="headerlink" href="#eliminating-the-disk-template-from-the-instance" title="Permalink to this headline">¶</a></h4>
+<p>In order to remove the disk template from the instance model, all
+current uses of the disk template there need to be replaced. These uses
+fall into the following general categories:</p>
+<ol class="arabic simple">
+<li>The configuration needs to reflect the new model. <cite>cfgupgrade</cite> and
+<cite>bootstrap</cite> need to be fixed, creating and modifying instances and
+disks for instances needs to be fixed.</li>
+<li>The query interface will no longer be able to return an instance disk
+template.</li>
+<li>Several checks for the DISKLESS template will be replaced by checking
+if any disks are attached.</li>
+<li>If an operation works disk by disk, the operation will dispatch for
+the functionality by disk instead of by instance. If an operation
+requires that all disks are of the same kind (e.g. a query if the
+instance is DRBD backed) then the assumption is checked beforehand.
+Since this is a user visible change, it will have to be announced in
+the NEWS file specifying the calls changed.</li>
+<li>Operations that operate on the instance and extract the disk template
+e.g. for creation of a new disk will require an additional parameter
+for the disk template. Several instances already provide an optional
+parameter to override the instance setting, those will become
+required. This is incompatible as well and will need to be listed in
+the NEWS file.</li>
+</ol>
+</div>
+<div class="section" id="attach-detach-disks-from-cli">
+<h4><a class="toc-backref" href="#id13">Attach/Detach disks from cli</a><a class="headerlink" href="#attach-detach-disks-from-cli" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>attach</cite>/<cite>detach</cite> options should be available through the command
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">modify</span></tt>. Like the <cite>add</cite>/<cite>remove</cite> options, the <cite>attach</cite>/<cite>detach</cite>
+options can be invoked using the legacy syntax or the new syntax that supports
+indexes. For the attach option, we can refer to the disk using either its
+<cite>name</cite> or <cite>uuid</cite>. The detach option on the other hand has the same syntax as
+the remove option, and we can refer to a disk by its <cite>name</cite>, <cite>uuid</cite> or <cite>index</cite>
+in the instance.</p>
+<p>The attach/detach syntax can be seen below:</p>
+<ul>
+<li><p class="first"><strong>Legacy syntax</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>gnt-instance modify --disk attach,name<span class="o">=</span>*NAME* *INSTANCE*
+gnt-instance modify --disk attach,uuid<span class="o">=</span>*UUID* *INSTANCE*
+gnt-instance modify --disk detach *INSTANCE*
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>New syntax</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>gnt-instance modify --disk *N*:attach,name<span class="o">=</span>*NAME* *INSTANCE*
+gnt-instance modify --disk *N*:attach,uuid<span class="o">=</span>*UUID* *INSTANCE*
+gnt-instance modify --disk *N*:detach *INSTANCE*
+gnt-instance modify --disk *NAME*:detach *INSTANCE*
+gnt-instance modify --disk *UUID*:detach *INSTANCE*
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Disks</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a></li>
+<li><a class="reference internal" href="#design-decisions">Design decisions</a><ul>
+<li><a class="reference internal" href="#disks-as-config-top-level-citizens">Disks as config top-level citizens</a><ul>
+<li><a class="reference internal" href="#disk-representation">Disk representation</a></li>
+<li><a class="reference internal" href="#get-instance-s-disks">Get instance&#8217;s disks</a></li>
+<li><a class="reference internal" href="#configuration-changes">Configuration changes</a></li>
+<li><a class="reference internal" href="#apply-disk-modifications">Apply Disk modifications</a></li>
+<li><a class="reference internal" href="#backend-changes">Backend changes</a></li>
+<li><a class="reference internal" href="#supporting-the-old-interface">Supporting the old interface</a></li>
+<li><a class="reference internal" href="#eliminating-the-disk-template-from-the-instance">Eliminating the disk template from the instance</a></li>
+<li><a class="reference internal" href="#attach-detach-disks-from-cli">Attach/Detach disks from cli</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-disk-conversion.html"
+                        title="previous chapter">Conversion between disk templates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-file-based-storage.html"
+                        title="next chapter">File-based Storage</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-disks.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-file-based-storage.html" title="File-based Storage"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-disk-conversion.html" title="Conversion between disk templates"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

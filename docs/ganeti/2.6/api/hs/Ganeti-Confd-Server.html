@@ -1,0 +1,2452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Confd.Server</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Confd-Server.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Confd/Server.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Confd.Server</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Types and constants definitions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Confd base functionality
+</A
+></DT
+><DT
+><A HREF="#3"
+>Configuration handling
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#4"
+>Helper functions
+</A
+></DT
+><DT
+><A HREF="#5"
+>Configuration loading
+</A
+></DT
+><DT
+><A HREF="#6"
+>Watcher threads
+</A
+></DT
+><DT
+><A HREF="#7"
+>Client input/output handlers
+</A
+></DT
+></DL
+></DD
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the Ganeti confd server functionality.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3ACRef"
+>CRef</A
+> = IORef (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>))</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AFStat"
+>FStat</A
+> = (EpochTime, FileID, FileOffset)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnullFStat"
+>nullFStat</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AStatusAnswer"
+>StatusAnswer</A
+> = (<A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+>, JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AReloadModel"
+>ReloadModel</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AReloadNotify"
+>ReloadNotify</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReloadPoll"
+>ReloadPoll</A
+> Int</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AServerState"
+>ServerState</A
+>  = <A HREF="#v%3AServerState"
+>ServerState</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AreloadModel"
+>reloadModel</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AreloadTime"
+>reloadTime</A
+> :: Integer</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AreloadFStat"
+>reloadFStat</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxIdlePollRounds"
+>maxIdlePollRounds</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfigReloadTimeout"
+>configReloadTimeout</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfigReloadRatelimit"
+>configReloadRatelimit</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinitialPoll"
+>initialPoll</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinitialState"
+>initialState</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfigReload"
+>ConfigReload</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AConfigToDate"
+>ConfigToDate</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AConfigReloaded"
+>ConfigReloaded</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AConfigIOError"
+>ConfigIOError</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryUnknownEntry"
+>queryUnknownEntry</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryArgumentError"
+>queryArgumentError</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetCurrentTime"
+>getCurrentTime</A
+> :: IO Integer</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetClusterHmac"
+>getClusterHmac</A
+> :: IO <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AnodeRole"
+>nodeRole</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetNodePipByInstanceIp"
+>getNodePipByInstanceIp</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+> -&gt; String -&gt; String -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildResponse"
+>buildResponse</A
+> :: (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>) -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseRequest"
+>parseRequest</A
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, String, <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AserializeResponse"
+>serializeResponse</A
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+> -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsignMessage"
+>signMessage</A
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; String -&gt; <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmoveToPolling"
+>moveToPolling</A
+> :: String -&gt; INotify -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmoveToNotify"
+>moveToNotify</A
+> :: IO <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AupdateConfig"
+>updateConfig</A
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsafeUpdateConfig"
+>safeUpdateConfig</A
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; IO (<A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+>, <A HREF="Ganeti-Confd-Server.html#t%3AConfigReload"
+>ConfigReload</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildFileStatus"
+>buildFileStatus</A
+> :: FileStatus -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetFStat"
+>getFStat</A
+> :: FilePath -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AneedsReload"
+>needsReload</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+> -&gt; FilePath -&gt; IO (Maybe <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AonTimeoutTimer"
+>onTimeoutTimer</A
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AonTimeoutInner"
+>onTimeoutInner</A
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AonReloadTimer"
+>onReloadTimer</A
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AonReloadInner"
+>onReloadInner</A
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO (<A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+>, Bool)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AaddNotifier"
+>addNotifier</A
+> :: INotify -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AonInotify"
+>onInotify</A
+> :: INotify -&gt; String -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; Event -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aresponder"
+>responder</A
+> :: <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; SockAddr -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseMessage"
+>parseMessage</A
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; Integer -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArespondInner"
+>respondInner</A
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>) -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Alistener"
+>listener</A
+> :: Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; (Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; SockAddr -&gt; IO ()) -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amain"
+>main</A
+> :: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Types and constants definitions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:CRef"
+><A NAME="t%3ACRef"
+></A
+></A
+><B
+>CRef</B
+> = IORef (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>))</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#CRef"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>What we store as configuration.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:FStat"
+><A NAME="t%3AFStat"
+></A
+></A
+><B
+>FStat</B
+> = (EpochTime, FileID, FileOffset)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#FStat"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>File stat identifier.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nullFStat"
+><A NAME="v%3AnullFStat"
+></A
+></A
+><B
+>nullFStat</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#nullFStat"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Null <TT
+><A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TT
+> value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:StatusAnswer"
+><A NAME="t%3AStatusAnswer"
+></A
+></A
+><B
+>StatusAnswer</B
+> = (<A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+>, JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#StatusAnswer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A small type alias for readability.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ReloadModel"
+><A NAME="t%3AReloadModel"
+></A
+></A
+><B
+>ReloadModel</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#ReloadModel"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Reload model data type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReloadNotify"
+><A NAME="v%3AReloadNotify"
+></A
+></A
+><B
+>ReloadNotify</B
+></TD
+><TD CLASS="rdoc"
+>We are using notifications
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReloadPoll"
+><A NAME="v%3AReloadPoll"
+></A
+></A
+><B
+>ReloadPoll</B
+> Int</TD
+><TD CLASS="rdoc"
+>We are using polling
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ServerState"
+><A NAME="t%3AServerState"
+></A
+></A
+><B
+>ServerState</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#ServerState"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Server state data type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ServerState"
+><A NAME="v%3AServerState"
+></A
+></A
+><B
+>ServerState</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:reloadModel"
+><A NAME="v%3AreloadModel"
+></A
+></A
+><B
+>reloadModel</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:reloadTime"
+><A NAME="v%3AreloadTime"
+></A
+></A
+><B
+>reloadTime</B
+> :: Integer</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:reloadFStat"
+><A NAME="v%3AreloadFStat"
+></A
+></A
+><B
+>reloadFStat</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxIdlePollRounds"
+><A NAME="v%3AmaxIdlePollRounds"
+></A
+></A
+><B
+>maxIdlePollRounds</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#maxIdlePollRounds"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Maximum no-reload poll rounds before reverting to inotify.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:configReloadTimeout"
+><A NAME="v%3AconfigReloadTimeout"
+></A
+></A
+><B
+>configReloadTimeout</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#configReloadTimeout"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reload timeout in microseconds.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:configReloadRatelimit"
+><A NAME="v%3AconfigReloadRatelimit"
+></A
+></A
+><B
+>configReloadRatelimit</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#configReloadRatelimit"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Ratelimit timeout in microseconds.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:initialPoll"
+><A NAME="v%3AinitialPoll"
+></A
+></A
+><B
+>initialPoll</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#initialPoll"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Initial poll round.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:initialState"
+><A NAME="v%3AinitialState"
+></A
+></A
+><B
+>initialState</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#initialState"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Initial server state.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfigReload"
+><A NAME="t%3AConfigReload"
+></A
+></A
+><B
+>ConfigReload</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#ConfigReload"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Reload status data type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfigToDate"
+><A NAME="v%3AConfigToDate"
+></A
+></A
+><B
+>ConfigToDate</B
+></TD
+><TD CLASS="rdoc"
+>No need to reload
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfigReloaded"
+><A NAME="v%3AConfigReloaded"
+></A
+></A
+><B
+>ConfigReloaded</B
+></TD
+><TD CLASS="rdoc"
+>Configuration reloaded
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfigIOError"
+><A NAME="v%3AConfigIOError"
+></A
+></A
+><B
+>ConfigIOError</B
+></TD
+><TD CLASS="rdoc"
+>Error during configuration reload
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryUnknownEntry"
+><A NAME="v%3AqueryUnknownEntry"
+></A
+></A
+><B
+>queryUnknownEntry</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#queryUnknownEntry"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Unknown entry standard response.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryArgumentError"
+><A NAME="v%3AqueryArgumentError"
+></A
+></A
+><B
+>queryArgumentError</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#queryArgumentError"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Argument error standard response.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getCurrentTime"
+><A NAME="v%3AgetCurrentTime"
+></A
+></A
+><B
+>getCurrentTime</B
+> :: IO Integer</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#getCurrentTime"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the current time.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Confd base functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getClusterHmac"
+><A NAME="v%3AgetClusterHmac"
+></A
+></A
+><B
+>getClusterHmac</B
+> :: IO <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#getClusterHmac"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the HMAC key.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:nodeRole"
+><A NAME="v%3AnodeRole"
+></A
+></A
+><B
+>nodeRole</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#nodeRole"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the node role.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getNodePipByInstanceIp"
+><A NAME="v%3AgetNodePipByInstanceIp"
+></A
+></A
+><B
+>getNodePipByInstanceIp</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+> -&gt; String -&gt; String -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#getNodePipByInstanceIp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Does an instance ip -&gt; instance -&gt; primary node -&gt; primary ip
+ transformation.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildResponse"
+><A NAME="v%3AbuildResponse"
+></A
+></A
+><B
+>buildResponse</B
+> :: (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>) -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#buildResponse"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Builds the response to a given query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseRequest"
+><A NAME="v%3AparseRequest"
+></A
+></A
+><B
+>parseRequest</B
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, String, <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#parseRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parses a signed request.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:serializeResponse"
+><A NAME="v%3AserializeResponse"
+></A
+></A
+><B
+>serializeResponse</B
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Confd-Server.html#t%3AStatusAnswer"
+>StatusAnswer</A
+> -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#serializeResponse"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Creates a ConfdReply from a given answer.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:signMessage"
+><A NAME="v%3AsignMessage"
+></A
+></A
+><B
+>signMessage</B
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; String -&gt; <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#signMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Signs a message with a given key and salt.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Configuration handling
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="4"
+><A NAME="4"
+>Helper functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:moveToPolling"
+><A NAME="v%3AmoveToPolling"
+></A
+></A
+><B
+>moveToPolling</B
+> :: String -&gt; INotify -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#moveToPolling"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function for logging transition into polling mode.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:moveToNotify"
+><A NAME="v%3AmoveToNotify"
+></A
+></A
+><B
+>moveToNotify</B
+> :: IO <A HREF="Ganeti-Confd-Server.html#t%3AReloadModel"
+>ReloadModel</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#moveToNotify"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function for logging transition into inotify mode.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="5"
+><A NAME="5"
+>Configuration loading
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:updateConfig"
+><A NAME="v%3AupdateConfig"
+></A
+></A
+><B
+>updateConfig</B
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#updateConfig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>(Re)loads the configuration.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:safeUpdateConfig"
+><A NAME="v%3AsafeUpdateConfig"
+></A
+></A
+><B
+>safeUpdateConfig</B
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; IO (<A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+>, <A HREF="Ganeti-Confd-Server.html#t%3AConfigReload"
+>ConfigReload</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#safeUpdateConfig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over <TT
+><A HREF="Ganeti-Confd-Server.html#v%3AupdateConfig"
+>updateConfig</A
+></TT
+> that handles IO errors.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildFileStatus"
+><A NAME="v%3AbuildFileStatus"
+></A
+></A
+><B
+>buildFileStatus</B
+> :: FileStatus -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#buildFileStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the file cache data from a FileStatus structure.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getFStat"
+><A NAME="v%3AgetFStat"
+></A
+></A
+><B
+>getFStat</B
+> :: FilePath -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#getFStat"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over <TT
+><A HREF="Ganeti-Confd-Server.html#v%3AbuildFileStatus"
+>buildFileStatus</A
+></TT
+>. This reads the data from the
+ filesystem and then builds our cache structure.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:needsReload"
+><A NAME="v%3AneedsReload"
+></A
+></A
+><B
+>needsReload</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+> -&gt; FilePath -&gt; IO (Maybe <A HREF="Ganeti-Confd-Server.html#t%3AFStat"
+>FStat</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#needsReload"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check if the file needs reloading
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="6"
+><A NAME="6"
+>Watcher threads
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>We have three threads/functions that can mutate the server state:
+</P
+><P
+>1. the long-interval watcher (<TT
+><A HREF="Ganeti-Confd-Server.html#v%3AonTimeoutTimer"
+>onTimeoutTimer</A
+></TT
+>)
+</P
+><P
+>2. the polling watcher (<TT
+><A HREF="Ganeti-Confd-Server.html#v%3AonReloadTimer"
+>onReloadTimer</A
+></TT
+>)
+</P
+><P
+>3. the inotify event handler (<TT
+><A HREF="Ganeti-Confd-Server.html#v%3AonInotify"
+>onInotify</A
+></TT
+>)
+</P
+><P
+>All of these will mutate the server state under <TT
+>modifyMVar</TT
+> or
+ <TT
+>modifyMVar_</TT
+>, so that server transitions are more or less
+ atomic. The inotify handler remains active during polling mode, but
+ checks for polling mode and doesn't do anything in this case (this
+ check is needed even if we would unregister the event handler due
+ to how events are serialised).
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:onTimeoutTimer"
+><A NAME="v%3AonTimeoutTimer"
+></A
+></A
+><B
+>onTimeoutTimer</B
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#onTimeoutTimer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Long-interval reload watcher.
+</P
+><P
+>This is on top of the inotify-based triggered reload.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:onTimeoutInner"
+><A NAME="v%3AonTimeoutInner"
+></A
+></A
+><B
+>onTimeoutInner</B
+> :: FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#onTimeoutInner"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Inner onTimeout handler.
+</P
+><P
+>This mutates the server state under a modifyMVar_ call. It never
+ changes the reload model, just does a safety reload and tried to
+ re-establish the inotify watcher.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:onReloadTimer"
+><A NAME="v%3AonReloadTimer"
+></A
+></A
+><B
+>onReloadTimer</B
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#onReloadTimer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Short-interval (polling) reload watcher.
+</P
+><P
+>This is only active when we're in polling mode; it will
+ automatically exit when it detects that the state has changed to
+ notification.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:onReloadInner"
+><A NAME="v%3AonReloadInner"
+></A
+></A
+><B
+>onReloadInner</B
+> :: IO Bool -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO (<A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+>, Bool)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#onReloadInner"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Inner onReload handler.
+</P
+><P
+>This again mutates the state under a modifyMVar call, and also
+ returns whether the thread should continue or not.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:addNotifier"
+><A NAME="v%3AaddNotifier"
+></A
+></A
+><B
+>addNotifier</B
+> :: INotify -&gt; FilePath -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; IO Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#addNotifier"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Setup inotify watcher.
+</P
+><P
+>This tries to setup the watch descriptor; in case of any IO errors,
+ it will return False.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:onInotify"
+><A NAME="v%3AonInotify"
+></A
+></A
+><B
+>onInotify</B
+> :: INotify -&gt; String -&gt; <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; MVar <A HREF="Ganeti-Confd-Server.html#t%3AServerState"
+>ServerState</A
+> -&gt; Event -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#onInotify"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Inotify event handler.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="7"
+><A NAME="7"
+>Client input/output handlers
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:responder"
+><A NAME="v%3Aresponder"
+></A
+></A
+><B
+>responder</B
+> :: <A HREF="Ganeti-Confd-Server.html#t%3ACRef"
+>CRef</A
+> -&gt; Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; SockAddr -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#responder"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main loop for a given client.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseMessage"
+><A NAME="v%3AparseMessage"
+></A
+></A
+><B
+>parseMessage</B
+> :: <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; Integer -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#parseMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Mesage parsing. This can either result in a good, valid message,
+ or fail in the Result monad.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:respondInner"
+><A NAME="v%3ArespondInner"
+></A
+></A
+><B
+>respondInner</B
+> :: <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>, <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+>) -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#respondInner"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Inner helper function for a given client. This generates the
+ final encoded message (as a string), ready to be sent out to the
+ client.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:listener"
+><A NAME="v%3Alistener"
+></A
+></A
+><B
+>listener</B
+> :: Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; (Socket -&gt; <A HREF="Ganeti-Hash.html#t%3AHashKey"
+>HashKey</A
+> -&gt; String -&gt; SockAddr -&gt; IO ()) -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#listener"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main listener loop.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:main"
+><A NAME="v%3Amain"
+></A
+></A
+><B
+>main</B
+> :: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd/Server.html#main"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

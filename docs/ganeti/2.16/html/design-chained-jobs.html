@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Chained jobs &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Unit tests for cmdlib / LogicalUnit’s" href="design-cmdlib-unittests.html" />
+    <link rel="prev" title="Ganeti Bulk Create" href="design-bulk-create.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cmdlib-unittests.html" title="Unit tests for cmdlib / LogicalUnit’s"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-bulk-create.html" title="Ganeti Bulk Create"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="chained-jobs">
+<h1><a class="toc-backref" href="#id1">Chained jobs</a><a class="headerlink" href="#chained-jobs" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#chained-jobs" id="id1">Chained jobs</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#implementation-details" id="id4">Implementation details</a><ul>
+<li><a class="reference internal" href="#status-while-waiting-for-dependencies" id="id5">Status while waiting for dependencies</a></li>
+<li><a class="reference internal" href="#cost-of-deserialization" id="id6">Cost of deserialization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-discussed-solutions" id="id7">Other discussed solutions</a><ul>
+<li><a class="reference internal" href="#job-level-attribute" id="id8">Job-level attribute</a></li>
+<li><a class="reference internal" href="#client-side-logic" id="id9">Client-side logic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document about the innards of Ganeti&#8217;s job processing.
+Readers are advised to study previous design documents on the topic:</p>
+<ul class="simple">
+<li><a class="reference internal" href="design-2.0.html#jqueue-original-design"><em>Original job queue</em></a></li>
+<li><a class="reference internal" href="design-2.3.html#jqueue-job-priority-design"><em>Job priorities</em></a></li>
+<li><a class="reference internal" href="design-lu-generated-jobs.html"><em>LU-generated jobs</em></a></li>
+</ul>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ever since the introduction of the job queue with Ganeti 2.0 there have
+been situations where we wanted to run several jobs in a specific order.
+Due to the job queue&#8217;s current design, such a guarantee can not be
+given. Jobs are run according to their priority, their ability to
+acquire all necessary locks and other factors.</p>
+<p>One way to work around this limitation is to do some kind of job
+grouping in the client code. Once all jobs of a group have finished, the
+next group is submitted and waited for. There are different kinds of
+clients for Ganeti, some of which don&#8217;t share code (e.g. Python clients
+vs. htools). This design proposes a solution which would be implemented
+as part of the job queue in the master daemon.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>With the implementation of <a class="reference internal" href="design-2.3.html#jqueue-job-priority-design"><em>job priorities</em></a> the processing code was re-architectured
+and became a lot more versatile. It now returns jobs to the queue in
+case the locks for an opcode can&#8217;t be acquired, allowing other
+jobs/opcodes to be run in the meantime.</p>
+<p>The proposal is to add a new, optional property to opcodes to define
+dependencies on other jobs. Job X could define opcodes with a dependency
+on the success of job Y and would only be run once job Y is finished. If
+there&#8217;s a dependency on success and job Y failed, job X would fail as
+well. Since such dependencies would use job IDs, the jobs still need to
+be submitted in the right order.</p>
+<p>The new attribute&#8217;s value would be a list of two-valued tuples. Each
+tuple contains a job ID and a list of requested status for the job
+depended upon. Only final status are accepted
+(<tt class="docutils literal"><span class="pre">canceled,</span> <span class="pre">success,</span> <span class="pre">error</span></tt>). An empty list is
+equivalent to specifying all final status (except
+<tt class="docutils literal"><span class="pre">canceled</span></tt>, which is treated specially).
+An opcode runs only once all its dependency requirements have been
+fulfilled.</p>
+<p>Any job referring to a cancelled job is also cancelled unless it
+explicitly lists <tt class="docutils literal"><span class="pre">canceled</span></tt> as a requested
+status.</p>
+<p>In case a referenced job can not be found in the normal queue or the
+archive, referring jobs fail as the status of the referenced job can&#8217;t
+be determined.</p>
+<p>With this change, clients can submit all wanted jobs in the right order
+and proceed to wait for changes on all these jobs (see
+<tt class="docutils literal"><span class="pre">cli.JobExecutor</span></tt>). The master daemon will take care of executing them
+in the right order, while still presenting the client with a simple
+interface.</p>
+<p>Clients using the <tt class="docutils literal"><span class="pre">SubmitManyJobs</span></tt> interface can use relative job IDs
+(negative integers) to refer to jobs in the same submission.</p>
+<p>Example data structures:</p>
+<div class="highlight-javascript"><pre># First job
+{
+  "job_id": "6151",
+  "ops": [
+    { "OP_ID": "OP_INSTANCE_REPLACE_DISKS", ..., },
+    { "OP_ID": "OP_INSTANCE_FAILOVER", ..., },
+    ],
+}
+
+# Second job, runs in parallel with first job
+{
+  "job_id": "7687",
+  "ops": [
+    { "OP_ID": "OP_INSTANCE_MIGRATE", ..., },
+    ],
+}
+
+# Third job, depending on success of previous jobs
+{
+  "job_id": "9218",
+  "ops": [
+    { "OP_ID": "OP_NODE_SET_PARAMS",
+      "depend": [
+        [6151, ["success"]],
+        [7687, ["success"]],
+        ],
+      "offline": True, },
+    ],
+}</pre>
+</div>
+<div class="section" id="implementation-details">
+<h3><a class="toc-backref" href="#id4">Implementation details</a><a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="status-while-waiting-for-dependencies">
+<h4><a class="toc-backref" href="#id5">Status while waiting for dependencies</a><a class="headerlink" href="#status-while-waiting-for-dependencies" title="Permalink to this headline">¶</a></h4>
+<p>Jobs waiting for dependencies are certainly not in the queue anymore and
+therefore need to change their status from &#8220;queued&#8221;. While waiting for
+opcode locks the job is in the &#8220;waiting&#8221; status (the constant is named
+<tt class="docutils literal"><span class="pre">JOB_STATUS_WAITLOCK</span></tt>, but the actual value is <tt class="docutils literal"><span class="pre">waiting</span></tt>). There the
+following possibilities:</p>
+<ol class="arabic">
+<li><p class="first">Introduce a new status, e.g. &#8220;waitdeps&#8221;.</p>
+<p>Pro:</p>
+<ul class="simple">
+<li>Clients know for sure a job is waiting for dependencies, not locks</li>
+</ul>
+<p>Con:</p>
+<ul class="simple">
+<li>Code and tests would have to be updated/extended for the new status</li>
+<li>List of possible state transitions certainly wouldn&#8217;t get simpler</li>
+<li>Breaks backwards compatibility, older clients might get confused</li>
+</ul>
+</li>
+<li><p class="first">Use existing &#8220;waiting&#8221; status.</p>
+<p>Pro:</p>
+<ul class="simple">
+<li>No client changes necessary, less code churn (note that there are
+clients which don&#8217;t live in Ganeti core)</li>
+<li>Clients don&#8217;t need to know the difference between waiting for a job
+and waiting for a lock; it doesn&#8217;t make a difference</li>
+<li>Fewer state transitions (see commit <tt class="docutils literal"><span class="pre">5fd6b69479c0</span></tt>, which removed
+many state transitions and disk writes)</li>
+</ul>
+<p>Con:</p>
+<ul class="simple">
+<li>Not immediately visible what a job is waiting for, but it&#8217;s the
+same issue with locks; this is the reason why the lock monitor
+(<tt class="docutils literal"><span class="pre">gnt-debug</span> <span class="pre">locks</span></tt>) was introduced; job dependencies can be shown
+as &#8220;locks&#8221; in the monitor</li>
+</ul>
+</li>
+</ol>
+<p>Based on these arguments, the proposal is to do the following:</p>
+<ul>
+<li><p class="first">Rename <tt class="docutils literal"><span class="pre">JOB_STATUS_WAITLOCK</span></tt> constant to <tt class="docutils literal"><span class="pre">JOB_STATUS_WAITING</span></tt> to
+reflect its actual meanting: the job is waiting for something</p>
+</li>
+<li><p class="first">While waiting for dependencies and locks, jobs are in the &#8220;waiting&#8221;
+status</p>
+</li>
+<li><p class="first">Export dependency information in lock monitor; example output:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">Name</span>      <span class="nx">Mode</span> <span class="nx">Owner</span> <span class="nx">Pending</span>
+<span class="nx">job</span><span class="o">/</span><span class="mi">27491</span> <span class="o">-</span>    <span class="o">-</span>     <span class="nx">success</span><span class="o">:</span><span class="nx">job</span><span class="o">/</span><span class="mi">34709</span><span class="p">,</span><span class="nx">job</span><span class="o">/</span><span class="mi">21459</span>
+<span class="nx">job</span><span class="o">/</span><span class="mi">21459</span> <span class="o">-</span>    <span class="o">-</span>     <span class="nx">success</span><span class="p">,</span><span class="nx">error</span><span class="o">:</span><span class="nx">job</span><span class="o">/</span><span class="mi">14513</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="cost-of-deserialization">
+<h4><a class="toc-backref" href="#id6">Cost of deserialization</a><a class="headerlink" href="#cost-of-deserialization" title="Permalink to this headline">¶</a></h4>
+<p>To determine the status of a dependency job the job queue must have
+access to its data structure. Other queue operations already do this,
+e.g. archiving, watching a job&#8217;s progress and querying jobs.</p>
+<p>Initially (Ganeti 2.0/2.1) the job queue shared the job objects
+in memory and protected them using locks. Ganeti 2.2 (see <a class="reference internal" href="design-2.2.html"><em>design
+document</em></a>) changed the queue to read and deserialize jobs
+from disk. This significantly reduced locking and code complexity.
+Nowadays inotify is used to wait for changes on job files when watching
+a job&#8217;s progress.</p>
+<p>Reading from disk and deserializing certainly has some cost associated
+with it, but it&#8217;s a significantly simpler architecture than
+synchronizing in memory with locks. At the stage where dependencies are
+evaluated the queue lock is held in shared mode, so different workers
+can read at the same time (deliberately ignoring CPython&#8217;s interpreter
+lock).</p>
+<p>It is expected that the majority of executed jobs won&#8217;t use
+dependencies and therefore won&#8217;t be affected.</p>
+</div>
+</div>
+</div>
+<div class="section" id="other-discussed-solutions">
+<h2><a class="toc-backref" href="#id7">Other discussed solutions</a><a class="headerlink" href="#other-discussed-solutions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="job-level-attribute">
+<h3><a class="toc-backref" href="#id8">Job-level attribute</a><a class="headerlink" href="#job-level-attribute" title="Permalink to this headline">¶</a></h3>
+<p>At a first look it might seem to be better to put dependencies on
+previous jobs at a job level. However, it turns out that having the
+option of defining only a single opcode in a job as having such a
+dependency can be useful as well. The code complexity in the job queue
+is equivalent if not simpler.</p>
+<p>Since opcodes are guaranteed to run in order, clients can just define
+the dependency on the first opcode.</p>
+<p>Another reason for the choice of an opcode-level attribute is that the
+current LUXI interface for submitting jobs is a bit restricted and would
+need to be changed to allow the addition of job-level attributes,
+potentially requiring changes in all LUXI clients and/or breaking
+backwards compatibility.</p>
+</div>
+<div class="section" id="client-side-logic">
+<h3><a class="toc-backref" href="#id9">Client-side logic</a><a class="headerlink" href="#client-side-logic" title="Permalink to this headline">¶</a></h3>
+<p>There&#8217;s at least one implementation of a batched job executor twisted
+into the <tt class="docutils literal"><span class="pre">burnin</span></tt> tool&#8217;s code. While certainly possible, a client-side
+solution should be avoided due to the different clients already in use.
+For one, the <a class="reference internal" href="rapi.html"><em>remote API</em></a> client shouldn&#8217;t import
+non-standard modules. htools are written in Haskell and can&#8217;t use Python
+modules. A batched job executor contains quite some logic. Even if
+cleanly abstracted in a (Python) library, sharing code between different
+clients is difficult if not impossible.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Chained jobs</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a><ul>
+<li><a class="reference internal" href="#status-while-waiting-for-dependencies">Status while waiting for dependencies</a></li>
+<li><a class="reference internal" href="#cost-of-deserialization">Cost of deserialization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-discussed-solutions">Other discussed solutions</a><ul>
+<li><a class="reference internal" href="#job-level-attribute">Job-level attribute</a></li>
+<li><a class="reference internal" href="#client-side-logic">Client-side logic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-bulk-create.html"
+                        title="previous chapter">Ganeti Bulk Create</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-cmdlib-unittests.html"
+                        title="next chapter">Unit tests for cmdlib / LogicalUnit&#8217;s</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-chained-jobs.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-cmdlib-unittests.html" title="Unit tests for cmdlib / LogicalUnit’s"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-bulk-create.html" title="Ganeti Bulk Create"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

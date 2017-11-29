@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti quick installation guide &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="next" title="Ganeti locking" href="locking.html" />
+    <link rel="prev" title="Ganeti installation tutorial" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="locking.html" title="Ganeti locking"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="install.html" title="Ganeti installation tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-quick-installation-guide">
+<h1>Ganeti quick installation guide<a class="headerlink" href="#ganeti-quick-installation-guide" title="Permalink to this headline">¶</a></h1>
+<p>Please note that a more detailed installation procedure is described in
+the <a class="reference internal" href="install.html"><em>Ganeti installation tutorial</em></a>. Refer to it if you are setting up Ganeti the first time.
+This quick installation guide is mainly meant as reference for experienced
+users. A glossary of terms can be found in the <a class="reference internal" href="glossary.html"><em>Glossary</em></a>.</p>
+<div class="section" id="software-requirements">
+<h2>Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Before installing, please verify that you have the following programs:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.xen.org/">Xen Hypervisor</a>, version 3.0 or above, if
+running on Xen</li>
+<li><a class="reference external" href="http://www.linux-kvm.org">KVM Hypervisor</a>, version 72 or above, if
+running on KVM. In order to use advanced features, such as live
+migration, virtio, etc, an even newer version is recommended (qemu-kvm
+versions 0.11.X and above have shown good behavior).</li>
+<li><a class="reference external" href="http://www.drbd.org/">DRBD</a>, kernel module and userspace utils,
+version 8.0.7 or above; note that Ganeti doesn&#8217;t yet support version 8.4</li>
+<li><a class="reference external" href="http://ceph.newdream.net/">RBD</a>, kernel modules
+(<tt class="docutils literal"><span class="pre">rbd.ko</span></tt>/<tt class="docutils literal"><span class="pre">libceph.ko</span></tt>) and userspace utils (<tt class="docutils literal"><span class="pre">ceph-common</span></tt>)</li>
+<li><a class="reference external" href="http://sourceware.org/lvm2/">LVM2</a></li>
+<li><a class="reference external" href="http://www.openssh.com/portable.html">OpenSSH</a></li>
+<li><a class="reference external" href="http://www.linuxfoundation.org/en/Net:Bridge">bridge utilities</a></li>
+<li><a class="reference external" href="http://www.linuxfoundation.org/en/Net:Iproute2">iproute2</a></li>
+<li><a class="reference external" href="http://www.skbuff.net/iputils/">arping</a> (part of iputils)</li>
+<li><a class="reference external" href="http://www.remlab.net/ndisc6/">ndisc6</a> (if using IPv6)</li>
+<li><a class="reference external" href="http://www.python.org/">Python</a>, version 2.6 or above, not 3.0</li>
+<li><a class="reference external" href="http://pyopenssl.sourceforge.net/">Python OpenSSL bindings</a></li>
+<li><a class="reference external" href="http://code.google.com/p/simplejson/">simplejson Python module</a></li>
+<li><a class="reference external" href="http://pyparsing.wikispaces.com/">pyparsing Python module</a>, version
+1.4.6 or above</li>
+<li><a class="reference external" href="https://github.com/seb-m/pyinotify">pyinotify Python module</a></li>
+<li><a class="reference external" href="http://pycurl.sourceforge.net/">PycURL Python module</a></li>
+<li><a class="reference external" href="http://www.dest-unreach.org/socat/">socat</a>, see <a class="reference internal" href="#socat-note"><em>note</em></a> below</li>
+<li><a class="reference external" href="http://www.lag.net/paramiko/">Paramiko</a>, if you want to use
+<tt class="docutils literal"><span class="pre">ganeti-listrunner</span></tt></li>
+<li><a class="reference external" href="https://github.com/giampaolo/psutil">psutil Python module</a>,
+optional python package for supporting CPU pinning under KVM</li>
+<li><a class="reference external" href="https://gitorious.org/python-fdsend">fdsend Python module</a>,
+optional Python package for supporting NIC hotplugging under KVM</li>
+<li><a class="reference external" href="http://qemu.org/">qemu-img</a>, if you want to use <tt class="docutils literal"><span class="pre">ovfconverter</span></tt></li>
+<li><a class="reference external" href="http://fping.sourceforge.net/">fping</a></li>
+<li><a class="reference external" href="http://code.google.com/p/ipaddr-py/">Python IP address manipulation library</a></li>
+<li><a class="reference external" href="http://pypi.python.org/pypi/bitarray/">Bitarray Python library</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/make/">GNU Make</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/m4/">GNU M4</a></li>
+</ul>
+<p>These programs are supplied as part of most Linux distributions, so
+usually they can be installed via the standard package manager. Also
+many of them will already be installed on a standard machine. On
+Debian/Ubuntu, you can use this command line to install all required
+packages, except for RBD, DRBD and Xen:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">lvm2</span> <span class="gs">ssh</span> <span class="gs">bridge-utils</span> <span class="gs">iproute</span> <span class="gs">iputils-arping</span> <span class="gs">make</span> <span class="gs">m4</span> <span class="gs">\</span>
+                  <span class="gs">ndisc6</span> <span class="gs">python</span> <span class="gs">python-openssl</span> <span class="gs">openssl</span> <span class="gs">\</span>
+                  <span class="gs">python-pyparsing</span> <span class="gs">python-simplejson</span> <span class="gs">python-bitarray</span> <span class="gs">\</span>
+                  <span class="gs">python-pyinotify</span> <span class="gs">python-pycurl</span> <span class="gs">python-ipaddr</span> <span class="gs">socat</span> <span class="gs">fping</span>
+</pre></div>
+</div>
+<p>Note that the previous instructions don&#8217;t install optional packages.
+To install the optional package, run the following line.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">python-paramiko</span> <span class="gs">python-psutil</span> <span class="gs">qemu-utils</span>
+</pre></div>
+</div>
+<p>If some of the python packages are not available in your system,
+you can try installing them using <tt class="docutils literal"><span class="pre">easy_install</span></tt> command.
+For example:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">python-setuptools</span> <span class="gs">python-dev</span>
+$ <span class="gs">cd</span> <span class="gs">/</span> <span class="gs">&amp;&amp;</span> <span class="gs">easy_install</span> <span class="gs">\</span>
+          <span class="gs">psutil</span> <span class="gs">\</span>
+          <span class="gs">bitarray</span> <span class="gs">\</span>
+          <span class="gs">ipaddr</span>
+</pre></div>
+</div>
+<p>On Fedora to install all required packages except RBD, DRBD and Xen:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">yum</span> <span class="gs">install</span> <span class="gs">openssh</span> <span class="gs">openssh-clients</span> <span class="gs">bridge-utils</span> <span class="gs">iproute</span> <span class="gs">ndisc6</span> <span class="gs">make</span> <span class="gs">\</span>
+              <span class="gs">pyOpenSSL</span> <span class="gs">pyparsing</span> <span class="gs">python-simplejson</span> <span class="gs">python-inotify</span> <span class="gs">\</span>
+              <span class="gs">python-lxm</span> <span class="gs">socat</span> <span class="gs">fping</span> <span class="gs">python-bitarray</span> <span class="gs">python-ipaddr</span>
+</pre></div>
+</div>
+<p>For optional packages use the command:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">yum</span> <span class="gs">install</span> <span class="gs">python-paramiko</span> <span class="gs">python-psutil</span> <span class="gs">qemu-img</span>
+</pre></div>
+</div>
+<p>If you want to build from source, please see doc/devnotes.rst for more
+dependencies.</p>
+<div class="admonition note" id="socat-note">
+<p class="first admonition-title">Note</p>
+<p>Ganeti&#8217;s import/export functionality uses <tt class="docutils literal"><span class="pre">socat</span></tt> with OpenSSL for
+transferring data between nodes. By default, OpenSSL 0.9.8 and above
+employ transparent compression of all data using zlib if supported by
+both sides of a connection. In cases where a lot of data is
+transferred, this can lead to an increased CPU usage. Additionally,
+Ganeti already compresses all data using <tt class="docutils literal"><span class="pre">gzip</span></tt> where it makes sense
+(for inter-cluster instance moves).</p>
+<p>To remedey this situation, patches implementing a new <tt class="docutils literal"><span class="pre">socat</span></tt> option
+for disabling OpenSSL compression have been contributed and will
+likely be included in the next feature release. Until then, users or
+distributions need to apply the patches on their own.</p>
+<p>Ganeti will use the option if it&#8217;s detected by the <tt class="docutils literal"><span class="pre">configure</span></tt>
+script; auto-detection can be disabled by explicitly passing
+<tt class="docutils literal"><span class="pre">--enable-socat-compress</span></tt> (use the option to disable compression) or
+<tt class="docutils literal"><span class="pre">--disable-socat-compress</span></tt> (don&#8217;t use the option).</p>
+<p class="last">The patches and more information can be found on
+<a class="reference external" href="http://www.dest-unreach.org/socat/contrib/socat-opensslcompress.html">http://www.dest-unreach.org/socat/contrib/socat-opensslcompress.html</a>.</p>
+</div>
+<div class="section" id="haskell-requirements">
+<h3>Haskell requirements<a class="headerlink" href="#haskell-requirements" title="Permalink to this headline">¶</a></h3>
+<p>Starting with Ganeti 2.7, the Haskell GHC compiler and a few base
+libraries are required in order to build Ganeti (but not to run and
+deploy Ganeti on production machines). More specifically:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.haskell.org/ghc/">GHC</a> version 7 or higher</li>
+<li>or even better, <a class="reference external" href="http://hackage.haskell.org/platform/">The Haskell Platform</a> which gives you a simple way
+to bootstrap Haskell</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/json">json</a>, a JSON library</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/network">network</a>, a basic
+network library</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/parallel">parallel</a>, a parallel
+programming library (note: tested with up to version 3.x)</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/bytestring">bytestring</a> and
+<a class="reference external" href="http://hackage.haskell.org/package/utf8-string">utf8-string</a>
+libraries; these usually come with the GHC compiler</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/text">text</a></li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/deepseq">deepseq</a>,
+usually comes with the GHC compiler</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/curl">curl</a>, tested with
+versions 1.3.4 and above</li>
+<li><a class="reference external" href="http://software.complete.org/hslogger">hslogger</a>, version 1.1 and
+above.</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/hinotify">hinotify</a>, tested with
+version 0.3.2</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/Crypto">Crypto</a>, tested with
+version 4.2.4</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/regex-pcre">regex-pcre</a>,
+bindings for the <tt class="docutils literal"><span class="pre">pcre</span></tt> library</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/attoparsec">attoparsec</a>,
+version 0.10 and above</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/vector">vector</a></li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/process">process</a>, version 1.0.1.1 and
+above; usually comes with the GHC compiler</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/base64-bytestring">base64-bytestring</a>,
+version 1.0.0.0 and above</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/lifted-base">lifted-base</a>,
+version 0.1.1 and above.</li>
+<li><a class="reference external" href="http://hackage.haskell.org/package/lens">lens</a>,
+version 3.0 and above.</li>
+</ul>
+<p>Some of these are also available as package in Debian/Ubuntu:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">ghc</span> <span class="gs">libghc-json-dev</span> <span class="gs">libghc-network-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-parallel-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-utf8-string-dev</span> <span class="gs">libghc-curl-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-hslogger-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-crypto-dev</span> <span class="gs">libghc-text-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-hinotify-dev</span> <span class="gs">libghc-regex-pcre-dev</span> <span class="gs">\</span>
+                  <span class="gs">libpcre3-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-attoparsec-dev</span> <span class="gs">libghc-vector-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-zlib-dev</span>
+</pre></div>
+</div>
+<p>Debian Jessie also includes recent enough versions of these libraries:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">libghc-base64-bytestring-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-lens-dev</span> <span class="gs">\</span>
+                  <span class="gs">libghc-lifted-base-dev</span>
+</pre></div>
+</div>
+<p>In Fedora, some of them are available via packages as well:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">yum</span> <span class="gs">install</span> <span class="gs">ghc</span> <span class="gs">ghc-json-devel</span> <span class="gs">ghc-network-devel</span> <span class="gs">\</span>
+                  <span class="gs">ghc-parallel-devel</span> <span class="gs">ghc-deepseq-devel</span> <span class="gs">\</span>
+                  <span class="gs">ghc-hslogger-devel</span> <span class="gs">ghc-text-devel</span> <span class="gs">\</span>
+                  <span class="gs">ghc-regex-pcre-devel</span>
+</pre></div>
+</div>
+<p>The most recent Fedora doesn&#8217;t provide <tt class="docutils literal"><span class="pre">crypto</span></tt>, <tt class="docutils literal"><span class="pre">inotify</span></tt>. So these
+need to be installed using <tt class="docutils literal"><span class="pre">cabal</span></tt>.</p>
+<p>If using a distribution which does not provide these libraries, first
+install the Haskell platform. You can also install <tt class="docutils literal"><span class="pre">cabal</span></tt> manually:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">cabal-install</span>
+$ <span class="gs">cabal</span> <span class="gs">update</span>
+</pre></div>
+</div>
+<p>Then install the additional native libraries:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">libpcre3-dev</span> <span class="gs">libcurl4-openssl-dev</span>
+</pre></div>
+</div>
+<p>And finally the libraries required for building the packages (only the
+ones not available in your distribution packages) via <tt class="docutils literal"><span class="pre">cabal</span></tt>:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">cabal</span> <span class="gs">install</span> <span class="gs">json</span> <span class="gs">network</span> <span class="gs">parallel</span> <span class="gs">utf8-string</span> <span class="gs">curl</span> <span class="gs">hslogger</span> <span class="gs">\</span>
+                <span class="gs">Crypto</span> <span class="gs">text</span> <span class="gs">hinotify==0.3.2</span> <span class="gs">regex-pcre</span> <span class="gs">\</span>
+                <span class="gs">attoparsec</span> <span class="gs">vector</span> <span class="gs">base64-bytestring</span> <span class="gs">\</span>
+                <span class="gs">lifted-base==0.2.0.3</span> <span class="gs">lens==3.10</span>
+</pre></div>
+</div>
+<p>(The specified versions are suitable for Debian Wheezy, for other
+distributions different versions might be needed.)</p>
+<div class="admonition note" id="cabal-order-note">
+<p class="first admonition-title">Note</p>
+<p class="last">When installing additional libraries using <tt class="docutils literal"><span class="pre">cabal</span></tt>, be sure to first
+install all the required libraries available in your distribution and
+only then install the rest using <tt class="docutils literal"><span class="pre">cabal</span></tt>.
+Otherwise cabal might install different versions of libraries that are
+available in your distribution, causing conflicts during the
+compilation.
+This applies in particular when installing libraries for the optional
+features.</p>
+</div>
+</div>
+<div class="section" id="haskell-optional-features">
+<h3>Haskell optional features<a class="headerlink" href="#haskell-optional-features" title="Permalink to this headline">¶</a></h3>
+<p>Optionally, more functionality can be enabled if your build machine has
+a few more Haskell libraries enabled: the <tt class="docutils literal"><span class="pre">ganeti-confd</span></tt> daemon
+(<tt class="docutils literal"><span class="pre">--enable-confd</span></tt>), the monitoring daemon (<tt class="docutils literal"><span class="pre">--enable-monitoring</span></tt>) and
+the meta-data daemon (<tt class="docutils literal"><span class="pre">--enable-metadata</span></tt>).
+The extra dependency for these is:</p>
+<ul class="simple">
+<li><cite>snap-server</cite> &lt;<a class="reference external" href="http://hackage.haskell.org/package/snap-server">http://hackage.haskell.org/package/snap-server</a>&gt;`_, version
+0.8.1 and above.</li>
+</ul>
+<p>This library is available in Debian Wheezy or later, so you can use
+either apt:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">apt-get</span> <span class="gs">install</span> <span class="gs">libghc-snap-server-dev</span>
+</pre></div>
+</div>
+<p>or <tt class="docutils literal"><span class="pre">cabal</span></tt>:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">cabal</span> <span class="gs">install</span> <span class="gs">snap-server</span>
+</pre></div>
+</div>
+<p>to install it.</p>
+<div class="admonition note" id="cabal-note">
+<p class="first admonition-title">Note</p>
+<p>If one of the cabal packages fails to install due to unfulfilled
+dependencies, you can try enabling symlinks in <tt class="docutils literal"><span class="pre">~/.cabal/config</span></tt>.</p>
+<p class="last">Make sure that your <tt class="docutils literal"><span class="pre">~/.cabal/bin</span></tt> directory (or whatever else
+is defined as <tt class="docutils literal"><span class="pre">bindir</span></tt>) is in your <tt class="docutils literal"><span class="pre">PATH</span></tt>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="installation-of-the-software">
+<h2>Installation of the software<a class="headerlink" href="#installation-of-the-software" title="Permalink to this headline">¶</a></h2>
+<p>To install, simply run the following command:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">./configure</span> <span class="gs">--localstatedir=/var</span> <span class="gs">--sysconfdir=/etc</span> <span class="gs">&amp;&amp;</span> <span class="gs">\</span>
+  <span class="gs">make</span> <span class="gs">&amp;&amp;</span> <span class="gs">\</span>
+  <span class="gs">make</span> <span class="gs">install</span>
+</pre></div>
+</div>
+<p>This will install the software under <tt class="docutils literal"><span class="pre">/usr/local</span></tt>. You then need to
+copy <tt class="docutils literal"><span class="pre">doc/examples/ganeti.initd</span></tt> to <tt class="docutils literal"><span class="pre">/etc/init.d/ganeti</span></tt> and
+integrate it into your boot sequence (<tt class="docutils literal"><span class="pre">chkconfig</span></tt>, <tt class="docutils literal"><span class="pre">update-rc.d</span></tt>,
+etc.). Also, Ganeti uses symbolic links in the sysconfdir to determine,
+which of potentially many installed versions currently is used. If these
+symbolic links should be added by the install as well, add the
+option <tt class="docutils literal"><span class="pre">--enable-symlinks</span></tt> to the <tt class="docutils literal"><span class="pre">configure</span></tt> call.</p>
+</div>
+<div class="section" id="cluster-initialisation">
+<h2>Cluster initialisation<a class="headerlink" href="#cluster-initialisation" title="Permalink to this headline">¶</a></h2>
+<p>Before initialising the cluster, on each node you need to create the
+following directories:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">/etc/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/var/lib/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/var/log/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti/os</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/srv/ganeti/export</span></tt></li>
+</ul>
+<p>After this, use <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti quick installation guide</a><ul>
+<li><a class="reference internal" href="#software-requirements">Software Requirements</a><ul>
+<li><a class="reference internal" href="#haskell-requirements">Haskell requirements</a></li>
+<li><a class="reference internal" href="#haskell-optional-features">Haskell optional features</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-of-the-software">Installation of the software</a></li>
+<li><a class="reference internal" href="#cluster-initialisation">Cluster initialisation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Ganeti installation tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="locking.html"
+                        title="next chapter">Ganeti locking</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/install-quick.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="locking.html" title="Ganeti locking"
+             >next</a></li>
+        <li class="right" >
+          <a href="install.html" title="Ganeti installation tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

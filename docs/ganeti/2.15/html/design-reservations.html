@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Instance Reservations &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="DRBD Sync Rate Throttling" href="design-sync-rate-throttling.html" />
+    <link rel="prev" title="Improving location awareness of Ganeti" href="design-location.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-sync-rate-throttling.html" title="DRBD Sync Rate Throttling"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-location.html" title="Improving location awareness of Ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="instance-reservations">
+<h1><a class="toc-backref" href="#id1">Instance Reservations</a><a class="headerlink" href="#instance-reservations" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#instance-reservations" id="id1">Instance Reservations</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#rapi-extension" id="id4">RAPI extension</a></li>
+<li><a class="reference internal" href="#representation-in-the-configuration" id="id5">Representation in the Configuration</a><ul>
+<li><a class="reference internal" href="#rationale" id="id6">Rationale</a></li>
+<li><a class="reference internal" href="#haskell-representation" id="id7">Haskell Representation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adaptions-of-htools" id="id8">Adaptions of htools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the addition of a concept
+of reservations for forthcoming instances to Ganeti.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, for a new instance, all information about the instance,
+including a resolvable full name, needs to be present before an
+instance creation can be attempted. Moreover, the only way to find
+out if a cluster can host an instance is to try creating it. This
+can lead to problems in situations where the host name can only
+be determined, and hence DNS entries created, once the cluster for
+the instance is chosen. If lot of instances are created in parallel,
+by the time the DNS entries propagated, the cluster capacity might
+already be exceeded.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The proposed solution to overcome this shortcoming is to support
+<em>forthcoming instances</em>. Those forthcoming instances only exist as entries in
+in the configuration, hence creation and removal is cheap. Forthcoming instances
+can have an arbitrary subset of the attributes of a real instance with
+only the UUID being mandatory. In a similar way, their disks are also
+considered forthcoming. If a forthcoming instance specifies resources
+(memory, disk sizes, number of CPUs), these resources are accounted
+for as if they were real. In particular, a forthcoming can always be
+turned into a real one without running out of resources.</p>
+<div class="section" id="rapi-extension">
+<h3><a class="toc-backref" href="#id4">RAPI extension</a><a class="headerlink" href="#rapi-extension" title="Permalink to this headline">¶</a></h3>
+<p>To accomdate the handling of forthcoming instances, the <a class="reference internal" href="rapi.html"><em>Ganeti remote API</em></a>
+will be extended as follows.</p>
+<p>The following functionality will be added to existing resources.</p>
+<ul class="simple">
+<li>/2/instances/<ul>
+<li>POST. This request will have an additional, optional, <tt class="docutils literal"><span class="pre">forthcoming</span></tt>
+flag with default <tt class="docutils literal"><span class="pre">False</span></tt>. If the <tt class="docutils literal"><span class="pre">forthcoming</span></tt> flag is set, all
+parameters are optional, including the instance name. Even if
+<tt class="docutils literal"><span class="pre">forthcoming</span></tt> is set, the result of this request will still be the job id
+to be used later for polling. A job to create a forthcoming instance,
+however, will return the UUID of the instance instead of the hosts
+allocated for it.</li>
+</ul>
+</li>
+<li>/2/instances/[instance_name]/modify<ul>
+<li>PUT. This request will be able to handle forthcoming instances
+in the same way as existing ones.</li>
+</ul>
+</li>
+</ul>
+<p>The following resources will be added.</p>
+<ul class="simple">
+<li>/2/instances/[instance_uuid]/modify<ul>
+<li>PUT. This will behave the same as the <tt class="docutils literal"><span class="pre">modify</span></tt> indexed by instance
+name and is added to allow modification of an instance that does
+not yet have a name.</li>
+</ul>
+</li>
+<li>/2/instances/[instance_uuid]/rename<ul>
+<li>PUT. This will behave the same as the <tt class="docutils literal"><span class="pre">rename</span></tt> indexed by
+instance name. This will allow to assign a name to a forthcoming
+instance.</li>
+</ul>
+</li>
+<li>/2/instances/[instance_name]/create<ul>
+<li>POST. Create the forthcoming instance. It is a prerequisite that
+all mandatory parameters of the instance are specified by now.
+It will return the id of the creation job, for later polling.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="representation-in-the-configuration">
+<h3><a class="toc-backref" href="#id5">Representation in the Configuration</a><a class="headerlink" href="#representation-in-the-configuration" title="Permalink to this headline">¶</a></h3>
+<p>As for most part of the system, forthcoming instances and their disks are to
+be treated as if they were real. Therefore, the wire representation will
+be by adding an additional, optional, <tt class="docutils literal"><span class="pre">fortcoming</span></tt> flag to the <tt class="docutils literal"><span class="pre">instances</span></tt>
+and <tt class="docutils literal"><span class="pre">disks</span></tt> objects. Additionally, the internal consistency condition will
+be relaxed to have all non-uuid fields optional if an instance or disk is
+forthcoming.</p>
+<div class="section" id="rationale">
+<h4><a class="toc-backref" href="#id6">Rationale</a><a class="headerlink" href="#rationale" title="Permalink to this headline">¶</a></h4>
+<p>The alternative to the chosen approach would be to add a new top-level object
+<tt class="docutils literal"><span class="pre">forthcoming_instances</span></tt> to the configuration. Both approaches bear the risk
+of introducing subtle bugs. Adding a new top-level object bears the risk of
+missing in some places to take into account the resources consumed by the
+forthcoming instances. Adding a new attribute and relaxing the consistency
+conditions bears the risk that some parts of the Python code cannot handle the
+fact that some fields are now optional if the instance is forthcoming.
+The design choice is to prefer the latter kind of errors, as they will always
+show up immediately when a faulty part of the code is touched and will always
+precisely indicate the part of the code base that needs to be changed.</p>
+</div>
+<div class="section" id="haskell-representation">
+<h4><a class="toc-backref" href="#id7">Haskell Representation</a><a class="headerlink" href="#haskell-representation" title="Permalink to this headline">¶</a></h4>
+<p>The semantical condition on the instance fields renders the type into
+a Pascal-style variant record (one element of an enumeration type,
+and the remaining fields depend on the value of that field). Of course, in
+the Haskell part of our code base, this will be represented in the standard way
+having two constructors for the type; additionally there will be accessors
+for all the fields of the JSON representation (yielding <tt class="docutils literal"><span class="pre">Maybe</span></tt> values,
+as they can be optional if we&#8217;re in the <tt class="docutils literal"><span class="pre">Forthcoming</span></tt> constuctor).</p>
+</div>
+</div>
+<div class="section" id="adaptions-of-htools">
+<h3><a class="toc-backref" href="#id8">Adaptions of htools</a><a class="headerlink" href="#adaptions-of-htools" title="Permalink to this headline">¶</a></h3>
+<p>Forthcoming instances are handled by htools essentially the same way as
+real instances with more possible moves, as a forthcoming instance may
+change primary and secondary node simultaneously. The restriction of not
+changing node group without explicit user request to do so remains.
+Wherever possible, moves of forthcoming instances are preferred over
+moving real instances, as forthcoming instances can be moved for
+free. Implementation wise, the existing <tt class="docutils literal"><span class="pre">Instance</span></tt> data structure is
+used, and a new bit <tt class="docutils literal"><span class="pre">forthcoming</span></tt> is added; for forthcoming
+instances, the <tt class="docutils literal"><span class="pre">name</span></tt> field will carry the UUID.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Instance Reservations</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#rapi-extension">RAPI extension</a></li>
+<li><a class="reference internal" href="#representation-in-the-configuration">Representation in the Configuration</a><ul>
+<li><a class="reference internal" href="#rationale">Rationale</a></li>
+<li><a class="reference internal" href="#haskell-representation">Haskell Representation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adaptions-of-htools">Adaptions of htools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-location.html"
+                        title="previous chapter">Improving location awareness of Ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-sync-rate-throttling.html"
+                        title="next chapter">DRBD Sync Rate Throttling</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-reservations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-sync-rate-throttling.html" title="DRBD Sync Rate Throttling"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-location.html" title="Improving location awareness of Ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

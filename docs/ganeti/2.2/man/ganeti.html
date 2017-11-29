@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ganeti</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><H1
+><A
+NAME="AEN1"
+></A
+>ganeti</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN15"
+></A
+><H2
+>Name</H2
+>ganeti&nbsp;--&nbsp;cluster-based virtualization management</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN18"
+></A
+><H2
+>Synopsis</H2
+><PRE
+CLASS="SCREEN"
+># gnt-cluster init cluster1.example.com
+# gnt-node add node2.example.com
+# gnt-instance add -n node2.example.com \
+&gt; -o debootstrap --disk 0:size=30g \
+&gt; -t plain instance1.example.com
+    </PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN20"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>      The Ganeti software manages physical nodes and virtual instances
+      of a cluster based on a virtualization software. The current
+      version (2.2) supports Xen 3.x and KVM (72 or above) as hypervisors.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN23"
+></A
+><H2
+>Quick start</H2
+><P
+>      First you must install the software on all the cluster nodes,
+      either from sources or (if available) from a package. The next
+      step is to create the initial cluster configuration, using
+      <KBD
+CLASS="USERINPUT"
+>gnt-cluster init</KBD
+>.
+    </P
+><P
+>      Then you can add other nodes, or start creating instances.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN28"
+></A
+><H2
+>Cluster architecture</H2
+><P
+>      In Ganeti 2.0, the architecture of the cluster is a little more
+      complicated than in 1.2. The cluster is coordinated by a master
+      daemon (<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-masterd</SPAN
+>(8)</SPAN
+>), running on the master
+      node. Each node runs (as before) a node daemon, and the master
+      has the <ACRONYM
+CLASS="ACRONYM"
+>RAPI</ACRONYM
+> daemon running too.
+    </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN35"
+></A
+><H3
+>Node roles</H3
+><P
+>Each node can be in one of the following states:
+        <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>master</DT
+><DD
+><P
+>                Only one node per cluster can be in this role, and
+                this node is the one holding the authoritative copy of
+                the cluster configuration and the one that can
+                actually execute commands on the cluster and modify
+                the cluster state. See more details under
+                <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Cluster configuration</I
+></SPAN
+>.
+              </P
+></DD
+><DT
+>master_candidate</DT
+><DD
+><P
+>The node receives the full cluster configuration
+              (configuration file and jobs) and can become a master
+              via the <B
+CLASS="COMMAND"
+>gnt-cluster master-failover</B
+>
+              command. Nodes that are not in this state cannot
+              transition into the master role due to missing
+              state.</P
+></DD
+><DT
+>regular</DT
+><DD
+><P
+>This the normal state of a node.</P
+></DD
+><DT
+>drained</DT
+><DD
+><P
+>Nodes in this state are functioning normally but
+              cannot receive new instance, because the intention is to
+              set them to <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>offline</I
+></SPAN
+> or remove them
+              from the cluster.</P
+></DD
+><DT
+>offline</DT
+><DD
+><P
+>These nodes are still recorded in the Ganeti
+              configuration, but except for the master daemon startup
+              voting procedure, they are not actually contacted by the
+              master. This state was added in order to allow broken
+              machines (that are being repaired) to remain in the
+              cluster but without creating problems.</P
+></DD
+></DL
+></DIV
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN62"
+></A
+><H3
+>Cluster configuration</H3
+><P
+>The master node keeps and is responsible for the cluster
+      configuration. On the filesystem, this is stored under the
+      <TT
+CLASS="FILENAME"
+>/usr/local/var/ganeti/lib</TT
+>
+      directory, and if the master daemon is stopped it can be backed
+      up normally.</P
+><P
+>The master daemon will replicate the configuration
+      database called <TT
+CLASS="FILENAME"
+>config.data</TT
+> and the job
+      files to all the nodes in the master candidate role. It will
+      also distribute a copy of some configuration values via the
+      <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ssconf</I
+></SPAN
+> files, which are stored in the same
+      directory and start with <TT
+CLASS="FILENAME"
+>ssconf_</TT
+> prefix, to
+      all nodes.</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN70"
+></A
+><H3
+>Jobs</H3
+><P
+>        All cluster modification are done via jobs. A job consists of
+        one or more opcodes, and the list of opcodes is processed
+        serially. If an opcode fails, the entire job is failed and
+        later opcodes are no longer processed. A job can be in one of
+        the following states:
+        <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>queued</DT
+><DD
+><P
+>The job has been submitted but not yet
+              processed by the master daemon.</P
+></DD
+><DT
+>waiting</DT
+><DD
+><P
+>The job is waiting for for locks before the
+              first of its opcodes.</P
+></DD
+><DT
+>canceling</DT
+><DD
+><P
+>The job is waiting for locks, but is has been
+              marked for cancellation. It will not transition to
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>running</I
+></SPAN
+>, but to
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>canceled</I
+></SPAN
+>.
+              </P
+></DD
+><DT
+>running</DT
+><DD
+><P
+>The job is currently being executed.</P
+></DD
+><DT
+>canceled</DT
+><DD
+><P
+>The job has been canceled before starting
+              execution.</P
+></DD
+><DT
+>success</DT
+><DD
+><P
+>The job has finished successfully.</P
+></DD
+><DT
+>error</DT
+><DD
+><P
+>The job has failed during runtime, or the master
+              daemon has been stopped during the job execution.</P
+></DD
+></DL
+></DIV
+>
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN104"
+></A
+><H2
+>REPORTING BUGS</H2
+><P
+>      Report bugs to <A
+HREF="http://code.google.com/p/ganeti/"
+TARGET="_top"
+>http://code.google.com/p/ganeti/</A
+> or contact the
+      developers using the Ganeti mailing list
+      &lt;ganeti@googlegroups.com&gt;.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN108"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>      Ganeti overview and specifications:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti</SPAN
+>(7)</SPAN
+> (general overview),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-os-interface</SPAN
+>(7)</SPAN
+> (guest OS definitions).
+
+    </P
+><P
+>Ganeti commands:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-cluster</SPAN
+>(8)</SPAN
+> (cluster-wide commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-job</SPAN
+>(8)</SPAN
+> (job-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-node</SPAN
+>(8)</SPAN
+> (node-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-instance</SPAN
+>(8)</SPAN
+> (instance commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-os</SPAN
+>(8)</SPAN
+> (guest OS commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-backup</SPAN
+>(8)</SPAN
+> (instance import/export commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-debug</SPAN
+>(8)</SPAN
+> (debug commands).
+    </P
+><P
+>Ganeti daemons:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-watcher</SPAN
+>(8)</SPAN
+> (automatic instance restarter),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-cleaner</SPAN
+>(8)</SPAN
+> (job queue cleaner),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-noded</SPAN
+>(8)</SPAN
+> (node daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-masterd</SPAN
+>(8)</SPAN
+> (master daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-rapi</SPAN
+>(8)</SPAN
+> (remote API daemon).
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN155"
+></A
+><H2
+>COPYRIGHT</H2
+><P
+>      Copyright (C) 2006, 2007, 2008, 2009, 2010 Google Inc. Permission is
+      granted to copy, distribute and/or modify under the terms of the
+      <ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> General Public License as published by the Free Software
+      Foundation; either version 2 of the License, or (at your option)
+      any later version.
+    </P
+><P
+>      On Debian systems, the complete text of the GNU General Public
+      License can be found in /usr/share/common-licenses/GPL.
+    </P
+></DIV
+></BODY
+></HTML
+>

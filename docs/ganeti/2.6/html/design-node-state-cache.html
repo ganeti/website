@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Node State Cache &mdash; Ganeti 2.6.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.6.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.6.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Resource model changes" href="design-resource-model.html" />
+    <link rel="prev" title="Network management" href="design-network.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-resource-model.html" title="Resource model changes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-network.html" title="Network management"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.6.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="node-state-cache">
+<h1><a class="toc-backref" href="#id1">Node State Cache</a><a class="headerlink" href="#node-state-cache" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#node-state-cache" id="id1">Node State Cache</a><ul>
+<li><a class="reference internal" href="#current-state" id="id2">Current State</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#cache-invalidation" id="id4">Cache invalidation</a></li>
+<li><a class="reference internal" href="#additional-cache-population" id="id5">Additional cache population</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#possible-regressions" id="id6">Possible regressions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design doc about the optimization of machine info retrieval.</p>
+<div class="section" id="current-state">
+<h2><a class="toc-backref" href="#id2">Current State</a><a class="headerlink" href="#current-state" title="Permalink to this headline">¶</a></h2>
+<p>Currently every RPC call is quite expensive as a TCP handshake has to be
+made as well as SSL negotiation. This especially is visible when getting
+node and instance info over and over again.</p>
+<p>This data, however, is quite easy to cache but needs some changes to how
+we retrieve data in the RPC as this is spread over several RPC calls
+and are hard to unify.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>To overcome this situation with multiple information retrieval calls we
+introduce one single RPC call to get all the info in a organized manner,
+for easy store in the cache.</p>
+<p>As of now we have 3 different information RPC calls:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">call_node_info</span></tt>: To retrieve disk and hyper-visor information</li>
+<li><tt class="docutils literal"><span class="pre">call_instance_info</span></tt>: To retrieve hyper-visor information for one
+instance</li>
+<li><tt class="docutils literal"><span class="pre">call_all_instance_info</span></tt>: To retrieve hyper-visor information for
+all instances</li>
+</ul>
+<p>Not to mention that <tt class="docutils literal"><span class="pre">call_all_instance_info</span></tt> and
+<tt class="docutils literal"><span class="pre">call_instance_info</span></tt> return different information in the dict.</p>
+<p>To unify the data and organize them we introduce a new RPC call
+<tt class="docutils literal"><span class="pre">call_node_snapshot</span></tt> doing all of the above in one go. Which
+data we want to know will be specified about a dict of request
+types: CACHE_REQ_HV, CACHE_REQ_DISKINFO, CACHE_REQ_BOOTID</p>
+<p>As this cache is representing the state of a given node we use the
+name of a node as the key to retrieve the data from the cache. A
+name-space separation of node and instance data is not possible at the
+current point. This is due to the fact that some of the node hyper-visor
+information like free memory is correlating with instances running.</p>
+<p>An example of how the data for a node in the cache looks like:</p>
+<div class="highlight-python"><pre>{
+  constants.CACHE_REQ_HV: {
+    constants.HT_XEN_PVM: {
+      _NODE_DATA: {
+        "memory_total": 32763,
+        "memory_free": 9159,
+        "memory_dom0": 1024,
+        "cpu_total": 4,
+        "cpu_sockets": 2
+      },
+      _INSTANCES_DATA: {
+        "inst1": {
+          "memory": 4096,
+          "state": "-b----",
+          "time": 102399.3,
+          "vcpus": 1
+        },
+        "inst2": {
+          "memory": 4096,
+          "state": "-b----",
+          "time": 12280.0,
+          "vcpus": 3
+        }
+      }
+    }
+  },
+  constants.CACHE_REQ_DISKINFO: {
+    "xenvg": {
+      "vg_size": 1048576,
+      "vg_free": 491520
+    },
+  }
+  constants.CACHE_REQ_BOOTID: "0dd0983c-913d-4ce6-ad94-0eceb77b69f9"
+}</pre>
+</div>
+<p>This way we get easy to organize information which can simply be arranged in
+the cache.</p>
+<p>The 3 RPC calls mentioned above will remain for compatibility reason but
+will be simple wrappers around this RPC call.</p>
+<div class="section" id="cache-invalidation">
+<h3><a class="toc-backref" href="#id4">Cache invalidation</a><a class="headerlink" href="#cache-invalidation" title="Permalink to this headline">¶</a></h3>
+<p>The cache is invalidated at every RPC call which is not proven to not
+modify the state of a given node. This is to avoid inconsistency between
+cache and actual node state.</p>
+<p>There are some corner cases which invalidates the whole cache at once as
+they usually affect other nodes states too:</p>
+<blockquote>
+<div><ul class="simple">
+<li>migrate/failover</li>
+<li>import/export</li>
+</ul>
+</div></blockquote>
+<p>A request will be served from the cache if and only if it can be
+fulfilled entirely from it (i.e. all the CACHE_REQ_* entries are already
+present). Otherwise, we will invalidate the cache and actually do the
+remote call.</p>
+<p>In addition, every cache entry will have a TTL of about 10 minutes which
+should be enough to accommodate most use cases.</p>
+<p>We also allow an option to the calls to bypass the cache completely and
+do a force remote call. However, this will invalidate the present
+entries and populate the cache with the new retrieved values.</p>
+</div>
+<div class="section" id="additional-cache-population">
+<h3><a class="toc-backref" href="#id5">Additional cache population</a><a class="headerlink" href="#additional-cache-population" title="Permalink to this headline">¶</a></h3>
+<p>Besides of the commands which calls above RPC calls, a full cache
+population can also be done by a separate new op-code run by
+<tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> periodically. This op-code will be used instead of
+the old ones.</p>
+</div>
+</div>
+<div class="section" id="possible-regressions">
+<h2><a class="toc-backref" href="#id6">Possible regressions</a><a class="headerlink" href="#possible-regressions" title="Permalink to this headline">¶</a></h2>
+<p>As we change from getting &#8220;one hyper-visor information&#8221; to &#8220;get all we
+know about this hyper-visor&#8221;-style we have a regression in time of
+execution. The execution time is about 1.8x more in process execution
+time. However, this does not include the latency and negotiation time
+needed for each separate RPC call. Also if we hit the cache all 3 costs
+will be 0. The only time taken is to look up the info in the cache and
+the deserialization of the data. Which takes down the time from today
+~300ms to ~100ms.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Node State Cache</a><ul>
+<li><a class="reference internal" href="#current-state">Current State</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#cache-invalidation">Cache invalidation</a></li>
+<li><a class="reference internal" href="#additional-cache-population">Additional cache population</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#possible-regressions">Possible regressions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-network.html"
+                        title="previous chapter">Network management</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-resource-model.html"
+                        title="next chapter">Resource model changes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-node-state-cache.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-resource-model.html" title="Resource model changes"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-network.html" title="Network management"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.6.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

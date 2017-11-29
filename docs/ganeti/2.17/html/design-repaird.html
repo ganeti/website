@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti Maintenance Daemon &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="next" title="Design for executing commands via RPC" href="design-restricted-commands.html" />
+    <link rel="prev" title="Ganeti reason trail" href="design-reason-trail.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-restricted-commands.html" title="Design for executing commands via RPC"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-reason-trail.html" title="Ganeti reason trail"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-maintenance-daemon">
+<h1><a class="toc-backref" href="#id3">Ganeti Maintenance Daemon</a><a class="headerlink" href="#ganeti-maintenance-daemon" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-maintenance-daemon" id="id3">Ganeti Maintenance Daemon</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id4">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id5">Proposed changes</a><ul>
+<li><a class="reference internal" href="#self-diagnose-data-collector" id="id6">Self-diagnose data collector</a><ul>
+<li><a class="reference internal" href="#protocol" id="id7">Protocol</a></li>
+<li><a class="reference internal" href="#security-considerations" id="id8">Security considerations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repair-event-life-cycle" id="id9">Repair-event life cycle</a></li>
+<li><a class="reference internal" href="#repair-daemon" id="id10">Repair daemon</a><ul>
+<li><a class="reference internal" href="#external-reporting-protocol" id="id11">External Reporting Protocol</a></li>
+<li><a class="reference internal" href="#state" id="id12">State</a></li>
+<li><a class="reference internal" href="#superseeding-harep-and-implicit-balancing" id="id13">Superseeding <tt class="docutils literal"><span class="pre">harep</span></tt> and implicit balancing</a></li>
+<li><a class="reference internal" href="#mode-of-operation" id="id14">Mode of operation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This design document outlines the implementation of a new Ganeti
+daemon coordinating all maintenance operations on a cluster
+(rebalancing, activate disks, ERROR_down handling, node repairs
+actions).</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id4">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>With <tt class="docutils literal"><span class="pre">harep</span></tt>, Ganeti has a basic mechanism for repairs of instances
+in a cluster. The <tt class="docutils literal"><span class="pre">harep</span></tt> tool can fix a broken DRBD status, migrate,
+failover, and reinstall instances. It is intended to be run regularly,
+e.g., via a cron job. It will submit appropriate Ganeti jobs to take
+action within the range allowed by instance tags and keep track
+of them by recoding the job ids in appropriate tags.</p>
+<p>Besides <tt class="docutils literal"><span class="pre">harep</span></tt>, Ganeti offers no further support for repair automation.
+While useful, this setup can be insufficient in some situations.</p>
+<p>Failures in actual hardware, e.g., a physical disk, currently requires
+coordination around Ganeti: the hardware failure is detected on the node,
+Ganeti needs to be told to evacuate the node, and, once this is done, some
+other entity needs to coordinate the actual physical repair. Currently there
+is no support by Ganeti to automatically prepare everything for a hardware
+swap.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id5">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose the addition of an additional daemon, called <tt class="docutils literal"><span class="pre">maintd</span></tt>
+that will coordinate cluster balance actions, instance repair actions,
+and work for hardware repair needs of individual nodes. The information
+about the work to be done will be obtained from a dedicated data collector
+via the <a class="reference internal" href="design-monitoring-agent.html"><em>Ganeti monitoring agent</em></a>.</p>
+<div class="section" id="self-diagnose-data-collector">
+<h3><a class="toc-backref" href="#id6">Self-diagnose data collector</a><a class="headerlink" href="#self-diagnose-data-collector" title="Permalink to this headline">¶</a></h3>
+<p>The monitoring daemon will get one additional dedicated data collector for
+node health. The collector will call an external command supposed to do
+any hardware-specific diagnose for the node it is running on. That command
+is configurable, but needs to be white-listed ahead of time by the node.
+For convenience, the empty string will stand for a build-in diagnose that
+always reports that everything is OK; this will also be the default value
+for this collector.</p>
+<p>Note that the self-diagnose data collector itself can, and usually will,
+call separate diagnose tools for separate subsystems. However, it always
+has to provide a consolidated description of the overall health state
+of the node.</p>
+<div class="section" id="protocol">
+<h4><a class="toc-backref" href="#id7">Protocol</a><a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h4>
+<p>The collector script takes no arguments and is supposed to output the string
+representation of a single JSON object where the individual fields have the
+following meaning. Note that, if several things are broken on that node, the
+self-diagnose collector script has to merge them into a single repair action.</p>
+<div class="section" id="status">
+<h5>status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h5>
+<p>This is a JSON string where the value is one of <tt class="docutils literal"><span class="pre">Ok</span></tt>, <tt class="docutils literal"><span class="pre">live-repair</span></tt>,
+<tt class="docutils literal"><span class="pre">evacuate</span></tt>, <tt class="docutils literal"><span class="pre">evacuate-failover</span></tt>. This indicates the overall need for
+repair and Ganeti actions to be taken. The meaning of these states are
+no action needed, some action is needed that can be taken while instances
+continue to run on that node, it is necessary to evacuate and offline
+the node, and it is necessary to evacuate and offline the node without
+attempting live migrations, respectively.</p>
+</div>
+<div class="section" id="command">
+<h5>command<a class="headerlink" href="#command" title="Permalink to this headline">¶</a></h5>
+<p>If the status is <tt class="docutils literal"><span class="pre">live-repair</span></tt>, a repair command can be specified.
+This command will be executed as repair action following the
+<a class="reference internal" href="design-restricted-commands.html"><em>Design for executing commands via RPC</em></a>, however extended to read information
+on <tt class="docutils literal"><span class="pre">stdin</span></tt>. The whole diagnose JSON object will be provided as <tt class="docutils literal"><span class="pre">stdin</span></tt>
+to those commands.</p>
+</div>
+<div class="section" id="details">
+<h5>details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h5>
+<p>An opaque JSON value that the repair daemon will just pass through and
+export. It is intended to contain information about the type of repair
+that needs to be done after the respective Ganeti action is finished.
+E.g., it might contain information which piece of hardware is to be
+swapped, once the node is fully evacuated and offlined.</p>
+<p>As two failures are considered different, if the output of the script
+encodes a different JSON object, the collector script should ensure
+that as long as the hardware status does not change, the output of the
+script is stable; otherwise this would cause various events reported for
+the same failure.</p>
+</div>
+</div>
+<div class="section" id="security-considerations">
+<h4><a class="toc-backref" href="#id8">Security considerations</a><a class="headerlink" href="#security-considerations" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="command-execution">
+<h5>Command execution<a class="headerlink" href="#command-execution" title="Permalink to this headline">¶</a></h5>
+<p>Obviously, running arbitrary commands that are part of the configuration
+poses a security risk. Note that an underlying design goal of Ganeti is
+that even with RAPI credentials known to the attacker, he still cannot
+obtain data from within the instances. As monitoring, however, is configurable
+via RAPI, we require the node to white-list the command using a mechanism
+similar to the <a class="reference internal" href="design-restricted-commands.html"><em>Design for executing commands via RPC</em></a>; in our case, the white-listing
+directory will be <tt class="docutils literal"><span class="pre">/etc/ganeti/node-diagnose-commands</span></tt>.</p>
+<p>For the repair-commands, as mentioned, we extend the
+<a class="reference internal" href="design-restricted-commands.html"><em>Design for executing commands via RPC</em></a> by allowing input on <tt class="docutils literal"><span class="pre">stdin</span></tt>. All other
+restrictions, in particular the white-listing requirement, remain. The
+white-listing directory will be <tt class="docutils literal"><span class="pre">/etc/ganeti/node-repair-commands</span></tt>.</p>
+</div>
+<div class="section" id="result-forging">
+<h5>Result forging<a class="headerlink" href="#result-forging" title="Permalink to this headline">¶</a></h5>
+<p>As the repair daemon will take real Ganeti actions based on the diagnose
+reported by the self-diagnose script through the monitoring daemon, we
+need to verify integrity of such reports to avoid denial-of-service by
+fraudaulent error reports. Therefore, the monitoring daemon will sign
+the result by an hmac signature with the cluster hmac key, in the same
+way as it is done in the <tt class="docutils literal"><span class="pre">confd</span></tt> wire protocol (see <a class="reference internal" href="design-2.1.html"><em>Ganeti 2.1 design</em></a>).</p>
+</div>
+</div>
+</div>
+<div class="section" id="repair-event-life-cycle">
+<h3><a class="toc-backref" href="#id9">Repair-event life cycle</a><a class="headerlink" href="#repair-event-life-cycle" title="Permalink to this headline">¶</a></h3>
+<p>Once a repair event is detected, a unique identifier is assigned to it.
+As long as the node-health collector returns the same output (as JSON
+object), this is still considered the same event.
+This identifier can be used to cancel an observed event at any time; for
+this an appropriate command-line and RAPI endpoint will be provided. Cancelling
+an event tells the repair daemon not to take any actions (despite them
+being requested) for this event and forget about it, as soon as it is
+no longer observed.</p>
+<p>Corresponding Ganeti actions will be initiated and success or failure of
+these Ganeti jobs monitored. All jobs submitted by the repair daemon
+will have the string <tt class="docutils literal"><span class="pre">gnt:daemon:maintd</span></tt> and the event identifier
+in the reason trail, so that <a class="reference internal" href="design-optables.html"><em>Filtering of jobs for the Ganeti job queue</em></a> is possible.
+Once a job fails, no further jobs will be submitted for this event
+to avoid further damage; the repair action is considered failed in this case.</p>
+<p>Once all requested actions succeeded, or one failed, the node where the
+event as observed will be tagged by a tag starting with <tt class="docutils literal"><span class="pre">maintd:repairready:</span></tt>
+or <tt class="docutils literal"><span class="pre">maintd:repairfailed:</span></tt>, respectively, where the event identifier is
+encoded in the rest of the tag. On the one hand, it can be used as an
+additional verification whether a node is ready for a specific repair.
+However, the main purpose is to provide a simple and uniform interface
+to acknowledge an event. Once a <tt class="docutils literal"><span class="pre">maintd:repairready</span></tt> tag is removed,
+the maintenance daemon will forget about this event, as soon as it is no
+longer observed by any monitoring daemon. Removing a <tt class="docutils literal"><span class="pre">maintd:repairfailed:</span></tt>
+tag will make the maintenance daemon to unconditionally forget the event;
+note that, if the underlying problem is not fixed yet, this provides an
+easy way of restarting a repair flow.</p>
+</div>
+<div class="section" id="repair-daemon">
+<h3><a class="toc-backref" href="#id10">Repair daemon</a><a class="headerlink" href="#repair-daemon" title="Permalink to this headline">¶</a></h3>
+<p>The new daemon <tt class="docutils literal"><span class="pre">maintd</span></tt> will be running on the master node only. It will
+verify the master status of its node by popular vote in the same way as all the
+other master-only daemons. If started on a non-master node, it will exit
+immediately with exit code <tt class="docutils literal"><span class="pre">exitNotmaster</span></tt>, i.e., 11.</p>
+<div class="section" id="external-reporting-protocol">
+<h4><a class="toc-backref" href="#id11">External Reporting Protocol</a><a class="headerlink" href="#external-reporting-protocol" title="Permalink to this headline">¶</a></h4>
+<p>Upon successful start, the daemon will bind to a port overridable at
+command-line, by default 1816, on the master network device. There it will
+serve the current repair state via HTTP. All queries will be HTTP GET
+requests and all answers will be encoded in JSON format. Initially, the
+following requests will be supported.</p>
+<div class="section" id="id1">
+<h5><tt class="docutils literal"><span class="pre">/</span></tt><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h5>
+<p>Returns the list of supported protocol versions, initially just <tt class="docutils literal"><span class="pre">[1]</span></tt>.</p>
+</div>
+<div class="section" id="id2">
+<h5><tt class="docutils literal"><span class="pre">/1/status</span></tt><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<p>Returns a list of all non-cleared incidents. Each incident is reported
+as a JSON object with at least the following information.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">uuid</span></tt> The unique identifier assigned to the event.</li>
+<li><tt class="docutils literal"><span class="pre">node</span></tt> The UUID of the node on which the even was observed.</li>
+<li><tt class="docutils literal"><span class="pre">original</span></tt> The very JSON object reported by self-diagnose data collector.</li>
+<li><tt class="docutils literal"><span class="pre">repair-status</span></tt> A string describing the progress made on this event so
+far. It is one of the following.<ul>
+<li><tt class="docutils literal"><span class="pre">noted</span></tt> The event has been observed, but no action has been taken yet</li>
+<li><tt class="docutils literal"><span class="pre">pending</span></tt> At least one job has been submitted in reaction to the event
+and none of the submitted jobs has failed so far.</li>
+<li><tt class="docutils literal"><span class="pre">canceled</span></tt> The event has been canceled, i.e., ordered to be ignored, but
+is still observed.</li>
+<li><tt class="docutils literal"><span class="pre">failed</span></tt> At least one of the submitted jobs has failed. To avoid further
+damage, the repair daemon will not take any further action for this event.</li>
+<li><tt class="docutils literal"><span class="pre">completed</span></tt> All Ganeti actions associated with this event have been
+completed successfully, including tagging the node.</li>
+</ul>
+</li>
+<li><tt class="docutils literal"><span class="pre">jobs</span></tt> The list of the numbers of ganeti jobs submitted in response to
+this event.</li>
+<li><tt class="docutils literal"><span class="pre">tag</span></tt> A string that is the tag that either has been added to the node, or,
+if the repair event is not yet finalized, will be added in case of success.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="state">
+<h4><a class="toc-backref" href="#id12">State</a><a class="headerlink" href="#state" title="Permalink to this headline">¶</a></h4>
+<p>As repairs, especially those involving physically swapping hardware, can take
+a long time, the repair daemon needs to store its state persistently. As we
+cannot exclude master-failovers during a repair cycle, it does so by storing
+it as part of the Ganeti configuration.</p>
+<p>This will be done by adding a new top-level entry to the Ganeti configuration.
+The SSConf will not be changed.</p>
+</div>
+<div class="section" id="superseeding-harep-and-implicit-balancing">
+<h4><a class="toc-backref" href="#id13">Superseeding <tt class="docutils literal"><span class="pre">harep</span></tt> and implicit balancing</a><a class="headerlink" href="#superseeding-harep-and-implicit-balancing" title="Permalink to this headline">¶</a></h4>
+<p>To have a single point coordinating all repair actions, the new repair daemon
+will also have the ability to take over the work currently done by <tt class="docutils literal"><span class="pre">harep</span></tt>.
+To allow a smooth transition, <tt class="docutils literal"><span class="pre">maintd</span></tt> when carrying out <tt class="docutils literal"><span class="pre">harep</span></tt>&#8216;s duties
+will add tags in precisely the same way as <tt class="docutils literal"><span class="pre">harep</span></tt> does.
+As the new daemon will have to move instances, it will also have the ability
+to balance the cluster in a way coordinated with the necessary evacuation
+options; dynamic load information can be taken into account.</p>
+<p>The question on whether to do <tt class="docutils literal"><span class="pre">harep</span></tt>&#8216;s work and whether to balance the
+cluster and if so using which strategy (e.g., taking dynamic load information
+into account or not, allowing disk moves or not) are configurable via the Ganeti
+configuration. The default will be to do neither of those tasks. <tt class="docutils literal"><span class="pre">harep</span></tt> will
+continue to exist unchanged as part of the <tt class="docutils literal"><span class="pre">htools</span></tt>.</p>
+</div>
+<div class="section" id="mode-of-operation">
+<h4><a class="toc-backref" href="#id14">Mode of operation</a><a class="headerlink" href="#mode-of-operation" title="Permalink to this headline">¶</a></h4>
+<p>The repair daemon will poll the monitoring daemons for
+the value of the self-diagnose data collector at the same (configurable)
+rate the monitoring daemon collects this collector; if load-based balancing is
+enabled, it will also collect for the the load data needed.</p>
+<p>Repair events will be exposed on the web status page as soon as observed.
+The Ganeti jobs doing the actual maintenance will be submitted in rounds.
+A new round will be started if all jobs of the old round have finished, and
+there is an unhandled repair event or the cluster is unbalanced enough (provided
+that autobalancing is enabled).</p>
+<p>In each round, <tt class="docutils literal"><span class="pre">maintd</span></tt> will first determine the most invasive action for
+each node; despite the self-diagnose collector summing observations in a single
+action recommendation, a new, more invasive recommendation can be issued before
+the handling of the first recommendation is finished. For all nodes to be
+evacuated, the first evacuation task is scheduled, in a way that these tasks do
+not conflict with each other. Then, for all instances on a non-affected node,
+that need <tt class="docutils literal"><span class="pre">harep</span></tt>-style repair (if enabled) those jobs are scheduled to the
+extend of not conflicting with each other. Then on the remaining nodes that
+are not part of a failed repair event either, the jobs
+of the first balancing step are scheduled. All those jobs of a round are
+submitted at once. As they do not conflict they will be able to run in parallel.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti Maintenance Daemon</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#self-diagnose-data-collector">Self-diagnose data collector</a><ul>
+<li><a class="reference internal" href="#protocol">Protocol</a><ul>
+<li><a class="reference internal" href="#status">status</a></li>
+<li><a class="reference internal" href="#command">command</a></li>
+<li><a class="reference internal" href="#details">details</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#security-considerations">Security considerations</a><ul>
+<li><a class="reference internal" href="#command-execution">Command execution</a></li>
+<li><a class="reference internal" href="#result-forging">Result forging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repair-event-life-cycle">Repair-event life cycle</a></li>
+<li><a class="reference internal" href="#repair-daemon">Repair daemon</a><ul>
+<li><a class="reference internal" href="#external-reporting-protocol">External Reporting Protocol</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">/</span></tt></a></li>
+<li><a class="reference internal" href="#id2"><tt class="docutils literal"><span class="pre">/1/status</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#state">State</a></li>
+<li><a class="reference internal" href="#superseeding-harep-and-implicit-balancing">Superseeding <tt class="docutils literal"><span class="pre">harep</span></tt> and implicit balancing</a></li>
+<li><a class="reference internal" href="#mode-of-operation">Mode of operation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-reason-trail.html"
+                        title="previous chapter">Ganeti reason trail</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-restricted-commands.html"
+                        title="next chapter">Design for executing commands via RPC</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-repaird.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-restricted-commands.html" title="Design for executing commands via RPC"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-reason-trail.html" title="Ganeti reason trail"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.config.verify</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.config-module.html">Package&nbsp;config</a> ::
+        Module&nbsp;verify
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.config.verify-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.config.verify-module.html">Module ganeti.config.verify</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2015 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""Verification helpers for the configuration object."""</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-0', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-1', 'constants', 'link-1');">constants</a></tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-2', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-3', 'errors', 'link-3');">errors</a></tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-4', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module ganeti.objects=ganeti.objects-module.html"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-5', 'objects', 'link-5');">objects</a></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-6', 'ganeti', 'link-0');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Module ganeti.config.utils=ganeti.config.utils-module.html,Package ganeti.utils=ganeti.utils-module.html"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-7', 'utils', 'link-7');">utils</a></tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="ValidateConfig"></a><div id="ValidateConfig-def"><a name="L39"></a><tt class="py-lineno"> 39</tt> <a class="py-toggle" href="#" id="ValidateConfig-toggle" onclick="return toggle('ValidateConfig');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.config.verify-module.html#ValidateConfig">ValidateConfig</a><tt class="py-op">(</tt><tt class="py-param">data</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ValidateConfig-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ValidateConfig-expanded"><a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">  <tt class="py-docstring">"""Verifies that a configuration dict looks valid.</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-docstring">  This only verifies the version of the configuration.</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-docstring">  @raise errors.ConfigurationError: if the version differs from what</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-docstring">      we expect</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">data</tt><tt class="py-op">[</tt><tt class="py-string">'version'</tt><tt class="py-op">]</tt> <tt class="py-op">!=</tt> <tt id="link-8" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-8', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Variable ganeti._constants.CONFIG_VERSION=ganeti._constants-module.html#CONFIG_VERSION"><a title="ganeti._constants.CONFIG_VERSION" class="py-name" href="#" onclick="return doclink('link-9', 'CONFIG_VERSION', 'link-9');">CONFIG_VERSION</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-10" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-10', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Class ganeti.errors.ConfigVersionMismatch=ganeti.errors.ConfigVersionMismatch-class.html"><a title="ganeti.errors.ConfigVersionMismatch" class="py-name" href="#" onclick="return doclink('link-11', 'ConfigVersionMismatch', 'link-11');">ConfigVersionMismatch</a></tt><tt class="py-op">(</tt><tt id="link-12" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-12', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name"><a title="ganeti._constants.CONFIG_VERSION" class="py-name" href="#" onclick="return doclink('link-13', 'CONFIG_VERSION', 'link-9');">CONFIG_VERSION</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">                                       <tt class="py-name">data</tt><tt class="py-op">[</tt><tt class="py-string">'version'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"> </tt>
+<a name="VerifyType"></a><div id="VerifyType-def"><a name="L53"></a><tt class="py-lineno"> 53</tt> <a class="py-toggle" href="#" id="VerifyType-toggle" onclick="return toggle('VerifyType');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.config.verify-module.html#VerifyType">VerifyType</a><tt class="py-op">(</tt><tt class="py-param">owner</tt><tt class="py-op">,</tt> <tt class="py-param">attr</tt><tt class="py-op">,</tt> <tt class="py-param">value</tt><tt class="py-op">,</tt> <tt class="py-param">template</tt><tt class="py-op">,</tt> <tt class="py-param">callback</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="VerifyType-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="VerifyType-expanded"><a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if an attribute has correct form.</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring">  @type owner: str</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">  @param owner: name of the object containing the attribute</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring">  @type attr: str</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">  @param attr: name of the attribute</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">  @type value: dict</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">  @param value: actual value of the attribute</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring">  @type template: dict</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">  @param template: expected types of the keys</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-docstring">  @type callback: callable</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring">  @param callback: will be called if there is an error</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt id="link-14" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-14', 'utils', 'link-7');">utils</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Function ganeti.utils.ForceDictType()=ganeti.utils-module.html#ForceDictType"><a title="ganeti.utils.ForceDictType" class="py-name" href="#" onclick="return doclink('link-15', 'ForceDictType', 'link-15');">ForceDictType</a></tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">,</tt> <tt class="py-name">template</tt><tt class="py-op">)</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt id="link-16" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-16', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-17" class="py-name" targets="Class ganeti.errors.GenericError=ganeti.errors.GenericError-class.html"><a title="ganeti.errors.GenericError" class="py-name" href="#" onclick="return doclink('link-17', 'GenericError', 'link-17');">GenericError</a></tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">callback</tt><tt class="py-op">(</tt><tt class="py-string">"%s has invalid %s: %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-name">attr</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"> </tt>
+<a name="VerifyNic"></a><div id="VerifyNic-def"><a name="L74"></a><tt class="py-lineno"> 74</tt> <a class="py-toggle" href="#" id="VerifyNic-toggle" onclick="return toggle('VerifyNic');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.config.verify-module.html#VerifyNic">VerifyNic</a><tt class="py-op">(</tt><tt class="py-param">owner</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">callback</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="VerifyNic-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="VerifyNic-expanded"><a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if a NIC has correct form.</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">  @type owner: str</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">  @param owner: name of the object containing the attribute</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring">  @type params: dict</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">  @param params: actual value of the NIC parameters</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring">  @type callback: callable</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring">  @param callback: will be called if there is an error</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">    <tt id="link-18" class="py-name"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-18', 'objects', 'link-5');">objects</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Class ganeti.objects.NIC=ganeti.objects.NIC-class.html"><a title="ganeti.objects.NIC" class="py-name" href="#" onclick="return doclink('link-19', 'NIC', 'link-19');">NIC</a></tt><tt class="py-op">.</tt><tt id="link-20" class="py-name" targets="Class Method ganeti.hypervisor.hv_base.BaseHypervisor.CheckParameterSyntax()=ganeti.hypervisor.hv_base.BaseHypervisor-class.html#CheckParameterSyntax,Class Method ganeti.hypervisor.hv_kvm.KVMHypervisor.CheckParameterSyntax()=ganeti.hypervisor.hv_kvm.KVMHypervisor-class.html#CheckParameterSyntax,Class Method ganeti.objects.InstancePolicy.CheckParameterSyntax()=ganeti.objects.InstancePolicy-class.html#CheckParameterSyntax,Class Method ganeti.objects.NIC.CheckParameterSyntax()=ganeti.objects.NIC-class.html#CheckParameterSyntax"><a title="ganeti.hypervisor.hv_base.BaseHypervisor.CheckParameterSyntax
+ganeti.hypervisor.hv_kvm.KVMHypervisor.CheckParameterSyntax
+ganeti.objects.InstancePolicy.CheckParameterSyntax
+ganeti.objects.NIC.CheckParameterSyntax" class="py-name" href="#" onclick="return doclink('link-20', 'CheckParameterSyntax', 'link-20');">CheckParameterSyntax</a></tt><tt class="py-op">(</tt><tt class="py-name">params</tt><tt class="py-op">)</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt id="link-21" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-21', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Class ganeti.errors.ConfigurationError=ganeti.errors.ConfigurationError-class.html"><a title="ganeti.errors.ConfigurationError" class="py-name" href="#" onclick="return doclink('link-22', 'ConfigurationError', 'link-22');">ConfigurationError</a></tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">    <tt class="py-name">callback</tt><tt class="py-op">(</tt><tt class="py-string">"%s has invalid nicparams: %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"> </tt>
+<a name="VerifyIpolicy"></a><div id="VerifyIpolicy-def"><a name="L91"></a><tt class="py-lineno"> 91</tt> <a class="py-toggle" href="#" id="VerifyIpolicy-toggle" onclick="return toggle('VerifyIpolicy');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.config.verify-module.html#VerifyIpolicy">VerifyIpolicy</a><tt class="py-op">(</tt><tt class="py-param">owner</tt><tt class="py-op">,</tt> <tt class="py-param">ipolicy</tt><tt class="py-op">,</tt> <tt class="py-param">iscluster</tt><tt class="py-op">,</tt> <tt class="py-param">callback</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="VerifyIpolicy-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="VerifyIpolicy-expanded"><a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if an ipolicy has correct form.</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">  @type owner: str</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">  @param owner: name of the object containing the attribute</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">  @type ipolicy: dict</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">  @param ipolicy: actual value of the ipolicy parameters</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring">  @type iscluster: bool</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">  @param iscluster: True iff the owner is the cluster</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">  @type callback: callable</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">  @param callback: will be called if there is an error</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt id="link-23" class="py-name"><a title="ganeti.objects" class="py-name" href="#" onclick="return doclink('link-23', 'objects', 'link-5');">objects</a></tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Class ganeti.objects.InstancePolicy=ganeti.objects.InstancePolicy-class.html"><a title="ganeti.objects.InstancePolicy" class="py-name" href="#" onclick="return doclink('link-24', 'InstancePolicy', 'link-24');">InstancePolicy</a></tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="ganeti.hypervisor.hv_base.BaseHypervisor.CheckParameterSyntax
+ganeti.hypervisor.hv_kvm.KVMHypervisor.CheckParameterSyntax
+ganeti.objects.InstancePolicy.CheckParameterSyntax
+ganeti.objects.NIC.CheckParameterSyntax" class="py-name" href="#" onclick="return doclink('link-25', 'CheckParameterSyntax', 'link-20');">CheckParameterSyntax</a></tt><tt class="py-op">(</tt><tt class="py-name">ipolicy</tt><tt class="py-op">,</tt> <tt class="py-name">iscluster</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt id="link-26" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-26', 'errors', 'link-3');">errors</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="ganeti.errors.ConfigurationError" class="py-name" href="#" onclick="return doclink('link-27', 'ConfigurationError', 'link-22');">ConfigurationError</a></tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-name">callback</tt><tt class="py-op">(</tt><tt class="py-string">"%s has invalid instance policy: %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt> <tt class="py-keyword">in</tt> <tt class="py-name">ipolicy</tt><tt class="py-op">.</tt><tt class="py-name">items</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">key</tt> <tt class="py-op">==</tt> <tt id="link-28" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-28', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-29" class="py-name" targets="Variable ganeti._constants.ISPECS_MINMAX=ganeti._constants-module.html#ISPECS_MINMAX"><a title="ganeti._constants.ISPECS_MINMAX" class="py-name" href="#" onclick="return doclink('link-29', 'ISPECS_MINMAX', 'link-29');">ISPECS_MINMAX</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">      <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt id="link-30" class="py-name" targets="Function ganeti.config.verify.VerifyIspecs()=ganeti.config.verify-module.html#VerifyIspecs"><a title="ganeti.config.verify.VerifyIspecs" class="py-name" href="#" onclick="return doclink('link-30', 'VerifyIspecs', 'link-30');">VerifyIspecs</a></tt><tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-string">"ipolicy/%s[%s]"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">k</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt><tt class="py-op">[</tt><tt class="py-name">k</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">callback</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-keyword">elif</tt> <tt class="py-name">key</tt> <tt class="py-op">==</tt> <tt id="link-31" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-31', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-32" class="py-name" targets="Variable ganeti._constants.ISPECS_STD=ganeti._constants-module.html#ISPECS_STD"><a title="ganeti._constants.ISPECS_STD" class="py-name" href="#" onclick="return doclink('link-32', 'ISPECS_STD', 'link-32');">ISPECS_STD</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">      <tt id="link-33" class="py-name" targets="Function ganeti.config.verify.VerifyType()=ganeti.config.verify-module.html#VerifyType"><a title="ganeti.config.verify.VerifyType" class="py-name" href="#" onclick="return doclink('link-33', 'VerifyType', 'link-33');">VerifyType</a></tt><tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-string">"ipolicy/"</tt> <tt class="py-op">+</tt> <tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt><tt class="py-op">,</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">                 <tt id="link-34" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-34', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Variable ganeti._constants.ISPECS_PARAMETER_TYPES=ganeti._constants-module.html#ISPECS_PARAMETER_TYPES"><a title="ganeti._constants.ISPECS_PARAMETER_TYPES" class="py-name" href="#" onclick="return doclink('link-35', 'ISPECS_PARAMETER_TYPES', 'link-35');">ISPECS_PARAMETER_TYPES</a></tt><tt class="py-op">,</tt> <tt class="py-name">callback</tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">      <tt class="py-comment"># FIXME: assuming list type</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">key</tt> <tt class="py-keyword">in</tt> <tt id="link-36" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-36', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-37" class="py-name" targets="Variable ganeti._constants.IPOLICY_PARAMETERS=ganeti._constants-module.html#IPOLICY_PARAMETERS"><a title="ganeti._constants.IPOLICY_PARAMETERS" class="py-name" href="#" onclick="return doclink('link-37', 'IPOLICY_PARAMETERS', 'link-37');">IPOLICY_PARAMETERS</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-name">exp_type</tt> <tt class="py-op">=</tt> <tt class="py-name">float</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">        <tt class="py-comment"># if the value is int, it can be converted into float</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">        <tt class="py-name">convertible_types</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">int</tt><tt class="py-op">]</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">        <tt class="py-name">exp_type</tt> <tt class="py-op">=</tt> <tt class="py-name">list</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">        <tt class="py-name">convertible_types</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt class="py-comment"># Try to convert from allowed types, if necessary.</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">any</tt><tt class="py-op">(</tt><tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">,</tt> <tt class="py-name">ct</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">ct</tt> <tt class="py-keyword">in</tt> <tt class="py-name">convertible_types</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">          <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">            <tt class="py-name">value</tt> <tt class="py-op">=</tt> <tt class="py-name">exp_type</tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">)</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">            <tt class="py-name">ipolicy</tt><tt class="py-op">[</tt><tt class="py-name">key</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">value</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">          <tt class="py-keyword">except</tt> <tt class="py-name">ValueError</tt><tt class="py-op">:</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">            <tt class="py-keyword">pass</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">,</tt> <tt class="py-name">exp_type</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">          <tt class="py-name">callback</tt><tt class="py-op">(</tt><tt class="py-string">"%s has invalid instance policy: for %s,"</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">                   <tt class="py-string">" expecting %s, got %s"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">                   <tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">exp_type</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">type</tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"> </tt>
+<a name="VerifyIspecs"></a><div id="VerifyIspecs-def"><a name="L137"></a><tt class="py-lineno">137</tt> <a class="py-toggle" href="#" id="VerifyIspecs-toggle" onclick="return toggle('VerifyIspecs');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.config.verify-module.html#VerifyIspecs">VerifyIspecs</a><tt class="py-op">(</tt><tt class="py-param">owner</tt><tt class="py-op">,</tt> <tt class="py-param">parentkey</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">callback</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="VerifyIspecs-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="VerifyIspecs-expanded"><a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if an ispec has correct form.</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring">  @type owner: str</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">  @param owner: name of the object containing the attribute</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">  @type parentkey: str</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">  @param parentkey: the root name of the key</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">  @type params: dict</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">  @param params: actual value of the ispec parameters</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">  @type callback: callable</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">  @param callback: will be called if there is an error</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt><tt class="py-op">)</tt> <tt class="py-keyword">in</tt> <tt class="py-name">params</tt><tt class="py-op">.</tt><tt class="py-name">items</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">    <tt class="py-name">fullkey</tt> <tt class="py-op">=</tt> <tt class="py-string">"/"</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">parentkey</tt><tt class="py-op">,</tt> <tt class="py-name">key</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">    <tt id="link-38" class="py-name"><a title="ganeti.config.verify.VerifyType" class="py-name" href="#" onclick="return doclink('link-38', 'VerifyType', 'link-33');">VerifyType</a></tt><tt class="py-op">(</tt><tt class="py-name">owner</tt><tt class="py-op">,</tt> <tt class="py-name">fullkey</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt><tt class="py-op">,</tt> <tt id="link-39" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-39', 'constants', 'link-1');">constants</a></tt><tt class="py-op">.</tt><tt id="link-40" class="py-name"><a title="ganeti._constants.ISPECS_PARAMETER_TYPES" class="py-name" href="#" onclick="return doclink('link-40', 'ISPECS_PARAMETER_TYPES', 'link-35');">ISPECS_PARAMETER_TYPES</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">               <tt class="py-name">callback</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Mar 11 11:24:09 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

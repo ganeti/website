@@ -1,0 +1,1820 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Daemon</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Daemon.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Daemon.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Daemon</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Constants
+</A
+></DT
+><DT
+><A HREF="#2"
+>Data types
+</A
+></DT
+><DT
+><A HREF="#3"
+>Command line options
+</A
+></DT
+><DT
+><A HREF="#4"
+>Daemon-related functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the generic daemon functionality.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdevNull"
+>devNull</A
+> :: FilePath</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ADaemonOptions"
+>DaemonOptions</A
+>  = <A HREF="#v%3ADaemonOptions"
+>DaemonOptions</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowHelp"
+>optShowHelp</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptShowVer"
+>optShowVer</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDaemonize"
+>optDaemonize</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptPort"
+>optPort</A
+> :: Maybe Word16</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptDebug"
+>optDebug</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptNoUserChecks"
+>optNoUserChecks</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptBindAddress"
+>optBindAddress</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AoptSyslogUsage"
+>optSyslogUsage</A
+> :: Maybe <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultOptions"
+>defaultOptions</A
+> :: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AOptType"
+>OptType</A
+> = OptDescr (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreqWithConversion"
+>reqWithConversion</A
+> ::  (String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a) -&gt; (a -&gt; <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>) -&gt; String -&gt; ArgDescr (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoShowHelp"
+>oShowHelp</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoShowVer"
+>oShowVer</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoNoDaemonize"
+>oNoDaemonize</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoDebug"
+>oDebug</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoNoUserChecks"
+>oNoUserChecks</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoPort"
+>oPort</A
+> :: Int -&gt; <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoBindAddress"
+>oBindAddress</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoSyslogUsage"
+>oSyslogUsage</A
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AusageHelp"
+>usageHelp</A
+> :: String -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseOpts"
+>parseOpts</A
+> :: [String] -&gt; String -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; IO (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>, [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseArgs"
+>parseArgs</A
+> :: String -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; IO (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>, [String])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ApidFileMode"
+>pidFileMode</A
+> :: FileMode</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ApidFileFlags"
+>pidFileFlags</A
+> :: OpenFileFlags</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A_writePidFile"
+>_writePidFile</A
+> :: FilePath -&gt; IO Fd</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatIOError"
+>formatIOError</A
+> :: String -&gt; IOError -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwritePidFile"
+>writePidFile</A
+> :: FilePath -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> Fd)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetupDaemonEnv"
+>setupDaemonEnv</A
+> :: FilePath -&gt; FileMode -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhandleSigHup"
+>handleSigHup</A
+> :: FilePath -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetupDaemonFDs"
+>setupDaemonFDs</A
+> :: Maybe FilePath -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultBindAddr"
+>defaultBindAddr</A
+> :: Int -&gt; Family -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AresolveAddrHints"
+>resolveAddrHints</A
+> :: Maybe AddrInfo</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AresolveAddr"
+>resolveAddr</A
+> :: Int -&gt; String -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr))</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseAddress"
+>parseAddress</A
+> :: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; Int -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr))</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Adaemonize"
+>daemonize</A
+> :: FilePath -&gt; IO () -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenericMain"
+>genericMain</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; IO ()) -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinnerMain"
+>innerMain</A
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+> -&gt; IO () -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Constants
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:devNull"
+><A NAME="v%3AdevNull"
+></A
+></A
+><B
+>devNull</B
+> :: FilePath</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#devNull"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>/dev/null path.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Data types
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:DaemonOptions"
+><A NAME="t%3ADaemonOptions"
+></A
+></A
+><B
+>DaemonOptions</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#DaemonOptions"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Command line options structure.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DaemonOptions"
+><A NAME="v%3ADaemonOptions"
+></A
+></A
+><B
+>DaemonOptions</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowHelp"
+><A NAME="v%3AoptShowHelp"
+></A
+></A
+><B
+>optShowHelp</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Just show the help
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optShowVer"
+><A NAME="v%3AoptShowVer"
+></A
+></A
+><B
+>optShowVer</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Just show the program version
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDaemonize"
+><A NAME="v%3AoptDaemonize"
+></A
+></A
+><B
+>optDaemonize</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Whether to daemonize or not
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optPort"
+><A NAME="v%3AoptPort"
+></A
+></A
+><B
+>optPort</B
+> :: Maybe Word16</TD
+><TD CLASS="rdoc"
+>Override for the network port
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optDebug"
+><A NAME="v%3AoptDebug"
+></A
+></A
+><B
+>optDebug</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Enable debug messages
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optNoUserChecks"
+><A NAME="v%3AoptNoUserChecks"
+></A
+></A
+><B
+>optNoUserChecks</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Ignore user checks
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optBindAddress"
+><A NAME="v%3AoptBindAddress"
+></A
+></A
+><B
+>optBindAddress</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+>Override for the bind address
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:optSyslogUsage"
+><A NAME="v%3AoptSyslogUsage"
+></A
+></A
+><B
+>optSyslogUsage</B
+> :: Maybe <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+></TD
+><TD CLASS="rdoc"
+>Override for Syslog usage
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultOptions"
+><A NAME="v%3AdefaultOptions"
+></A
+></A
+><B
+>defaultOptions</B
+> :: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#defaultOptions"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Default values for the command line options.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:OptType"
+><A NAME="t%3AOptType"
+></A
+></A
+><B
+>OptType</B
+> = OptDescr (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#OptType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Abrreviation for the option type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:reqWithConversion"
+><A NAME="v%3AreqWithConversion"
+></A
+></A
+><B
+>reqWithConversion</B
+> ::  (String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a) -&gt; (a -&gt; <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>) -&gt; String -&gt; ArgDescr (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#reqWithConversion"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function for required arguments which need to be converted
+ as opposed to stored just as string.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Command line options
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oShowHelp"
+><A NAME="v%3AoShowHelp"
+></A
+></A
+><B
+>oShowHelp</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oShowHelp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oShowVer"
+><A NAME="v%3AoShowVer"
+></A
+></A
+><B
+>oShowVer</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oShowVer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oNoDaemonize"
+><A NAME="v%3AoNoDaemonize"
+></A
+></A
+><B
+>oNoDaemonize</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oNoDaemonize"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oDebug"
+><A NAME="v%3AoDebug"
+></A
+></A
+><B
+>oDebug</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oDebug"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oNoUserChecks"
+><A NAME="v%3AoNoUserChecks"
+></A
+></A
+><B
+>oNoUserChecks</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oNoUserChecks"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oPort"
+><A NAME="v%3AoPort"
+></A
+></A
+><B
+>oPort</B
+> :: Int -&gt; <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oPort"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oBindAddress"
+><A NAME="v%3AoBindAddress"
+></A
+></A
+><B
+>oBindAddress</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oBindAddress"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:oSyslogUsage"
+><A NAME="v%3AoSyslogUsage"
+></A
+></A
+><B
+>oSyslogUsage</B
+> :: <A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#oSyslogUsage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:usageHelp"
+><A NAME="v%3AusageHelp"
+></A
+></A
+><B
+>usageHelp</B
+> :: String -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#usageHelp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Usage info.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseOpts"
+><A NAME="v%3AparseOpts"
+></A
+></A
+><B
+>parseOpts</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#parseOpts"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [String]</TD
+><TD CLASS="rdoc"
+>The command line arguments
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The program name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>]</TD
+><TD CLASS="rdoc"
+>The supported command line options
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>, [String])</TD
+><TD CLASS="rdoc"
+>The resulting options
+ and leftover arguments
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Command line parser, using the Options structure.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseArgs"
+><A NAME="v%3AparseArgs"
+></A
+></A
+><B
+>parseArgs</B
+> :: String -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; IO (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+>, [String])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#parseArgs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Small wrapper over getArgs and <TT
+><A HREF="Ganeti-Daemon.html#v%3AparseOpts"
+>parseOpts</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Daemon-related functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:pidFileMode"
+><A NAME="v%3ApidFileMode"
+></A
+></A
+><B
+>pidFileMode</B
+> :: FileMode</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#pidFileMode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>PID file mode.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:pidFileFlags"
+><A NAME="v%3ApidFileFlags"
+></A
+></A
+><B
+>pidFileFlags</B
+> :: OpenFileFlags</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#pidFileFlags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>PID file open flags.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:_writePidFile"
+><A NAME="v%3A_writePidFile"
+></A
+></A
+><B
+>_writePidFile</B
+> :: FilePath -&gt; IO Fd</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#_writePidFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Writes a PID file and locks it.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatIOError"
+><A NAME="v%3AformatIOError"
+></A
+></A
+><B
+>formatIOError</B
+> :: String -&gt; IOError -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#formatIOError"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper to format an IOError.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:writePidFile"
+><A NAME="v%3AwritePidFile"
+></A
+></A
+><B
+>writePidFile</B
+> :: FilePath -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> Fd)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#writePidFile"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over <TT
+><A HREF="Ganeti-Daemon.html#v%3A_writePidFile"
+>_writePidFile</A
+></TT
+> that transforms IO exceptions into a
+ <TT
+><A HREF="Ganeti-BasicTypes.html#v%3ABad"
+>Bad</A
+></TT
+> value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setupDaemonEnv"
+><A NAME="v%3AsetupDaemonEnv"
+></A
+></A
+><B
+>setupDaemonEnv</B
+> :: FilePath -&gt; FileMode -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#setupDaemonEnv"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets up a daemon's environment.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:handleSigHup"
+><A NAME="v%3AhandleSigHup"
+></A
+></A
+><B
+>handleSigHup</B
+> :: FilePath -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#handleSigHup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Signal handler for reopening log files.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setupDaemonFDs"
+><A NAME="v%3AsetupDaemonFDs"
+></A
+></A
+><B
+>setupDaemonFDs</B
+> :: Maybe FilePath -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#setupDaemonFDs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets up a daemon's standard file descriptors.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultBindAddr"
+><A NAME="v%3AdefaultBindAddr"
+></A
+></A
+><B
+>defaultBindAddr</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#defaultBindAddr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Int</TD
+><TD CLASS="rdoc"
+>The port we want
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Family</TD
+><TD CLASS="rdoc"
+>The cluster IP family
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Computes the default bind address for a given family.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:resolveAddrHints"
+><A NAME="v%3AresolveAddrHints"
+></A
+></A
+><B
+>resolveAddrHints</B
+> :: Maybe AddrInfo</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#resolveAddrHints"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Default hints for the resolver
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:resolveAddr"
+><A NAME="v%3AresolveAddr"
+></A
+></A
+><B
+>resolveAddr</B
+> :: Int -&gt; String -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr))</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#resolveAddr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Resolves a numeric address.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseAddress"
+><A NAME="v%3AparseAddress"
+></A
+></A
+><B
+>parseAddress</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#parseAddress"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+></TD
+><TD CLASS="rdoc"
+>Command line options
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Int</TD
+><TD CLASS="rdoc"
+>Default port for this daemon
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (Family, SockAddr))</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Based on the options, compute the socket address to use for the
+ daemon.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:daemonize"
+><A NAME="v%3Adaemonize"
+></A
+></A
+><B
+>daemonize</B
+> :: FilePath -&gt; IO () -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#daemonize"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Run an I/O action as a daemon.
+</P
+><P
+>WARNING: this only works in single-threaded mode (either using the
+ single-threaded runtime, or using the multi-threaded one but with
+ only one OS thread, i.e. -N1).
+</P
+><P
+>FIXME: this doesn't support error reporting and the prepfn
+ functionality.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genericMain"
+><A NAME="v%3AgenericMain"
+></A
+></A
+><B
+>genericMain</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; [<A HREF="Ganeti-Daemon.html#t%3AOptType"
+>OptType</A
+>] -&gt; (<A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; IO ()) -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#genericMain"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generic daemon startup.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:innerMain"
+><A NAME="v%3AinnerMain"
+></A
+></A
+><B
+>innerMain</B
+> :: <A HREF="Ganeti-Runtime.html#t%3AGanetiDaemon"
+>GanetiDaemon</A
+> -&gt; <A HREF="Ganeti-Daemon.html#t%3ADaemonOptions"
+>DaemonOptions</A
+> -&gt; <A HREF="Ganeti-Logging.html#t%3ASyslogUsage"
+>SyslogUsage</A
+> -&gt; IO () -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Daemon.html#innerMain"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Inner daemon function.
+</P
+><P
+>This is executed after daemonization.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

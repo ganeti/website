@@ -1,0 +1,1149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>gnt-node</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><H1
+><A
+NAME="AEN1"
+></A
+>gnt-node</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN14"
+></A
+><H2
+>Name</H2
+>gnt-node&nbsp;--&nbsp;node administration</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN17"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>gnt-node </B
+>  {command} [arguments...]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN22"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>      The <B
+CLASS="COMMAND"
+>gnt-node</B
+> is used for managing the
+      (physical) nodes in the ganeti system.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN26"
+></A
+><H2
+>COMMANDS</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN28"
+></A
+><H3
+>ADD</H3
+><P
+><B
+CLASS="COMMAND"
+>add</B
+>  [--readd] [-s <TT
+CLASS="REPLACEABLE"
+><I
+>secondary_ip</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>nodename</I
+></TT
+>}</P
+><P
+>        Adds the given node to the cluster.
+      </P
+><P
+>        This command is used to join a new node to the cluster. You
+        will have to provide the password for root of the node to be
+        able to add the node in the cluster. The command needs to be
+        run on the ganeti master.
+      </P
+><P
+>        Note that the command is potentially destructive, as it will
+        forcibly join the specified host the cluster, not paying
+        attention to its current status (it could be already in a
+        cluster, etc.)
+      </P
+><P
+>        The <CODE
+CLASS="OPTION"
+>-s</CODE
+> is used in dual-home clusters and
+        specifies the new node's IP in the secondary network. See the
+        discussion in <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-cluster</SPAN
+>(8)</SPAN
+> for more
+        information.
+      </P
+><P
+>        In case you're readding a node after hardware failure, you can
+        use the <CODE
+CLASS="OPTION"
+>--readd</CODE
+> parameter. In this case, you
+        don't need to pass the secondary IP again, it will reused from
+        the cluster. Also, the <TT
+CLASS="LITERAL"
+>drained</TT
+> and
+        <TT
+CLASS="LITERAL"
+>offline</TT
+> flags of the node will be cleared
+        before re-adding it.
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+># gnt-node add node5.example.com
+# gnt-node add -s 192.168.44.5 node5.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN51"
+></A
+><H3
+>ADD-TAGS</H3
+><P
+><B
+CLASS="COMMAND"
+>add-tags</B
+>  [--from <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>nodename</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>tag</I
+></TT
+>...}</P
+><P
+>        Add tags to the given node. If any of the tags contains
+        invalid characters, the entire operation will abort.
+      </P
+><P
+>        If the <CODE
+CLASS="OPTION"
+>--from</CODE
+> option is given, the list of
+        tags will be extended with the contents of that file (each
+        line becomes a tag). In this case, there is not need to pass
+        tags on the command line (if you do, both sources will be
+        used). A file name of - will be interpreted as stdin.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN64"
+></A
+><H3
+>EVACUATE</H3
+><P
+><B
+CLASS="COMMAND"
+>evacuate</B
+>  [-f] [--iallocator <TT
+CLASS="REPLACEABLE"
+><I
+>NAME</I
+></TT
+> | --new-secondary <TT
+CLASS="REPLACEABLE"
+><I
+>destination_node</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>}</P
+><P
+>        This command will move all secondary instances away from the
+        given node. It works only for instances having a drbd disk
+        template.
+      </P
+><P
+>        The new location for the instances can be specified in two ways:
+        <P
+></P
+><UL
+><LI
+><P
+>as a single node for all instances, via the
+            <CODE
+CLASS="OPTION"
+>--new-secondary</CODE
+> option</P
+></LI
+><LI
+><P
+>or via the <CODE
+CLASS="OPTION"
+>--iallocator</CODE
+> option,
+            giving a script name as parameter, so each instance will
+            be in turn placed on the (per the script) optimal
+            node</P
+></LI
+></UL
+>
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+>          # gnt-node evacuate -I dumb node3.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN87"
+></A
+><H3
+>FAILOVER</H3
+><P
+><B
+CLASS="COMMAND"
+>failover</B
+>  [-f] [--ignore-consistency] {<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>}</P
+><P
+>        This command will fail over all instances having the given
+        node as primary to their secondary nodes. This works only for
+        instances having a drbd disk template.
+      </P
+><P
+>        Normally the failover will check the consistency of the disks
+        before failing over the instance. If you are trying to migrate
+        instances off a dead node, this will fail. Use the
+        <CODE
+CLASS="OPTION"
+>--ignore-consistency</CODE
+> option for this purpose.
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+>          # gnt-node failover node1.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN100"
+></A
+><H3
+>INFO</H3
+><P
+><B
+CLASS="COMMAND"
+>info</B
+>  [<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>...]</P
+><P
+>        Show detailed information about the nodes in the cluster. If you
+        don't give any arguments, all nodes will be shows, otherwise the
+        output will be restricted to the given names.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN107"
+></A
+><H3
+>LIST</H3
+><P
+><B
+CLASS="COMMAND"
+>list</B
+>  [--sync]<BR> [--no-headers] [--separator=<TT
+CLASS="REPLACEABLE"
+><I
+>SEPARATOR</I
+></TT
+>]<BR> [--units=<TT
+CLASS="REPLACEABLE"
+><I
+>UNITS</I
+></TT
+>] [-o <TT
+CLASS="REPLACEABLE"
+><I
+>[+]FIELD,...</I
+></TT
+>]<BR> [node...]</P
+><P
+>        Lists the nodes in the cluster.
+      </P
+><P
+>        The <CODE
+CLASS="OPTION"
+>--no-headers</CODE
+> option will skip the initial
+        header line. The <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option takes an
+        argument which denotes what will be used between the output
+        fields. Both these options are to help scripting.
+      </P
+><P
+>        The units used to display the numeric values in the output
+        varies, depending on the options given. By default, the values
+        will be formatted in the most appropriate unit. If the
+        <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option is given, then the values
+        are shown in mebibytes to allow parsing by scripts. In both
+        cases, the <CODE
+CLASS="OPTION"
+>--units</CODE
+> option can be used to
+        enforce a given output unit.
+      </P
+><P
+>        By default, the query of nodes will be done in parallel with
+        any running jobs. This might give inconsistent results for the
+        free disk/memory. The <CODE
+CLASS="OPTION"
+>--sync</CODE
+> can be used to
+        grab locks for all the nodes and ensure consistent view of the
+        cluster (but this might stall the query for a long time).
+      </P
+><P
+>        The <CODE
+CLASS="OPTION"
+>-o</CODE
+> option takes a comma-separated list of
+        output fields. The available fields and their meaning are:
+        <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>name</DT
+><DD
+><P
+>the node name</P
+></DD
+><DT
+>pinst_cnt</DT
+><DD
+><P
+>the number of instances having this node as
+              primary</P
+></DD
+><DT
+>pinst_list</DT
+><DD
+><P
+>the list of instances having this node as
+              primary, comma separated</P
+></DD
+><DT
+>sinst_cnt</DT
+><DD
+><P
+>the number of instances having this node as a
+              secondary node</P
+></DD
+><DT
+>sinst_list</DT
+><DD
+><P
+>the list of instances having this node as a
+              secondary node, comma separated</P
+></DD
+><DT
+>pip</DT
+><DD
+><P
+>the primary ip of this node (used for cluster
+              communication)</P
+></DD
+><DT
+>sip</DT
+><DD
+><P
+>                the secondary ip of this node (used for data
+                replication in dual-ip clusters, see <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-cluster</SPAN
+>(8)</SPAN
+>
+              </P
+></DD
+><DT
+>dtotal</DT
+><DD
+><P
+>total disk space in the volume group used for
+              instance disk allocations</P
+></DD
+><DT
+>dfree</DT
+><DD
+><P
+>available disk space in the volume group</P
+></DD
+><DT
+>mtotal</DT
+><DD
+><P
+>total memory on the physical node</P
+></DD
+><DT
+>mnode</DT
+><DD
+><P
+>the memory used by the node itself</P
+></DD
+><DT
+>mfree</DT
+><DD
+><P
+>memory available for instance
+              allocations</P
+></DD
+><DT
+>bootid</DT
+><DD
+><P
+>the node bootid value; this is a linux specific
+              feature that assigns a new UUID to the node at each boot
+              and can be use to detect node reboots (by tracking
+              changes in this value)</P
+></DD
+><DT
+>tags</DT
+><DD
+><P
+>comma-separated list of the node's
+              tags</P
+></DD
+><DT
+>serial_no</DT
+><DD
+><P
+>the so called 'serial number' of the instance;
+              this is a numeric field that is incremented each time
+              the instance is modified, and it can be used to detect
+              modifications</P
+></DD
+><DT
+>ctotal</DT
+><DD
+><P
+>the toal number of logical processors</P
+></DD
+><DT
+>cnodes</DT
+><DD
+><P
+>the number of NUMA domains on the node, if the
+              hypervisor can export this information</P
+></DD
+><DT
+>csockets</DT
+><DD
+><P
+>the number of physical CPU sockets, if the
+              hypervisor can export this information</P
+></DD
+><DT
+>master_candidate</DT
+><DD
+><P
+>whether the node is a master candidate or not</P
+></DD
+><DT
+>drained</DT
+><DD
+><P
+>whether the node is drained or not; the cluster
+              still communicates with drained nodes but excludes them
+              from allocation operations</P
+></DD
+><DT
+>offline</DT
+><DD
+><P
+>whether the node is offline or not; if offline,
+              the cluster does not communicate with offline nodes;
+              useful for nodes that are not reachable in order to
+              avoid delays</P
+></DD
+><DT
+>role</DT
+><DD
+><P
+>                A condensed version of the node flags; this field will
+                output a one-character field, with the following
+                possible values:
+                <P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>M</I
+></SPAN
+> for the master
+                    node</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>C</I
+></SPAN
+> for a master
+                    candidate</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>R</I
+></SPAN
+> for a regular
+                    node</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>D</I
+></SPAN
+> for a drained
+                    node</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>O</I
+></SPAN
+> for an offline
+                    node</P
+></LI
+></UL
+>
+              </P
+></DD
+></DL
+></DIV
+>
+      </P
+><P
+>        If the value of the option starts with the character
+        <CODE
+CLASS="CONSTANT"
+>+</CODE
+>, the new fields will be added to the
+        default list. This allows to quickly see the default list plus
+        a few other fields, instead of retyping the entire list of
+        fields.
+      </P
+><P
+>        Note that some of this fields are known from the configuration
+        of the cluster (e.g. name, pinst, sinst, pip, sip and thus the master does
+        not need to contact the node for this data (making the listing
+        fast if only fields from this set are selected), whereas the
+        other fields are "live" fields and we need to make a query to
+        the cluster nodes.
+      </P
+><P
+>        Depending on the virtualization type and implementation
+        details, the mtotal, mnode and mfree may have slighly varying
+        meanings. For example, some solutions share the node memory
+        with the pool of memory used for instances
+        (<ACRONYM
+CLASS="ACRONYM"
+>KVM</ACRONYM
+>), whereas others have separate memory
+        for the node and for the instances (Xen).
+      </P
+><P
+>        If no node names are given, then all nodes are
+        queried. Otherwise, only the given nodes will be listed.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN254"
+></A
+><H3
+>LIST-TAGS</H3
+><P
+><B
+CLASS="COMMAND"
+>list-tags</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>nodename</I
+></TT
+>}</P
+><P
+>List the tags of the given node.</P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN261"
+></A
+><H3
+>MIGRATE</H3
+><P
+><B
+CLASS="COMMAND"
+>migrate</B
+>  [-f] [--non-live] {<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>}</P
+><P
+>        This command will migrate all instances having the given
+        node as primary to their secondary nodes. This works only for
+        instances having a drbd disk template.
+      </P
+><P
+>        As for the <B
+CLASS="COMMAND"
+>gnt-instance migrate</B
+> command,
+        the <CODE
+CLASS="OPTION"
+>--no-live</CODE
+> option can be given to do a
+        non-live migration.
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+>          # gnt-node migrate node1.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN275"
+></A
+><H3
+>MODIFY</H3
+><P
+><B
+CLASS="COMMAND"
+>modify</B
+>  [-f] [--submit] [--master-candidate=<CODE
+CLASS="OPTION"
+>yes|no</CODE
+>] [--drained=<CODE
+CLASS="OPTION"
+>yes|no</CODE
+>] [--offline=<CODE
+CLASS="OPTION"
+>yes|no</CODE
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>}</P
+><P
+>        This command changes the role of the node. Each options takes
+        either a literal <TT
+CLASS="LITERAL"
+>yes</TT
+> or
+        <TT
+CLASS="LITERAL"
+>no</TT
+>, and only one option should be given as
+        <TT
+CLASS="LITERAL"
+>yes</TT
+>. The meaning of the roles are described
+        in the manpage <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti</SPAN
+>(7)</SPAN
+>.
+      </P
+><P
+>        In case a node is demoted from the master candidate role, but
+        there are not enough new nodes for this case, the operation
+        will be refused. To override this check, pass the
+        <CODE
+CLASS="OPTION"
+>--force</CODE
+> option.
+      </P
+><P
+>        Example (setting a node offline, which will demote it from
+        master candidate role if is in that role):
+        <PRE
+CLASS="SCREEN"
+># gnt-node modify --offline=yes node1.example.com
+        </PRE
+>
+      </P
+><P
+>Example (setting the node back to online and master candidate):
+        <PRE
+CLASS="SCREEN"
+># gnt-node modify --offline=no --master-candidate=yes node1.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN302"
+></A
+><H3
+>REMOVE</H3
+><P
+><B
+CLASS="COMMAND"
+>remove</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>nodename</I
+></TT
+>}</P
+><P
+>        Removes a node from the cluster. Instances must be removed or
+        migrated to another cluster before.
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+># gnt-node remove node5.example.com
+        </PRE
+>
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN311"
+></A
+><H3
+>REMOVE-TAGS</H3
+><P
+><B
+CLASS="COMMAND"
+>remove-tags</B
+>  [--from <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>nodename</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>tag</I
+></TT
+>...}</P
+><P
+>        Remove tags from the given node. If any of the tags are not
+        existing on the node, the entire operation will abort.
+      </P
+><P
+>        If the <CODE
+CLASS="OPTION"
+>--from</CODE
+> option is given, the list of
+        tags will be extended with the contents of that file (each
+        line becomes a tag). In this case, there is not need to pass
+        tags on the command line (if you do, both sources will be
+        used). A file name of - will be interpreted as stdin.
+      </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN324"
+></A
+><H3
+>VOLUMES</H3
+><P
+><B
+CLASS="COMMAND"
+>volumes</B
+>  [--no-headers] [--human-readable] [--separator=<TT
+CLASS="REPLACEABLE"
+><I
+>SEPARATOR</I
+></TT
+>] [--output=<TT
+CLASS="REPLACEABLE"
+><I
+>FIELDS</I
+></TT
+>]<BR> [<TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>...]</P
+><P
+>        Lists all logical volumes and their physical disks from the node(s)
+        provided.
+      </P
+><P
+>        The <CODE
+CLASS="OPTION"
+>--no-headers</CODE
+> option will skip the initial
+        header line. The <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option takes an
+        argument which denotes what will be used between the output
+        fields. Both these options are to help scripting.
+      </P
+><P
+>        The units used to display the numeric values in the output
+        varies, depending on the options given. By default, the values
+        will be formatted in the most appropriate unit. If the
+        <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option is given, then the values
+        are shown in mebibytes to allow parsing by scripts. In both
+        cases, the <CODE
+CLASS="OPTION"
+>--units</CODE
+> option can be used to
+        enforce a given output unit.
+      </P
+><P
+>        The <CODE
+CLASS="OPTION"
+>-o</CODE
+> option takes a comma-separated list of
+        output fields. The available fields and their meaning are:
+        <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>node</DT
+><DD
+><P
+>the node name on which the volume exists</P
+></DD
+><DT
+>phys</DT
+><DD
+><P
+>the physical drive (on which the LVM physical
+              volume lives)</P
+></DD
+><DT
+>vg</DT
+><DD
+><P
+>the volume group name</P
+></DD
+><DT
+>name</DT
+><DD
+><P
+>the logical volume name</P
+></DD
+><DT
+>size</DT
+><DD
+><P
+>the logical volume size</P
+></DD
+><DT
+>instance</DT
+><DD
+><P
+>The name of the instance to which this volume
+              belongs, or (in case it's an orphan volume) the
+              character <SPAN
+CLASS="QUOTE"
+>"-"</SPAN
+></P
+></DD
+></DL
+></DIV
+>
+      </P
+><P
+>        Example:
+        <PRE
+CLASS="SCREEN"
+># gnt-node volumes node5.example.com
+Node              PhysDev   VG    Name                                 Size Instance
+node1.example.com /dev/hdc1 xenvg instance1.example.com-sda_11000.meta 128  instance1.example.com
+node1.example.com /dev/hdc1 xenvg instance1.example.com-sda_11001.data 256  instance1.example.com
+        </PRE
+>
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN374"
+></A
+><H2
+>REPORTING BUGS</H2
+><P
+>      Report bugs to <A
+HREF="http://code.google.com/p/ganeti/"
+TARGET="_top"
+>http://code.google.com/p/ganeti/</A
+> or contact the
+      developers using the ganeti mailing list
+      &lt;ganeti@googlegroups.com&gt;.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN378"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>      Ganeti overview and specifications:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti</SPAN
+>(7)</SPAN
+> (general overview),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-os-interface</SPAN
+>(7)</SPAN
+> (guest OS definitions).
+
+    </P
+><P
+>Ganeti commands:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-cluster</SPAN
+>(8)</SPAN
+> (cluster-wide commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-job</SPAN
+>(8)</SPAN
+> (job-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-node</SPAN
+>(8)</SPAN
+> (node-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-instance</SPAN
+>(8)</SPAN
+> (instance commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-os</SPAN
+>(8)</SPAN
+> (guest OS commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-backup</SPAN
+>(8)</SPAN
+> (instance import/export commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-debug</SPAN
+>(8)</SPAN
+> (debug commands).
+    </P
+><P
+>Ganeti daemons:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-watcher</SPAN
+>(8)</SPAN
+> (automatic instance restarter),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-cleaner</SPAN
+>(8)</SPAN
+> (job queue cleaner),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-noded</SPAN
+>(8)</SPAN
+> (node daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-masterd</SPAN
+>(8)</SPAN
+> (master daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-rapi</SPAN
+>(8)</SPAN
+> (remote API daemon).
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN425"
+></A
+><H2
+>COPYRIGHT</H2
+><P
+>      Copyright (C) 2006, 2007, 2008, 2009 Google Inc. Permission is
+      granted to copy, distribute and/or modify under the terms of the
+      <ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> General Public License as published by the Free Software
+      Foundation; either version 2 of the License, or (at your option)
+      any later version.
+    </P
+><P
+>      On Debian systems, the complete text of the GNU General Public
+      License can be found in /usr/share/common-licenses/GPL.
+    </P
+></DIV
+></BODY
+></HTML
+>

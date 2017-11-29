@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Moving instances between clusters &mdash; Ganeti 2.14.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.14.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.14.2 documentation" href="index.html" />
+    <link rel="next" title="News" href="news.html" />
+    <link rel="prev" title="/" href="monitoring-query-format.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="news.html" title="News"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="monitoring-query-format.html" title="/"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="moving-instances-between-clusters">
+<h1>Moving instances between clusters<a class="headerlink" href="#moving-instances-between-clusters" title="Permalink to this headline">¶</a></h1>
+<p>Starting with Ganeti 2.2, instances can be moved between separate Ganeti
+clusters using a new tool, <tt class="docutils literal"><span class="pre">move-instance</span></tt>. The tool has a number of
+features:</p>
+<ul class="simple">
+<li>Moving a single or multiple instances</li>
+<li>Moving instances in parallel (<tt class="docutils literal"><span class="pre">--parallel</span></tt> option)</li>
+<li>Renaming instance (only when moving a single instance)</li>
+<li>SSL certificate verification for RAPI connections</li>
+</ul>
+<p>The design of the inter-cluster instances moves is described in detail
+in the <a class="reference internal" href="design-2.2.html"><em>Ganeti 2.2 design document</em></a>. The instance move
+tool talks to the Ganeti clusters via RAPI and can run on any machine
+which can connect to the cluster&#8217;s RAPI. Despite their similar name, the
+instance move tool should not be confused with the <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">move</span></tt>
+command, which is used to move without changes (instead of export/import
+plus rename) an instance within the cluster.</p>
+<div class="section" id="configuring-clusters-for-instance-moves">
+<h2>Configuring clusters for instance moves<a class="headerlink" href="#configuring-clusters-for-instance-moves" title="Permalink to this headline">¶</a></h2>
+<p>To prevent third parties from accessing the instance data, all data
+exchanged between the clusters is signed using a secret key, the
+&#8220;cluster domain secret&#8221;. It is recommended to assign the same domain
+secret to all clusters of the same security domain, so that instances
+can be easily moved between them. By checking the signatures, the
+destination cluster can be sure the third party (e.g. this tool) didn&#8217;t
+modify the received crypto keys and connection information.</p>
+<p>To create a new, random cluster domain secret, run the following command
+on the master node:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">renew-crypto</span> <span class="gs">--new-cluster-domain-secret</span>
+</pre></div>
+</div>
+<p>To read and set the cluster domain secret from the contents of a file,
+run the following command on the master node:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">renew-crypto</span> <span class="gs">--cluster-domain-secret=</span><span class="nv">/.../ganeti.cds</span>
+</pre></div>
+</div>
+<p>More information about the <tt class="docutils literal"><span class="pre">renew-crypto</span></tt> command can be found in
+<a class="reference internal" href="man-gnt-cluster.html"><em>gnt-cluster(8)</em></a>.</p>
+</div>
+<div class="section" id="moving-instances">
+<h2>Moving instances<a class="headerlink" href="#moving-instances" title="Permalink to this headline">¶</a></h2>
+<p>As soon as the clusters share a cluster domain secret, instances can be
+moved. The tool usage is as follows:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">move-instance</span> <span class="nv">[options]</span> <span class="nv">source-cluster</span> <span class="nv">destination-cluster</span> <span class="nv">instance-name...</span>
+</pre></div>
+</div>
+<p>Multiple instances can be moved with one invocation of the instance move
+tool, though a few options are only available when moving a single
+instance.</p>
+<p>The most important options are listed below. Unless specified otherwise,
+destination-related options default to the source value (e.g. setting
+<tt class="docutils literal"><span class="pre">--src-rapi-port=1234</span></tt> will make <tt class="docutils literal"><span class="pre">--dest-rapi-port</span></tt>&#8216;s default 1234).</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">--src-rapi-port</span></tt>/<tt class="docutils literal"><span class="pre">--dest-rapi-port</span></tt></dt>
+<dd>RAPI server TCP port, defaults to 5080.</dd>
+<dt><tt class="docutils literal"><span class="pre">--src-ca-file</span></tt>/<tt class="docutils literal"><span class="pre">--dest-ca-file</span></tt></dt>
+<dd>Path to file containing source cluster Certificate Authority (CA) in
+PEM format. For self-signed certificates, this is the certificate
+itself (see more details below in
+<a class="reference internal" href="#instance-move-certificates"><em>Certificates</em></a>). For certificates signed by a third
+party CA, the complete chain must be in the file (see documentation
+for <em class="manpage">SSL_CTX_load_verify_locations(3)</em>).</dd>
+<dt><tt class="docutils literal"><span class="pre">--src-username</span></tt>/<tt class="docutils literal"><span class="pre">--dest-username</span></tt></dt>
+<dd>RAPI username, must have write access to cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--src-password-file</span></tt>/<tt class="docutils literal"><span class="pre">--dest-password-file</span></tt></dt>
+<dd>Path to file containing RAPI password (make sure to restrict access to
+this file).</dd>
+<dt><tt class="docutils literal"><span class="pre">--dest-instance-name</span></tt></dt>
+<dd>When moving a single instance: Change name of instance on destination
+cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--dest-primary-node</span></tt></dt>
+<dd>When moving a single instance: Primary node on destination cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--dest-secondary-node</span></tt></dt>
+<dd>When moving a single instance: Secondary node on destination cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--dest-disk-template</span></tt></dt>
+<dd>Disk template to use after the move. Can be used to change disk templates.</dd>
+<dt><tt class="docutils literal"><span class="pre">--compress</span></tt></dt>
+<dd>Compression mode to use during the instance move. This mode has to be
+supported by both the source and the destination cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--iallocator</span></tt></dt>
+<dd>Iallocator for creating instance on destination cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">--hypervisor-parameters</span></tt>/<tt class="docutils literal"><span class="pre">--backend-parameters</span></tt>/<tt class="docutils literal"><span class="pre">--os-parameters</span></tt>/<tt class="docutils literal"><span class="pre">--net</span></tt></dt>
+<dd>When moving a single instance: Override instances&#8217; parameters.</dd>
+<dt><tt class="docutils literal"><span class="pre">--parallel</span></tt></dt>
+<dd>Number of instance moves to run in parallel.</dd>
+<dt><tt class="docutils literal"><span class="pre">--verbose</span></tt>/<tt class="docutils literal"><span class="pre">--debug</span></tt></dt>
+<dd>Increase output verbosity.</dd>
+</dl>
+<p>The exit value of the tool is zero if and only if all instance moves
+were successful.</p>
+</div>
+<div class="section" id="certificates">
+<span id="instance-move-certificates"></span><h2>Certificates<a class="headerlink" href="#certificates" title="Permalink to this headline">¶</a></h2>
+<p>If using certificates signed by a CA, then you need to pass the same CA
+certificate via both <tt class="docutils literal"><span class="pre">--src-ca-file</span></tt> and <tt class="docutils literal"><span class="pre">dest-ca-file</span></tt>.</p>
+<p>However, if you&#8217;re using self-signed certificates, this has a few
+(security) implications:</p>
+<ul class="simple">
+<li>the certificates of both the source and destinations clusters
+(<tt class="docutils literal"><span class="pre">rapi.pem</span></tt> from the Ganeti configuration directory, usually
+<tt class="docutils literal"><span class="pre">/var/lib/ganeti/rapi.pem</span></tt>) must be available to the tool</li>
+<li>by default, the certificates include the private key as well, so
+simply copying them to a third machine means that machine can now
+impersonate both the source and destination clusters RAPI endpoint</li>
+</ul>
+<p>It is therefore recommended to copy only the certificate from the
+<tt class="docutils literal"><span class="pre">rapi.pem</span></tt> files, and pass these to <tt class="docutils literal"><span class="pre">--src-ca-file</span></tt> and
+<tt class="docutils literal"><span class="pre">--dest-ca-file</span></tt> appropriately.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Moving instances between clusters</a><ul>
+<li><a class="reference internal" href="#configuring-clusters-for-instance-moves">Configuring clusters for instance moves</a></li>
+<li><a class="reference internal" href="#moving-instances">Moving instances</a></li>
+<li><a class="reference internal" href="#certificates">Certificates</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="monitoring-query-format.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">/</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="news.html"
+                        title="next chapter">News</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/move-instance.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="news.html" title="News"
+             >next</a></li>
+        <li class="right" >
+          <a href="monitoring-query-format.html" title="/"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.14.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

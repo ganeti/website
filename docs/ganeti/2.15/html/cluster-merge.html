@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Merging clusters &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="next" title="Cluster Keys Replacement" href="cluster-keys-replacement.html" />
+    <link rel="prev" title="Ganeti administrator’s guide" href="admin.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="admin.html" title="Ganeti administrator’s guide"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="merging-clusters">
+<h1>Merging clusters<a class="headerlink" href="#merging-clusters" title="Permalink to this headline">¶</a></h1>
+<p>With <tt class="docutils literal"><span class="pre">cluster-merge</span></tt> from the <tt class="docutils literal"><span class="pre">tools</span></tt> directory it is possible to
+merge two or more clusters into one single cluster.</p>
+<p>If anything goes wrong at any point the script suggests you rollback
+steps you&#8217;ve to perform <em>manually</em> if there are any. The point of no
+return is when the master daemon is started the first time after merging
+the configuration files. A rollback at this point would involve a lot of
+manual work.</p>
+<p>For the internal design of this tool have a look at the <cite>Automated
+Ganeti Cluster Merger &lt;design-2.1.rst&gt;</cite> document.</p>
+<div class="section" id="merge-clusters">
+<h2>Merge Clusters<a class="headerlink" href="#merge-clusters" title="Permalink to this headline">¶</a></h2>
+<p>The tool has to be invoked on the cluster you like to merge the other
+clusters into.</p>
+<p>The usage of <tt class="docutils literal"><span class="pre">cluster-merge</span></tt> is as follows:</p>
+<div class="highlight-python"><pre>cluster-merge [--debug|--verbose] [--watcher-pause-period SECONDS] \
+[--groups [merge|rename]] &lt;cluster&gt; [&lt;cluster...&gt;]</pre>
+</div>
+<p>You can provide multiple clusters. The tool will then go over every
+cluster in serial and perform the steps to merge it into the invoking
+cluster.</p>
+<p>These options can be used to control the behaviour of the tool:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">--debug</span></tt>/<tt class="docutils literal"><span class="pre">--verbose</span></tt></dt>
+<dd>These options are mutually exclusive and increase the level of output
+to either debug output or just more verbose output like action
+performed right now.</dd>
+<dt><tt class="docutils literal"><span class="pre">--watcher-pause-period</span></tt></dt>
+<dd>Define the period of time in seconds the watcher shall be disabled,
+default is 1800 seconds (30 minutes).</dd>
+<dt><tt class="docutils literal"><span class="pre">--groups</span></tt></dt>
+<dd>This option controls how <tt class="docutils literal"><span class="pre">cluster-merge</span></tt> handles duplicate node
+group names on the merging clusters. If <tt class="docutils literal"><span class="pre">merge</span></tt> is specified then
+all node groups with the same name will be merged into one. If
+<tt class="docutils literal"><span class="pre">rename</span></tt> is specified, then conflicting node groups on the remove
+clusters will have their cluster name appended to the group name. If
+this option is not speicifed, then <tt class="docutils literal"><span class="pre">cluster-merge</span></tt> will refuse to
+continue if it finds conflicting group names, otherwise it will
+proceed as normal.</dd>
+</dl>
+</div>
+<div class="section" id="rollback">
+<h2>Rollback<a class="headerlink" href="#rollback" title="Permalink to this headline">¶</a></h2>
+<p>If for any reason something in the merge doesn&#8217;t work the way it should
+<tt class="docutils literal"><span class="pre">cluster-merge</span></tt> will abort, provide an error message and optionally
+rollback steps. Please be aware that after a certain point there&#8217;s no
+easy way to rollback the cluster to its previous state. If you&#8217;ve
+reached that point the tool will not provide any rollback steps.</p>
+<p>If you end up with rollback steps, please perform them before invoking
+the tool again. It doesn&#8217;t keep state over invokations.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Merging clusters</a><ul>
+<li><a class="reference internal" href="#merge-clusters">Merge Clusters</a></li>
+<li><a class="reference internal" href="#rollback">Rollback</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="admin.html"
+                        title="previous chapter">Ganeti administrator&#8217;s guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cluster-keys-replacement.html"
+                        title="next chapter">Cluster Keys Replacement</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/cluster-merge.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             >next</a></li>
+        <li class="right" >
+          <a href="admin.html" title="Ganeti administrator’s guide"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

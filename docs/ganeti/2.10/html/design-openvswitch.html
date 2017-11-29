@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Support for Open vSwitch &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="next" title="Design for parallelized instance creations and opportunistic locking" href="design-opportunistic-locking.html" />
+    <link rel="prev" title="Ganeti Node OOB Management Framework" href="design-oob.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-oob.html" title="Ganeti Node OOB Management Framework"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="support-for-open-vswitch">
+<h1><a class="toc-backref" href="#id1">Support for Open vSwitch</a><a class="headerlink" href="#support-for-open-vswitch" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#support-for-open-vswitch" id="id1">Support for Open vSwitch</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a><ul>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the implementation of support for
+Open vSwitch in the Ganeti tool chain.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>At the moment Ganeti&#8217;s support for Open vSwitch is very basic and
+limited to connecting instances to an existing vSwitch.</p>
+<p>The shortcomings of this approach are:</p>
+<ol class="arabic simple">
+<li>The full functionality (VLANs, QoS and trunking) of Open vSwitch is not used.</li>
+<li>Open vSwitch cannot be managed centrally.</li>
+</ol>
+<div class="section" id="proposed-changes">
+<h3><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Implement functions into gnt-cluster and gnt-node to manage Open vSwitch through Ganeti.
+It should be possible to create, modify and delete vSwitches. The resulting configuration
+shall automatically be done on all members of the node group, if possible. Connecting Ethernet
+devices to vSwitches should be managed through this interface as well.</li>
+<li>Implement VLAN-capabilities: Instances shall have additional information for every NIC: VLAN-ID
+and port type. These are used to determine their type of connection to Open vSwitch. This will
+require modifying the methods for instance creation and modification</li>
+<li>Implement NIC bonding: Functions to bond NICs for performance improvement, load-balancing and
+failover should be added. It is preferable to have a configuration option to determine the
+type of the trunk, as there are different types of trunks (LACP dynamic and static, different
+failover and load-balancing mechanisms)</li>
+<li>Set QoS level on per instance basis: Instances shall have an additional information: maximum
+bandwidth and maximum burst. This helps to balance the bandwidth needs between the VMs and to
+ensure fair sharing of the bandwidth.</li>
+</ol>
+<div class="section" id="automatic-configuration-of-openvswitches">
+<h4>Automatic configuration of OpenvSwitches<a class="headerlink" href="#automatic-configuration-of-openvswitches" title="Permalink to this headline">¶</a></h4>
+<p>Ideally, the OpenvSwitch configuration should be done automatically.</p>
+<p>This needs to be done on node level, since each node can be individual and a setting on cluster / node group
+level would be too global is thus not wanted.</p>
+<dl class="docutils">
+<dt>The task that each node needs to do is:</dt>
+<dd><tt class="docutils literal"><span class="pre">ovs-vsctl</span> <span class="pre">addbr</span> <span class="pre">&lt;switchname&gt;</span></tt> with &lt;switchname&gt; defaulting to constants.DEFAULT_OVS
+<tt class="docutils literal"><span class="pre">ovs-vsctl</span> <span class="pre">add-port</span> <span class="pre">&lt;switchname&gt;</span> <span class="pre">&lt;ethernet</span> <span class="pre">device&gt;</span></tt> optional: connection to the outside</dd>
+<dt>This will give us 2 parameters, that are needed for the OpenvSwitch Setup:</dt>
+<dd>switchname: Which will default to constants.DEFAULT_OVS when not given
+ethernet device: Which will default to None when not given, might be more than one (NIC bonding)</dd>
+</dl>
+<p>These parameters should be set at node level for individuality, _but_ can have defined defaults on cluster
+and node group level, which can be inherited and thus allow a cluster or node group wide configuration.
+If a node is setup without parameters, it should use the settings from the parent node group or cluster. If none
+are given there, defaults should be used.</p>
+<p>As a first step, this will be implemented for using 1 ethernet device only. Functions for nic bonding will be added
+later on.</p>
+</div>
+<div class="section" id="configuration-changes-for-vlans">
+<h4>Configuration changes for VLANs<a class="headerlink" href="#configuration-changes-for-vlans" title="Permalink to this headline">¶</a></h4>
+<p>nicparams shall be extended by a value &#8220;vlan&#8221; that will store the VLAN information for each NIC.
+This parameter will only be used if nicparams[constants.NIC_MODE] == constants.NIC_MODE_OVS,
+since it doesn&#8217;t make sense in other modes.</p>
+<p>Each VLAN the NIC belongs to shall be stored in this single value. The format of storing this information
+is the same as the one which is used in Xen 4.3, since Xen 4.3 comes with functionality to support
+OpenvSwitch.</p>
+<p>This parameter will, at first, only be implemented for Xen and will have no effects on other hypervisors.
+Support for KVM will be added in the future.</p>
+<p>Example:
+switch1 will connect the VM to the default VLAN of the switch1.
+switch1.3 means that the VM is connected to an access port of VLAN 3.
+switch1.2:10:20 means that the VM is connected to a hybrid port on switch1, carrying VLANs 2 untagged and
+VLANs 10 and 20 tagged.
+switch1:44:55 means that the VM is connected to a trunk port on switch1, carrying VLANS 44 and 55</p>
+<p>This configuration string is split at the dot or colon respectively and stored in nicparams[constants.NIC_LINK]
+and nicparams[constants.NIC_VLAN] respectively. Dot or colon are stored as well in nicparams[constants.NIC_VLAN].</p>
+<p>For Xen hypervisors, this information can be concatenated again and stored in the vif config as
+the bridge parameter and will be fully compatible with vif-openvswitch as of Xen 4.3.</p>
+<p>Users of older Xen versions should be able to grab vif-openvswitch from the Xen repo and use it
+(tested in 4.2).</p>
+<p>gnt-instance modify shall be able to add or remove single VLANs from the vlan string without users needing
+to specify the complete new string.</p>
+</div>
+<div class="section" id="nic-bonding">
+<h4>NIC bonding<a class="headerlink" href="#nic-bonding" title="Permalink to this headline">¶</a></h4>
+<p>To be done</p>
+</div>
+<div class="section" id="configuration-changes-for-qos">
+<h4>Configuration changes for QoS<a class="headerlink" href="#configuration-changes-for-qos" title="Permalink to this headline">¶</a></h4>
+<p>Instances shall be extended with configuration options for</p>
+<ul class="simple">
+<li>maximum bandwidth</li>
+<li>maximum burst rate</li>
+</ul>
+<p>New configuration objects need to be created for the Open vSwitch configuration.</p>
+<p>All these configuration changes need to be made available on the whole node group.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Support for Open vSwitch</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a><ul>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#automatic-configuration-of-openvswitches">Automatic configuration of OpenvSwitches</a></li>
+<li><a class="reference internal" href="#configuration-changes-for-vlans">Configuration changes for VLANs</a></li>
+<li><a class="reference internal" href="#nic-bonding">NIC bonding</a></li>
+<li><a class="reference internal" href="#configuration-changes-for-qos">Configuration changes for QoS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-oob.html"
+                        title="previous chapter">Ganeti Node OOB Management Framework</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-opportunistic-locking.html"
+                        title="next chapter">Design for parallelized instance creations and opportunistic locking</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-openvswitch.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-oob.html" title="Ganeti Node OOB Management Framework"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

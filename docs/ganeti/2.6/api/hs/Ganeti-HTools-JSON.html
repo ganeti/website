@@ -1,0 +1,775 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.JSON</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-JSON.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/JSON.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.JSON</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>JSON-related functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>JSON utility functions. 
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AJSRecord"
+>JSRecord</A
+> = [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromJResult"
+>fromJResult</A
+> :: Monad m =&gt; String -&gt; Result a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadEitherString"
+>readEitherString</A
+> :: Monad m =&gt; JSValue -&gt; m String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadJSArray"
+>loadJSArray</A
+> :: Monad m =&gt; String -&gt; String -&gt; m [JSObject JSValue]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromObj"
+>fromObj</A
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeFromObj"
+>maybeFromObj</A
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; m (Maybe a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromObjWithDefault"
+>fromObjWithDefault</A
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; a -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromKeyValue"
+>fromKeyValue</A
+> :: (JSON a, Monad m) =&gt; String -&gt; JSValue -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromJVal"
+>fromJVal</A
+> :: (Monad m, JSON a) =&gt; JSValue -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AasJSObject"
+>asJSObject</A
+> :: Monad m =&gt; JSValue -&gt; m (JSObject JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AasObjectList"
+>asObjectList</A
+> :: Monad m =&gt; [JSValue] -&gt; m [JSObject JSValue]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtryFromObj"
+>tryFromObj</A
+> :: JSON a =&gt; String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoArray"
+>toArray</A
+> :: Monad m =&gt; JSValue -&gt; m [JSValue]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>JSON-related functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:JSRecord"
+><A NAME="t%3AJSRecord"
+></A
+></A
+><B
+>JSRecord</B
+> = [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#JSRecord"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A type alias for the list-based representation of J.JSObject.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromJResult"
+><A NAME="v%3AfromJResult"
+></A
+></A
+><B
+>fromJResult</B
+> :: Monad m =&gt; String -&gt; Result a -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#fromJResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a JSON Result into a monadic value.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readEitherString"
+><A NAME="v%3AreadEitherString"
+></A
+></A
+><B
+>readEitherString</B
+> :: Monad m =&gt; JSValue -&gt; m String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#readEitherString"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Tries to read a string from a JSON value.
+</P
+><P
+>In case the value was not a string, we fail the read (in the
+ context of the current monad.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadJSArray"
+><A NAME="v%3AloadJSArray"
+></A
+></A
+><B
+>loadJSArray</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#loadJSArray"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Monad m</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>Input message
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; m [JSObject JSValue]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Converts a JSON message into an array of JSON objects.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromObj"
+><A NAME="v%3AfromObj"
+></A
+></A
+><B
+>fromObj</B
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#fromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the value of a key in a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeFromObj"
+><A NAME="v%3AmaybeFromObj"
+></A
+></A
+><B
+>maybeFromObj</B
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; m (Maybe a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#maybeFromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the value of an optional key in a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromObjWithDefault"
+><A NAME="v%3AfromObjWithDefault"
+></A
+></A
+><B
+>fromObjWithDefault</B
+> :: (JSON a, Monad m) =&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; String -&gt; a -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#fromObjWithDefault"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the value of a key in a JSON object with a default if missing.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromKeyValue"
+><A NAME="v%3AfromKeyValue"
+></A
+></A
+><B
+>fromKeyValue</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#fromKeyValue"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: (JSON a, Monad m)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>The value to read
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; JSValue</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; m a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Reads a JValue, that originated from an object key.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromJVal"
+><A NAME="v%3AfromJVal"
+></A
+></A
+><B
+>fromJVal</B
+> :: (Monad m, JSON a) =&gt; JSValue -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#fromJVal"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Small wrapper over readJSON.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:asJSObject"
+><A NAME="v%3AasJSObject"
+></A
+></A
+><B
+>asJSObject</B
+> :: Monad m =&gt; JSValue -&gt; m (JSObject JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#asJSObject"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a JSON value into a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:asObjectList"
+><A NAME="v%3AasObjectList"
+></A
+></A
+><B
+>asObjectList</B
+> :: Monad m =&gt; [JSValue] -&gt; m [JSObject JSValue]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#asObjectList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Coneverts a list of JSON values into a list of JSON objects.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tryFromObj"
+><A NAME="v%3AtryFromObj"
+></A
+></A
+><B
+>tryFromObj</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#tryFromObj"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: JSON a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>The object array
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+></TD
+><TD CLASS="rdoc"
+>The desired key from the object
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Try to extract a key from a object with better error reporting
+ than fromObj.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toArray"
+><A NAME="v%3AtoArray"
+></A
+></A
+><B
+>toArray</B
+> :: Monad m =&gt; JSValue -&gt; m [JSValue]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/JSON.html#toArray"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Ensure a given JSValue is actually a JSArray.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

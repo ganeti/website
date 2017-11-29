@@ -1,0 +1,1096 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti 2.3 design &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="next" title="Synchronising htools to Ganeti 2.3" href="design-htools-2.3.html" />
+    <link rel="prev" title="Ganeti 2.2 design" href="design-2.2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-htools-2.3.html" title="Synchronising htools to Ganeti 2.3"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-2-3-design">
+<h1><a class="toc-backref" href="#id6">Ganeti 2.3 design</a><a class="headerlink" href="#ganeti-2-3-design" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the major changes in Ganeti 2.3 compared to
+the 2.2 version.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-2-3-design" id="id6">Ganeti 2.3 design</a><ul>
+<li><a class="reference internal" href="#core-changes" id="id7">Core changes</a><ul>
+<li><a class="reference internal" href="#node-groups" id="id8">Node Groups</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id9">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id10">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#scalability-issues-with-big-clusters" id="id11">Scalability issues with big clusters</a><ul>
+<li><a class="reference internal" href="#current-and-future-issues" id="id12">Current and future issues</a></li>
+<li><a class="reference internal" href="#cluster-state-cache" id="id13">Cluster state cache</a></li>
+<li><a class="reference internal" href="#watcher-operation" id="id14">Watcher operation</a></li>
+<li><a class="reference internal" href="#capacity-calculations" id="id15">Capacity calculations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-flags" id="id16">Node flags</a><ul>
+<li><a class="reference internal" href="#id1" id="id17">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id2" id="id18">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#job-priorities" id="id19">Job priorities</a><ul>
+<li><a class="reference internal" href="#id3" id="id20">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id4" id="id21">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ipv6-support" id="id22">IPv6 support</a><ul>
+<li><a class="reference internal" href="#supported-ipv6-setup" id="id23">Supported IPv6 setup</a></li>
+<li><a class="reference internal" href="#netutils-utilities-for-handling-common-network-tasks" id="id24">netutils: Utilities for handling common network tasks</a></li>
+<li><a class="reference internal" href="#cluster-initialization" id="id25">Cluster initialization</a></li>
+<li><a class="reference internal" href="#node-addition" id="id26">Node addition</a></li>
+<li><a class="reference internal" href="#name-resolution" id="id27">Name resolution</a></li>
+<li><a class="reference internal" href="#ipv4-only-components" id="id28">IPv4-only components</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#privilege-separation" id="id29">Privilege Separation</a><ul>
+<li><a class="reference internal" href="#id5" id="id30">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#implementation" id="id31">Implementation</a></li>
+<li><a class="reference internal" href="#security-domains" id="id32">Security Domains</a></li>
+<li><a class="reference internal" href="#restricted-commands" id="id33">Restricted commands</a></li>
+<li><a class="reference internal" href="#directory-structure-and-permissions" id="id34">Directory structure and permissions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes" id="id35">Feature changes</a></li>
+<li><a class="reference internal" href="#external-interface-changes" id="id36">External interface changes</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>As for 2.1 and 2.2 we divide the 2.3 design into three areas:</p>
+<ul class="simple">
+<li>core changes, which affect the master daemon/job queue/locking or
+all/most logical units</li>
+<li>logical unit/feature changes</li>
+<li>external interface changes (e.g. command line, OS API, hooks, ...)</li>
+</ul>
+<div class="section" id="core-changes">
+<h2><a class="toc-backref" href="#id7">Core changes</a><a class="headerlink" href="#core-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="node-groups">
+<h3><a class="toc-backref" href="#id8">Node Groups</a><a class="headerlink" href="#node-groups" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="current-state-and-shortcomings">
+<h4><a class="toc-backref" href="#id9">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h4>
+<p>Currently all nodes of a Ganeti cluster are considered as part of the
+same pool, for allocation purposes: DRBD instances for example can be
+allocated on any two nodes.</p>
+<p>This does cause a problem in cases where nodes are not all equally
+connected to each other. For example if a cluster is created over two
+set of machines, each connected to its own switch, the internal bandwidth
+between machines connected to the same switch might be bigger than the
+bandwidth for inter-switch connections.</p>
+<p>Moreover, some operations inside a cluster require all nodes to be locked
+together for inter-node consistency, and won&#8217;t scale if we increase the
+number of nodes to a few hundreds.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h4><a class="toc-backref" href="#id10">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h4>
+<p>With this change we&#8217;ll divide Ganeti nodes into groups. Nothing will
+change for clusters with only one node group. Bigger clusters will be
+able to have more than one group, and each node will belong to exactly
+one.</p>
+<div class="section" id="node-group-management">
+<h5>Node group management<a class="headerlink" href="#node-group-management" title="Permalink to this headline">¶</a></h5>
+<p>To manage node groups and the nodes belonging to them, the following new
+commands and flags will be introduced:</p>
+<div class="highlight-python"><pre>gnt-group add &lt;group&gt; # add a new node group
+gnt-group remove &lt;group&gt; # delete an empty node group
+gnt-group list # list node groups
+gnt-group rename &lt;oldname&gt; &lt;newname&gt; # rename a node group
+gnt-node {list,info} -g &lt;group&gt; # list only nodes belonging to a node group
+gnt-node modify -g &lt;group&gt; # assign a node to a node group</pre>
+</div>
+</div>
+<div class="section" id="node-group-attributes">
+<h5>Node group attributes<a class="headerlink" href="#node-group-attributes" title="Permalink to this headline">¶</a></h5>
+<p>In clusters with more than one node group, it may be desirable to
+establish local policies regarding which groups should be preferred when
+performing allocation of new instances, or inter-group instance migrations.</p>
+<p>To help with this, we will provide an <tt class="docutils literal"><span class="pre">alloc_policy</span></tt> attribute for
+node groups. Such attribute will be honored by iallocator plugins when
+making automatic decisions regarding instance placement.</p>
+<p>The <tt class="docutils literal"><span class="pre">alloc_policy</span></tt> attribute can have the following values:</p>
+<ul class="simple">
+<li>unallocable: the node group should not be a candidate for instance
+allocations, and the operation should fail if only groups in this
+state could be found that would satisfy the requirements.</li>
+<li>last_resort: the node group should not be used for instance
+allocations, unless this would be the only way to have the operation
+succeed. Prioritization among groups in this state will be deferred to
+the iallocator plugin that&#8217;s being used.</li>
+<li>preferred: the node group can be used freely for allocation of
+instances (this is the default state for newly created node
+groups). Note that prioritization among groups in this state will be
+deferred to the iallocator plugin that&#8217;s being used.</li>
+</ul>
+</div>
+<div class="section" id="node-group-operations">
+<h5>Node group operations<a class="headerlink" href="#node-group-operations" title="Permalink to this headline">¶</a></h5>
+<p>One operation at the node group level will be initially provided:</p>
+<div class="highlight-python"><pre>gnt-group drain &lt;group&gt;</pre>
+</div>
+<p>The purpose of this operation is to migrate all instances in a given
+node group to other groups in the cluster, e.g. to reclaim capacity if
+there are enough free resources in other node groups that share a
+storage pool with the evacuated group.</p>
+</div>
+<div class="section" id="instance-level-changes">
+<h5>Instance level changes<a class="headerlink" href="#instance-level-changes" title="Permalink to this headline">¶</a></h5>
+<p>With the introduction of node groups, instances will be required to live
+in only one group at a time; this is mostly important for DRBD
+instances, which will not be allowed to have their primary and secondary
+nodes in different node groups. To support this, we envision the
+following changes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The iallocator interface will be augmented, and node groups exposed,
+so that plugins will be able to make a decision regarding the group
+in which to place a new instance. By default, all node groups will
+be considered, but it will be possible to include a list of groups
+in the creation job, in which case the plugin will limit itself to
+considering those; in both cases, the <tt class="docutils literal"><span class="pre">alloc_policy</span></tt> attribute
+will be honored.</li>
+<li>If, on the other hand, a primary and secondary nodes are specified
+for a new instance, they will be required to be on the same node
+group.</li>
+<li>Moving an instance between groups can only happen via an explicit
+operation, which for example in the case of DRBD will work by
+performing internally a replace-disks, a migration, and a second
+replace-disks. It will be possible to clean up an interrupted
+group-move operation.</li>
+<li>Cluster verify will signal an error if an instance has nodes
+belonging to different groups. Additionally, changing the group of a
+given node will be initially only allowed if the node is empty, as a
+straightforward mechanism to avoid creating such situation.</li>
+<li>Inter-group instance migration will have the same operation modes as
+new instance allocation, defined above: letting an iallocator plugin
+decide the target group, possibly restricting the set of node groups
+to consider, or specifying a target primary and secondary nodes. In
+both cases, the target group or nodes must be able to accept the
+instance network- and storage-wise; the operation will fail
+otherwise, though in the future we may be able to allow some
+parameter to be changed together with the move (in the meantime, an
+import/export will be required in this scenario).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="internal-changes">
+<h5>Internal changes<a class="headerlink" href="#internal-changes" title="Permalink to this headline">¶</a></h5>
+<p>We expect the following changes for cluster management:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Frequent multinode operations, such as os-diagnose or cluster-verify,
+will act on one group at a time, which will have to be specified in
+all cases, except for clusters with just one group. Command line
+tools will also have a way to easily target all groups, by
+generating one job per group.</li>
+<li>Groups will have a human-readable name, but will internally always
+be referenced by a UUID, which will be immutable; for example, nodes
+will contain the UUID of the group they belong to. This is done
+to simplify referencing while keeping it easy to handle renames and
+movements. If we see that this works well, we&#8217;ll transition other
+config objects (instances, nodes) to the same model.</li>
+<li>The addition of a new per-group lock will be evaluated, if we can
+transition some operations now requiring the BGL to it.</li>
+<li>Master candidate status will be allowed to be spread among groups.
+For the first version we won&#8217;t add any restriction over how this is
+done, although in the future we may have a minimum number of master
+candidates which Ganeti will try to keep in each group, for example.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="other-work-and-future-changes">
+<h5>Other work and future changes<a class="headerlink" href="#other-work-and-future-changes" title="Permalink to this headline">¶</a></h5>
+<p>Commands like <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">command</span></tt>/<tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">copyfile</span></tt> will
+continue to work on the whole cluster, but it will be possible to target
+one group only by specifying it.</p>
+<p>Commands which allow selection of sets of resources (for example
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">start</span></tt>/<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">stop</span></tt>) will be able to select
+them by node group as well.</p>
+<p>Initially node groups won&#8217;t be taggable objects, to simplify the first
+implementation, but we expect this to be easy to add in a future version
+should we see it&#8217;s useful.</p>
+<p>We envision groups as a good place to enhance cluster scalability. In
+the future we may want to use them as units for configuration diffusion,
+to allow a better master scalability. For example it could be possible
+to change some all-nodes RPCs to contact each group once, from the
+master, and make one node in the group perform internal diffusion. We
+won&#8217;t implement this in the first version, but we&#8217;ll evaluate it for the
+future, if we see scalability problems on big multi-group clusters.</p>
+<p>When Ganeti will support more storage models (e.g. SANs, Sheepdog, Ceph)
+we expect groups to be the basis for this, allowing for example a
+different Sheepdog/Ceph cluster, or a different SAN to be connected to
+each group. In some cases this will mean that inter-group move operation
+will be necessarily performed with instance downtime, unless the
+hypervisor has block-migrate functionality, and we implement support for
+it (this would be theoretically possible, today, with KVM, for example).</p>
+</div>
+</div>
+</div>
+<div class="section" id="scalability-issues-with-big-clusters">
+<h3><a class="toc-backref" href="#id11">Scalability issues with big clusters</a><a class="headerlink" href="#scalability-issues-with-big-clusters" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="current-and-future-issues">
+<h4><a class="toc-backref" href="#id12">Current and future issues</a><a class="headerlink" href="#current-and-future-issues" title="Permalink to this headline">¶</a></h4>
+<p>Assuming the node groups feature will enable bigger clusters, other
+parts of Ganeti will be impacted even more by the (in effect) bigger
+clusters.</p>
+<p>While many areas will be impacted, one is the most important: the fact
+that the watcher still needs to be able to repair instance data on the
+current 5 minutes time-frame (a shorter time-frame would be even
+better). This means that the watcher itself needs to have parallelism
+when dealing with node groups.</p>
+<p>Also, the iallocator plugins are being fed data from Ganeti but also
+need access to the full cluster state, and in general we still rely on
+being able to compute the full cluster state somewhat “cheaply” and
+on-demand. This conflicts with the goal of disconnecting the different
+node groups, and to keep the same parallelism while growing the cluster
+size.</p>
+<p>Another issue is that the current capacity calculations are done
+completely outside Ganeti (and they need access to the entire cluster
+state), and this prevents keeping the capacity numbers in sync with the
+cluster state. While this is still acceptable for smaller clusters where
+a small number of allocations/removal are presumed to occur between two
+periodic capacity calculations, on bigger clusters where we aim to
+parallelize heavily between node groups this is no longer true.</p>
+<p>As proposed changes, the main change is introducing a cluster state
+cache (not serialised to disk), and to update many of the LUs and
+cluster operations to account for it. Furthermore, the capacity
+calculations will be integrated via a new OpCode/LU, so that we have
+faster feedback (instead of periodic computation).</p>
+</div>
+<div class="section" id="cluster-state-cache">
+<h4><a class="toc-backref" href="#id13">Cluster state cache</a><a class="headerlink" href="#cluster-state-cache" title="Permalink to this headline">¶</a></h4>
+<p>A new cluster state cache will be introduced. The cache relies on two
+main ideas:</p>
+<ul class="simple">
+<li>the total node memory, CPU count are very seldom changing; the total
+node disk space is also slow changing, but can change at runtime; the
+free memory and free disk will change significantly for some jobs, but
+on a short timescale; in general, these values will be mostly “constant”
+during the lifetime of a job</li>
+<li>we already have a periodic set of jobs that query the node and
+instance state, driven the by <strong class="command">ganeti-watcher</strong> command, and
+we&#8217;re just discarding the results after acting on them</li>
+</ul>
+<p>Given the above, it makes sense to cache the results of node and instance
+state (with a focus on the node state) inside the master daemon.</p>
+<p>The cache will not be serialised to disk, and will be for the most part
+transparent to the outside of the master daemon.</p>
+<div class="section" id="cache-structure">
+<h5>Cache structure<a class="headerlink" href="#cache-structure" title="Permalink to this headline">¶</a></h5>
+<p>The cache will be oriented with a focus on node groups, so that it will
+be easy to invalidate an entire node group, or a subset of nodes, or the
+entire cache. The instances will be stored in the node group of their
+primary node.</p>
+<p>Furthermore, since the node and instance properties determine the
+capacity statistics in a deterministic way, the cache will also hold, at
+each node group level, the total capacity as determined by the new
+capacity iallocator mode.</p>
+</div>
+<div class="section" id="cache-updates">
+<h5>Cache updates<a class="headerlink" href="#cache-updates" title="Permalink to this headline">¶</a></h5>
+<p>The cache will be updated whenever a query for a node state returns
+“full” node information (so as to keep the cache state for a given node
+consistent). Partial results will not update the cache (see next
+paragraph).</p>
+<p>Since there will be no way to feed the cache from outside, and we
+would like to have a consistent cache view when driven by the watcher,
+we&#8217;ll introduce a new OpCode/LU for the watcher to run, instead of the
+current separate opcodes (see below in the watcher section).</p>
+<p>Updates to a node that change a node&#8217;s specs “downward” (e.g. less
+memory) will invalidate the capacity data. Updates that increase the
+node will not invalidate the capacity, as we&#8217;re more interested in “at
+least available” correctness, not “at most available”.</p>
+</div>
+<div class="section" id="cache-invalidation">
+<h5>Cache invalidation<a class="headerlink" href="#cache-invalidation" title="Permalink to this headline">¶</a></h5>
+<p>If a partial node query is done (e.g. just for the node free space), and
+the returned values don&#8217;t match with the cache, then the entire node
+state will be invalidated.</p>
+<p>By default, all LUs will invalidate the caches for all nodes and
+instances they lock. If an LU uses the BGL, then it will invalidate the
+entire cache. In time, it is expected that LUs will be modified to not
+invalidate, if they are not expected to change the node&#8217;s and/or
+instance&#8217;s state (e.g. <tt class="docutils literal"><span class="pre">LUInstanceConsole</span></tt>, or
+<tt class="docutils literal"><span class="pre">LUInstanceActivateDisks</span></tt>).</p>
+<p>Invalidation of a node&#8217;s properties will also invalidate the capacity
+data associated with that node.</p>
+</div>
+<div class="section" id="cache-lifetime">
+<h5>Cache lifetime<a class="headerlink" href="#cache-lifetime" title="Permalink to this headline">¶</a></h5>
+<p>The cache elements will have an upper bound on their lifetime; the
+proposal is to make this an hour, which should be a high enough value to
+cover the watcher being blocked by a medium-term job (e.g. 20-30
+minutes).</p>
+</div>
+<div class="section" id="cache-usage">
+<h5>Cache usage<a class="headerlink" href="#cache-usage" title="Permalink to this headline">¶</a></h5>
+<p>The cache will be used by default for most queries (e.g. a Luxi call,
+without locks, for the entire cluster). Since this will be a change from
+the current behaviour, we&#8217;ll need to allow non-cached responses,
+e.g. via a <tt class="docutils literal"><span class="pre">--cache=off</span></tt> or similar argument (which will force the
+query).</p>
+<p>The cache will also be used for the iallocator runs, so that computing
+allocation solution can proceed independent from other jobs which lock
+parts of the cluster. This is important as we need to separate
+allocation on one group from exclusive blocking jobs on other node
+groups.</p>
+<p>The capacity calculations will also use the cache. This is detailed in
+the respective sections.</p>
+</div>
+</div>
+<div class="section" id="watcher-operation">
+<h4><a class="toc-backref" href="#id14">Watcher operation</a><a class="headerlink" href="#watcher-operation" title="Permalink to this headline">¶</a></h4>
+<p>As detailed in the cluster cache section, the watcher also needs
+improvements in order to scale with the the cluster size.</p>
+<p>As a first improvement, the proposal is to introduce a new OpCode/LU
+pair that runs with locks held over the entire query sequence (the
+current watcher runs a job with two opcodes, which grab and release the
+locks individually). The new opcode will be called
+<tt class="docutils literal"><span class="pre">OpUpdateNodeGroupCache</span></tt> and will do the following:</p>
+<ul class="simple">
+<li>try to acquire all node/instance locks (to examine in more depth, and
+possibly alter) in the given node group</li>
+<li>invalidate the cache for the node group</li>
+<li>acquire node and instance state (possibly via a new single RPC call
+that combines node and instance information)</li>
+<li>update cache</li>
+<li>return the needed data</li>
+</ul>
+<p>The reason for the per-node group query is that we don&#8217;t want a busy
+node group to prevent instance maintenance in other node
+groups. Therefore, the watcher will introduce parallelism across node
+groups, and it will possible to have overlapping watcher runs. The new
+execution sequence will be:</p>
+<ul class="simple">
+<li>the parent watcher process acquires global watcher lock</li>
+<li>query the list of node groups (lockless or very short locks only)</li>
+<li>fork N children, one for each node group</li>
+<li>release the global lock</li>
+<li>poll/wait for the children to finish</li>
+</ul>
+<p>Each forked children will do the following:</p>
+<ul class="simple">
+<li>try to acquire the per-node group watcher lock</li>
+<li>if fail to acquire, exit with special code telling the parent that the
+node group is already being managed by a watcher process</li>
+<li>otherwise, submit a OpUpdateNodeGroupCache job</li>
+<li>get results (possibly after a long time, due to busy group)</li>
+<li>run the needed maintenance operations for the current group</li>
+</ul>
+<p>This new mode of execution means that the master watcher processes might
+overlap in running, but not the individual per-node group child
+processes.</p>
+<p>This change allows us to keep (almost) the same parallelism when using a
+bigger cluster with node groups versus two separate clusters.</p>
+<div class="section" id="cost-of-periodic-cache-updating">
+<h5>Cost of periodic cache updating<a class="headerlink" href="#cost-of-periodic-cache-updating" title="Permalink to this headline">¶</a></h5>
+<p>Currently the watcher only does “small” queries for the node and
+instance state, and at first sight changing it to use the new OpCode
+which populates the cache with the entire state might introduce
+additional costs, which must be payed every five minutes.</p>
+<p>However, the OpCodes that the watcher submits are using the so-called
+dynamic fields (need to contact the remote nodes), and the LUs are not
+selective—they always grab all the node and instance state. So in the
+end, we have the same cost, it just becomes explicit rather than
+implicit.</p>
+<p>This ‘grab all node state’ behaviour is what makes the cache worth
+implementing.</p>
+</div>
+<div class="section" id="intra-node-group-scalability">
+<h5>Intra-node group scalability<a class="headerlink" href="#intra-node-group-scalability" title="Permalink to this headline">¶</a></h5>
+<p>The design above only deals with inter-node group issues. It still makes
+sense to run instance maintenance for nodes A and B if only node C is
+locked (all being in the same node group).</p>
+<p>This problem is commonly encountered in previous Ganeti versions, and it
+should be handled similarly, by tweaking lock lifetime in long-duration
+jobs.</p>
+<p>TODO: add more ideas here.</p>
+</div>
+<div class="section" id="state-file-maintenance">
+<h5>State file maintenance<a class="headerlink" href="#state-file-maintenance" title="Permalink to this headline">¶</a></h5>
+<p>The splitting of node group maintenance to different children which will
+run in parallel requires that the state file handling changes from
+monolithic updates to partial ones.</p>
+<p>There are two file that the watcher maintains:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">$LOCALSTATEDIR/lib/ganeti/watcher.data</span></tt>, its internal state file,
+used for deciding internal actions</li>
+<li><tt class="docutils literal"><span class="pre">$LOCALSTATEDIR/run/ganeti/instance-status</span></tt>, a file designed for
+external consumption</li>
+</ul>
+<p>For the first file, since it&#8217;s used only internally to the watchers, we
+can move to a per node group configuration.</p>
+<p>For the second file, even if it&#8217;s used as an external interface, we will
+need to make some changes to it: because the different node groups can
+return results at different times, we need to either split the file into
+per-group files or keep the single file and add a per-instance timestamp
+(currently the file holds only the instance name and state).</p>
+<p>The proposal is that each child process maintains its own node group
+file, and the master process will, right after querying the node group
+list, delete any extra per-node group state file. This leaves the
+consumers to run a simple <tt class="docutils literal"><span class="pre">cat</span> <span class="pre">instance-status.group-*</span></tt> to obtain the
+entire list of instance and their states. If needed, the modify
+timestamp of each file can be used to determine the age of the results.</p>
+</div>
+</div>
+<div class="section" id="capacity-calculations">
+<h4><a class="toc-backref" href="#id15">Capacity calculations</a><a class="headerlink" href="#capacity-calculations" title="Permalink to this headline">¶</a></h4>
+<p>Currently, the capacity calculations are done completely outside
+Ganeti. As explained in the current problems section, this needs to
+account better for the cluster state changes.</p>
+<p>Therefore a new OpCode will be introduced, <tt class="docutils literal"><span class="pre">OpComputeCapacity</span></tt>, that
+will either return the current capacity numbers (if available), or
+trigger a new capacity calculation, via the iallocator framework, which
+will get a new method called <tt class="docutils literal"><span class="pre">capacity</span></tt>.</p>
+<p>This method will feed the cluster state (for the complete set of node
+group, or alternative just a subset) to the iallocator plugin (either
+the specified one, or the default if none is specified), and return the
+new capacity in the format currently exported by the htools suite and
+known as the “tiered specs” (see <a class="reference internal" href="man-hspace.html"><em>hspace(1)</em></a>).</p>
+<div class="section" id="tspec-cluster-parameters">
+<h5>tspec cluster parameters<a class="headerlink" href="#tspec-cluster-parameters" title="Permalink to this headline">¶</a></h5>
+<p>Currently, the “tspec” calculations done in <strong class="command">hspace</strong> require
+some additional parameters:</p>
+<ul class="simple">
+<li>maximum instance size</li>
+<li>type of instance storage</li>
+<li>maximum ratio of virtual CPUs per physical CPUs</li>
+<li>minimum disk free</li>
+</ul>
+<p>For the integration in Ganeti, there are multiple ways to pass these:</p>
+<ul class="simple">
+<li>ignored by Ganeti, and being the responsibility of the iallocator
+plugin whether to use these at all or not</li>
+<li>as input to the opcode</li>
+<li>as proper cluster parameters</li>
+</ul>
+<p>Since the first option is not consistent with the intended changes, a
+combination of the last two is proposed:</p>
+<ul class="simple">
+<li>at cluster level, we&#8217;ll have cluster-wide defaults</li>
+<li>at node groups, we&#8217;ll allow overriding the cluster defaults</li>
+<li>and if they are passed in via the opcode, they will override for the
+current computation the values</li>
+</ul>
+<p>Whenever the capacity is requested via different parameters, it will
+invalidate the cache, even if otherwise the cache is up-to-date.</p>
+<p>The new parameters are:</p>
+<ul class="simple">
+<li>max_inst_spec: (int, int, int), the maximum instance specification
+accepted by this cluster or node group, in the order of memory, disk,
+vcpus;</li>
+<li>default_template: string, the default disk template to use</li>
+<li>max_cpu_ratio: double, the maximum ratio of VCPUs/PCPUs</li>
+<li>max_disk_usage: double, the maximum disk usage (as a ratio)</li>
+</ul>
+<p>These might also be used in instance creations (to be determined later,
+after they are introduced).</p>
+</div>
+<div class="section" id="opcode-details">
+<h5>OpCode details<a class="headerlink" href="#opcode-details" title="Permalink to this headline">¶</a></h5>
+<p>Input:</p>
+<ul class="simple">
+<li>iallocator: string (optional, otherwise uses the cluster default)</li>
+<li>cached: boolean, optional, defaults to true, and denotes whether we
+accept cached responses</li>
+<li>the above new parameters, optional; if they are passed, they will
+overwrite all node group&#8217;s parameters</li>
+</ul>
+<p>Output:</p>
+<ul class="simple">
+<li>cluster: list of tuples (memory, disk, vcpu, count), in decreasing
+order of specifications; the first three members represent the
+instance specification, the last one the count of how many instances
+of this specification can be created on the cluster</li>
+<li>node_groups: a dictionary keyed by node group UUID, with values a
+dictionary:<ul>
+<li>tspecs: a list like the cluster one</li>
+<li>additionally, the new cluster parameters, denoting the input
+parameters that were used for this node group</li>
+</ul>
+</li>
+<li>ctime: the date the result has been computed; this represents the
+oldest creation time amongst all node groups (so as to accurately
+represent how much out-of-date the global response is)</li>
+</ul>
+<p>Note that due to the way the tspecs are computed, for any given
+specification, the total available count is the count for the given
+entry, plus the sum of counts for higher specifications.</p>
+</div>
+</div>
+</div>
+<div class="section" id="node-flags">
+<h3><a class="toc-backref" href="#id16">Node flags</a><a class="headerlink" href="#node-flags" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4><a class="toc-backref" href="#id17">Current state and shortcomings</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>Currently all nodes are, from the point of view of their capabilities,
+homogeneous. This means the cluster considers all nodes capable of
+becoming master candidates, and of hosting instances.</p>
+<p>This prevents some deployment scenarios: e.g. having a Ganeti instance
+(in another cluster) be just a master candidate, in case all other
+master candidates go down (but not, of course, host instances), or
+having a node in a remote location just host instances but not become
+master, etc.</p>
+</div>
+<div class="section" id="id2">
+<h4><a class="toc-backref" href="#id18">Proposed changes</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Two new capability flags will be added to the node:</p>
+<ul class="simple">
+<li>master_capable, denoting whether the node can become a master
+candidate or master</li>
+<li>vm_capable, denoting whether the node can host instances</li>
+</ul>
+<p>In terms of the other flags, master_capable is a stronger version of
+&#8220;not master candidate&#8221;, and vm_capable is a stronger version of
+&#8220;drained&#8221;.</p>
+<p>For the master_capable flag, it will affect auto-promotion code and node
+modifications.</p>
+<p>The vm_capable flag will affect the iallocator protocol, capacity
+calculations, node checks in cluster verify, and will interact in novel
+ways with locking (unfortunately).</p>
+<p>It is envisaged that most nodes will be both vm_capable and
+master_capable, and just a few will have one of these flags
+removed. Ganeti itself will allow clearing of both flags, even though
+this doesn&#8217;t make much sense currently.</p>
+</div>
+</div>
+<div class="section" id="job-priorities">
+<span id="jqueue-job-priority-design"></span><h3><a class="toc-backref" href="#id19">Job priorities</a><a class="headerlink" href="#job-priorities" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id20">Current state and shortcomings</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>Currently all jobs and opcodes have the same priority. Once a job
+started executing, its thread won&#8217;t be released until all opcodes got
+their locks and did their work. When a job is finished, the next job is
+selected strictly by its incoming order. This does not mean jobs are run
+in their incoming order—locks and other delays can cause them to be
+stalled for some time.</p>
+<p>In some situations, e.g. an emergency shutdown, one may want to run a
+job as soon as possible. This is not possible currently if there are
+pending jobs in the queue.</p>
+</div>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id21">Proposed changes</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>Each opcode will be assigned a priority on submission. Opcode priorities
+are integers and the lower the number, the higher the opcode&#8217;s priority
+is. Within the same priority, jobs and opcodes are initially processed
+in their incoming order.</p>
+<p>Submitted opcodes can have one of the priorities listed below. Other
+priorities are reserved for internal use. The absolute range is
+-20..+19. Opcodes submitted without a priority (e.g. by older clients)
+are assigned the default priority.</p>
+<blockquote>
+<div><ul class="simple">
+<li>High (-10)</li>
+<li>Normal (0, default)</li>
+<li>Low (+10)</li>
+</ul>
+</div></blockquote>
+<p>As a change from the current model where executing a job blocks one
+thread for the whole duration, the new job processor must return the job
+to the queue after each opcode and also if it can&#8217;t get all locks in a
+reasonable timeframe. This will allow opcodes of higher priority
+submitted in the meantime to be processed or opcodes of the same
+priority to try to get their locks. When added to the job queue&#8217;s
+workerpool, the priority is determined by the first unprocessed opcode
+in the job.</p>
+<p>If an opcode is deferred, the job will go back to the &#8220;queued&#8221; status,
+even though it&#8217;s just waiting to try to acquire its locks again later.</p>
+<p>If an opcode can not be processed after a certain number of retries or a
+certain amount of time, it should increase its priority. This will avoid
+starvation.</p>
+<p>A job&#8217;s priority can never go below -20. If a job hits priority -20, it
+must acquire its locks in blocking mode.</p>
+<p>Opcode priorities are synchronised to disk in order to be restored after
+a restart or crash of the master daemon.</p>
+<p>Priorities also need to be considered inside the locking library to
+ensure opcodes with higher priorities get locks first. See
+<a class="reference internal" href="#locking-priorities"><em>locking priorities</em></a> for more details.</p>
+<div class="section" id="worker-pool">
+<h5>Worker pool<a class="headerlink" href="#worker-pool" title="Permalink to this headline">¶</a></h5>
+<p>To support job priorities in the job queue, the worker pool underlying
+the job queue must be enhanced to support task priorities. Currently
+tasks are processed in the order they are added to the queue (but, due
+to their nature, they don&#8217;t necessarily finish in that order). All tasks
+are equal. To support tasks with higher or lower priority, a few changes
+have to be made to the queue inside a worker pool.</p>
+<p>Each task is assigned a priority when added to the queue. This priority
+can not be changed until the task is executed (this is fine as in all
+current use-cases, tasks are added to a pool and then forgotten about
+until they&#8217;re done).</p>
+<p>A task&#8217;s priority can be compared to Unix&#8217; process priorities. The lower
+the priority number, the closer to the queue&#8217;s front it is. A task with
+priority 0 is going to be run before one with priority 10. Tasks with
+the same priority are executed in the order in which they were added.</p>
+<p>While a task is running it can query its own priority. If it&#8217;s not ready
+yet for finishing, it can raise an exception to defer itself, optionally
+changing its own priority. This is useful for the following cases:</p>
+<ul class="simple">
+<li>A task is trying to acquire locks, but those locks are still held by
+other tasks. By deferring itself, the task gives others a chance to
+run. This is especially useful when all workers are busy.</li>
+<li>If a task decides it hasn&#8217;t gotten its locks in a long time, it can
+start to increase its own priority.</li>
+<li>Tasks waiting for long-running operations running asynchronously could
+defer themselves while waiting for a long-running operation.</li>
+</ul>
+<p>With these changes, the job queue will be able to implement per-job
+priorities.</p>
+</div>
+<div class="section" id="locking">
+<span id="locking-priorities"></span><h5>Locking<a class="headerlink" href="#locking" title="Permalink to this headline">¶</a></h5>
+<p>In order to support priorities in Ganeti&#8217;s own lock classes,
+<tt class="docutils literal"><span class="pre">locking.SharedLock</span></tt> and <tt class="docutils literal"><span class="pre">locking.LockSet</span></tt>, the internal structure
+of the former class needs to be changed. The last major change in this
+area was done for Ganeti 2.1 and can be found in the respective
+<a class="reference internal" href="design-2.1.html"><em>design document</em></a>.</p>
+<p>The plain list (<tt class="docutils literal"><span class="pre">[]</span></tt>) used as a queue is replaced by a heap queue,
+similar to the <a class="reference internal" href="#worker-pool">worker pool</a>. The heap or priority queue does automatic
+sorting, thereby automatically taking care of priorities. For each
+priority there&#8217;s a plain list with pending acquires, like the single
+queue of pending acquires before this change.</p>
+<p>When the lock is released, the code locates the list of pending acquires
+for the highest priority waiting. The first condition (index 0) is
+notified. Once all waiting threads received the notification, the
+condition is removed from the list. If the list of conditions is empty
+it&#8217;s removed from the heap queue.</p>
+<p>Like before, shared acquires are grouped and skip ahead of exclusive
+acquires if there&#8217;s already an existing shared acquire for a priority.
+To accomplish this, a separate dictionary of shared acquires per
+priority is maintained.</p>
+<p>To simplify the code and reduce memory consumption, the concept of the
+&#8220;active&#8221; and &#8220;inactive&#8221; condition for shared acquires is abolished. The
+lock can&#8217;t predict what priorities the next acquires will use and even
+keeping a cache can become computationally expensive for arguable
+benefit (the underlying POSIX pipe, see <tt class="docutils literal"><span class="pre">pipe(2)</span></tt>, needs to be
+re-created for each notification anyway).</p>
+<p>The following diagram shows a possible state of the internal queue from
+a high-level view. Conditions are shown as (waiting) threads. Assuming
+no modifications are made to the queue (e.g. more acquires or timeouts),
+the lock would be acquired by the threads in this order (concurrent
+acquires in parentheses): <tt class="docutils literal"><span class="pre">threadE1</span></tt>, <tt class="docutils literal"><span class="pre">threadE2</span></tt>, (<tt class="docutils literal"><span class="pre">threadS1</span></tt>,
+<tt class="docutils literal"><span class="pre">threadS2</span></tt>, <tt class="docutils literal"><span class="pre">threadS3</span></tt>), (<tt class="docutils literal"><span class="pre">threadS4</span></tt>, <tt class="docutils literal"><span class="pre">threadS5</span></tt>), <tt class="docutils literal"><span class="pre">threadE3</span></tt>,
+<tt class="docutils literal"><span class="pre">threadS6</span></tt>, <tt class="docutils literal"><span class="pre">threadE4</span></tt>, <tt class="docutils literal"><span class="pre">threadE5</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+  <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">exc</span><span class="o">/</span><span class="n">threadE1</span><span class="p">,</span> <span class="n">exc</span><span class="o">/</span><span class="n">threadE2</span><span class="p">,</span> <span class="n">shr</span><span class="o">/</span><span class="n">threadS1</span><span class="o">/</span><span class="n">threadS2</span><span class="o">/</span><span class="n">threadS3</span><span class="p">]),</span>
+  <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">shr</span><span class="o">/</span><span class="n">threadS4</span><span class="o">/</span><span class="n">threadS5</span><span class="p">]),</span>
+  <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="n">exc</span><span class="o">/</span><span class="n">threadE3</span><span class="p">]),</span>
+  <span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="p">[</span><span class="n">shr</span><span class="o">/</span><span class="n">threadS6</span><span class="p">,</span> <span class="n">exc</span><span class="o">/</span><span class="n">threadE4</span><span class="p">,</span> <span class="n">exc</span><span class="o">/</span><span class="n">threadE5</span><span class="p">]),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="ipv6-support">
+<h3><a class="toc-backref" href="#id22">IPv6 support</a><a class="headerlink" href="#ipv6-support" title="Permalink to this headline">¶</a></h3>
+<p>Currently Ganeti does not support IPv6. This is true for nodes as well
+as instances. Due to the fact that IPv4 exhaustion is threateningly near
+the need of using IPv6 is increasing, especially given that bigger and
+bigger clusters are supported.</p>
+<div class="section" id="supported-ipv6-setup">
+<h4><a class="toc-backref" href="#id23">Supported IPv6 setup</a><a class="headerlink" href="#supported-ipv6-setup" title="Permalink to this headline">¶</a></h4>
+<p>In Ganeti 2.3 we introduce additionally to the ordinary pure IPv4
+setup a hybrid IPv6/IPv4 mode. The latter works as follows:</p>
+<ul class="simple">
+<li>all nodes in a cluster have a primary IPv6 address</li>
+<li>the master has a IPv6 address</li>
+<li>all nodes <strong>must</strong> have a secondary IPv4 address</li>
+</ul>
+<p>The reason for this hybrid setup is that key components that Ganeti
+depends on do not or only partially support IPv6. More precisely, Xen
+does not support instance migration via IPv6 in version 3.4 and 4.0.
+Similarly, KVM does not support instance migration nor VNC access for
+IPv6 at the time of this writing.</p>
+<p>This led to the decision of not supporting pure IPv6 Ganeti clusters, as
+very important cluster operations would not have been possible. Using
+IPv4 as secondary address does not affect any of the goals
+of the IPv6 support: since secondary addresses do not need to be
+publicly accessible, they need not be globally unique. In other words,
+one can practically use private IPv4 secondary addresses just for
+intra-cluster communication without propagating them across layer 3
+boundaries.</p>
+</div>
+<div class="section" id="netutils-utilities-for-handling-common-network-tasks">
+<h4><a class="toc-backref" href="#id24">netutils: Utilities for handling common network tasks</a><a class="headerlink" href="#netutils-utilities-for-handling-common-network-tasks" title="Permalink to this headline">¶</a></h4>
+<p>Currently common utility functions are kept in the <tt class="docutils literal"><span class="pre">utils</span></tt> module.
+Since this module grows bigger and bigger network-related functions are
+moved to a separate module named <em>netutils</em>. Additionally all these
+utilities will be IPv6-enabled.</p>
+</div>
+<div class="section" id="cluster-initialization">
+<h4><a class="toc-backref" href="#id25">Cluster initialization</a><a class="headerlink" href="#cluster-initialization" title="Permalink to this headline">¶</a></h4>
+<p>As mentioned above there will be two different setups in terms of IP
+addressing: pure IPv4 and hybrid IPv6/IPv4 address. To choose that a
+new cluster init parameter <em>&#8211;primary-ip-version</em> is introduced. This is
+needed as a given name can resolve to both an IPv4 and IPv6 address on a
+dual-stack host effectively making it impossible to infer that bit.</p>
+<p>Once a cluster is initialized and the primary IP version chosen all
+nodes that join have to conform to that setup. In the case of our
+IPv6/IPv4 setup all nodes <em>must</em> have a secondary IPv4 address.</p>
+<p>Furthermore we store the primary IP version in ssconf which is consulted
+every time a daemon starts to determine the default bind address (either
+<em>0.0.0.0</em> or <em>::</em>. In a IPv6/IPv4 setup we need to bind the Ganeti
+daemon listening on network sockets to the IPv6 address.</p>
+</div>
+<div class="section" id="node-addition">
+<h4><a class="toc-backref" href="#id26">Node addition</a><a class="headerlink" href="#node-addition" title="Permalink to this headline">¶</a></h4>
+<p>When adding a new node to a IPv6/IPv4 cluster it must have a IPv6
+address to be used as primary and a IPv4 address used as secondary. As
+explained above, every time a daemon is started we use the cluster
+primary IP version to determine to which any address to bind to. The
+only exception to this is when a node is added to the cluster. In this
+case there is no ssconf available when noded is started and therefore
+the correct address needs to be passed to it.</p>
+</div>
+<div class="section" id="name-resolution">
+<h4><a class="toc-backref" href="#id27">Name resolution</a><a class="headerlink" href="#name-resolution" title="Permalink to this headline">¶</a></h4>
+<p>Since the gethostbyname*() functions do not support IPv6 name resolution
+will be done by using the recommended getaddrinfo().</p>
+</div>
+<div class="section" id="ipv4-only-components">
+<h4><a class="toc-backref" href="#id28">IPv4-only components</a><a class="headerlink" href="#ipv4-only-components" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="28%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Component</th>
+<th class="head">IPv6 Status</th>
+<th class="head">Planned Version</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Xen instance migration</td>
+<td>Not supported</td>
+<td>Xen 4.1: libxenlight</td>
+</tr>
+<tr class="row-odd"><td>KVM instance migration</td>
+<td>Not supported</td>
+<td>Unknown</td>
+</tr>
+<tr class="row-even"><td>KVM VNC access</td>
+<td>Not supported</td>
+<td>Unknown</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="privilege-separation">
+<h3><a class="toc-backref" href="#id29">Privilege Separation</a><a class="headerlink" href="#privilege-separation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id30">Current state and shortcomings</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>In Ganeti 2.2 we introduced privilege separation for the RAPI daemon.
+This was done directly in the daemon&#8217;s code in the process of
+daemonizing itself. Doing so leads to several potential issues. For
+example, a file could be opened while the code is still running as
+<tt class="docutils literal"><span class="pre">root</span></tt> and for some reason not be closed again. Even after changing
+the user ID, the file descriptor can be written to.</p>
+</div>
+<div class="section" id="implementation">
+<h4><a class="toc-backref" href="#id31">Implementation</a><a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h4>
+<p>To address these shortcomings, daemons will be started under the target
+user right away. The <tt class="docutils literal"><span class="pre">start-stop-daemon</span></tt> utility used to start daemons
+supports the <tt class="docutils literal"><span class="pre">--chuid</span></tt> option to change user and group ID before
+starting the executable.</p>
+<p>The intermediate solution for the RAPI daemon from Ganeti 2.2 will be
+removed again.</p>
+<p>Files written by the daemons may need to have an explicit owner and
+group set (easily done through <tt class="docutils literal"><span class="pre">utils.WriteFile</span></tt>).</p>
+<p>All SSH-related code is removed from the <tt class="docutils literal"><span class="pre">ganeti.bootstrap</span></tt> module and
+core components and moved to a separate script. The core code will
+simply assume a working SSH setup to be in place.</p>
+</div>
+<div class="section" id="security-domains">
+<h4><a class="toc-backref" href="#id32">Security Domains</a><a class="headerlink" href="#security-domains" title="Permalink to this headline">¶</a></h4>
+<p>In order to separate the permissions of file sets we separate them
+into the following 3 overall security domain chunks:</p>
+<ol class="arabic simple">
+<li>Public: <tt class="docutils literal"><span class="pre">0755</span></tt> respectively <tt class="docutils literal"><span class="pre">0644</span></tt></li>
+<li>Ganeti wide: shared between the daemons (gntdaemons)</li>
+<li>Secret files: shared among a specific set of daemons/users</li>
+</ol>
+<p>So for point 3 this tables shows the correlation of the sets to groups
+and their users:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="14%" />
+<col width="43%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Set</th>
+<th class="head">Group</th>
+<th class="head">Users</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>A</td>
+<td>gntrapi</td>
+<td>gntrapi, gntmasterd</td>
+<td>Share data between
+gntrapi and gntmasterd</td>
+</tr>
+<tr class="row-odd"><td>B</td>
+<td>gntadmins</td>
+<td>gntrapi, gntmasterd, <em>users</em></td>
+<td>Shared between users who
+needs to call gntmasterd</td>
+</tr>
+<tr class="row-even"><td>C</td>
+<td>gntconfd</td>
+<td>gntconfd, gntmasterd</td>
+<td>Share data between
+gntconfd and gntmasterd</td>
+</tr>
+<tr class="row-odd"><td>D</td>
+<td>gntmasterd</td>
+<td>gntmasterd</td>
+<td>masterd only; Currently
+only to redistribute the
+configuration, has access
+to all files under
+<tt class="docutils literal"><span class="pre">lib/ganeti</span></tt></td>
+</tr>
+<tr class="row-even"><td>E</td>
+<td>gntdaemons</td>
+<td>gntmasterd, gntrapi, gntconfd</td>
+<td>Shared between the various
+Ganeti daemons to exchange
+data</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="restricted-commands">
+<h4><a class="toc-backref" href="#id33">Restricted commands</a><a class="headerlink" href="#restricted-commands" title="Permalink to this headline">¶</a></h4>
+<p>The following commands still require root permissions to fulfill their
+functions:</p>
+<div class="highlight-python"><pre>gnt-cluster {init|destroy|command|copyfile|rename|masterfailover|renew-crypto}
+gnt-node {add|remove}
+gnt-instance {console}</pre>
+</div>
+</div>
+<div class="section" id="directory-structure-and-permissions">
+<h4><a class="toc-backref" href="#id34">Directory structure and permissions</a><a class="headerlink" href="#directory-structure-and-permissions" title="Permalink to this headline">¶</a></h4>
+<p>Here&#8217;s how we propose to change the filesystem hierarchy and their
+permissions.</p>
+<p>Assuming it follows the defaults: <tt class="docutils literal"><span class="pre">gnt${daemon}</span></tt> for user and
+the groups from the section <a class="reference internal" href="#security-domains">Security Domains</a>:</p>
+<div class="highlight-python"><pre>${localstatedir}/lib/ganeti/ (0755; gntmasterd:gntmasterd)
+   cluster-domain-secret (0600; gntmasterd:gntmasterd)
+   config.data (0640; gntmasterd:gntconfd)
+   hmac.key (0440; gntmasterd:gntconfd)
+   known_host (0644; gntmasterd:gntmasterd)
+   queue/ (0700; gntmasterd:gntmasterd)
+     archive/ (0700; gntmasterd:gntmasterd)
+       * (0600; gntmasterd:gntmasterd)
+     * (0600; gntmasterd:gntmasterd)
+   rapi.pem (0440; gntrapi:gntrapi)
+   rapi_users (0640; gntrapi:gntrapi)
+   server.pem (0440; gntmasterd:gntmasterd)
+   ssconf_* (0444; root:gntmasterd)
+   uidpool/ (0750; root:gntmasterd)
+   watcher.data (0600; root:gntmasterd)
+${localstatedir}/run/ganeti/ (0770; gntmasterd:gntdaemons)
+   socket/ (0750; gntmasterd:gntadmins)
+     ganeti-master (0770; gntmasterd:gntadmins)
+${localstatedir}/log/ganeti/ (0770; gntmasterd:gntdaemons)
+   master-daemon.log (0600; gntmasterd:gntdaemons)
+   rapi-daemon.log (0600; gntrapi:gntdaemons)
+   conf-daemon.log (0600; gntconfd:gntdaemons)
+   node-daemon.log (0600; gntnoded:gntdaemons)</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="feature-changes">
+<h2><a class="toc-backref" href="#id35">Feature changes</a><a class="headerlink" href="#feature-changes" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="external-interface-changes">
+<h2><a class="toc-backref" href="#id36">External interface changes</a><a class="headerlink" href="#external-interface-changes" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti 2.3 design</a><ul>
+<li><a class="reference internal" href="#core-changes">Core changes</a><ul>
+<li><a class="reference internal" href="#node-groups">Node Groups</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#node-group-management">Node group management</a></li>
+<li><a class="reference internal" href="#node-group-attributes">Node group attributes</a></li>
+<li><a class="reference internal" href="#node-group-operations">Node group operations</a></li>
+<li><a class="reference internal" href="#instance-level-changes">Instance level changes</a></li>
+<li><a class="reference internal" href="#internal-changes">Internal changes</a></li>
+<li><a class="reference internal" href="#other-work-and-future-changes">Other work and future changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#scalability-issues-with-big-clusters">Scalability issues with big clusters</a><ul>
+<li><a class="reference internal" href="#current-and-future-issues">Current and future issues</a></li>
+<li><a class="reference internal" href="#cluster-state-cache">Cluster state cache</a><ul>
+<li><a class="reference internal" href="#cache-structure">Cache structure</a></li>
+<li><a class="reference internal" href="#cache-updates">Cache updates</a></li>
+<li><a class="reference internal" href="#cache-invalidation">Cache invalidation</a></li>
+<li><a class="reference internal" href="#cache-lifetime">Cache lifetime</a></li>
+<li><a class="reference internal" href="#cache-usage">Cache usage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#watcher-operation">Watcher operation</a><ul>
+<li><a class="reference internal" href="#cost-of-periodic-cache-updating">Cost of periodic cache updating</a></li>
+<li><a class="reference internal" href="#intra-node-group-scalability">Intra-node group scalability</a></li>
+<li><a class="reference internal" href="#state-file-maintenance">State file maintenance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capacity-calculations">Capacity calculations</a><ul>
+<li><a class="reference internal" href="#tspec-cluster-parameters">tspec cluster parameters</a></li>
+<li><a class="reference internal" href="#opcode-details">OpCode details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-flags">Node flags</a><ul>
+<li><a class="reference internal" href="#id1">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id2">Proposed changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#job-priorities">Job priorities</a><ul>
+<li><a class="reference internal" href="#id3">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#worker-pool">Worker pool</a></li>
+<li><a class="reference internal" href="#locking">Locking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ipv6-support">IPv6 support</a><ul>
+<li><a class="reference internal" href="#supported-ipv6-setup">Supported IPv6 setup</a></li>
+<li><a class="reference internal" href="#netutils-utilities-for-handling-common-network-tasks">netutils: Utilities for handling common network tasks</a></li>
+<li><a class="reference internal" href="#cluster-initialization">Cluster initialization</a></li>
+<li><a class="reference internal" href="#node-addition">Node addition</a></li>
+<li><a class="reference internal" href="#name-resolution">Name resolution</a></li>
+<li><a class="reference internal" href="#ipv4-only-components">IPv4-only components</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#privilege-separation">Privilege Separation</a><ul>
+<li><a class="reference internal" href="#id5">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#security-domains">Security Domains</a></li>
+<li><a class="reference internal" href="#restricted-commands">Restricted commands</a></li>
+<li><a class="reference internal" href="#directory-structure-and-permissions">Directory structure and permissions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-changes">Feature changes</a></li>
+<li><a class="reference internal" href="#external-interface-changes">External interface changes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-2.2.html"
+                        title="previous chapter">Ganeti 2.2 design</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-htools-2.3.html"
+                        title="next chapter">Synchronising htools to Ganeti 2.3</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-2.3.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-htools-2.3.html" title="Synchronising htools to Ganeti 2.3"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

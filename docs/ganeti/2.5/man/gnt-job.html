@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>gnt-job(8) Ganeti | Version 2.5.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">gnt-job(8) Ganeti | Version 2.5.2</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >gnt-job - Job commands</p
+  ></div
+><div id="synopsis"
+><h1
+  >Synopsis</h1
+  ><p
+  ><strong
+    >gnt-job</strong
+    > {command} [arguments...]</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The <strong
+    >gnt-job</strong
+    > is used for examining and manipulating the job queue.</p
+  ></div
+><div id="commands"
+><h1
+  >COMMANDS</h1
+  ><div id="archive"
+  ><h2
+    >ARCHIVE</h2
+    ><p
+    ><strong
+      >archive</strong
+      > {id...}</p
+    ><p
+    >This command can be used to archive job by their IDs. Only jobs that have finished execution (i.e either <em
+      >success</em
+      >, <em
+      >error</em
+      > or <em
+      >canceled</em
+      > jobs).</p
+    ></div
+  ><div id="autoarchive"
+  ><h2
+    >AUTOARCHIVE</h2
+    ><p
+    ><strong
+      >autoarchive</strong
+      > {<em
+      >age</em
+      > | <code
+      >all</code
+      >}</p
+    ><p
+    >Archive jobs by their age. This command can archive jobs older than <em
+      >age</em
+      > seconds, or alternatively all finished jobs can be archived if the string all is passed.</p
+    ></div
+  ><div id="cancel"
+  ><h2
+    >CANCEL</h2
+    ><p
+    ><strong
+      >cancel</strong
+      > {<em
+      >id</em
+      >}</p
+    ><p
+    >Cancel the job identified by the given <em
+      >id</em
+      >. Only jobs that have not yet started to run can be canceled; that is, jobs in either the <em
+      >queued</em
+      > or <em
+      >waiting</em
+      > state.</p
+    ></div
+  ><div id="info"
+  ><h2
+    >INFO</h2
+    ><p
+    ><strong
+      >info</strong
+      > {<em
+      >id</em
+      >...}</p
+    ><p
+    >Show detailed information about the given job id(s). If no job id is given, all jobs are examined (warning, this is a lot of information).</p
+    ></div
+  ><div id="list"
+  ><h2
+    >LIST</h2
+    ><p
+    ><strong
+      >list</strong
+      > [--no-headers] [--separator=<em
+      >SEPARATOR</em
+      >] [-o <em
+      >[+]FIELD,...</em
+      >]</p
+    ><p
+    >Lists the jobs and their status. By default, the job id, job status, and a small job description is listed, but additional parameters can be selected.</p
+    ><p
+    >The <code
+      >--no-headers</code
+      > option will skip the initial header line. The <code
+      >--separator</code
+      > option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p
+    ><p
+    >The <code
+      >-o</code
+      > option takes a comma-separated list of output fields. The available fields and their meaning are:</p
+    ><dl
+    ><dt
+      >id</dt
+      ><dd
+      ><p
+	>the job id</p
+	></dd
+      ><dt
+      >status</dt
+      ><dd
+      ><p
+	>the status of the job</p
+	></dd
+      ><dt
+      >priority</dt
+      ><dd
+      ><p
+	>current priority of the job</p
+	></dd
+      ><dt
+      >received_ts</dt
+      ><dd
+      ><p
+	>the timestamp the job was received</p
+	></dd
+      ><dt
+      >start_ts</dt
+      ><dd
+      ><p
+	>the timestamp when the job was started</p
+	></dd
+      ><dt
+      >end_ts</dt
+      ><dd
+      ><p
+	>the timestamp when the job was ended</p
+	></dd
+      ><dt
+      >summary</dt
+      ><dd
+      ><p
+	>a summary of the opcodes that define the job</p
+	></dd
+      ><dt
+      >ops</dt
+      ><dd
+      ><p
+	>the list of opcodes defining the job</p
+	></dd
+      ><dt
+      >opresult</dt
+      ><dd
+      ><p
+	>the list of opcode results</p
+	></dd
+      ><dt
+      >opstatus</dt
+      ><dd
+      ><p
+	>the list of opcode statuses</p
+	></dd
+      ><dt
+      >oplog</dt
+      ><dd
+      ><p
+	>the list of opcode logs</p
+	></dd
+      ><dt
+      >opstart</dt
+      ><dd
+      ><p
+	>the list of opcode start times (before acquiring locks)</p
+	></dd
+      ><dt
+      >opexec</dt
+      ><dd
+      ><p
+	>the list of opcode execution start times (after acquiring any necessary locks)</p
+	></dd
+      ><dt
+      >opend</dt
+      ><dd
+      ><p
+	>the list of opcode end times</p
+	></dd
+      ><dt
+      >oppriority</dt
+      ><dd
+      ><p
+	>the priority of each opcode</p
+	></dd
+      ></dl
+    ><p
+    >If the value of the option starts with the character <code
+      >+</code
+      >, the new fields will be added to the default list. This allows one to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p
+    ></div
+  ><div id="watch"
+  ><h2
+    >WATCH</h2
+    ><p
+    ><strong
+      >watch</strong
+      > {id}</p
+    ><p
+    >This command follows the output of the job by the given <em
+      >id</em
+      > and prints it.</p
+    ></div
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

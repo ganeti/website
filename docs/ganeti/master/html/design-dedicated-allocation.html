@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Allocation for Partitioned Ganeti &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Design for adding UUID and name to devices" href="design-device-uuid-name.html" />
+    <link rel="prev" title="Ganeti CPU Pinning" href="design-cpu-pinning.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-device-uuid-name.html" title="Design for adding UUID and name to devices"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-cpu-pinning.html" title="Ganeti CPU Pinning"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="allocation-for-partitioned-ganeti">
+<h1><a class="toc-backref" href="#id1">Allocation for Partitioned Ganeti</a><a class="headerlink" href="#allocation-for-partitioned-ganeti" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#allocation-for-partitioned-ganeti" id="id1">Allocation for Partitioned Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#dedicated-allocation-metric" id="id4">Dedicated Allocation Metric</a></li>
+<li><a class="reference internal" href="#example" id="id5">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>The introduction of <a class="reference internal" href="design-partitioned.html"><em>Partitioned Ganeti</em></a> allowed to
+dedicate resources, in particular storage, exclusively to
+an instance. The advantage is that such instances have
+guaranteed latency that is not affected by other
+instances. Typically, those instances are created once
+and never moved. Also, typically large chunks (full, half,
+or quarter) of a node are handed out to individual
+partitioned instances.</p>
+<p>Ganeti&#8217;s allocation strategy is to keep the cluster as
+balanced as possible. In particular, as long as empty nodes
+are available, new instances, regardless of their size,
+will be placed there. Therefore, if a couple of small
+instances are placed on the cluster first, it will no longer
+be possible to place a big instance on the cluster despite
+the total usage of the cluster being low.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to change the allocation strategy of hail for
+node groups that have the <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> flag set,
+as detailed below; nothing will be changed for non-exclusive
+node groups. The new strategy will try to keep the cluster
+as available for new instances as possible.</p>
+<div class="section" id="dedicated-allocation-metric">
+<h3><a class="toc-backref" href="#id4">Dedicated Allocation Metric</a><a class="headerlink" href="#dedicated-allocation-metric" title="Permalink to this headline">¶</a></h3>
+<p>The instance policy is a set of intervals in which the resources
+of the instance have to be. Typical choices for dedicated clusters
+have disjoint intervals with the same monotonicity in every dimension.
+In this case, the order is obvious. In order to make it well-defined
+in every case, we specify that we sort the intervals by the lower
+bound of the disk size. This is motivated by the fact that disk is
+the most critical aspect of partitioned Ganeti.</p>
+<p>For a node the <em>allocation vector</em> is the vector of, for each
+instance policy interval in decreasing order, the number of
+instances minimally compliant with that interval that still
+can be placed on that node. For the drbd template, it is assumed
+that all newly placed instances have new secondaries.</p>
+<p>The <em>lost-allocations vector</em> for an instance on a node is the
+difference of the allocation vectors for that node before and
+after placing that instance on that node. Lost-allocation vectors
+are ordered lexicographically, i.e., a loss of an allocation
+larger instance size dominates loss of allocations of smaller
+instance sizes.</p>
+<p>If allocating in a node group with <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> set
+to true, hail will try to minimise the pair of the lost-allocations
+vector and the remaining disk space on the node afer, ordered
+lexicographically.</p>
+</div>
+<div class="section" id="example">
+<h3><a class="toc-backref" href="#id5">Example</a><a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Consider the already mentioned scenario were only full, half, and quarter
+nodes are given to instances. Here, for the placement of a
+quarter-node&#8211;sized instance we would prefer a three-quarter-filled node (lost
+allocations: 0, 0, 1 and no left overs) over a quarter-filled node (lost
+allocations: 0, 0, 1 and half a node left over)
+over a half-filled node (lost allocations: 0, 1, 1) over an empty
+node (lost allocations: 1, 1, 1). A half-node sized instance, however,
+would prefer a half-filled node (lost allocations: 0, 1, 2 and no left-overs)
+over a quarter-filled node (lost allocations: 0, 1, 2 and a quarter node left
+over) over an empty node (lost allocations: 1, 1, 2).</p>
+<p>Note that the presence of additional policy intervals affects the preferences
+of instances of other sizes as well. This is by design, as additional available
+instance sizes make additional remaining node sizes attractive. If, in the
+given example, we would also allow three-quarter-node&#8211;sized instances, for
+a quarter-node&#8211;sized instance it would now be better to be placed on a
+half-full node (lost allocations: 0, 0, 1, 1) than on a quarter-filled
+node (lost allocations: 0, 1, 0, 1).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Allocation for Partitioned Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#dedicated-allocation-metric">Dedicated Allocation Metric</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-cpu-pinning.html"
+                        title="previous chapter">Ganeti CPU Pinning</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-device-uuid-name.html"
+                        title="next chapter">Design for adding UUID and name to devices</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-dedicated-allocation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-device-uuid-name.html" title="Design for adding UUID and name to devices"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-cpu-pinning.html" title="Ganeti CPU Pinning"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

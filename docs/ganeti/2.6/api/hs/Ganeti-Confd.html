@@ -1,0 +1,2403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Confd</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Confd.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Confd.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Confd</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the Ganeti confd types.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdRequestType"
+>ConfdRequestType</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AReqPing"
+>ReqPing</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqNodeRoleByName"
+>ReqNodeRoleByName</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqNodePipList"
+>ReqNodePipList</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqNodePipByInstPip"
+>ReqNodePipByInstPip</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqClusterMaster"
+>ReqClusterMaster</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqMcPipList"
+>ReqMcPipList</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqInstIpsList"
+>ReqInstIpsList</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqNodeDrbd"
+>ReqNodeDrbd</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdRequestTypeFromRaw"
+>confdRequestTypeFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRbw]. Monad m[aRbw] =&gt; Int -&gt; m[aRbw] <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdRequestTypeToRaw"
+>confdRequestTypeToRaw</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdReqField"
+>ConfdReqField</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AReqFieldName"
+>ReqFieldName</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqFieldIp"
+>ReqFieldIp</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReqFieldMNodePip"
+>ReqFieldMNodePip</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdReqFieldFromRaw"
+>confdReqFieldFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRik]. Monad m[aRik] =&gt; String -&gt; m[aRik] <A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdReqFieldToRaw"
+>confdReqFieldToRaw</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdReqQ"
+>ConfdReqQ</A
+>  = <A HREF="#v%3AConfdReqQ"
+>ConfdReqQ</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReqQIp"
+>confdReqQIp</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReqQIpList"
+>confdReqQIpList</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReqQLink"
+>confdReqQLink</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReqQFields"
+>confdReqQFields</A
+> :: [<A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+>]</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConfdReqQ"
+>loadConfdReqQ</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveConfdReqQ"
+>saveConfdReqQ</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictConfdReqQ"
+>toDictConfdReqQ</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdQuery"
+>ConfdQuery</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AEmptyQuery"
+>EmptyQuery</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3APlainQuery"
+>PlainQuery</A
+> String</TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ADictQuery"
+>DictQuery</A
+> <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AReplyStatusOk"
+>ReplyStatusOk</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReplyStatusError"
+>ReplyStatusError</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AReplyStatusNotImpl"
+>ReplyStatusNotImpl</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdReplyStatusFromRaw"
+>confdReplyStatusFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRBB]. Monad m[aRBB] =&gt; Int -&gt; m[aRBB] <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdReplyStatusToRaw"
+>confdReplyStatusToRaw</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3ANodeRoleMaster"
+>NodeRoleMaster</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ANodeRoleCandidate"
+>NodeRoleCandidate</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ANodeRoleOffline"
+>NodeRoleOffline</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ANodeRoleDrained"
+>NodeRoleDrained</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3ANodeRoleRegular"
+>NodeRoleRegular</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdNodeRoleFromRaw"
+>confdNodeRoleFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRI2]. Monad m[aRI2] =&gt; Int -&gt; m[aRI2] <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdNodeRoleToRaw"
+>confdNodeRoleToRaw</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdErrorType"
+>ConfdErrorType</A
+>  </TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+>= <A HREF="#v%3AConfdErrorUnknownEntry"
+>ConfdErrorUnknownEntry</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AConfdErrorInternal"
+>ConfdErrorInternal</A
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+>| <A HREF="#v%3AConfdErrorArgument"
+>ConfdErrorArgument</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdErrorTypeFromRaw"
+>confdErrorTypeFromRaw</A
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aROj]. Monad m[aROj] =&gt; Int -&gt; m[aROj] <A HREF="Ganeti-Confd.html#t%3AConfdErrorType"
+>ConfdErrorType</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconfdErrorTypeToRaw"
+>confdErrorTypeToRaw</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdErrorType"
+>ConfdErrorType</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdRequest"
+>ConfdRequest</A
+>  = <A HREF="#v%3AConfdRequest"
+>ConfdRequest</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdRqProtocol"
+>confdRqProtocol</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdRqType"
+>confdRqType</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdRqQuery"
+>confdRqQuery</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdQuery"
+>ConfdQuery</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdRqRsalt"
+>confdRqRsalt</A
+> :: String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConfdRequest"
+>loadConfdRequest</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveConfdRequest"
+>saveConfdRequest</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictConfdRequest"
+>toDictConfdRequest</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AConfdReply"
+>ConfdReply</A
+>  = <A HREF="#v%3AConfdReply"
+>ConfdReply</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReplyProtocol"
+>confdReplyProtocol</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReplyStatus"
+>confdReplyStatus</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReplyAnswer"
+>confdReplyAnswer</A
+> :: JSValue</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AconfdReplySerial"
+>confdReplySerial</A
+> :: Int</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConfdReply"
+>loadConfdReply</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveConfdReply"
+>saveConfdReply</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictConfdReply"
+>toDictConfdReply</A
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3ASignedMessage"
+>SignedMessage</A
+>  = <A HREF="#v%3ASignedMessage"
+>SignedMessage</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AsignedMsgHmac"
+>signedMsgHmac</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AsignedMsgMsg"
+>signedMsgMsg</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AsignedMsgSalt"
+>signedMsgSalt</A
+> :: String</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadSignedMessage"
+>loadSignedMessage</A
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveSignedMessage"
+>saveSignedMessage</A
+> :: <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+> -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoDictSignedMessage"
+>toDictSignedMessage</A
+> :: <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+> -&gt; [(String, JSValue)]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdRequestType"
+><A NAME="t%3AConfdRequestType"
+></A
+></A
+><B
+>ConfdRequestType</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdRequestType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqPing"
+><A NAME="v%3AReqPing"
+></A
+></A
+><B
+>ReqPing</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqNodeRoleByName"
+><A NAME="v%3AReqNodeRoleByName"
+></A
+></A
+><B
+>ReqNodeRoleByName</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqNodePipList"
+><A NAME="v%3AReqNodePipList"
+></A
+></A
+><B
+>ReqNodePipList</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqNodePipByInstPip"
+><A NAME="v%3AReqNodePipByInstPip"
+></A
+></A
+><B
+>ReqNodePipByInstPip</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqClusterMaster"
+><A NAME="v%3AReqClusterMaster"
+></A
+></A
+><B
+>ReqClusterMaster</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqMcPipList"
+><A NAME="v%3AReqMcPipList"
+></A
+></A
+><B
+>ReqMcPipList</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqInstIpsList"
+><A NAME="v%3AReqInstIpsList"
+></A
+></A
+><B
+>ReqInstIpsList</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqNodeDrbd"
+><A NAME="v%3AReqNodeDrbd"
+></A
+></A
+><B
+>ReqNodeDrbd</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdRequestTypeFromRaw"
+><A NAME="v%3AconfdRequestTypeFromRaw"
+></A
+></A
+><B
+>confdRequestTypeFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRbw]. Monad m[aRbw] =&gt; Int -&gt; m[aRbw] <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdRequestTypeFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdRequestTypeToRaw"
+><A NAME="v%3AconfdRequestTypeToRaw"
+></A
+></A
+><B
+>confdRequestTypeToRaw</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdRequestTypeToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdReqField"
+><A NAME="t%3AConfdReqField"
+></A
+></A
+><B
+>ConfdReqField</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdReqField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqFieldName"
+><A NAME="v%3AReqFieldName"
+></A
+></A
+><B
+>ReqFieldName</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqFieldIp"
+><A NAME="v%3AReqFieldIp"
+></A
+></A
+><B
+>ReqFieldIp</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReqFieldMNodePip"
+><A NAME="v%3AReqFieldMNodePip"
+></A
+></A
+><B
+>ReqFieldMNodePip</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdReqFieldFromRaw"
+><A NAME="v%3AconfdReqFieldFromRaw"
+></A
+></A
+><B
+>confdReqFieldFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRik]. Monad m[aRik] =&gt; String -&gt; m[aRik] <A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdReqFieldFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdReqFieldToRaw"
+><A NAME="v%3AconfdReqFieldToRaw"
+></A
+></A
+><B
+>confdReqFieldToRaw</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdReqFieldToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdReqQ"
+><A NAME="t%3AConfdReqQ"
+></A
+></A
+><B
+>ConfdReqQ</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdReqQ"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdReqQ"
+><A NAME="v%3AConfdReqQ"
+></A
+></A
+><B
+>ConfdReqQ</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReqQIp"
+><A NAME="v%3AconfdReqQIp"
+></A
+></A
+><B
+>confdReqQIp</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReqQIpList"
+><A NAME="v%3AconfdReqQIpList"
+></A
+></A
+><B
+>confdReqQIpList</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReqQLink"
+><A NAME="v%3AconfdReqQLink"
+></A
+></A
+><B
+>confdReqQLink</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReqQFields"
+><A NAME="v%3AconfdReqQFields"
+></A
+></A
+><B
+>confdReqQFields</B
+> :: [<A HREF="Ganeti-Confd.html#t%3AConfdReqField"
+>ConfdReqField</A
+>]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConfdReqQ"
+><A NAME="v%3AloadConfdReqQ"
+></A
+></A
+><B
+>loadConfdReqQ</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#loadConfdReqQ"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveConfdReqQ"
+><A NAME="v%3AsaveConfdReqQ"
+></A
+></A
+><B
+>saveConfdReqQ</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#saveConfdReqQ"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictConfdReqQ"
+><A NAME="v%3AtoDictConfdReqQ"
+></A
+></A
+><B
+>toDictConfdReqQ</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#toDictConfdReqQ"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdQuery"
+><A NAME="t%3AConfdQuery"
+></A
+></A
+><B
+>ConfdQuery</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdQuery"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Confd query type. This is complex enough that we can't
+ automatically derive it via THH.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:EmptyQuery"
+><A NAME="v%3AEmptyQuery"
+></A
+></A
+><B
+>EmptyQuery</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:PlainQuery"
+><A NAME="v%3APlainQuery"
+></A
+></A
+><B
+>PlainQuery</B
+> String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:DictQuery"
+><A NAME="v%3ADictQuery"
+></A
+></A
+><B
+>DictQuery</B
+> <A HREF="Ganeti-Confd.html#t%3AConfdReqQ"
+>ConfdReqQ</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdReplyStatus"
+><A NAME="t%3AConfdReplyStatus"
+></A
+></A
+><B
+>ConfdReplyStatus</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdReplyStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReplyStatusOk"
+><A NAME="v%3AReplyStatusOk"
+></A
+></A
+><B
+>ReplyStatusOk</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReplyStatusError"
+><A NAME="v%3AReplyStatusError"
+></A
+></A
+><B
+>ReplyStatusError</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ReplyStatusNotImpl"
+><A NAME="v%3AReplyStatusNotImpl"
+></A
+></A
+><B
+>ReplyStatusNotImpl</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdReplyStatusFromRaw"
+><A NAME="v%3AconfdReplyStatusFromRaw"
+></A
+></A
+><B
+>confdReplyStatusFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRBB]. Monad m[aRBB] =&gt; Int -&gt; m[aRBB] <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdReplyStatusFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdReplyStatusToRaw"
+><A NAME="v%3AconfdReplyStatusToRaw"
+></A
+></A
+><B
+>confdReplyStatusToRaw</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdReplyStatusToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdNodeRole"
+><A NAME="t%3AConfdNodeRole"
+></A
+></A
+><B
+>ConfdNodeRole</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdNodeRole"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeRoleMaster"
+><A NAME="v%3ANodeRoleMaster"
+></A
+></A
+><B
+>NodeRoleMaster</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeRoleCandidate"
+><A NAME="v%3ANodeRoleCandidate"
+></A
+></A
+><B
+>NodeRoleCandidate</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeRoleOffline"
+><A NAME="v%3ANodeRoleOffline"
+></A
+></A
+><B
+>NodeRoleOffline</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeRoleDrained"
+><A NAME="v%3ANodeRoleDrained"
+></A
+></A
+><B
+>NodeRoleDrained</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:NodeRoleRegular"
+><A NAME="v%3ANodeRoleRegular"
+></A
+></A
+><B
+>NodeRoleRegular</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdNodeRoleFromRaw"
+><A NAME="v%3AconfdNodeRoleFromRaw"
+></A
+></A
+><B
+>confdNodeRoleFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aRI2]. Monad m[aRI2] =&gt; Int -&gt; m[aRI2] <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdNodeRoleFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdNodeRoleToRaw"
+><A NAME="v%3AconfdNodeRoleToRaw"
+></A
+></A
+><B
+>confdNodeRoleToRaw</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdNodeRole"
+>ConfdNodeRole</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdNodeRoleToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdErrorType"
+><A NAME="t%3AConfdErrorType"
+></A
+></A
+><B
+>ConfdErrorType</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdErrorType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdErrorUnknownEntry"
+><A NAME="v%3AConfdErrorUnknownEntry"
+></A
+></A
+><B
+>ConfdErrorUnknownEntry</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdErrorInternal"
+><A NAME="v%3AConfdErrorInternal"
+></A
+></A
+><B
+>ConfdErrorInternal</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdErrorArgument"
+><A NAME="v%3AConfdErrorArgument"
+></A
+></A
+><B
+>ConfdErrorArgument</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdErrorTypeFromRaw"
+><A NAME="v%3AconfdErrorTypeFromRaw"
+></A
+></A
+><B
+>confdErrorTypeFromRaw</B
+> :: <SPAN CLASS="keyword"
+>forall</SPAN
+> m[aROj]. Monad m[aROj] =&gt; Int -&gt; m[aROj] <A HREF="Ganeti-Confd.html#t%3AConfdErrorType"
+>ConfdErrorType</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdErrorTypeFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:confdErrorTypeToRaw"
+><A NAME="v%3AconfdErrorTypeToRaw"
+></A
+></A
+><B
+>confdErrorTypeToRaw</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdErrorType"
+>ConfdErrorType</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#confdErrorTypeToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdRequest"
+><A NAME="t%3AConfdRequest"
+></A
+></A
+><B
+>ConfdRequest</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdRequest"
+><A NAME="v%3AConfdRequest"
+></A
+></A
+><B
+>ConfdRequest</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdRqProtocol"
+><A NAME="v%3AconfdRqProtocol"
+></A
+></A
+><B
+>confdRqProtocol</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdRqType"
+><A NAME="v%3AconfdRqType"
+></A
+></A
+><B
+>confdRqType</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequestType"
+>ConfdRequestType</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdRqQuery"
+><A NAME="v%3AconfdRqQuery"
+></A
+></A
+><B
+>confdRqQuery</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdQuery"
+>ConfdQuery</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdRqRsalt"
+><A NAME="v%3AconfdRqRsalt"
+></A
+></A
+><B
+>confdRqRsalt</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConfdRequest"
+><A NAME="v%3AloadConfdRequest"
+></A
+></A
+><B
+>loadConfdRequest</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#loadConfdRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveConfdRequest"
+><A NAME="v%3AsaveConfdRequest"
+></A
+></A
+><B
+>saveConfdRequest</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#saveConfdRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictConfdRequest"
+><A NAME="v%3AtoDictConfdRequest"
+></A
+></A
+><B
+>toDictConfdRequest</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdRequest"
+>ConfdRequest</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#toDictConfdRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:ConfdReply"
+><A NAME="t%3AConfdReply"
+></A
+></A
+><B
+>ConfdReply</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#ConfdReply"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:ConfdReply"
+><A NAME="v%3AConfdReply"
+></A
+></A
+><B
+>ConfdReply</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReplyProtocol"
+><A NAME="v%3AconfdReplyProtocol"
+></A
+></A
+><B
+>confdReplyProtocol</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReplyStatus"
+><A NAME="v%3AconfdReplyStatus"
+></A
+></A
+><B
+>confdReplyStatus</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReplyStatus"
+>ConfdReplyStatus</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReplyAnswer"
+><A NAME="v%3AconfdReplyAnswer"
+></A
+></A
+><B
+>confdReplyAnswer</B
+> :: JSValue</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:confdReplySerial"
+><A NAME="v%3AconfdReplySerial"
+></A
+></A
+><B
+>confdReplySerial</B
+> :: Int</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConfdReply"
+><A NAME="v%3AloadConfdReply"
+></A
+></A
+><B
+>loadConfdReply</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#loadConfdReply"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveConfdReply"
+><A NAME="v%3AsaveConfdReply"
+></A
+></A
+><B
+>saveConfdReply</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#saveConfdReply"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictConfdReply"
+><A NAME="v%3AtoDictConfdReply"
+></A
+></A
+><B
+>toDictConfdReply</B
+> :: <A HREF="Ganeti-Confd.html#t%3AConfdReply"
+>ConfdReply</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#toDictConfdReply"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:SignedMessage"
+><A NAME="t%3ASignedMessage"
+></A
+></A
+><B
+>SignedMessage</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#SignedMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:SignedMessage"
+><A NAME="v%3ASignedMessage"
+></A
+></A
+><B
+>SignedMessage</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:signedMsgHmac"
+><A NAME="v%3AsignedMsgHmac"
+></A
+></A
+><B
+>signedMsgHmac</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:signedMsgMsg"
+><A NAME="v%3AsignedMsgMsg"
+></A
+></A
+><B
+>signedMsgMsg</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:signedMsgSalt"
+><A NAME="v%3AsignedMsgSalt"
+></A
+></A
+><B
+>signedMsgSalt</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadSignedMessage"
+><A NAME="v%3AloadSignedMessage"
+></A
+></A
+><B
+>loadSignedMessage</B
+> :: JSValue -&gt; Result <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#loadSignedMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveSignedMessage"
+><A NAME="v%3AsaveSignedMessage"
+></A
+></A
+><B
+>saveSignedMessage</B
+> :: <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+> -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#saveSignedMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toDictSignedMessage"
+><A NAME="v%3AtoDictSignedMessage"
+></A
+></A
+><B
+>toDictSignedMessage</B
+> :: <A HREF="Ganeti-Confd.html#t%3ASignedMessage"
+>SignedMessage</A
+> -&gt; [(String, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Confd.html#toDictSignedMessage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,906 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.storage.filestorage</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.storage-module.html">Package&nbsp;storage</a> ::
+        Module&nbsp;filestorage
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.storage.filestorage-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="ganeti.storage.filestorage-module.html">Module ganeti.storage.filestorage</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2013 Google Inc.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># All rights reserved.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment"># Redistribution and use in source and binary forms, with or without</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># modification, are permitted provided that the following conditions are</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># met:</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># 1. Redistributions of source code must retain the above copyright notice,</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># this list of conditions and the following disclaimer.</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># 2. Redistributions in binary form must reproduce the above copyright</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># notice, this list of conditions and the following disclaimer in the</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># documentation and/or other materials provided with the distribution.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-comment"># PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-comment"># CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-comment"># EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-comment"># PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-comment"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-comment"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">"""Filesystem-based access functions and disk templates.</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">errno</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Module os=os-module.html"><a title="os" class="py-name" href="#" onclick="return doclink('link-0', 'os', 'link-0');">os</a></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-1" class="py-name" targets="Package ganeti=ganeti-module.html"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-1', 'ganeti', 'link-1');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-2" class="py-name" targets="Module ganeti.compat=ganeti.compat-module.html"><a title="ganeti.compat" class="py-name" href="#" onclick="return doclink('link-2', 'compat', 'link-2');">compat</a></tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-3" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-3', 'ganeti', 'link-1');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-4" class="py-name" targets="Module ganeti.constants=ganeti.constants-module.html"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-4', 'constants', 'link-4');">constants</a></tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-5" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-5', 'ganeti', 'link-1');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Module ganeti.errors=ganeti.errors-module.html,Module ganeti.rpc.errors=ganeti.rpc.errors-module.html"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-6', 'errors', 'link-6');">errors</a></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-7', 'ganeti', 'link-1');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-8" class="py-name" targets="Module ganeti.pathutils=ganeti.pathutils-module.html"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-8', 'pathutils', 'link-8');">pathutils</a></tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-9" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-9', 'ganeti', 'link-1');">ganeti</a></tt> <tt class="py-keyword">import</tt> <tt id="link-10" class="py-name" targets="Module ganeti.config.utils=ganeti.config.utils-module.html,Package ganeti.utils=ganeti.utils-module.html"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-10', 'utils', 'link-10');">utils</a></tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-11" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-11', 'ganeti', 'link-1');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-12', 'utils', 'link-10');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-13" class="py-name" targets="Module ganeti.utils.io=ganeti.utils.io-module.html"><a title="ganeti.utils.io" class="py-name" href="#" onclick="return doclink('link-13', 'io', 'link-13');">io</a></tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-14" class="py-name"><a title="ganeti" class="py-name" href="#" onclick="return doclink('link-14', 'ganeti', 'link-1');">ganeti</a></tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Package ganeti.storage=ganeti.storage-module.html,Module ganeti.utils.storage=ganeti.utils.storage-module.html"><a title="ganeti.storage
+ganeti.utils.storage" class="py-name" href="#" onclick="return doclink('link-15', 'storage', 'link-15');">storage</a></tt> <tt class="py-keyword">import</tt> <tt id="link-16" class="py-name" targets="Module ganeti.client.base=ganeti.client.base-module.html,Module ganeti.cmdlib.base=ganeti.cmdlib.base-module.html,Module ganeti.storage.base=ganeti.storage.base-module.html"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-16', 'base', 'link-16');">base</a></tt> </tt>
+<a name="FileDeviceHelper"></a><div id="FileDeviceHelper-def"><a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt> <a class="py-toggle" href="#" id="FileDeviceHelper-toggle" onclick="return toggle('FileDeviceHelper');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html">FileDeviceHelper</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FileDeviceHelper-expanded"><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="FileDeviceHelper.CreateFile"></a><div id="FileDeviceHelper.CreateFile-def"><a name="L51"></a><tt class="py-lineno"> 51</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.CreateFile-toggle" onclick="return toggle('FileDeviceHelper.CreateFile');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#CreateFile">CreateFile</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">path</tt><tt class="py-op">,</tt> <tt class="py-param">size</tt><tt class="py-op">,</tt> <tt class="py-param">create_folders</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">                 <tt class="py-param">_file_path_acceptance_fn</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.CreateFile-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.CreateFile-expanded"><a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-docstring">"""Create a new file and its file device helper.</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt class="py-docstring">    @param size: the size in MiBs the file should be truncated to.</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring">    @param create_folders: create the directories for the path if necessary</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">                           (using L{ganeti.utils.io.Makedirs})</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: FileDeviceHelper</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">    @return: The FileDeviceHelper object representing the object.</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">    @raise errors.FileStoragePathError: if the file path is disallowed by policy</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">:</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">      <tt class="py-name">_file_path_acceptance_fn</tt> <tt class="py-op">=</tt> <tt id="link-17" class="py-name" targets="Function ganeti.storage.filestorage.CheckFileStoragePathAcceptance()=ganeti.storage.filestorage-module.html#CheckFileStoragePathAcceptance"><a title="ganeti.storage.filestorage.CheckFileStoragePathAcceptance" class="py-name" href="#" onclick="return doclink('link-17', 'CheckFileStoragePathAcceptance', 'link-17');">CheckFileStoragePathAcceptance</a></tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">create_folders</tt><tt class="py-op">:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">      <tt class="py-name">folder</tt> <tt class="py-op">=</tt> <tt id="link-18" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-18', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">dirname</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">      <tt id="link-19" class="py-name"><a title="ganeti.utils.io" class="py-name" href="#" onclick="return doclink('link-19', 'io', 'link-13');">io</a></tt><tt class="py-op">.</tt><tt class="py-name">Makedirs</tt><tt class="py-op">(</tt><tt class="py-name">folder</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">      <tt class="py-name">fd</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-20', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt id="link-21" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-21', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">O_RDWR</tt> <tt class="py-op">|</tt> <tt id="link-22" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-22', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">O_CREAT</tt> <tt class="py-op">|</tt> <tt id="link-23" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-23', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">O_EXCL</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">      <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-24', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">fdopen</tt><tt class="py-op">(</tt><tt class="py-name">fd</tt><tt class="py-op">,</tt> <tt class="py-string">"w"</tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">      <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">truncate</tt><tt class="py-op">(</tt><tt class="py-name">size</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt><tt class="py-op">)</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">      <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name" targets="Method ganeti.daemon.AsyncAwaker.close()=ganeti.daemon.AsyncAwaker-class.html#close,Method ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.close()=ganeti.hypervisor.hv_kvm.monitor.MonitorSocket-class.html#close,Method ganeti.rpc.client.AbstractClient.close()=ganeti.rpc.client.AbstractClient-class.html#close,Method ganeti.rpc.transport.FdTransport.close()=ganeti.rpc.transport.FdTransport-class.html#close,Method ganeti.utils.livelock.LiveLock.close()=ganeti.utils.livelock.LiveLock-class.html#close,Method ganeti.utils.livelock.LiveLockName.close()=ganeti.utils.livelock.LiveLockName-class.html#close,Method ganeti.utils.text.LineSplitter.close()=ganeti.utils.text.LineSplitter-class.html#close"><a title="ganeti.daemon.AsyncAwaker.close
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.close
+ganeti.rpc.client.AbstractClient.close
+ganeti.rpc.transport.FdTransport.close
+ganeti.utils.livelock.LiveLock.close
+ganeti.utils.livelock.LiveLockName.close
+ganeti.utils.text.LineSplitter.close" class="py-name" href="#" onclick="return doclink('link-25', 'close', 'link-25');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt> <tt class="py-keyword">as</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">      <tt id="link-26" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-26', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Function ganeti.storage.base.ThrowError()=ganeti.storage.base-module.html#ThrowError"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-27', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't create: %s"</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-28" class="py-name" targets="Class ganeti.storage.filestorage.FileDeviceHelper=ganeti.storage.filestorage.FileDeviceHelper-class.html"><a title="ganeti.storage.filestorage.FileDeviceHelper" class="py-name" href="#" onclick="return doclink('link-28', 'FileDeviceHelper', 'link-28');">FileDeviceHelper</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">                            <tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">=</tt><tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.__init__"></a><div id="FileDeviceHelper.__init__-def"><a name="L84"></a><tt class="py-lineno"> 84</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.__init__-toggle" onclick="return toggle('FileDeviceHelper.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">path</tt><tt class="py-op">,</tt> <tt class="py-param">_file_path_acceptance_fn</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.__init__-expanded"><a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-docstring">"""Create a new file device helper.</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-docstring">    @raise errors.FileStoragePathError: if the file path is disallowed by policy</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">:</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">      <tt class="py-name">_file_path_acceptance_fn</tt> <tt class="py-op">=</tt> <tt id="link-29" class="py-name"><a title="ganeti.storage.filestorage.CheckFileStoragePathAcceptance" class="py-name" href="#" onclick="return doclink('link-29', 'CheckFileStoragePathAcceptance', 'link-17');">CheckFileStoragePathAcceptance</a></tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">    <tt class="py-name">_file_path_acceptance_fn</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file_path_acceptance_fn</tt> <tt class="py-op">=</tt> <tt class="py-name">_file_path_acceptance_fn</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt> <tt class="py-op">=</tt> <tt class="py-name">path</tt> </tt>
+</div><a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.Exists"></a><div id="FileDeviceHelper.Exists-def"><a name="L97"></a><tt class="py-lineno"> 97</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.Exists-toggle" onclick="return toggle('FileDeviceHelper.Exists');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#Exists">Exists</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">assert_exists</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.Exists-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.Exists-expanded"><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">    <tt class="py-docstring">"""Check for the existence of the given file.</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">    @param assert_exists: creates an assertion on the result value:</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">      - if true, raise errors.BlockDeviceError if the file doesn't exist</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">      - if false, raise errors.BlockDeviceError if the file does exist</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: boolean</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring">    @return: True if the file exists</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-name">exists</tt> <tt class="py-op">=</tt> <tt id="link-30" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-30', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isfile</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">exists</tt> <tt class="py-keyword">and</tt> <tt class="py-name">assert_exists</tt> <tt class="py-keyword">is</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-31" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-31', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-32', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: No such file"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">exists</tt> <tt class="py-keyword">and</tt> <tt class="py-name">assert_exists</tt> <tt class="py-keyword">is</tt> <tt class="py-name">False</tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-33" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-33', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-34" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-34', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: File exists"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">exists</tt> </tt>
+</div><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.Remove"></a><div id="FileDeviceHelper.Remove-def"><a name="L117"></a><tt class="py-lineno">117</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.Remove-toggle" onclick="return toggle('FileDeviceHelper.Remove');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#Remove">Remove</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.Remove-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.Remove-expanded"><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">    <tt class="py-docstring">"""Remove the file backing the block device.</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: boolean</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">    @return: True if the removal was successful</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">      <tt id="link-35" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-35', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">remove</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">OSError</tt> <tt class="py-keyword">as</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">err</tt><tt class="py-op">.</tt><tt class="py-name">errno</tt> <tt class="py-op">!=</tt> <tt class="py-name">errno</tt><tt class="py-op">.</tt><tt class="py-name">ENOENT</tt><tt class="py-op">:</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">        <tt id="link-36" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-36', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-37" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-37', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't remove: %s"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">)</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.Size"></a><div id="FileDeviceHelper.Size-def"><a name="L132"></a><tt class="py-lineno">132</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.Size-toggle" onclick="return toggle('FileDeviceHelper.Size');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#Size">Size</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.Size-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.Size-expanded"><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return the actual disk size in bytes.</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: int</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">    @return: The file size in bytes.</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-38" class="py-name" targets="Method ganeti.storage.filestorage.FileDeviceHelper.Exists()=ganeti.storage.filestorage.FileDeviceHelper-class.html#Exists"><a title="ganeti.storage.filestorage.FileDeviceHelper.Exists" class="py-name" href="#" onclick="return doclink('link-38', 'Exists', 'link-38');">Exists</a></tt><tt class="py-op">(</tt><tt class="py-name">assert_exists</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt id="link-39" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-39', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">stat</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">st_size</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">OSError</tt> <tt class="py-keyword">as</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">      <tt id="link-40" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-40', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-41" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-41', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't stat: %s"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.Grow"></a><div id="FileDeviceHelper.Grow-def"><a name="L145"></a><tt class="py-lineno">145</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.Grow-toggle" onclick="return toggle('FileDeviceHelper.Grow');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#Grow">Grow</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">amount</tt><tt class="py-op">,</tt> <tt class="py-param">dryrun</tt><tt class="py-op">,</tt> <tt class="py-param">backingstore</tt><tt class="py-op">,</tt> <tt class="py-param">_excl_stor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.Grow-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.Grow-expanded"><a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">    <tt class="py-docstring">"""Grow the file</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">    @param amount: the amount (in mebibytes) to grow by.</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">    <tt class="py-comment"># Check that the file exists</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-42" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper.Exists" class="py-name" href="#" onclick="return doclink('link-42', 'Exists', 'link-38');">Exists</a></tt><tt class="py-op">(</tt><tt class="py-name">assert_exists</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">amount</tt> <tt class="py-op">&lt;</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">      <tt id="link-43" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-43', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-44" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-44', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't grow by negative amount"</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line"> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">dryrun</tt><tt class="py-op">:</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">backingstore</tt><tt class="py-op">:</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">    <tt class="py-name">current_size</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Method ganeti.storage.filestorage.FileDeviceHelper.Size()=ganeti.storage.filestorage.FileDeviceHelper-class.html#Size"><a title="ganeti.storage.filestorage.FileDeviceHelper.Size" class="py-name" href="#" onclick="return doclink('link-45', 'Size', 'link-45');">Size</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">    <tt class="py-name">new_size</tt> <tt class="py-op">=</tt> <tt class="py-name">current_size</tt> <tt class="py-op">+</tt> <tt class="py-name">amount</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">      <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-string">"a+"</tt><tt class="py-op">)</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">      <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">truncate</tt><tt class="py-op">(</tt><tt class="py-name">new_size</tt><tt class="py-op">)</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">      <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name"><a title="ganeti.daemon.AsyncAwaker.close
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.close
+ganeti.rpc.client.AbstractClient.close
+ganeti.rpc.transport.FdTransport.close
+ganeti.utils.livelock.LiveLock.close
+ganeti.utils.livelock.LiveLockName.close
+ganeti.utils.text.LineSplitter.close" class="py-name" href="#" onclick="return doclink('link-46', 'close', 'link-25');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">      <tt id="link-47" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-47', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-48" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-48', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't grow: "</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"> </tt>
+<a name="FileDeviceHelper.Move"></a><div id="FileDeviceHelper.Move-def"><a name="L171"></a><tt class="py-lineno">171</tt> <a class="py-toggle" href="#" id="FileDeviceHelper.Move-toggle" onclick="return toggle('FileDeviceHelper.Move');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileDeviceHelper-class.html#Move">Move</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">new_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileDeviceHelper.Move-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileDeviceHelper.Move-expanded"><a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">    <tt class="py-docstring">"""Move file to a location inside the file storage dir.</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">    <tt class="py-comment"># Check that the file exists</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-49" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper.Exists" class="py-name" href="#" onclick="return doclink('link-49', 'Exists', 'link-38');">Exists</a></tt><tt class="py-op">(</tt><tt class="py-name">assert_exists</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file_path_acceptance_fn</tt><tt class="py-op">(</tt><tt class="py-name">new_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">      <tt id="link-50" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-50', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">rename</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">new_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line">      <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">path</tt> <tt class="py-op">=</tt> <tt class="py-name">new_path</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">OSError</tt><tt class="py-op">,</tt> <tt class="py-name">err</tt><tt class="py-op">:</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line">      <tt id="link-51" class="py-name"><a title="ganeti.client.base
+ganeti.cmdlib.base
+ganeti.storage.base" class="py-name" href="#" onclick="return doclink('link-51', 'base', 'link-16');">base</a></tt><tt class="py-op">.</tt><tt id="link-52" class="py-name"><a title="ganeti.storage.base.ThrowError" class="py-name" href="#" onclick="return doclink('link-52', 'ThrowError', 'link-27');">ThrowError</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s: can't rename to %s: "</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">err</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">new_path</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage"></a><div id="FileStorage-def"><a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt> <a class="py-toggle" href="#" id="FileStorage-toggle" onclick="return toggle('FileStorage');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html">FileStorage</a><tt class="py-op">(</tt><tt class="py-base-class">base</tt><tt class="py-op">.</tt><tt class="py-base-class">BlockDev</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FileStorage-expanded"><a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line">  <tt class="py-docstring">"""File device.</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"><tt class="py-docstring">  This class represents a file storage backend device.</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line"><tt class="py-docstring">  The unique_id for the file device is a (file_driver, file_path) tuple.</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="FileStorage.__init__"></a><div id="FileStorage.__init__-def"><a name="L193"></a><tt class="py-lineno">193</tt> <a class="py-toggle" href="#" id="FileStorage.__init__-toggle" onclick="return toggle('FileStorage.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">unique_id</tt><tt class="py-op">,</tt> <tt class="py-param">children</tt><tt class="py-op">,</tt> <tt class="py-param">size</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">dyn_params</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.__init__-expanded"><a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">    <tt class="py-docstring">"""Initalizes a file device backend.</tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">children</tt><tt class="py-op">:</tt> </tt>
+<a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-53" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-53', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-54" class="py-name" targets="Class ganeti.errors.BlockDeviceError=ganeti.errors.BlockDeviceError-class.html"><a title="ganeti.errors.BlockDeviceError" class="py-name" href="#" onclick="return doclink('link-54', 'BlockDeviceError', 'link-54');">BlockDeviceError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Invalid setup for file device"</tt><tt class="py-op">)</tt> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">    <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-55" class="py-name" targets="Class ganeti.storage.container.FileStorage=ganeti.storage.container.FileStorage-class.html,Class ganeti.storage.filestorage.FileStorage=ganeti.storage.filestorage.FileStorage-class.html"><a title="ganeti.storage.container.FileStorage
+ganeti.storage.filestorage.FileStorage" class="py-name" href="#" onclick="return doclink('link-55', 'FileStorage', 'link-55');">FileStorage</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-56" class="py-name" targets="Method ganeti.asyncnotifier.AsyncNotifier.__init__()=ganeti.asyncnotifier.AsyncNotifier-class.html#__init__,Method ganeti.asyncnotifier.FileEventHandlerBase.__init__()=ganeti.asyncnotifier.FileEventHandlerBase-class.html#__init__,Method ganeti.asyncnotifier.SingleFileEventHandler.__init__()=ganeti.asyncnotifier.SingleFileEventHandler-class.html#__init__,Method ganeti.backend.HooksRunner.__init__()=ganeti.backend.HooksRunner-class.html#__init__,Method ganeti.build.sphinx_ext._ManPageXRefRole.__init__()=ganeti.build.sphinx_ext._ManPageXRefRole-class.html#__init__,Method ganeti.cli.ArgSuggest.__init__()=ganeti.cli.ArgSuggest-class.html#__init__,Method ganeti.cli.FeedbackFnJobPollReportCb.__init__()=ganeti.cli.FeedbackFnJobPollReportCb-class.html#__init__,Method ganeti.cli.JobExecutor.__init__()=ganeti.cli.JobExecutor-class.html#__init__,Method ganeti.cli.JobPollCbBase.__init__()=ganeti.cli.JobPollCbBase-class.html#__init__,Method ganeti.cli.JobPollReportCbBase.__init__()=ganeti.cli.JobPollReportCbBase-class.html#__init__,Method ganeti.cli.StdioJobPollReportCb.__init__()=ganeti.cli.StdioJobPollReportCb-class.html#__init__,Method ganeti.cli.TableColumn.__init__()=ganeti.cli.TableColumn-class.html#__init__,Method ganeti.cli._Argument.__init__()=ganeti.cli._Argument-class.html#__init__,Method ganeti.cli._LuxiJobPollCb.__init__()=ganeti.cli._LuxiJobPollCb-class.html#__init__,Method ganeti.cli._QueryColumnFormatter.__init__()=ganeti.cli._QueryColumnFormatter-class.html#__init__,Method ganeti.cli._RunWhileDaemonsStoppedHelper.__init__()=ganeti.cli._RunWhileDaemonsStoppedHelper-class.html#__init__,Method ganeti.cli._ShowUsage.__init__()=ganeti.cli._ShowUsage-class.html#__init__,Method ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__()=ganeti.client.gnt_cluster._RunWhenNodesReachableHelper-class.html#__init__,Method ganeti.client.gnt_debug._JobQueueTestReporter.__init__()=ganeti.client.gnt_debug._JobQueueTestReporter-class.html#__init__,Method ganeti.client.gnt_node.ReplyStatus.__init__()=ganeti.client.gnt_node.ReplyStatus-class.html#__init__,Method ganeti.cmdlib.base.LUWConfdClient.__init__()=ganeti.cmdlib.base.LUWConfdClient-class.html#__init__,Method ganeti.cmdlib.base.LogicalUnit.__init__()=ganeti.cmdlib.base.LogicalUnit-class.html#__init__,Method ganeti.cmdlib.base.QueryBase.__init__()=ganeti.cmdlib.base.QueryBase-class.html#__init__,Method ganeti.cmdlib.base.ResultWithJobs.__init__()=ganeti.cmdlib.base.ResultWithJobs-class.html#__init__,Method ganeti.cmdlib.base.Tasklet.__init__()=ganeti.cmdlib.base.Tasklet-class.html#__init__,Method ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__()=ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage-class.html#__init__,Method ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__()=ganeti.cmdlib.instance_migration.TLMigrateInstance-class.html#__init__,Method ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__()=ganeti.cmdlib.instance_set_params.InstNicModPrivate-class.html#__init__,Method ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__()=ganeti.cmdlib.instance_storage.TLReplaceDisks-class.html#__init__,Method ganeti.cmdlib.instance_storage.TemporaryDisk.__init__()=ganeti.cmdlib.instance_storage.TemporaryDisk-class.html#__init__,Method ganeti.cmdlib.test.TestSocketWrapper.__init__()=ganeti.cmdlib.test.TestSocketWrapper-class.html#__init__,Method ganeti.confd.client.ConfdAsyncUDPClient.__init__()=ganeti.confd.client.ConfdAsyncUDPClient-class.html#__init__,Method ganeti.confd.client.ConfdClient.__init__()=ganeti.confd.client.ConfdClient-class.html#__init__,Method ganeti.confd.client.ConfdClientRequest.__init__()=ganeti.confd.client.ConfdClientRequest-class.html#__init__,Method ganeti.confd.client.ConfdCountingCallback.__init__()=ganeti.confd.client.ConfdCountingCallback-class.html#__init__,Method ganeti.confd.client.ConfdFilterCallback.__init__()=ganeti.confd.client.ConfdFilterCallback-class.html#__init__,Method ganeti.confd.client.StoreResultCallback.__init__()=ganeti.confd.client.StoreResultCallback-class.html#__init__,Method ganeti.confd.client._Request.__init__()=ganeti.confd.client._Request-class.html#__init__,Method ganeti.config.ConfigWriter.__init__()=ganeti.config.ConfigWriter-class.html#__init__,Method ganeti.config.DetachedConfig.__init__()=ganeti.config.DetachedConfig-class.html#__init__,Method ganeti.config.temporary_reservations.TemporaryReservationManager.__init__()=ganeti.config.temporary_reservations.TemporaryReservationManager-class.html#__init__,Method ganeti.config.utils.ConfigManager.__init__()=ganeti.config.utils.ConfigManager-class.html#__init__,Method ganeti.daemon.AsyncAwaker.__init__()=ganeti.daemon.AsyncAwaker-class.html#__init__,Method ganeti.daemon.AsyncTerminatedMessageStream.__init__()=ganeti.daemon.AsyncTerminatedMessageStream-class.html#__init__,Method ganeti.daemon.AsyncUDPSocket.__init__()=ganeti.daemon.AsyncUDPSocket-class.html#__init__,Method ganeti.daemon.AsyncoreScheduler.__init__()=ganeti.daemon.AsyncoreScheduler-class.html#__init__,Method ganeti.daemon.Mainloop.__init__()=ganeti.daemon.Mainloop-class.html#__init__,Method ganeti.daemon._ShutdownCheck.__init__()=ganeti.daemon._ShutdownCheck-class.html#__init__,Method ganeti.errors.DeviceCreationError.__init__()=ganeti.errors.DeviceCreationError-class.html#__init__,Method ganeti.hooksmaster.HooksMaster.__init__()=ganeti.hooksmaster.HooksMaster-class.html#__init__,Method ganeti.ht._WrapperBase.__init__()=ganeti.ht._WrapperBase-class.html#__init__,Method ganeti.http.HttpBase.__init__()=ganeti.http.HttpBase-class.html#__init__,Method ganeti.http.HttpClientToServerStartLine.__init__()=ganeti.http.HttpClientToServerStartLine-class.html#__init__,Method ganeti.http.HttpException.__init__()=ganeti.http.HttpException-class.html#__init__,Method ganeti.http.HttpMessage.__init__()=ganeti.http.HttpMessage-class.html#__init__,Method ganeti.http.HttpMessageReader.__init__()=ganeti.http.HttpMessageReader-class.html#__init__,Method ganeti.http.HttpMessageWriter.__init__()=ganeti.http.HttpMessageWriter-class.html#__init__,Method ganeti.http.HttpServerToClientStartLine.__init__()=ganeti.http.HttpServerToClientStartLine-class.html#__init__,Method ganeti.http.HttpSslParams.__init__()=ganeti.http.HttpSslParams-class.html#__init__,Method ganeti.http.auth.PasswordFileUser.__init__()=ganeti.http.auth.PasswordFileUser-class.html#__init__,Method ganeti.http.client.HttpClientRequest.__init__()=ganeti.http.client.HttpClientRequest-class.html#__init__,Method ganeti.http.client._PendingRequest.__init__()=ganeti.http.client._PendingRequest-class.html#__init__,Method ganeti.http.client._PendingRequestMonitor.__init__()=ganeti.http.client._PendingRequestMonitor-class.html#__init__,Method ganeti.http.server.HttpResponder.__init__()=ganeti.http.server.HttpResponder-class.html#__init__,Method ganeti.http.server.HttpServer.__init__()=ganeti.http.server.HttpServer-class.html#__init__,Method ganeti.http.server.HttpServerRequestExecutor.__init__()=ganeti.http.server.HttpServerRequestExecutor-class.html#__init__,Method ganeti.http.server._HttpServerRequest.__init__()=ganeti.http.server._HttpServerRequest-class.html#__init__,Method ganeti.http.server._HttpServerToClientMessageWriter.__init__()=ganeti.http.server._HttpServerToClientMessageWriter-class.html#__init__,Method ganeti.hypervisor.hv_chroot.ChrootManager.__init__()=ganeti.hypervisor.hv_chroot.ChrootManager-class.html#__init__,Method ganeti.hypervisor.hv_fake.FakeHypervisor.__init__()=ganeti.hypervisor.hv_fake.FakeHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__()=ganeti.hypervisor.hv_kvm.KVMHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__()=ganeti.hypervisor.hv_kvm.monitor.MonitorSocket-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpConnection-class.html#__init__,Method ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__()=ganeti.hypervisor.hv_kvm.monitor.QmpMessage-class.html#__init__,Method ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__()=ganeti.hypervisor.hv_lxc.LXCHypervisor-class.html#__init__,Method ganeti.hypervisor.hv_xen.XenHypervisor.__init__()=ganeti.hypervisor.hv_xen.XenHypervisor-class.html#__init__,Method ganeti.impexpd.ChildIOProcessor.__init__()=ganeti.impexpd.ChildIOProcessor-class.html#__init__,Method ganeti.impexpd.CommandBuilder.__init__()=ganeti.impexpd.CommandBuilder-class.html#__init__,Method ganeti.jqueue.JobQueue.__init__()=ganeti.jqueue.JobQueue-class.html#__init__,Method ganeti.jqueue._JobDependencyManager.__init__()=ganeti.jqueue._JobDependencyManager-class.html#__init__,Method ganeti.jqueue._JobProcessor.__init__()=ganeti.jqueue._JobProcessor-class.html#__init__,Method ganeti.jqueue._OpExecCallbacks.__init__()=ganeti.jqueue._OpExecCallbacks-class.html#__init__,Method ganeti.jqueue._OpExecContext.__init__()=ganeti.jqueue._OpExecContext-class.html#__init__,Method ganeti.jqueue._QueuedJob.__init__()=ganeti.jqueue._QueuedJob-class.html#__init__,Method ganeti.jqueue._QueuedOpCode.__init__()=ganeti.jqueue._QueuedOpCode-class.html#__init__,Method ganeti.jqueue._TimeoutStrategyWrapper.__init__()=ganeti.jqueue._TimeoutStrategyWrapper-class.html#__init__,Method ganeti.locking.PipeCondition.__init__()=ganeti.locking.PipeCondition-class.html#__init__,Method ganeti.locking.SharedLock.__init__()=ganeti.locking.SharedLock-class.html#__init__,Method ganeti.locking.SingleNotifyPipeCondition.__init__()=ganeti.locking.SingleNotifyPipeCondition-class.html#__init__,Method ganeti.locking._BaseCondition.__init__()=ganeti.locking._BaseCondition-class.html#__init__,Method ganeti.locking._PipeConditionWithMode.__init__()=ganeti.locking._PipeConditionWithMode-class.html#__init__,Method ganeti.locking._SingleNotifyPipeConditionWaiter.__init__()=ganeti.locking._SingleNotifyPipeConditionWaiter-class.html#__init__,Method ganeti.luxi.Client.__init__()=ganeti.luxi.Client-class.html#__init__,Method ganeti.masterd.iallocator.IARequestBase.__init__()=ganeti.masterd.iallocator.IARequestBase-class.html#__init__,Method ganeti.masterd.iallocator.IAllocator.__init__()=ganeti.masterd.iallocator.IAllocator-class.html#__init__,Method ganeti.masterd.instance.DiskExport.__init__()=ganeti.masterd.instance.DiskExport-class.html#__init__,Method ganeti.masterd.instance.DiskImport.__init__()=ganeti.masterd.instance.DiskImport-class.html#__init__,Method ganeti.masterd.instance.DiskTransfer.__init__()=ganeti.masterd.instance.DiskTransfer-class.html#__init__,Method ganeti.masterd.instance.ExportInstanceHelper.__init__()=ganeti.masterd.instance.ExportInstanceHelper-class.html#__init__,Method ganeti.masterd.instance.ImportExportLoop.__init__()=ganeti.masterd.instance.ImportExportLoop-class.html#__init__,Method ganeti.masterd.instance.ImportExportTimeouts.__init__()=ganeti.masterd.instance.ImportExportTimeouts-class.html#__init__,Method ganeti.masterd.instance._DiskImportExportBase.__init__()=ganeti.masterd.instance._DiskImportExportBase-class.html#__init__,Method ganeti.masterd.instance._DiskTransferPrivate.__init__()=ganeti.masterd.instance._DiskTransferPrivate-class.html#__init__,Method ganeti.masterd.instance._RemoteExportCb.__init__()=ganeti.masterd.instance._RemoteExportCb-class.html#__init__,Method ganeti.masterd.instance._RemoteImportCb.__init__()=ganeti.masterd.instance._RemoteImportCb-class.html#__init__,Method ganeti.masterd.instance._TransferInstCbBase.__init__()=ganeti.masterd.instance._TransferInstCbBase-class.html#__init__,Method ganeti.mcpu.LockAttemptTimeoutStrategy.__init__()=ganeti.mcpu.LockAttemptTimeoutStrategy-class.html#__init__,Method ganeti.mcpu.Processor.__init__()=ganeti.mcpu.Processor-class.html#__init__,Method ganeti.metad.Client.__init__()=ganeti.metad.Client-class.html#__init__,Method ganeti.netutils.Hostname.__init__()=ganeti.netutils.Hostname-class.html#__init__,Method ganeti.netutils.IP4Address.__init__()=ganeti.netutils.IP4Address-class.html#__init__,Method ganeti.netutils.IP6Address.__init__()=ganeti.netutils.IP6Address-class.html#__init__,Method ganeti.network.AddressPool.__init__()=ganeti.network.AddressPool-class.html#__init__,Method ganeti.opcodes_base.BaseOpCode.__init__()=ganeti.opcodes_base.BaseOpCode-class.html#__init__,Method ganeti.outils.ValidatedSlots.__init__()=ganeti.outils.ValidatedSlots-class.html#__init__,Method ganeti.ovf.Converter.__init__()=ganeti.ovf.Converter-class.html#__init__,Method ganeti.ovf.OVFReader.__init__()=ganeti.ovf.OVFReader-class.html#__init__,Method ganeti.ovf.OVFWriter.__init__()=ganeti.ovf.OVFWriter-class.html#__init__,Method ganeti.query.ClusterQueryData.__init__()=ganeti.query.ClusterQueryData-class.html#__init__,Method ganeti.query.GroupQueryData.__init__()=ganeti.query.GroupQueryData-class.html#__init__,Method ganeti.query.InstanceQueryData.__init__()=ganeti.query.InstanceQueryData-class.html#__init__,Method ganeti.query.LockQueryData.__init__()=ganeti.query.LockQueryData-class.html#__init__,Method ganeti.query.NetworkQueryData.__init__()=ganeti.query.NetworkQueryData-class.html#__init__,Method ganeti.query.NodeQueryData.__init__()=ganeti.query.NodeQueryData-class.html#__init__,Method ganeti.query.Query.__init__()=ganeti.query.Query-class.html#__init__,Method ganeti.query._FilterCompilerHelper.__init__()=ganeti.query._FilterCompilerHelper-class.html#__init__,Method ganeti.query._FilterHints.__init__()=ganeti.query._FilterHints-class.html#__init__,Method ganeti.rapi.baserlib.OpcodeAttributes.__init__()=ganeti.rapi.baserlib.OpcodeAttributes-class.html#__init__,Method ganeti.rapi.baserlib.ResourceBase.__init__()=ganeti.rapi.baserlib.ResourceBase-class.html#__init__,Method ganeti.rapi.client.GanetiApiError.__init__()=ganeti.rapi.client.GanetiApiError-class.html#__init__,Method ganeti.rapi.client.GanetiRapiClient.__init__()=ganeti.rapi.client.GanetiRapiClient-class.html#__init__,Method ganeti.rapi.client_utils.RapiJobPollCb.__init__()=ganeti.rapi.client_utils.RapiJobPollCb-class.html#__init__,Method ganeti.rapi.connector.Mapper.__init__()=ganeti.rapi.connector.Mapper-class.html#__init__,Method ganeti.rapi.connector.UriPattern.__init__()=ganeti.rapi.connector.UriPattern-class.html#__init__,Method ganeti.rapi.rlib2._R_Tags.__init__()=ganeti.rapi.rlib2._R_Tags-class.html#__init__,Method ganeti.rapi.testutils.FakeCurl.__init__()=ganeti.rapi.testutils.FakeCurl-class.html#__init__,Method ganeti.rapi.testutils.InputTestClient.__init__()=ganeti.rapi.testutils.InputTestClient-class.html#__init__,Method ganeti.rapi.testutils._LuxiCallRecorder.__init__()=ganeti.rapi.testutils._LuxiCallRecorder-class.html#__init__,Method ganeti.rapi.testutils._RapiMock.__init__()=ganeti.rapi.testutils._RapiMock-class.html#__init__,Method ganeti.rapi.testutils._TestLuxiTransport.__init__()=ganeti.rapi.testutils._TestLuxiTransport-class.html#__init__,Method ganeti.rpc.client.AbstractClient.__init__()=ganeti.rpc.client.AbstractClient-class.html#__init__,Method ganeti.rpc.client.AbstractStubClient.__init__()=ganeti.rpc.client.AbstractStubClient-class.html#__init__,Method ganeti.rpc.node.BootstrapRunner.__init__()=ganeti.rpc.node.BootstrapRunner-class.html#__init__,Method ganeti.rpc.node.ConfigRunner.__init__()=ganeti.rpc.node.ConfigRunner-class.html#__init__,Method ganeti.rpc.node.DnsOnlyRunner.__init__()=ganeti.rpc.node.DnsOnlyRunner-class.html#__init__,Method ganeti.rpc.node.JobQueueRunner.__init__()=ganeti.rpc.node.JobQueueRunner-class.html#__init__,Method ganeti.rpc.node.RpcResult.__init__()=ganeti.rpc.node.RpcResult-class.html#__init__,Method ganeti.rpc.node.RpcRunner.__init__()=ganeti.rpc.node.RpcRunner-class.html#__init__,Method ganeti.rpc.node._RpcClientBase.__init__()=ganeti.rpc.node._RpcClientBase-class.html#__init__,Method ganeti.rpc.node._RpcProcessor.__init__()=ganeti.rpc.node._RpcProcessor-class.html#__init__,Method ganeti.rpc.node._StaticResolver.__init__()=ganeti.rpc.node._StaticResolver-class.html#__init__,Method ganeti.rpc.transport.FdTransport.__init__()=ganeti.rpc.transport.FdTransport-class.html#__init__,Method ganeti.rpc.transport.Transport.__init__()=ganeti.rpc.transport.Transport-class.html#__init__,Method ganeti.runtime.GetentResolver.__init__()=ganeti.runtime.GetentResolver-class.html#__init__,Method ganeti.serializer.Private.__init__()=ganeti.serializer.Private-class.html#__init__,Method ganeti.serializer.PrivateDict.__init__()=ganeti.serializer.PrivateDict-class.html#__init__,Method ganeti.server.masterd.GanetiContext.__init__()=ganeti.server.masterd.GanetiContext-class.html#__init__,Method ganeti.server.noded.MlockallRequestExecutor.__init__()=ganeti.server.noded.MlockallRequestExecutor-class.html#__init__,Method ganeti.server.noded.NodeRequestHandler.__init__()=ganeti.server.noded.NodeRequestHandler-class.html#__init__,Method ganeti.server.rapi.FileEventHandler.__init__()=ganeti.server.rapi.FileEventHandler-class.html#__init__,Method ganeti.server.rapi.RapiUsers.__init__()=ganeti.server.rapi.RapiUsers-class.html#__init__,Method ganeti.server.rapi.RemoteApiHandler.__init__()=ganeti.server.rapi.RemoteApiHandler-class.html#__init__,Method ganeti.server.rapi.RemoteApiRequestContext.__init__()=ganeti.server.rapi.RemoteApiRequestContext-class.html#__init__,Method ganeti.ssconf.SimpleStore.__init__()=ganeti.ssconf.SimpleStore-class.html#__init__,Method ganeti.ssh.SshRunner.__init__()=ganeti.ssh.SshRunner-class.html#__init__,Method ganeti.storage.base.BlockDev.__init__()=ganeti.storage.base.BlockDev-class.html#__init__,Method ganeti.storage.bdev.LogicalVolume.__init__()=ganeti.storage.bdev.LogicalVolume-class.html#__init__,Method ganeti.storage.bdev.PersistentBlockDevice.__init__()=ganeti.storage.bdev.PersistentBlockDevice-class.html#__init__,Method ganeti.storage.bdev.RADOSBlockDevice.__init__()=ganeti.storage.bdev.RADOSBlockDevice-class.html#__init__,Method ganeti.storage.container.FileStorage.__init__()=ganeti.storage.container.FileStorage-class.html#__init__,Method ganeti.storage.drbd.DRBD8Dev.__init__()=ganeti.storage.drbd.DRBD8Dev-class.html#__init__,Method ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__()=ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Info.__init__()=ganeti.storage.drbd_info.DRBD8Info-class.html#__init__,Method ganeti.storage.drbd_info.DRBD8Status.__init__()=ganeti.storage.drbd_info.DRBD8Status-class.html#__init__,Method ganeti.storage.extstorage.ExtStorageDevice.__init__()=ganeti.storage.extstorage.ExtStorageDevice-class.html#__init__,Method ganeti.storage.filestorage.FileDeviceHelper.__init__()=ganeti.storage.filestorage.FileDeviceHelper-class.html#__init__,Method ganeti.storage.filestorage.FileStorage.__init__()=ganeti.storage.filestorage.FileStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterStorage.__init__()=ganeti.storage.gluster.GlusterStorage-class.html#__init__,Method ganeti.storage.gluster.GlusterVolume.__init__()=ganeti.storage.gluster.GlusterVolume-class.html#__init__,Method ganeti.tools.burnin.Burner.__init__()=ganeti.tools.burnin.Burner-class.html#__init__,Method ganeti.tools.burnin.JobHandler.__init__()=ganeti.tools.burnin.JobHandler-class.html#__init__,Method ganeti.tools.cfgupgrade.CfgUpgrade.__init__()=ganeti.tools.cfgupgrade.CfgUpgrade-class.html#__init__,Method ganeti.uidpool.LockedUid.__init__()=ganeti.uidpool.LockedUid-class.html#__init__,Method ganeti.utils.FdConditionWaiterHelper.__init__()=ganeti.utils.FdConditionWaiterHelper-class.html#__init__,Method ganeti.utils.FieldSet.__init__()=ganeti.utils.FieldSet-class.html#__init__,Method ganeti.utils.SignalHandler.__init__()=ganeti.utils.SignalHandler-class.html#__init__,Method ganeti.utils.SignalWakeupFd.__init__()=ganeti.utils.SignalWakeupFd-class.html#__init__,Method ganeti.utils.algo.RunningTimeout.__init__()=ganeti.utils.algo.RunningTimeout-class.html#__init__,Method ganeti.utils.filelock.FileLock.__init__()=ganeti.utils.filelock.FileLock-class.html#__init__,Method ganeti.utils.io.FileStatHelper.__init__()=ganeti.utils.io.FileStatHelper-class.html#__init__,Method ganeti.utils.io.TemporaryFileManager.__init__()=ganeti.utils.io.TemporaryFileManager-class.html#__init__,Method ganeti.utils.livelock.LiveLock.__init__()=ganeti.utils.livelock.LiveLock-class.html#__init__,Method ganeti.utils.livelock.LiveLockName.__init__()=ganeti.utils.livelock.LiveLockName-class.html#__init__,Method ganeti.utils.log._ReopenableLogHandler.__init__()=ganeti.utils.log._ReopenableLogHandler-class.html#__init__,Method ganeti.utils.process.RunResult.__init__()=ganeti.utils.process.RunResult-class.html#__init__,Method ganeti.utils.retry._RetryDelayCalculator.__init__()=ganeti.utils.retry._RetryDelayCalculator-class.html#__init__,Method ganeti.utils.text.LineSplitter.__init__()=ganeti.utils.text.LineSplitter-class.html#__init__,Method ganeti.utils.text.ShellWriter.__init__()=ganeti.utils.text.ShellWriter-class.html#__init__,Method ganeti.watcher.Instance.__init__()=ganeti.watcher.Instance-class.html#__init__,Method ganeti.watcher.Node.__init__()=ganeti.watcher.Node-class.html#__init__,Method ganeti.watcher.nodemaint.NodeMaintenance.__init__()=ganeti.watcher.nodemaint.NodeMaintenance-class.html#__init__,Method ganeti.watcher.state.WatcherState.__init__()=ganeti.watcher.state.WatcherState-class.html#__init__,Method ganeti.wconfd.Client.__init__()=ganeti.wconfd.Client-class.html#__init__,Method ganeti.workerpool.BaseWorker.__init__()=ganeti.workerpool.BaseWorker-class.html#__init__,Method ganeti.workerpool.DeferTask.__init__()=ganeti.workerpool.DeferTask-class.html#__init__,Method ganeti.workerpool.WorkerPool.__init__()=ganeti.workerpool.WorkerPool-class.html#__init__,Method script-build_bash_completion.CompletionWriter.__init__()=script-build_bash_completion.CompletionWriter-class.html#__init__,Method script-cfgshell.ConfigShell.__init__()=script-cfgshell.ConfigShell-class.html#__init__,Method script-cluster_merge.Merger.__init__()=script-cluster_merge.Merger-class.html#__init__,Method script-cluster_merge.MergerData.__init__()=script-cluster_merge.MergerData-class.html#__init__,Method script-confd_client.TestClient.__init__()=script-confd_client.TestClient-class.html#__init__,Method script-import_export.ChildProcess.__init__()=script-import_export.ChildProcess-class.html#__init__,Method script-import_export.StatusFile.__init__()=script-import_export.StatusFile-class.html#__init__,Method script-move_instance.InstanceMove.__init__()=script-move_instance.InstanceMove-class.html#__init__,Method script-move_instance.MoveDestExecutor.__init__()=script-move_instance.MoveDestExecutor-class.html#__init__,Method script-move_instance.MoveJobPollReportCb.__init__()=script-move_instance.MoveJobPollReportCb-class.html#__init__,Method script-move_instance.MoveRuntime.__init__()=script-move_instance.MoveRuntime-class.html#__init__,Method script-move_instance.MoveSourceExecutor.__init__()=script-move_instance.MoveSourceExecutor-class.html#__init__,Method script-move_instance.RapiClientFactory.__init__()=script-move_instance.RapiClientFactory-class.html#__init__,Method script-query_config.QueryClient.__init__()=script-query_config.QueryClient-class.html#__init__"><a title="ganeti.asyncnotifier.AsyncNotifier.__init__
+ganeti.asyncnotifier.FileEventHandlerBase.__init__
+ganeti.asyncnotifier.SingleFileEventHandler.__init__
+ganeti.backend.HooksRunner.__init__
+ganeti.build.sphinx_ext._ManPageXRefRole.__init__
+ganeti.cli.ArgSuggest.__init__
+ganeti.cli.FeedbackFnJobPollReportCb.__init__
+ganeti.cli.JobExecutor.__init__
+ganeti.cli.JobPollCbBase.__init__
+ganeti.cli.JobPollReportCbBase.__init__
+ganeti.cli.StdioJobPollReportCb.__init__
+ganeti.cli.TableColumn.__init__
+ganeti.cli._Argument.__init__
+ganeti.cli._LuxiJobPollCb.__init__
+ganeti.cli._QueryColumnFormatter.__init__
+ganeti.cli._RunWhileDaemonsStoppedHelper.__init__
+ganeti.cli._ShowUsage.__init__
+ganeti.client.gnt_cluster._RunWhenNodesReachableHelper.__init__
+ganeti.client.gnt_debug._JobQueueTestReporter.__init__
+ganeti.client.gnt_node.ReplyStatus.__init__
+ganeti.cmdlib.base.LUWConfdClient.__init__
+ganeti.cmdlib.base.LogicalUnit.__init__
+ganeti.cmdlib.base.QueryBase.__init__
+ganeti.cmdlib.base.ResultWithJobs.__init__
+ganeti.cmdlib.base.Tasklet.__init__
+ganeti.cmdlib.cluster.verify.LUClusterVerifyGroup.NodeImage.__init__
+ganeti.cmdlib.instance_migration.TLMigrateInstance.__init__
+ganeti.cmdlib.instance_set_params.InstNicModPrivate.__init__
+ganeti.cmdlib.instance_storage.TLReplaceDisks.__init__
+ganeti.cmdlib.instance_storage.TemporaryDisk.__init__
+ganeti.cmdlib.test.TestSocketWrapper.__init__
+ganeti.confd.client.ConfdAsyncUDPClient.__init__
+ganeti.confd.client.ConfdClient.__init__
+ganeti.confd.client.ConfdClientRequest.__init__
+ganeti.confd.client.ConfdCountingCallback.__init__
+ganeti.confd.client.ConfdFilterCallback.__init__
+ganeti.confd.client.StoreResultCallback.__init__
+ganeti.confd.client._Request.__init__
+ganeti.config.ConfigWriter.__init__
+ganeti.config.DetachedConfig.__init__
+ganeti.config.temporary_reservations.TemporaryReservationManager.__init__
+ganeti.config.utils.ConfigManager.__init__
+ganeti.daemon.AsyncAwaker.__init__
+ganeti.daemon.AsyncTerminatedMessageStream.__init__
+ganeti.daemon.AsyncUDPSocket.__init__
+ganeti.daemon.AsyncoreScheduler.__init__
+ganeti.daemon.Mainloop.__init__
+ganeti.daemon._ShutdownCheck.__init__
+ganeti.errors.DeviceCreationError.__init__
+ganeti.hooksmaster.HooksMaster.__init__
+ganeti.ht._WrapperBase.__init__
+ganeti.http.HttpBase.__init__
+ganeti.http.HttpClientToServerStartLine.__init__
+ganeti.http.HttpException.__init__
+ganeti.http.HttpMessage.__init__
+ganeti.http.HttpMessageReader.__init__
+ganeti.http.HttpMessageWriter.__init__
+ganeti.http.HttpServerToClientStartLine.__init__
+ganeti.http.HttpSslParams.__init__
+ganeti.http.auth.PasswordFileUser.__init__
+ganeti.http.client.HttpClientRequest.__init__
+ganeti.http.client._PendingRequest.__init__
+ganeti.http.client._PendingRequestMonitor.__init__
+ganeti.http.server.HttpResponder.__init__
+ganeti.http.server.HttpServer.__init__
+ganeti.http.server.HttpServerRequestExecutor.__init__
+ganeti.http.server._HttpServerRequest.__init__
+ganeti.http.server._HttpServerToClientMessageWriter.__init__
+ganeti.hypervisor.hv_chroot.ChrootManager.__init__
+ganeti.hypervisor.hv_fake.FakeHypervisor.__init__
+ganeti.hypervisor.hv_kvm.KVMHypervisor.__init__
+ganeti.hypervisor.hv_kvm.monitor.MonitorSocket.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpConnection.__init__
+ganeti.hypervisor.hv_kvm.monitor.QmpMessage.__init__
+ganeti.hypervisor.hv_lxc.LXCHypervisor.__init__
+ganeti.hypervisor.hv_xen.XenHypervisor.__init__
+ganeti.impexpd.ChildIOProcessor.__init__
+ganeti.impexpd.CommandBuilder.__init__
+ganeti.jqueue.JobQueue.__init__
+ganeti.jqueue._JobDependencyManager.__init__
+ganeti.jqueue._JobProcessor.__init__
+ganeti.jqueue._OpExecCallbacks.__init__
+ganeti.jqueue._OpExecContext.__init__
+ganeti.jqueue._QueuedJob.__init__
+ganeti.jqueue._QueuedOpCode.__init__
+ganeti.jqueue._TimeoutStrategyWrapper.__init__
+ganeti.locking.PipeCondition.__init__
+ganeti.locking.SharedLock.__init__
+ganeti.locking.SingleNotifyPipeCondition.__init__
+ganeti.locking._BaseCondition.__init__
+ganeti.locking._PipeConditionWithMode.__init__
+ganeti.locking._SingleNotifyPipeConditionWaiter.__init__
+ganeti.luxi.Client.__init__
+ganeti.masterd.iallocator.IARequestBase.__init__
+ganeti.masterd.iallocator.IAllocator.__init__
+ganeti.masterd.instance.DiskExport.__init__
+ganeti.masterd.instance.DiskImport.__init__
+ganeti.masterd.instance.DiskTransfer.__init__
+ganeti.masterd.instance.ExportInstanceHelper.__init__
+ganeti.masterd.instance.ImportExportLoop.__init__
+ganeti.masterd.instance.ImportExportTimeouts.__init__
+ganeti.masterd.instance._DiskImportExportBase.__init__
+ganeti.masterd.instance._DiskTransferPrivate.__init__
+ganeti.masterd.instance._RemoteExportCb.__init__
+ganeti.masterd.instance._RemoteImportCb.__init__
+ganeti.masterd.instance._TransferInstCbBase.__init__
+ganeti.mcpu.LockAttemptTimeoutStrategy.__init__
+ganeti.mcpu.Processor.__init__
+ganeti.metad.Client.__init__
+ganeti.netutils.Hostname.__init__
+ganeti.netutils.IP4Address.__init__
+ganeti.netutils.IP6Address.__init__
+ganeti.network.AddressPool.__init__
+ganeti.opcodes_base.BaseOpCode.__init__
+ganeti.outils.ValidatedSlots.__init__
+ganeti.ovf.Converter.__init__
+ganeti.ovf.OVFReader.__init__
+ganeti.ovf.OVFWriter.__init__
+ganeti.query.ClusterQueryData.__init__
+ganeti.query.GroupQueryData.__init__
+ganeti.query.InstanceQueryData.__init__
+ganeti.query.LockQueryData.__init__
+ganeti.query.NetworkQueryData.__init__
+ganeti.query.NodeQueryData.__init__
+ganeti.query.Query.__init__
+ganeti.query._FilterCompilerHelper.__init__
+ganeti.query._FilterHints.__init__
+ganeti.rapi.baserlib.OpcodeAttributes.__init__
+ganeti.rapi.baserlib.ResourceBase.__init__
+ganeti.rapi.client.GanetiApiError.__init__
+ganeti.rapi.client.GanetiRapiClient.__init__
+ganeti.rapi.client_utils.RapiJobPollCb.__init__
+ganeti.rapi.connector.Mapper.__init__
+ganeti.rapi.connector.UriPattern.__init__
+ganeti.rapi.rlib2._R_Tags.__init__
+ganeti.rapi.testutils.FakeCurl.__init__
+ganeti.rapi.testutils.InputTestClient.__init__
+ganeti.rapi.testutils._LuxiCallRecorder.__init__
+ganeti.rapi.testutils._RapiMock.__init__
+ganeti.rapi.testutils._TestLuxiTransport.__init__
+ganeti.rpc.client.AbstractClient.__init__
+ganeti.rpc.client.AbstractStubClient.__init__
+ganeti.rpc.node.BootstrapRunner.__init__
+ganeti.rpc.node.ConfigRunner.__init__
+ganeti.rpc.node.DnsOnlyRunner.__init__
+ganeti.rpc.node.JobQueueRunner.__init__
+ganeti.rpc.node.RpcResult.__init__
+ganeti.rpc.node.RpcRunner.__init__
+ganeti.rpc.node._RpcClientBase.__init__
+ganeti.rpc.node._RpcProcessor.__init__
+ganeti.rpc.node._StaticResolver.__init__
+ganeti.rpc.transport.FdTransport.__init__
+ganeti.rpc.transport.Transport.__init__
+ganeti.runtime.GetentResolver.__init__
+ganeti.serializer.Private.__init__
+ganeti.serializer.PrivateDict.__init__
+ganeti.server.masterd.GanetiContext.__init__
+ganeti.server.noded.MlockallRequestExecutor.__init__
+ganeti.server.noded.NodeRequestHandler.__init__
+ganeti.server.rapi.FileEventHandler.__init__
+ganeti.server.rapi.RapiUsers.__init__
+ganeti.server.rapi.RemoteApiHandler.__init__
+ganeti.server.rapi.RemoteApiRequestContext.__init__
+ganeti.ssconf.SimpleStore.__init__
+ganeti.ssh.SshRunner.__init__
+ganeti.storage.base.BlockDev.__init__
+ganeti.storage.bdev.LogicalVolume.__init__
+ganeti.storage.bdev.PersistentBlockDevice.__init__
+ganeti.storage.bdev.RADOSBlockDevice.__init__
+ganeti.storage.container.FileStorage.__init__
+ganeti.storage.drbd.DRBD8Dev.__init__
+ganeti.storage.drbd_cmdgen.BaseDRBDCmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD83CmdGenerator.__init__
+ganeti.storage.drbd_cmdgen.DRBD84CmdGenerator.__init__
+ganeti.storage.drbd_info.DRBD8Info.__init__
+ganeti.storage.drbd_info.DRBD8Status.__init__
+ganeti.storage.extstorage.ExtStorageDevice.__init__
+ganeti.storage.filestorage.FileDeviceHelper.__init__
+ganeti.storage.filestorage.FileStorage.__init__
+ganeti.storage.gluster.GlusterStorage.__init__
+ganeti.storage.gluster.GlusterVolume.__init__
+ganeti.tools.burnin.Burner.__init__
+ganeti.tools.burnin.JobHandler.__init__
+ganeti.tools.cfgupgrade.CfgUpgrade.__init__
+ganeti.uidpool.LockedUid.__init__
+ganeti.utils.FdConditionWaiterHelper.__init__
+ganeti.utils.FieldSet.__init__
+ganeti.utils.SignalHandler.__init__
+ganeti.utils.SignalWakeupFd.__init__
+ganeti.utils.algo.RunningTimeout.__init__
+ganeti.utils.filelock.FileLock.__init__
+ganeti.utils.io.FileStatHelper.__init__
+ganeti.utils.io.TemporaryFileManager.__init__
+ganeti.utils.livelock.LiveLock.__init__
+ganeti.utils.livelock.LiveLockName.__init__
+ganeti.utils.log._ReopenableLogHandler.__init__
+ganeti.utils.process.RunResult.__init__
+ganeti.utils.retry._RetryDelayCalculator.__init__
+ganeti.utils.text.LineSplitter.__init__
+ganeti.utils.text.ShellWriter.__init__
+ganeti.watcher.Instance.__init__
+ganeti.watcher.Node.__init__
+ganeti.watcher.nodemaint.NodeMaintenance.__init__
+ganeti.watcher.state.WatcherState.__init__
+ganeti.wconfd.Client.__init__
+ganeti.workerpool.BaseWorker.__init__
+ganeti.workerpool.DeferTask.__init__
+ganeti.workerpool.WorkerPool.__init__
+script-build_bash_completion.CompletionWriter.__init__
+script-cfgshell.ConfigShell.__init__
+script-cluster_merge.Merger.__init__
+script-cluster_merge.MergerData.__init__
+script-confd_client.TestClient.__init__
+script-import_export.ChildProcess.__init__
+script-import_export.StatusFile.__init__
+script-move_instance.InstanceMove.__init__
+script-move_instance.MoveDestExecutor.__init__
+script-move_instance.MoveJobPollReportCb.__init__
+script-move_instance.MoveRuntime.__init__
+script-move_instance.MoveSourceExecutor.__init__
+script-move_instance.RapiClientFactory.__init__
+script-query_config.QueryClient.__init__" class="py-name" href="#" onclick="return doclink('link-56', '__init__', 'link-56');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">,</tt> <tt class="py-name">children</tt><tt class="py-op">,</tt> <tt class="py-name">size</tt><tt class="py-op">,</tt> <tt class="py-name">params</tt><tt class="py-op">,</tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line">                                      <tt class="py-name">dyn_params</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt id="link-57" class="py-name" targets="Variable script-cfgupgrade12.args=script-cfgupgrade12-module.html#args"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-57', 'args', 'link-57');">args</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">,</tt> <tt class="py-op">(</tt><tt class="py-name">tuple</tt><tt class="py-op">,</tt> <tt class="py-name">list</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">2</tt><tt class="py-op">:</tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">"Invalid configuration data %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">driver</tt> <tt class="py-op">=</tt> <tt class="py-name">unique_id</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt> <tt class="py-op">=</tt> <tt class="py-name">unique_id</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt id="link-58" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper" class="py-name" href="#" onclick="return doclink('link-58', 'FileDeviceHelper', 'link-28');">FileDeviceHelper</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dev_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-59" class="py-name" targets="Method ganeti.storage.base.BlockDev.Attach()=ganeti.storage.base.BlockDev-class.html#Attach,Method ganeti.storage.bdev.LogicalVolume.Attach()=ganeti.storage.bdev.LogicalVolume-class.html#Attach,Method ganeti.storage.bdev.PersistentBlockDevice.Attach()=ganeti.storage.bdev.PersistentBlockDevice-class.html#Attach,Method ganeti.storage.bdev.RADOSBlockDevice.Attach()=ganeti.storage.bdev.RADOSBlockDevice-class.html#Attach,Method ganeti.storage.drbd.DRBD8Dev.Attach()=ganeti.storage.drbd.DRBD8Dev-class.html#Attach,Method ganeti.storage.extstorage.ExtStorageDevice.Attach()=ganeti.storage.extstorage.ExtStorageDevice-class.html#Attach,Method ganeti.storage.filestorage.FileStorage.Attach()=ganeti.storage.filestorage.FileStorage-class.html#Attach,Method ganeti.storage.gluster.GlusterStorage.Attach()=ganeti.storage.gluster.GlusterStorage-class.html#Attach"><a title="ganeti.storage.base.BlockDev.Attach
+ganeti.storage.bdev.LogicalVolume.Attach
+ganeti.storage.bdev.PersistentBlockDevice.Attach
+ganeti.storage.bdev.RADOSBlockDevice.Attach
+ganeti.storage.drbd.DRBD8Dev.Attach
+ganeti.storage.extstorage.ExtStorageDevice.Attach
+ganeti.storage.filestorage.FileStorage.Attach
+ganeti.storage.gluster.GlusterStorage.Attach" class="py-name" href="#" onclick="return doclink('link-59', 'Attach', 'link-59');">Attach</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Assemble"></a><div id="FileStorage.Assemble-def"><a name="L208"></a><tt class="py-lineno">208</tt> <a class="py-toggle" href="#" id="FileStorage.Assemble-toggle" onclick="return toggle('FileStorage.Assemble');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Assemble">Assemble</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Assemble-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Assemble-expanded"><a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line">    <tt class="py-docstring">"""Assemble the device.</tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line"><tt class="py-docstring">    Checks whether the file device exists, raises BlockDeviceError otherwise.</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-60" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper.Exists" class="py-name" href="#" onclick="return doclink('link-60', 'Exists', 'link-38');">Exists</a></tt><tt class="py-op">(</tt><tt class="py-name">assert_exists</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Shutdown"></a><div id="FileStorage.Shutdown-def"><a name="L216"></a><tt class="py-lineno">216</tt> <a class="py-toggle" href="#" id="FileStorage.Shutdown-toggle" onclick="return toggle('FileStorage.Shutdown');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Shutdown">Shutdown</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Shutdown-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Shutdown-expanded"><a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">    <tt class="py-docstring">"""Shutdown the device.</tt> </tt>
+<a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line"><tt class="py-docstring">    This is a no-op for the file type, as we don't deactivate</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line"><tt class="py-docstring">    the file on shutdown.</tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Open"></a><div id="FileStorage.Open-def"><a name="L225"></a><tt class="py-lineno">225</tt> <a class="py-toggle" href="#" id="FileStorage.Open-toggle" onclick="return toggle('FileStorage.Open');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Open">Open</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">force</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt> <tt class="py-param">exclusive</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Open-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Open-expanded"><a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line">    <tt class="py-docstring">"""Make the device ready for I/O.</tt> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line"><tt class="py-docstring">    This is a no-op for the file type.</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Close"></a><div id="FileStorage.Close-def"><a name="L233"></a><tt class="py-lineno">233</tt> <a class="py-toggle" href="#" id="FileStorage.Close-toggle" onclick="return toggle('FileStorage.Close');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Close">Close</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Close-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Close-expanded"><a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line">    <tt class="py-docstring">"""Notifies that the device will no longer be used for I/O.</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line"><tt class="py-docstring">    This is a no-op for the file type.</tt> </tt>
+<a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Remove"></a><div id="FileStorage.Remove-def"><a name="L241"></a><tt class="py-lineno">241</tt> <a class="py-toggle" href="#" id="FileStorage.Remove-toggle" onclick="return toggle('FileStorage.Remove');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Remove">Remove</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Remove-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Remove-expanded"><a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line">    <tt class="py-docstring">"""Remove the file backing the block device.</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: boolean</tt> </tt>
+<a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line"><tt class="py-docstring">    @return: True if the removal was successful</tt> </tt>
+<a name="L246"></a><tt class="py-lineno">246</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-61" class="py-name" targets="Method ganeti.storage.base.BlockDev.Remove()=ganeti.storage.base.BlockDev-class.html#Remove,Method ganeti.storage.bdev.LogicalVolume.Remove()=ganeti.storage.bdev.LogicalVolume-class.html#Remove,Method ganeti.storage.bdev.PersistentBlockDevice.Remove()=ganeti.storage.bdev.PersistentBlockDevice-class.html#Remove,Method ganeti.storage.bdev.RADOSBlockDevice.Remove()=ganeti.storage.bdev.RADOSBlockDevice-class.html#Remove,Method ganeti.storage.drbd.DRBD8Dev.Remove()=ganeti.storage.drbd.DRBD8Dev-class.html#Remove,Method ganeti.storage.extstorage.ExtStorageDevice.Remove()=ganeti.storage.extstorage.ExtStorageDevice-class.html#Remove,Method ganeti.storage.filestorage.FileDeviceHelper.Remove()=ganeti.storage.filestorage.FileDeviceHelper-class.html#Remove,Method ganeti.storage.filestorage.FileStorage.Remove()=ganeti.storage.filestorage.FileStorage-class.html#Remove,Method ganeti.storage.gluster.GlusterStorage.Remove()=ganeti.storage.gluster.GlusterStorage-class.html#Remove,Method ganeti.utils.io.TemporaryFileManager.Remove()=ganeti.utils.io.TemporaryFileManager-class.html#Remove"><a title="ganeti.storage.base.BlockDev.Remove
+ganeti.storage.bdev.LogicalVolume.Remove
+ganeti.storage.bdev.PersistentBlockDevice.Remove
+ganeti.storage.bdev.RADOSBlockDevice.Remove
+ganeti.storage.drbd.DRBD8Dev.Remove
+ganeti.storage.extstorage.ExtStorageDevice.Remove
+ganeti.storage.filestorage.FileDeviceHelper.Remove
+ganeti.storage.filestorage.FileStorage.Remove
+ganeti.storage.gluster.GlusterStorage.Remove
+ganeti.utils.io.TemporaryFileManager.Remove" class="py-name" href="#" onclick="return doclink('link-61', 'Remove', 'link-61');">Remove</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Rename"></a><div id="FileStorage.Rename-def"><a name="L250"></a><tt class="py-lineno">250</tt> <a class="py-toggle" href="#" id="FileStorage.Rename-toggle" onclick="return toggle('FileStorage.Rename');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Rename">Rename</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">new_id</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Rename-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Rename-expanded"><a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line">    <tt class="py-docstring">"""Renames the file.</tt> </tt>
+<a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-62" class="py-name" targets="Method ganeti.storage.filestorage.FileDeviceHelper.Move()=ganeti.storage.filestorage.FileDeviceHelper-class.html#Move"><a title="ganeti.storage.filestorage.FileDeviceHelper.Move" class="py-name" href="#" onclick="return doclink('link-62', 'Move', 'link-62');">Move</a></tt><tt class="py-op">(</tt><tt class="py-name">new_id</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Grow"></a><div id="FileStorage.Grow-def"><a name="L256"></a><tt class="py-lineno">256</tt> <a class="py-toggle" href="#" id="FileStorage.Grow-toggle" onclick="return toggle('FileStorage.Grow');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Grow">Grow</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">amount</tt><tt class="py-op">,</tt> <tt class="py-param">dryrun</tt><tt class="py-op">,</tt> <tt class="py-param">backingstore</tt><tt class="py-op">,</tt> <tt class="py-param">excl_stor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Grow-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Grow-expanded"><a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line">    <tt class="py-docstring">"""Grow the file</tt> </tt>
+<a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line"><tt class="py-docstring">    @param amount: the amount (in mebibytes) to grow with</tt> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">backingstore</tt><tt class="py-op">:</tt> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">dryrun</tt><tt class="py-op">:</tt> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-63" class="py-name" targets="Method ganeti.storage.base.BlockDev.Grow()=ganeti.storage.base.BlockDev-class.html#Grow,Method ganeti.storage.bdev.LogicalVolume.Grow()=ganeti.storage.bdev.LogicalVolume-class.html#Grow,Method ganeti.storage.bdev.PersistentBlockDevice.Grow()=ganeti.storage.bdev.PersistentBlockDevice-class.html#Grow,Method ganeti.storage.bdev.RADOSBlockDevice.Grow()=ganeti.storage.bdev.RADOSBlockDevice-class.html#Grow,Method ganeti.storage.drbd.DRBD8Dev.Grow()=ganeti.storage.drbd.DRBD8Dev-class.html#Grow,Method ganeti.storage.extstorage.ExtStorageDevice.Grow()=ganeti.storage.extstorage.ExtStorageDevice-class.html#Grow,Method ganeti.storage.filestorage.FileDeviceHelper.Grow()=ganeti.storage.filestorage.FileDeviceHelper-class.html#Grow,Method ganeti.storage.filestorage.FileStorage.Grow()=ganeti.storage.filestorage.FileStorage-class.html#Grow,Method ganeti.storage.gluster.GlusterStorage.Grow()=ganeti.storage.gluster.GlusterStorage-class.html#Grow"><a title="ganeti.storage.base.BlockDev.Grow
+ganeti.storage.bdev.LogicalVolume.Grow
+ganeti.storage.bdev.PersistentBlockDevice.Grow
+ganeti.storage.bdev.RADOSBlockDevice.Grow
+ganeti.storage.drbd.DRBD8Dev.Grow
+ganeti.storage.extstorage.ExtStorageDevice.Grow
+ganeti.storage.filestorage.FileDeviceHelper.Grow
+ganeti.storage.filestorage.FileStorage.Grow
+ganeti.storage.gluster.GlusterStorage.Grow" class="py-name" href="#" onclick="return doclink('link-63', 'Grow', 'link-63');">Grow</a></tt><tt class="py-op">(</tt><tt class="py-name">amount</tt><tt class="py-op">,</tt> <tt class="py-name">dryrun</tt><tt class="py-op">,</tt> <tt class="py-name">backingstore</tt><tt class="py-op">,</tt> <tt class="py-name">excl_stor</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.Attach"></a><div id="FileStorage.Attach-def"><a name="L268"></a><tt class="py-lineno">268</tt> <a class="py-toggle" href="#" id="FileStorage.Attach-toggle" onclick="return toggle('FileStorage.Attach');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Attach">Attach</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Attach-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Attach-expanded"><a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line">    <tt class="py-docstring">"""Attach to an existing file.</tt> </tt>
+<a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line"><tt class="py-docstring">    Check if this file already exists.</tt> </tt>
+<a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: boolean</tt> </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line"><tt class="py-docstring">    @return: True if file exists</tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">attached</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-64" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper.Exists" class="py-name" href="#" onclick="return doclink('link-64', 'Exists', 'link-38');">Exists</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">attached</tt> </tt>
+</div><a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line"> </tt>
+<a name="FileStorage.GetActualSize"></a><div id="FileStorage.GetActualSize-def"><a name="L280"></a><tt class="py-lineno">280</tt> <a class="py-toggle" href="#" id="FileStorage.GetActualSize-toggle" onclick="return toggle('FileStorage.GetActualSize');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#GetActualSize">GetActualSize</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.GetActualSize-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.GetActualSize-expanded"><a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line">    <tt class="py-docstring">"""Return the actual disk size.</tt> </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line"><tt class="py-docstring">    @note: the device needs to be active when this is called</tt> </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-65" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper.Size" class="py-name" href="#" onclick="return doclink('link-65', 'Size', 'link-45');">Size</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line"> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="FileStorage.Create"></a><div id="FileStorage.Create-def"><a name="L289"></a><tt class="py-lineno">289</tt> <a class="py-toggle" href="#" id="FileStorage.Create-toggle" onclick="return toggle('FileStorage.Create');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage.FileStorage-class.html#Create">Create</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">unique_id</tt><tt class="py-op">,</tt> <tt class="py-param">children</tt><tt class="py-op">,</tt> <tt class="py-param">size</tt><tt class="py-op">,</tt> <tt class="py-param">spindles</tt><tt class="py-op">,</tt> <tt class="py-param">params</tt><tt class="py-op">,</tt> <tt class="py-param">excl_stor</tt><tt class="py-op">,</tt> </tt>
+<a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line">             <tt class="py-param">dyn_params</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FileStorage.Create-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="FileStorage.Create-expanded"><a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line">    <tt class="py-docstring">"""Create a new file.</tt> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line"><tt class="py-docstring">    @type size: int</tt> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line"><tt class="py-docstring">    @param size: the size of file in MiB</tt> </tt>
+<a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line"><tt class="py-docstring">    @rtype: L{bdev.FileStorage}</tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line"><tt class="py-docstring">    @return: an instance of FileStorage</tt> </tt>
+<a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">excl_stor</tt><tt class="py-op">:</tt> </tt>
+<a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-66" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-66', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-67" class="py-name" targets="Class ganeti.errors.ProgrammerError=ganeti.errors.ProgrammerError-class.html"><a title="ganeti.errors.ProgrammerError" class="py-name" href="#" onclick="return doclink('link-67', 'ProgrammerError', 'link-67');">ProgrammerError</a></tt><tt class="py-op">(</tt><tt class="py-string">"FileStorage device requested with"</tt> </tt>
+<a name="L302"></a><tt class="py-lineno">302</tt>  <tt class="py-line">                                   <tt class="py-string">" exclusive_storage"</tt><tt class="py-op">)</tt> </tt>
+<a name="L303"></a><tt class="py-lineno">303</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">,</tt> <tt class="py-op">(</tt><tt class="py-name">tuple</tt><tt class="py-op">,</tt> <tt class="py-name">list</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">2</tt><tt class="py-op">:</tt> </tt>
+<a name="L304"></a><tt class="py-lineno">304</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">"Invalid configuration data %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L305"></a><tt class="py-lineno">305</tt>  <tt class="py-line"> </tt>
+<a name="L306"></a><tt class="py-lineno">306</tt>  <tt class="py-line">    <tt class="py-name">dev_path</tt> <tt class="py-op">=</tt> <tt class="py-name">unique_id</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L307"></a><tt class="py-lineno">307</tt>  <tt class="py-line"> </tt>
+<a name="L308"></a><tt class="py-lineno">308</tt>  <tt class="py-line">    <tt id="link-68" class="py-name"><a title="ganeti.storage.filestorage.FileDeviceHelper" class="py-name" href="#" onclick="return doclink('link-68', 'FileDeviceHelper', 'link-28');">FileDeviceHelper</a></tt><tt class="py-op">.</tt><tt id="link-69" class="py-name" targets="Class Method ganeti.storage.filestorage.FileDeviceHelper.CreateFile()=ganeti.storage.filestorage.FileDeviceHelper-class.html#CreateFile"><a title="ganeti.storage.filestorage.FileDeviceHelper.CreateFile" class="py-name" href="#" onclick="return doclink('link-69', 'CreateFile', 'link-69');">CreateFile</a></tt><tt class="py-op">(</tt><tt class="py-name">dev_path</tt><tt class="py-op">,</tt> <tt class="py-name">size</tt><tt class="py-op">)</tt> </tt>
+<a name="L309"></a><tt class="py-lineno">309</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-70" class="py-name"><a title="ganeti.storage.container.FileStorage
+ganeti.storage.filestorage.FileStorage" class="py-name" href="#" onclick="return doclink('link-70', 'FileStorage', 'link-55');">FileStorage</a></tt><tt class="py-op">(</tt><tt class="py-name">unique_id</tt><tt class="py-op">,</tt> <tt class="py-name">children</tt><tt class="py-op">,</tt> <tt class="py-name">size</tt><tt class="py-op">,</tt> <tt class="py-name">params</tt><tt class="py-op">,</tt> <tt class="py-name">dyn_params</tt><tt class="py-op">,</tt> </tt>
+<a name="L310"></a><tt class="py-lineno">310</tt>  <tt class="py-line">                       <tt class="py-op">*</tt><tt id="link-71" class="py-name"><a title="script-cfgupgrade12.args" class="py-name" href="#" onclick="return doclink('link-71', 'args', 'link-57');">args</a></tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L311"></a><tt class="py-lineno">311</tt>  <tt class="py-line"> </tt>
+<a name="GetFileStorageSpaceInfo"></a><div id="GetFileStorageSpaceInfo-def"><a name="L312"></a><tt class="py-lineno">312</tt>  <tt class="py-line"> </tt>
+<a name="L313"></a><tt class="py-lineno">313</tt> <a class="py-toggle" href="#" id="GetFileStorageSpaceInfo-toggle" onclick="return toggle('GetFileStorageSpaceInfo');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#GetFileStorageSpaceInfo">GetFileStorageSpaceInfo</a><tt class="py-op">(</tt><tt class="py-param">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="GetFileStorageSpaceInfo-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="GetFileStorageSpaceInfo-expanded"><a name="L314"></a><tt class="py-lineno">314</tt>  <tt class="py-line">  <tt class="py-docstring">"""Retrieves the free and total space of the device where the file is</tt> </tt>
+<a name="L315"></a><tt class="py-lineno">315</tt>  <tt class="py-line"><tt class="py-docstring">     located.</tt> </tt>
+<a name="L316"></a><tt class="py-lineno">316</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L317"></a><tt class="py-lineno">317</tt>  <tt class="py-line"><tt class="py-docstring">     @type path: string</tt> </tt>
+<a name="L318"></a><tt class="py-lineno">318</tt>  <tt class="py-line"><tt class="py-docstring">     @param path: Path of the file whose embracing device's capacity is</tt> </tt>
+<a name="L319"></a><tt class="py-lineno">319</tt>  <tt class="py-line"><tt class="py-docstring">       reported.</tt> </tt>
+<a name="L320"></a><tt class="py-lineno">320</tt>  <tt class="py-line"><tt class="py-docstring">     @return: a dictionary containing 'vg_size' and 'vg_free' given in MebiBytes</tt> </tt>
+<a name="L321"></a><tt class="py-lineno">321</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L322"></a><tt class="py-lineno">322</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L323"></a><tt class="py-lineno">323</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L324"></a><tt class="py-lineno">324</tt>  <tt class="py-line">    <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt id="link-72" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-72', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">statvfs</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L325"></a><tt class="py-lineno">325</tt>  <tt class="py-line">    <tt class="py-name">free</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">f_frsize</tt> <tt class="py-op">*</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">f_bavail</tt><tt class="py-op">)</tt> <tt class="py-op">/</tt> <tt class="py-op">(</tt><tt class="py-number">1024</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt><tt class="py-op">)</tt> </tt>
+<a name="L326"></a><tt class="py-lineno">326</tt>  <tt class="py-line">    <tt class="py-name">size</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">f_frsize</tt> <tt class="py-op">*</tt> <tt class="py-name">result</tt><tt class="py-op">.</tt><tt class="py-name">f_blocks</tt><tt class="py-op">)</tt> <tt class="py-op">/</tt> <tt class="py-op">(</tt><tt class="py-number">1024</tt> <tt class="py-op">*</tt> <tt class="py-number">1024</tt><tt class="py-op">)</tt> </tt>
+<a name="L327"></a><tt class="py-lineno">327</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">{</tt><tt class="py-string">"type"</tt><tt class="py-op">:</tt> <tt id="link-73" class="py-name"><a title="ganeti.constants" class="py-name" href="#" onclick="return doclink('link-73', 'constants', 'link-4');">constants</a></tt><tt class="py-op">.</tt><tt id="link-74" class="py-name" targets="Variable ganeti._constants.ST_FILE=ganeti._constants-module.html#ST_FILE"><a title="ganeti._constants.ST_FILE" class="py-name" href="#" onclick="return doclink('link-74', 'ST_FILE', 'link-74');">ST_FILE</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L328"></a><tt class="py-lineno">328</tt>  <tt class="py-line">            <tt class="py-string">"name"</tt><tt class="py-op">:</tt> <tt class="py-name">path</tt><tt class="py-op">,</tt> </tt>
+<a name="L329"></a><tt class="py-lineno">329</tt>  <tt class="py-line">            <tt class="py-string">"storage_size"</tt><tt class="py-op">:</tt> <tt class="py-name">size</tt><tt class="py-op">,</tt> </tt>
+<a name="L330"></a><tt class="py-lineno">330</tt>  <tt class="py-line">            <tt class="py-string">"storage_free"</tt><tt class="py-op">:</tt> <tt class="py-name">free</tt><tt class="py-op">}</tt> </tt>
+<a name="L331"></a><tt class="py-lineno">331</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt class="py-name">OSError</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L332"></a><tt class="py-lineno">332</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-75" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-75', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-76" class="py-name" targets="Class ganeti.errors.CommandError=ganeti.errors.CommandError-class.html"><a title="ganeti.errors.CommandError" class="py-name" href="#" onclick="return doclink('link-76', 'CommandError', 'link-76');">CommandError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Failed to retrieve file system information about"</tt> </tt>
+<a name="L333"></a><tt class="py-lineno">333</tt>  <tt class="py-line">                              <tt class="py-string">" path: %s - %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">strerror</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L334"></a><tt class="py-lineno">334</tt>  <tt class="py-line"> </tt>
+<a name="_GetForbiddenFileStoragePaths"></a><div id="_GetForbiddenFileStoragePaths-def"><a name="L335"></a><tt class="py-lineno">335</tt>  <tt class="py-line"> </tt>
+<a name="L336"></a><tt class="py-lineno">336</tt> <a class="py-toggle" href="#" id="_GetForbiddenFileStoragePaths-toggle" onclick="return toggle('_GetForbiddenFileStoragePaths');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#_GetForbiddenFileStoragePaths">_GetForbiddenFileStoragePaths</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_GetForbiddenFileStoragePaths-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_GetForbiddenFileStoragePaths-expanded"><a name="L337"></a><tt class="py-lineno">337</tt>  <tt class="py-line">  <tt class="py-docstring">"""Builds a list of path prefixes which shouldn't be used for file storage.</tt> </tt>
+<a name="L338"></a><tt class="py-lineno">338</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L339"></a><tt class="py-lineno">339</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: frozenset</tt> </tt>
+<a name="L340"></a><tt class="py-lineno">340</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L341"></a><tt class="py-lineno">341</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L342"></a><tt class="py-lineno">342</tt>  <tt class="py-line">  <tt class="py-name">paths</tt> <tt class="py-op">=</tt> <tt class="py-name">set</tt><tt class="py-op">(</tt><tt class="py-op">[</tt> </tt>
+<a name="L343"></a><tt class="py-lineno">343</tt>  <tt class="py-line">    <tt class="py-string">"/boot"</tt><tt class="py-op">,</tt> </tt>
+<a name="L344"></a><tt class="py-lineno">344</tt>  <tt class="py-line">    <tt class="py-string">"/dev"</tt><tt class="py-op">,</tt> </tt>
+<a name="L345"></a><tt class="py-lineno">345</tt>  <tt class="py-line">    <tt class="py-string">"/etc"</tt><tt class="py-op">,</tt> </tt>
+<a name="L346"></a><tt class="py-lineno">346</tt>  <tt class="py-line">    <tt class="py-string">"/home"</tt><tt class="py-op">,</tt> </tt>
+<a name="L347"></a><tt class="py-lineno">347</tt>  <tt class="py-line">    <tt class="py-string">"/proc"</tt><tt class="py-op">,</tt> </tt>
+<a name="L348"></a><tt class="py-lineno">348</tt>  <tt class="py-line">    <tt class="py-string">"/root"</tt><tt class="py-op">,</tt> </tt>
+<a name="L349"></a><tt class="py-lineno">349</tt>  <tt class="py-line">    <tt class="py-string">"/sys"</tt><tt class="py-op">,</tt> </tt>
+<a name="L350"></a><tt class="py-lineno">350</tt>  <tt class="py-line">    <tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L351"></a><tt class="py-lineno">351</tt>  <tt class="py-line"> </tt>
+<a name="L352"></a><tt class="py-lineno">352</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">prefix</tt> <tt class="py-keyword">in</tt> <tt class="py-op">[</tt><tt class="py-string">""</tt><tt class="py-op">,</tt> <tt class="py-string">"/usr"</tt><tt class="py-op">,</tt> <tt class="py-string">"/usr/local"</tt><tt class="py-op">]</tt><tt class="py-op">:</tt> </tt>
+<a name="L353"></a><tt class="py-lineno">353</tt>  <tt class="py-line">    <tt class="py-name">paths</tt><tt class="py-op">.</tt><tt id="link-77" class="py-name" targets="Method ganeti.serializer.PrivateDict.update()=ganeti.serializer.PrivateDict-class.html#update"><a title="ganeti.serializer.PrivateDict.update" class="py-name" href="#" onclick="return doclink('link-77', 'update', 'link-77');">update</a></tt><tt class="py-op">(</tt><tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">s</tt><tt class="py-op">:</tt> <tt class="py-string">"%s/%s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">prefix</tt><tt class="py-op">,</tt> <tt class="py-name">s</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
+<a name="L354"></a><tt class="py-lineno">354</tt>  <tt class="py-line">                     <tt class="py-op">[</tt><tt class="py-string">"bin"</tt><tt class="py-op">,</tt> <tt class="py-string">"lib"</tt><tt class="py-op">,</tt> <tt class="py-string">"lib32"</tt><tt class="py-op">,</tt> <tt class="py-string">"lib64"</tt><tt class="py-op">,</tt> <tt class="py-string">"sbin"</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L355"></a><tt class="py-lineno">355</tt>  <tt class="py-line"> </tt>
+<a name="L356"></a><tt class="py-lineno">356</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-78" class="py-name"><a title="ganeti.compat" class="py-name" href="#" onclick="return doclink('link-78', 'compat', 'link-2');">compat</a></tt><tt class="py-op">.</tt><tt id="link-79" class="py-name" targets="Function ganeti.compat.UniqueFrozenset()=ganeti.compat-module.html#UniqueFrozenset"><a title="ganeti.compat.UniqueFrozenset" class="py-name" href="#" onclick="return doclink('link-79', 'UniqueFrozenset', 'link-79');">UniqueFrozenset</a></tt><tt class="py-op">(</tt><tt class="py-name">map</tt><tt class="py-op">(</tt><tt id="link-80" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-80', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">normpath</tt><tt class="py-op">,</tt> <tt class="py-name">paths</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L357"></a><tt class="py-lineno">357</tt>  <tt class="py-line"> </tt>
+<a name="_ComputeWrongFileStoragePaths"></a><div id="_ComputeWrongFileStoragePaths-def"><a name="L358"></a><tt class="py-lineno">358</tt>  <tt class="py-line"> </tt>
+<a name="L359"></a><tt class="py-lineno">359</tt> <a class="py-toggle" href="#" id="_ComputeWrongFileStoragePaths-toggle" onclick="return toggle('_ComputeWrongFileStoragePaths');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#_ComputeWrongFileStoragePaths">_ComputeWrongFileStoragePaths</a><tt class="py-op">(</tt><tt class="py-param">paths</tt><tt class="py-op">,</tt> </tt>
+<a name="L360"></a><tt class="py-lineno">360</tt>  <tt class="py-line">                                  <tt class="py-param">_forbidden</tt><tt class="py-op">=</tt><tt id="link-81" class="py-name" targets="Function ganeti.storage.filestorage._GetForbiddenFileStoragePaths()=ganeti.storage.filestorage-module.html#_GetForbiddenFileStoragePaths"><a title="ganeti.storage.filestorage._GetForbiddenFileStoragePaths" class="py-name" href="#" onclick="return doclink('link-81', '_GetForbiddenFileStoragePaths', 'link-81');">_GetForbiddenFileStoragePaths</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_ComputeWrongFileStoragePaths-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_ComputeWrongFileStoragePaths-expanded"><a name="L361"></a><tt class="py-lineno">361</tt>  <tt class="py-line">  <tt class="py-docstring">"""Cross-checks a list of paths for prefixes considered bad.</tt> </tt>
+<a name="L362"></a><tt class="py-lineno">362</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L363"></a><tt class="py-lineno">363</tt>  <tt class="py-line"><tt class="py-docstring">  Some paths, e.g. "/bin", should not be used for file storage.</tt> </tt>
+<a name="L364"></a><tt class="py-lineno">364</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L365"></a><tt class="py-lineno">365</tt>  <tt class="py-line"><tt class="py-docstring">  @type paths: list</tt> </tt>
+<a name="L366"></a><tt class="py-lineno">366</tt>  <tt class="py-line"><tt class="py-docstring">  @param paths: List of paths to be checked</tt> </tt>
+<a name="L367"></a><tt class="py-lineno">367</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: list</tt> </tt>
+<a name="L368"></a><tt class="py-lineno">368</tt>  <tt class="py-line"><tt class="py-docstring">  @return: Sorted list of paths for which the user should be warned</tt> </tt>
+<a name="L369"></a><tt class="py-lineno">369</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L370"></a><tt class="py-lineno">370</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L371"></a><tt class="py-lineno">371</tt>  <tt class="py-line">  <tt class="py-keyword">def</tt> <tt class="py-def-name">_Check</tt><tt class="py-op">(</tt><tt class="py-param">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L372"></a><tt class="py-lineno">372</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">(</tt><tt class="py-keyword">not</tt> <tt id="link-82" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-82', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isabs</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> </tt>
+<a name="L373"></a><tt class="py-lineno">373</tt>  <tt class="py-line">            <tt class="py-name">path</tt> <tt class="py-keyword">in</tt> <tt class="py-name">_forbidden</tt> <tt class="py-keyword">or</tt> </tt>
+<a name="L374"></a><tt class="py-lineno">374</tt>  <tt class="py-line">            <tt class="py-name">filter</tt><tt class="py-op">(</tt><tt class="py-keyword">lambda</tt> <tt class="py-name">p</tt><tt class="py-op">:</tt> <tt id="link-83" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-83', 'utils', 'link-10');">utils</a></tt><tt class="py-op">.</tt><tt class="py-name">IsBelowDir</tt><tt class="py-op">(</tt><tt class="py-name">p</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">_forbidden</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L375"></a><tt class="py-lineno">375</tt>  <tt class="py-line"> </tt>
+<a name="L376"></a><tt class="py-lineno">376</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-84" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-84', 'utils', 'link-10');">utils</a></tt><tt class="py-op">.</tt><tt class="py-name">NiceSort</tt><tt class="py-op">(</tt><tt class="py-name">filter</tt><tt class="py-op">(</tt><tt class="py-name">_Check</tt><tt class="py-op">,</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt id="link-85" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-85', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">normpath</tt><tt class="py-op">,</tt> <tt class="py-name">paths</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L377"></a><tt class="py-lineno">377</tt>  <tt class="py-line"> </tt>
+<a name="ComputeWrongFileStoragePaths"></a><div id="ComputeWrongFileStoragePaths-def"><a name="L378"></a><tt class="py-lineno">378</tt>  <tt class="py-line"> </tt>
+<a name="L379"></a><tt class="py-lineno">379</tt> <a class="py-toggle" href="#" id="ComputeWrongFileStoragePaths-toggle" onclick="return toggle('ComputeWrongFileStoragePaths');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#ComputeWrongFileStoragePaths">ComputeWrongFileStoragePaths</a><tt class="py-op">(</tt><tt class="py-param">_filename</tt><tt class="py-op">=</tt><tt id="link-86" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-86', 'pathutils', 'link-8');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-87" class="py-name" targets="Variable ganeti.pathutils.FILE_STORAGE_PATHS_FILE=ganeti.pathutils-module.html#FILE_STORAGE_PATHS_FILE"><a title="ganeti.pathutils.FILE_STORAGE_PATHS_FILE" class="py-name" href="#" onclick="return doclink('link-87', 'FILE_STORAGE_PATHS_FILE', 'link-87');">FILE_STORAGE_PATHS_FILE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ComputeWrongFileStoragePaths-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ComputeWrongFileStoragePaths-expanded"><a name="L380"></a><tt class="py-lineno">380</tt>  <tt class="py-line">  <tt class="py-docstring">"""Returns a list of file storage paths whose prefix is considered bad.</tt> </tt>
+<a name="L381"></a><tt class="py-lineno">381</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L382"></a><tt class="py-lineno">382</tt>  <tt class="py-line"><tt class="py-docstring">  See L{_ComputeWrongFileStoragePaths}.</tt> </tt>
+<a name="L383"></a><tt class="py-lineno">383</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L384"></a><tt class="py-lineno">384</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L385"></a><tt class="py-lineno">385</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-88" class="py-name" targets="Function ganeti.storage.filestorage._ComputeWrongFileStoragePaths()=ganeti.storage.filestorage-module.html#_ComputeWrongFileStoragePaths"><a title="ganeti.storage.filestorage._ComputeWrongFileStoragePaths" class="py-name" href="#" onclick="return doclink('link-88', '_ComputeWrongFileStoragePaths', 'link-88');">_ComputeWrongFileStoragePaths</a></tt><tt class="py-op">(</tt><tt id="link-89" class="py-name" targets="Function ganeti.storage.filestorage._LoadAllowedFileStoragePaths()=ganeti.storage.filestorage-module.html#_LoadAllowedFileStoragePaths"><a title="ganeti.storage.filestorage._LoadAllowedFileStoragePaths" class="py-name" href="#" onclick="return doclink('link-89', '_LoadAllowedFileStoragePaths', 'link-89');">_LoadAllowedFileStoragePaths</a></tt><tt class="py-op">(</tt><tt class="py-name">_filename</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L386"></a><tt class="py-lineno">386</tt>  <tt class="py-line"> </tt>
+<a name="_CheckFileStoragePath"></a><div id="_CheckFileStoragePath-def"><a name="L387"></a><tt class="py-lineno">387</tt>  <tt class="py-line"> </tt>
+<a name="L388"></a><tt class="py-lineno">388</tt> <a class="py-toggle" href="#" id="_CheckFileStoragePath-toggle" onclick="return toggle('_CheckFileStoragePath');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#_CheckFileStoragePath">_CheckFileStoragePath</a><tt class="py-op">(</tt><tt class="py-param">path</tt><tt class="py-op">,</tt> <tt class="py-param">allowed</tt><tt class="py-op">,</tt> <tt class="py-param">exact_match_ok</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_CheckFileStoragePath-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_CheckFileStoragePath-expanded"><a name="L389"></a><tt class="py-lineno">389</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if a path is in a list of allowed paths for file storage.</tt> </tt>
+<a name="L390"></a><tt class="py-lineno">390</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L391"></a><tt class="py-lineno">391</tt>  <tt class="py-line"><tt class="py-docstring">  @type path: string</tt> </tt>
+<a name="L392"></a><tt class="py-lineno">392</tt>  <tt class="py-line"><tt class="py-docstring">  @param path: Path to check</tt> </tt>
+<a name="L393"></a><tt class="py-lineno">393</tt>  <tt class="py-line"><tt class="py-docstring">  @type allowed: list</tt> </tt>
+<a name="L394"></a><tt class="py-lineno">394</tt>  <tt class="py-line"><tt class="py-docstring">  @param allowed: List of allowed paths</tt> </tt>
+<a name="L395"></a><tt class="py-lineno">395</tt>  <tt class="py-line"><tt class="py-docstring">  @type exact_match_ok: bool</tt> </tt>
+<a name="L396"></a><tt class="py-lineno">396</tt>  <tt class="py-line"><tt class="py-docstring">  @param exact_match_ok: whether or not it is okay when the path is exactly</tt> </tt>
+<a name="L397"></a><tt class="py-lineno">397</tt>  <tt class="py-line"><tt class="py-docstring">      equal to an allowed path and not a subdir of it</tt> </tt>
+<a name="L398"></a><tt class="py-lineno">398</tt>  <tt class="py-line"><tt class="py-docstring">  @raise errors.FileStoragePathError: If the path is not allowed</tt> </tt>
+<a name="L399"></a><tt class="py-lineno">399</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L400"></a><tt class="py-lineno">400</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L401"></a><tt class="py-lineno">401</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-90" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-90', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isabs</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L402"></a><tt class="py-lineno">402</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-91" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-91', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-92" class="py-name" targets="Class ganeti.errors.FileStoragePathError=ganeti.errors.FileStoragePathError-class.html"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-92', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"File storage path must be absolute,"</tt> </tt>
+<a name="L403"></a><tt class="py-lineno">403</tt>  <tt class="py-line">                                      <tt class="py-string">" got '%s'"</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L404"></a><tt class="py-lineno">404</tt>  <tt class="py-line"> </tt>
+<a name="L405"></a><tt class="py-lineno">405</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt class="py-name">i</tt> <tt class="py-keyword">in</tt> <tt class="py-name">allowed</tt><tt class="py-op">:</tt> </tt>
+<a name="L406"></a><tt class="py-lineno">406</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-93" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-93', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isabs</tt><tt class="py-op">(</tt><tt class="py-name">i</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L407"></a><tt class="py-lineno">407</tt>  <tt class="py-line">      <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">info</tt><tt class="py-op">(</tt><tt class="py-string">"Ignoring relative path '%s' for file storage"</tt><tt class="py-op">,</tt> <tt class="py-name">i</tt><tt class="py-op">)</tt> </tt>
+<a name="L408"></a><tt class="py-lineno">408</tt>  <tt class="py-line">      <tt class="py-keyword">continue</tt> </tt>
+<a name="L409"></a><tt class="py-lineno">409</tt>  <tt class="py-line"> </tt>
+<a name="L410"></a><tt class="py-lineno">410</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">exact_match_ok</tt><tt class="py-op">:</tt> </tt>
+<a name="L411"></a><tt class="py-lineno">411</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt id="link-94" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-94', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">normpath</tt><tt class="py-op">(</tt><tt class="py-name">i</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt id="link-95" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-95', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">normpath</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L412"></a><tt class="py-lineno">412</tt>  <tt class="py-line">        <tt class="py-keyword">break</tt> </tt>
+<a name="L413"></a><tt class="py-lineno">413</tt>  <tt class="py-line"> </tt>
+<a name="L414"></a><tt class="py-lineno">414</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-96" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-96', 'utils', 'link-10');">utils</a></tt><tt class="py-op">.</tt><tt class="py-name">IsBelowDir</tt><tt class="py-op">(</tt><tt class="py-name">i</tt><tt class="py-op">,</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L415"></a><tt class="py-lineno">415</tt>  <tt class="py-line">      <tt class="py-keyword">break</tt> </tt>
+<a name="L416"></a><tt class="py-lineno">416</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L417"></a><tt class="py-lineno">417</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-97" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-97', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-98" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-98', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Path '%s' is not acceptable for file"</tt> </tt>
+<a name="L418"></a><tt class="py-lineno">418</tt>  <tt class="py-line">                                      <tt class="py-string">" storage"</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L419"></a><tt class="py-lineno">419</tt>  <tt class="py-line"> </tt>
+<a name="_LoadAllowedFileStoragePaths"></a><div id="_LoadAllowedFileStoragePaths-def"><a name="L420"></a><tt class="py-lineno">420</tt>  <tt class="py-line"> </tt>
+<a name="L421"></a><tt class="py-lineno">421</tt> <a class="py-toggle" href="#" id="_LoadAllowedFileStoragePaths-toggle" onclick="return toggle('_LoadAllowedFileStoragePaths');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#_LoadAllowedFileStoragePaths">_LoadAllowedFileStoragePaths</a><tt class="py-op">(</tt><tt class="py-param">filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_LoadAllowedFileStoragePaths-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_LoadAllowedFileStoragePaths-expanded"><a name="L422"></a><tt class="py-lineno">422</tt>  <tt class="py-line">  <tt class="py-docstring">"""Loads file containing allowed file storage paths.</tt> </tt>
+<a name="L423"></a><tt class="py-lineno">423</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L424"></a><tt class="py-lineno">424</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: list</tt> </tt>
+<a name="L425"></a><tt class="py-lineno">425</tt>  <tt class="py-line"><tt class="py-docstring">  @return: List of allowed paths (can be an empty list)</tt> </tt>
+<a name="L426"></a><tt class="py-lineno">426</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L427"></a><tt class="py-lineno">427</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L428"></a><tt class="py-lineno">428</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L429"></a><tt class="py-lineno">429</tt>  <tt class="py-line">    <tt class="py-name">contents</tt> <tt class="py-op">=</tt> <tt id="link-99" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-99', 'utils', 'link-10');">utils</a></tt><tt class="py-op">.</tt><tt id="link-100" class="py-name" targets="Function script-cfgupgrade12.ReadFile()=script-cfgupgrade12-module.html#ReadFile"><a title="script-cfgupgrade12.ReadFile" class="py-name" href="#" onclick="return doclink('link-100', 'ReadFile', 'link-100');">ReadFile</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt> </tt>
+<a name="L430"></a><tt class="py-lineno">430</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt><tt class="py-op">:</tt> </tt>
+<a name="L431"></a><tt class="py-lineno">431</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L432"></a><tt class="py-lineno">432</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L433"></a><tt class="py-lineno">433</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-101" class="py-name"><a title="ganeti.config.utils
+ganeti.utils" class="py-name" href="#" onclick="return doclink('link-101', 'utils', 'link-10');">utils</a></tt><tt class="py-op">.</tt><tt class="py-name">FilterEmptyLinesAndComments</tt><tt class="py-op">(</tt><tt class="py-name">contents</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L434"></a><tt class="py-lineno">434</tt>  <tt class="py-line"> </tt>
+<a name="CheckFileStoragePathAcceptance"></a><div id="CheckFileStoragePathAcceptance-def"><a name="L435"></a><tt class="py-lineno">435</tt>  <tt class="py-line"> </tt>
+<a name="L436"></a><tt class="py-lineno">436</tt> <a class="py-toggle" href="#" id="CheckFileStoragePathAcceptance-toggle" onclick="return toggle('CheckFileStoragePathAcceptance');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#CheckFileStoragePathAcceptance">CheckFileStoragePathAcceptance</a><tt class="py-op">(</tt> </tt>
+<a name="L437"></a><tt class="py-lineno">437</tt>  <tt class="py-line">    <tt class="py-param">path</tt><tt class="py-op">,</tt> <tt class="py-param">_filename</tt><tt class="py-op">=</tt><tt id="link-102" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-102', 'pathutils', 'link-8');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-103" class="py-name"><a title="ganeti.pathutils.FILE_STORAGE_PATHS_FILE" class="py-name" href="#" onclick="return doclink('link-103', 'FILE_STORAGE_PATHS_FILE', 'link-87');">FILE_STORAGE_PATHS_FILE</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L438"></a><tt class="py-lineno">438</tt>  <tt class="py-line">    <tt class="py-param">exact_match_ok</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CheckFileStoragePathAcceptance-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="CheckFileStoragePathAcceptance-expanded"><a name="L439"></a><tt class="py-lineno">439</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks if a path is allowed for file storage.</tt> </tt>
+<a name="L440"></a><tt class="py-lineno">440</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L441"></a><tt class="py-lineno">441</tt>  <tt class="py-line"><tt class="py-docstring">  @type path: string</tt> </tt>
+<a name="L442"></a><tt class="py-lineno">442</tt>  <tt class="py-line"><tt class="py-docstring">  @param path: Path to check</tt> </tt>
+<a name="L443"></a><tt class="py-lineno">443</tt>  <tt class="py-line"><tt class="py-docstring">  @raise errors.FileStoragePathError: If the path is not allowed</tt> </tt>
+<a name="L444"></a><tt class="py-lineno">444</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L445"></a><tt class="py-lineno">445</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L446"></a><tt class="py-lineno">446</tt>  <tt class="py-line">  <tt class="py-name">allowed</tt> <tt class="py-op">=</tt> <tt id="link-104" class="py-name"><a title="ganeti.storage.filestorage._LoadAllowedFileStoragePaths" class="py-name" href="#" onclick="return doclink('link-104', '_LoadAllowedFileStoragePaths', 'link-89');">_LoadAllowedFileStoragePaths</a></tt><tt class="py-op">(</tt><tt class="py-name">_filename</tt><tt class="py-op">)</tt> </tt>
+<a name="L447"></a><tt class="py-lineno">447</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">allowed</tt><tt class="py-op">:</tt> </tt>
+<a name="L448"></a><tt class="py-lineno">448</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-105" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-105', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-106" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-106', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"No paths are valid or path file '%s'"</tt> </tt>
+<a name="L449"></a><tt class="py-lineno">449</tt>  <tt class="py-line">                                      <tt class="py-string">" was not accessible."</tt> <tt class="py-op">%</tt> <tt class="py-name">_filename</tt><tt class="py-op">)</tt> </tt>
+<a name="L450"></a><tt class="py-lineno">450</tt>  <tt class="py-line"> </tt>
+<a name="L451"></a><tt class="py-lineno">451</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt id="link-107" class="py-name"><a title="ganeti.storage.filestorage._ComputeWrongFileStoragePaths" class="py-name" href="#" onclick="return doclink('link-107', '_ComputeWrongFileStoragePaths', 'link-88');">_ComputeWrongFileStoragePaths</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">path</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L452"></a><tt class="py-lineno">452</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-108" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-108', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-109" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-109', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Path '%s' uses a forbidden prefix"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L453"></a><tt class="py-lineno">453</tt>  <tt class="py-line">                                      <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L454"></a><tt class="py-lineno">454</tt>  <tt class="py-line"> </tt>
+<a name="L455"></a><tt class="py-lineno">455</tt>  <tt class="py-line">  <tt id="link-110" class="py-name" targets="Function ganeti.storage.filestorage._CheckFileStoragePath()=ganeti.storage.filestorage-module.html#_CheckFileStoragePath"><a title="ganeti.storage.filestorage._CheckFileStoragePath" class="py-name" href="#" onclick="return doclink('link-110', '_CheckFileStoragePath', 'link-110');">_CheckFileStoragePath</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">allowed</tt><tt class="py-op">,</tt> <tt class="py-name">exact_match_ok</tt><tt class="py-op">=</tt><tt class="py-name">exact_match_ok</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L456"></a><tt class="py-lineno">456</tt>  <tt class="py-line"> </tt>
+<a name="_CheckFileStoragePathExistance"></a><div id="_CheckFileStoragePathExistance-def"><a name="L457"></a><tt class="py-lineno">457</tt>  <tt class="py-line"> </tt>
+<a name="L458"></a><tt class="py-lineno">458</tt> <a class="py-toggle" href="#" id="_CheckFileStoragePathExistance-toggle" onclick="return toggle('_CheckFileStoragePathExistance');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#_CheckFileStoragePathExistance">_CheckFileStoragePathExistance</a><tt class="py-op">(</tt><tt class="py-param">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_CheckFileStoragePathExistance-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_CheckFileStoragePathExistance-expanded"><a name="L459"></a><tt class="py-lineno">459</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks whether the given path is usable on the file system.</tt> </tt>
+<a name="L460"></a><tt class="py-lineno">460</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L461"></a><tt class="py-lineno">461</tt>  <tt class="py-line"><tt class="py-docstring">  This checks wether the path is existing, a directory and writable.</tt> </tt>
+<a name="L462"></a><tt class="py-lineno">462</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L463"></a><tt class="py-lineno">463</tt>  <tt class="py-line"><tt class="py-docstring">  @type path: string</tt> </tt>
+<a name="L464"></a><tt class="py-lineno">464</tt>  <tt class="py-line"><tt class="py-docstring">  @param path: path to check</tt> </tt>
+<a name="L465"></a><tt class="py-lineno">465</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L466"></a><tt class="py-lineno">466</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L467"></a><tt class="py-lineno">467</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-111" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-111', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isdir</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L468"></a><tt class="py-lineno">468</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-112" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-112', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-113" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-113', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Path '%s' does not exist or is not a"</tt> </tt>
+<a name="L469"></a><tt class="py-lineno">469</tt>  <tt class="py-line">                                      <tt class="py-string">" directory."</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+<a name="L470"></a><tt class="py-lineno">470</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-114" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-114', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">access</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt id="link-115" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-115', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">W_OK</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L471"></a><tt class="py-lineno">471</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-116" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-116', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-117" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-117', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt><tt class="py-op">(</tt><tt class="py-string">"Path '%s' is not writable"</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L472"></a><tt class="py-lineno">472</tt>  <tt class="py-line"> </tt>
+<a name="CheckFileStoragePath"></a><div id="CheckFileStoragePath-def"><a name="L473"></a><tt class="py-lineno">473</tt>  <tt class="py-line"> </tt>
+<a name="L474"></a><tt class="py-lineno">474</tt> <a class="py-toggle" href="#" id="CheckFileStoragePath-toggle" onclick="return toggle('CheckFileStoragePath');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="ganeti.storage.filestorage-module.html#CheckFileStoragePath">CheckFileStoragePath</a><tt class="py-op">(</tt> </tt>
+<a name="L475"></a><tt class="py-lineno">475</tt>  <tt class="py-line">    <tt class="py-param">path</tt><tt class="py-op">,</tt> <tt class="py-param">_allowed_paths_file</tt><tt class="py-op">=</tt><tt id="link-118" class="py-name"><a title="ganeti.pathutils" class="py-name" href="#" onclick="return doclink('link-118', 'pathutils', 'link-8');">pathutils</a></tt><tt class="py-op">.</tt><tt id="link-119" class="py-name"><a title="ganeti.pathutils.FILE_STORAGE_PATHS_FILE" class="py-name" href="#" onclick="return doclink('link-119', 'FILE_STORAGE_PATHS_FILE', 'link-87');">FILE_STORAGE_PATHS_FILE</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="CheckFileStoragePath-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="CheckFileStoragePath-expanded"><a name="L476"></a><tt class="py-lineno">476</tt>  <tt class="py-line">  <tt class="py-docstring">"""Checks whether the path exists and is acceptable to use.</tt> </tt>
+<a name="L477"></a><tt class="py-lineno">477</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L478"></a><tt class="py-lineno">478</tt>  <tt class="py-line"><tt class="py-docstring">  Can be used for any file-based storage, for example shared-file storage.</tt> </tt>
+<a name="L479"></a><tt class="py-lineno">479</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L480"></a><tt class="py-lineno">480</tt>  <tt class="py-line"><tt class="py-docstring">  @type path: string</tt> </tt>
+<a name="L481"></a><tt class="py-lineno">481</tt>  <tt class="py-line"><tt class="py-docstring">  @param path: path to check</tt> </tt>
+<a name="L482"></a><tt class="py-lineno">482</tt>  <tt class="py-line"><tt class="py-docstring">  @rtype: string</tt> </tt>
+<a name="L483"></a><tt class="py-lineno">483</tt>  <tt class="py-line"><tt class="py-docstring">  @returns: error message if the path is not ready to use</tt> </tt>
+<a name="L484"></a><tt class="py-lineno">484</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L485"></a><tt class="py-lineno">485</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L486"></a><tt class="py-lineno">486</tt>  <tt class="py-line">  <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L487"></a><tt class="py-lineno">487</tt>  <tt class="py-line">    <tt id="link-120" class="py-name"><a title="ganeti.storage.filestorage.CheckFileStoragePathAcceptance" class="py-name" href="#" onclick="return doclink('link-120', 'CheckFileStoragePathAcceptance', 'link-17');">CheckFileStoragePathAcceptance</a></tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt class="py-name">_filename</tt><tt class="py-op">=</tt><tt class="py-name">_allowed_paths_file</tt><tt class="py-op">,</tt> </tt>
+<a name="L488"></a><tt class="py-lineno">488</tt>  <tt class="py-line">                                   <tt class="py-name">exact_match_ok</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt> </tt>
+<a name="L489"></a><tt class="py-lineno">489</tt>  <tt class="py-line">  <tt class="py-keyword">except</tt> <tt id="link-121" class="py-name"><a title="ganeti.errors
+ganeti.rpc.errors" class="py-name" href="#" onclick="return doclink('link-121', 'errors', 'link-6');">errors</a></tt><tt class="py-op">.</tt><tt id="link-122" class="py-name"><a title="ganeti.errors.FileStoragePathError" class="py-name" href="#" onclick="return doclink('link-122', 'FileStoragePathError', 'link-92');">FileStoragePathError</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L490"></a><tt class="py-lineno">490</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+<a name="L491"></a><tt class="py-lineno">491</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-123" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-123', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isdir</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L492"></a><tt class="py-lineno">492</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">"Path '%s' is not existing or not a directory."</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt> </tt>
+<a name="L493"></a><tt class="py-lineno">493</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-124" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-124', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">access</tt><tt class="py-op">(</tt><tt class="py-name">path</tt><tt class="py-op">,</tt> <tt id="link-125" class="py-name"><a title="os" class="py-name" href="#" onclick="return doclink('link-125', 'os', 'link-0');">os</a></tt><tt class="py-op">.</tt><tt class="py-name">W_OK</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L494"></a><tt class="py-lineno">494</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">"Path '%s' is not writable"</tt> <tt class="py-op">%</tt> <tt class="py-name">path</tt> </tt>
+</div><a name="L495"></a><tt class="py-lineno">495</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Apr 12 13:39:14 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

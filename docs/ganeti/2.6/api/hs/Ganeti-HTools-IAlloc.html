@@ -1,0 +1,1195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.IAlloc</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-IAlloc.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/IAlloc.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.IAlloc</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the iallocator interface.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AIAllocResult"
+>IAllocResult</A
+> = (String, JSValue, <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseBaseInstance"
+>parseBaseInstance</A
+> :: String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseInstance"
+>parseInstance</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseNode"
+>parseNode</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseGroup"
+>parseGroup</A
+> :: String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseData"
+>parseData</A
+> :: String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> ([String], <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatResponse"
+>formatResponse</A
+> :: Bool -&gt; String -&gt; JSValue -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdescribeSolution"
+>describeSolution</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocSolution"
+>AllocSolution</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatAllocate"
+>formatAllocate</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocSolution"
+>AllocSolution</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatNodeEvac"
+>formatNodeEvac</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Cluster.html#t%3AEvacSolution"
+>EvacSolution</A
+>) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprocessRelocate"
+>processRelocate</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AformatRelocate"
+>formatRelocate</A
+> :: (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprocessRequest"
+>processRequest</A
+> :: <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadRequest"
+>readRequest</A
+> :: FilePath -&gt; IO <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArunIAllocator"
+>runIAllocator</A
+> :: <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+> -&gt; (Maybe (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>), String)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadData"
+>loadData</A
+> :: FilePath -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:IAllocResult"
+><A NAME="t%3AIAllocResult"
+></A
+></A
+><B
+>IAllocResult</B
+> = (String, JSValue, <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#IAllocResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Type alias for the result of an IAllocator call.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseBaseInstance"
+><A NAME="v%3AparseBaseInstance"
+></A
+></A
+><B
+>parseBaseInstance</B
+> :: String -&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#parseBaseInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Parse the basic specifications of an instance.
+</P
+><P
+>Instances in the cluster instance list and the instance in an
+ <TT
+><A HREF="Ganeti-HTools-Loader.html#v%3AAllocate"
+>Allocate</A
+></TT
+> request share some common properties, which are read by
+ this function.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseInstance"
+><A NAME="v%3AparseInstance"
+></A
+></A
+><B
+>parseInstance</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#parseInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+></TD
+><TD CLASS="rdoc"
+>The node name-to-index association list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The name of the instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+></TD
+><TD CLASS="rdoc"
+>The JSON object
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Parses an instance as found in the cluster instance list.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseNode"
+><A NAME="v%3AparseNode"
+></A
+></A
+><B
+>parseNode</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#parseNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+></TD
+><TD CLASS="rdoc"
+>The group association
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The node's name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+></TD
+><TD CLASS="rdoc"
+>The JSON object
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Parses a node as found in the cluster node list.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseGroup"
+><A NAME="v%3AparseGroup"
+></A
+></A
+><B
+>parseGroup</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#parseGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>The group UUID
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-JSON.html#t%3AJSRecord"
+>JSRecord</A
+></TD
+><TD CLASS="rdoc"
+>The JSON object
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Parses a group as found in the cluster group list.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseData"
+><A NAME="v%3AparseData"
+></A
+></A
+><B
+>parseData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#parseData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>The JSON message as received from Ganeti
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> ([String], <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+>)</TD
+><TD CLASS="rdoc"
+>Result tuple
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Top-level parser.
+</P
+><P
+>The result is a tuple of eventual warning messages and the parsed
+ request; if parsing the input data fails, we'll return a <TT
+><A HREF="Ganeti-BasicTypes.html#v%3ABad"
+>Bad</A
+></TT
+>
+ value.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatResponse"
+><A NAME="v%3AformatResponse"
+></A
+></A
+><B
+>formatResponse</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#formatResponse"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether the request was successful
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>Information text
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; JSValue</TD
+><TD CLASS="rdoc"
+>The JSON encoded result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The full JSON-formatted message
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Formats the result into a valid IAllocator response message.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:describeSolution"
+><A NAME="v%3AdescribeSolution"
+></A
+></A
+><B
+>describeSolution</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocSolution"
+>AllocSolution</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#describeSolution"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Flatten the log of a solution into a string.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatAllocate"
+><A NAME="v%3AformatAllocate"
+></A
+></A
+><B
+>formatAllocate</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3AAllocSolution"
+>AllocSolution</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#formatAllocate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Convert allocation/relocation results into the result format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatNodeEvac"
+><A NAME="v%3AformatNodeEvac"
+></A
+></A
+><B
+>formatNodeEvac</B
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Cluster.html#t%3AEvacSolution"
+>EvacSolution</A
+>) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#formatNodeEvac"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Convert a node-evacuation/change group result.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:processRelocate"
+><A NAME="v%3AprocessRelocate"
+></A
+></A
+><B
+>processRelocate</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#processRelocate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="rdoc"
+>The group list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="rdoc"
+>The node list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="rdoc"
+>The instance list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+><TD CLASS="rdoc"
+>The index of the instance to move
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Int</TD
+><TD CLASS="rdoc"
+>The number of nodes required
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+><TD CLASS="rdoc"
+>Nodes which should not be used
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>])</TD
+><TD CLASS="rdoc"
+>Solution list
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Runs relocate for a single instance.
+</P
+><P
+>This is wrapper over the <TT
+><A HREF="Ganeti-HTools-Cluster.html#v%3AtryNodeEvac"
+>tryNodeEvac</A
+></TT
+> function that is run
+ with a single instance (ours), and further it checks that the
+ result it got (in the nodes field) is actually consistent, as
+ tryNodeEvac is designed to output primarily an opcode list, not a
+ node list.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:formatRelocate"
+><A NAME="v%3AformatRelocate"
+></A
+></A
+><B
+>formatRelocate</B
+> :: (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#formatRelocate"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:processRequest"
+><A NAME="v%3AprocessRequest"
+></A
+></A
+><B
+>processRequest</B
+> :: <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+> -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-IAlloc.html#t%3AIAllocResult"
+>IAllocResult</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#processRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Process a request and return new node lists.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readRequest"
+><A NAME="v%3AreadRequest"
+></A
+></A
+><B
+>readRequest</B
+> :: FilePath -&gt; IO <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#readRequest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the request from the data file(s).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:runIAllocator"
+><A NAME="v%3ArunIAllocator"
+></A
+></A
+><B
+>runIAllocator</B
+> :: <A HREF="Ganeti-HTools-Loader.html#t%3ARequest"
+>Request</A
+> -&gt; (Maybe (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>), String)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#runIAllocator"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main iallocator pipeline.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadData"
+><A NAME="v%3AloadData"
+></A
+></A
+><B
+>loadData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/IAlloc.html#loadData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: FilePath</TD
+><TD CLASS="rdoc"
+>The path to the file
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Load the data from an iallocation request file
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-network(8) Ganeti | Version 2.11.8</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-network(8) Ganeti | Version 2.11.8</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#bugs">BUGS</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#add">ADD</a></li>
+<li><a href="#modify">MODIFY</a></li>
+<li><a href="#remove">REMOVE</a></li>
+<li><a href="#list">LIST</a></li>
+<li><a href="#list-fields">LIST-FIELDS</a></li>
+<li><a href="#info">INFO</a></li>
+<li><a href="#connect">CONNECT</a></li>
+<li><a href="#disconnect">DISCONNECT</a></li>
+<li><a href="#tags">Tags</a><ul>
+<li><a href="#add-tags">ADD-TAGS</a></li>
+<li><a href="#list-tags">LIST-TAGS</a></li>
+<li><a href="#remove-tags">REMOVE-TAGS</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-network - Ganeti network administration</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-network</strong> {command} [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-network</strong> command is used for network definition and administration in the Ganeti system. Each instance NIC can be connected to a network via the <code>network</code> NIC parameter. See <strong>gnt-instance</strong>(8) for more details.</p>
+<h1 id="bugs"><a href="#TOC">BUGS</a></h1>
+<p>The <code>hail</code> iallocator hasn't been updated to take networks into account in Ganeti 2.7. The only way to guarantee that it works correctly is having your networks connected to all nodegroups. This will be fixed in a future version.</p>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="add"><a href="#TOC">ADD</a></h2>
+<p><strong>add</strong><br />--network=<em>NETWORK</em><br />[--gateway=<em>GATEWAY</em>]<br />[--add-reserved-ips=<em>RESERVEDIPS</em>]<br />[--network6=<em>NETWORK6</em>]<br />[--gateway6=<em>GATEWAY6</em>]<br />[--mac-prefix=<em>MACPREFIX</em>]<br />[--submit] [--print-job-id]<br />[--no-conflicts-check]<br />{<em>network</em>}</p>
+<p>Creates a new network with the given name. The network will be unused initially. To connect it to a node group, use <code>gnt-network connect</code>. <code>--network</code> option is mandatory. All other are optional.</p>
+<p>The <code>--network</code> option allows you to specify the network in a CIDR notation.</p>
+<p>The <code>--gateway</code> option allows you to specify the default gateway for this network.</p>
+<p>IPv6 semantics can be assigned to the network via the <code>--network6</code> and <code>--gateway6</code> options. IP pool is meaningless for IPV6 so those two values can be used for EUI64 generation from a NIC's MAC address.</p>
+<p>The <code>--no-conflicts-check</code> option can be used to skip the check for conflicting IP addresses.</p>
+<p>Note that a when connecting a network to a node group (see below) you can specify also the NIC mode and link that will be used by instances on that group to physically connect to this network. This allows the system to work even if the parameters (eg. the VLAN number) change between groups.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="modify"><a href="#TOC">MODIFY</a></h2>
+<p><strong>modify</strong><br />[--gateway=<em>GATEWAY</em>]<br />[--add-reserved-ips=<em>RESERVEDIPS</em>]<br />[--remove-reserved-ips=<em>RESERVEDIPS</em>]<br />[--network6=<em>NETWORK6</em>]<br />[--gateway6=<em>GATEWAY6</em>]<br />[--mac-prefix=<em>MACPREFIX</em>]<br />[--submit] [--print-job-id]<br />{<em>network</em>}</p>
+<p>Modifies parameters from the network.</p>
+<p>Unable to modify network (IP address range). Create a new network if you want to do so. All other options are documented in the <strong>add</strong> command above.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="remove"><a href="#TOC">REMOVE</a></h2>
+<p><strong>remove</strong> [--submit] [--print-job-id] {<em>network</em>}</p>
+<p>Deletes the indicated network, which must be not connected to any node group.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--no-headers] [--separator=<em>SEPARATOR</em>] [-v]<br />[-o <em>[+]FIELD,...</em>] [network...]</p>
+<p>Lists all existing networks in the cluster. If no group names are given, then all groups are included. Otherwise, only the named groups will be listed.</p>
+<p>The <code>--no-headers</code> option will skip the initial header line. The <code>--separator</code> option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p>
+<p>The <code>-v</code> option activates verbose mode, which changes the display of special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <code>-o</code> option takes a comma-separated list of output fields. If the value of the option starts with the character <code>+</code>, the new fields will be added to the default list. This allows to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p>
+<p>The available fields and their meaning are:</p>
+<dl>
+<dt><code>ctime</code></dt>
+<dd><p>Creation timestamp</p>
+</dd>
+<dt><code>external_reservations</code></dt>
+<dd><p>External reservations</p>
+</dd>
+<dt><code>free_count</code></dt>
+<dd><p>Number of available addresses</p>
+</dd>
+<dt><code>gateway</code></dt>
+<dd><p>IPv4 gateway</p>
+</dd>
+<dt><code>gateway6</code></dt>
+<dd><p>IPv6 gateway</p>
+</dd>
+<dt><code>group_cnt</code></dt>
+<dd><p>Number of nodegroups</p>
+</dd>
+<dt><code>group_list</code></dt>
+<dd><p>List of nodegroups (group name, NIC mode, NIC link)</p>
+</dd>
+<dt><code>inst_cnt</code></dt>
+<dd><p>Number of instances</p>
+</dd>
+<dt><code>inst_list</code></dt>
+<dd><p>List of instances</p>
+</dd>
+<dt><code>mac_prefix</code></dt>
+<dd><p>MAC address prefix</p>
+</dd>
+<dt><code>map</code></dt>
+<dd><p>Actual mapping</p>
+</dd>
+<dt><code>mtime</code></dt>
+<dd><p>Modification timestamp</p>
+</dd>
+<dt><code>name</code></dt>
+<dd><p>Name</p>
+</dd>
+<dt><code>network</code></dt>
+<dd><p>IPv4 subnet</p>
+</dd>
+<dt><code>network6</code></dt>
+<dd><p>IPv6 subnet</p>
+</dd>
+<dt><code>reserved_count</code></dt>
+<dd><p>Number of reserved addresses</p>
+</dd>
+<dt><code>serial_no</code></dt>
+<dd><p>Network object serial number, incremented on each modification</p>
+</dd>
+<dt><code>tags</code></dt>
+<dd><p>Tags</p>
+</dd>
+<dt><code>uuid</code></dt>
+<dd><p>Network UUID</p>
+</dd>
+</dl>
+<h2 id="list-fields"><a href="#TOC">LIST-FIELDS</a></h2>
+<p><strong>list-fields</strong> [field...]</p>
+<p>List available fields for networks.</p>
+<h2 id="info"><a href="#TOC">INFO</a></h2>
+<p><strong>info</strong> [network...]</p>
+<p>Displays information about a given network.</p>
+<h2 id="connect"><a href="#TOC">CONNECT</a></h2>
+<p><strong>connect</strong><br />[--no-conflicts-check]<br />[{-N|--nic-parameters} <em>nic-param</em>=<em>value</em>[,<em>nic-param</em>=<em>value</em>...]]<br />{<em>network</em>} [<em>groups</em>...]</p>
+<p>Connect a network to given node groups (all if not specified) with the network parameters defined via the <code>--nic-parameters</code> option. Every network interface will inherit those parameters if assigned to a network.</p>
+<p>The <code>--no-conflicts-check</code> option can be used to skip the check for conflicting IP addresses.</p>
+<p>Passing <em>mode</em> and <em>link</em> as possitional arguments along with <em>network</em> and <em>groups</em> is deprecated and not supported any more.</p>
+<h2 id="disconnect"><a href="#TOC">DISCONNECT</a></h2>
+<p><strong>disconnect</strong> {<em>network</em>} [<em>groups</em>...]</p>
+<p>Disconnect a network from given node groups (all if not specified). This is possible only if no instance is using the network.</p>
+<h2 id="tags"><a href="#TOC">Tags</a></h2>
+<h3 id="add-tags"><a href="#TOC">ADD-TAGS</a></h3>
+<p><strong>add-tags</strong> [--from <em>file</em>] {<em>networkname</em>} {<em>tag</em>...}</p>
+<p>Add tags to the given network. If any of the tags contains invalid characters, the entire operation will abort.</p>
+<p>If the <code>--from</code> option is given, the list of tags will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, both sources will be used). A file name of <code>-</code> will be interpreted as stdin.</p>
+<h3 id="list-tags"><a href="#TOC">LIST-TAGS</a></h3>
+<p><strong>list-tags</strong> {<em>networkname</em>}</p>
+<p>List the tags of the given network.</p>
+<h3 id="remove-tags"><a href="#TOC">REMOVE-TAGS</a></h3>
+<p><strong>remove-tags</strong> [--from <em>file</em>] {<em>networkname</em>} {<em>tag</em>...}</p>
+<p>Remove tags from the given network. If any of the tags are not existing on the network, the entire operation will abort.</p>
+<p>If the <code>--from</code> option is given, the list of tags to be removed will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, tags from both sources will be removed). A file name of <code>-</code> will be interpreted as stdin.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2014 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

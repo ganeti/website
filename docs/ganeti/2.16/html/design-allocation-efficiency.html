@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Improving allocation efficiency by considering the total reserved memory &mdash; Ganeti 2.16.0~rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.16.0~rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.16.0~rc1 documentation" href="index.html" />
+    <link rel="next" title="Instance auto-repair" href="design-autorepair.html" />
+    <link rel="prev" title="Cluster Keys Replacement" href="cluster-keys-replacement.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-autorepair.html" title="Instance auto-repair"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="improving-allocation-efficiency-by-considering-the-total-reserved-memory">
+<h1><a class="toc-backref" href="#id1">Improving allocation efficiency by considering the total reserved memory</a><a class="headerlink" href="#improving-allocation-efficiency-by-considering-the-total-reserved-memory" title="Permalink to this headline">¶</a></h1>
+<p>This document describes a change to the cluster metric to enhance
+the allocation efficiency of Ganeti&#8217;s <tt class="docutils literal"><span class="pre">htools</span></tt>.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#improving-allocation-efficiency-by-considering-the-total-reserved-memory" id="id1">Improving allocation efficiency by considering the total reserved memory</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a></li>
+<li><a class="reference internal" href="#example" id="id4">Example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Ganeti&#8217;s <tt class="docutils literal"><span class="pre">htools</span></tt>, which typically make all allocation and balancing
+decisions, greedily try to improve the cluster metric. So it is important
+that the cluster metric faithfully reflects the objectives of these operations.
+Currently the cluster metric is composed of counting violations (instances on
+offline nodes, nodes that are not N+1 redundant, etc) and the sum of standard
+deviations of relative resource usage of the individual nodes. The latter
+component is to ensure that all nodes equally bear the load of the instances.
+This is reasonable for resources where the total usage is independent of
+its distribution, as it is the case for CPU, disk, and total RAM. It is,
+however, not true for reserved memory. By distributing its secondaries
+more widespread over the cluster, a node can reduce its reserved memory
+without increasing it on other nodes. Not taking this aspect into account
+has lead to quite inefficient allocation of instances on the cluster (see
+example below).</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>A new additive component is added to the cluster metric. It is the sum over
+all nodes of the fraction of reserved memory. This way, moves and allocations
+that reduce the amount of memory reserved to ensure N+1 redundancy are favored.</p>
+<p>Note that this component does not have the scaling of standard deviations of
+fractions, but, instead counts nodes reserved for N+1 redundancy. In an ideal
+allocation, this will not exceed 1. But bad allocations will violate this
+property. As waste of reserved memory is a more future-oriented problem than,
+e.g., current N+1 violations, we give the new component a relatively small
+weight of 0.25, so that counting current violations still dominate.</p>
+<p>Another consequence of this metric change is that the value 0 is no longer
+obtainable: as soon as we have DRBD instance, we have to reserve memory.
+However, in most cases only differences of scores influence decissions made.
+In the few cases, were absolute values of the cluster score are specified,
+they are interpreted as relative to the theoretical minimum of the reserved
+memory score.</p>
+</div>
+<div class="section" id="example">
+<h2><a class="toc-backref" href="#id4">Example</a><a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Consider the capacity of an empty cluster of 6 nodes, each capable of holding
+10 instances; this can be measured, e.g., by
+<tt class="docutils literal"><span class="pre">hspace</span> <span class="pre">--simulate=p,6,204801,10241,21</span> <span class="pre">--disk-template=drbd</span>
+<span class="pre">--standard-alloc=10240,1024,2</span></tt>. Without the metric change 34 standard
+instances are allocated. With the metric change, 48 standard instances
+are allocated. This is a 41% increase in utilization.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Improving allocation efficiency by considering the total reserved memory</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cluster-keys-replacement.html"
+                        title="previous chapter">Cluster Keys Replacement</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-autorepair.html"
+                        title="next chapter">Instance auto-repair</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-allocation-efficiency.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-autorepair.html" title="Instance auto-repair"
+             >next</a></li>
+        <li class="right" >
+          <a href="cluster-keys-replacement.html" title="Cluster Keys Replacement"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.16.0~rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

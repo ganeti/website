@@ -1,0 +1,1251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Ganeti customisation using hooks</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="ARTICLE"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="ARTICLE"
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Ganeti customisation using hooks</A
+></H1
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="#AEN5"
+>Introduction</A
+></DT
+><DT
+>2. <A
+HREF="#AEN11"
+>Organisation</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="#AEN21"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pre</I
+></SPAN
+> scripts</A
+></DT
+><DT
+>2.2. <A
+HREF="#AEN29"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>post</I
+></SPAN
+> scripts</A
+></DT
+><DT
+>2.3. <A
+HREF="#AEN34"
+>Naming</A
+></DT
+><DT
+>2.4. <A
+HREF="#AEN41"
+>Order of execution</A
+></DT
+><DT
+>2.5. <A
+HREF="#AEN47"
+>Execution environment</A
+></DT
+><DT
+>2.6. <A
+HREF="#AEN71"
+>Operation list</A
+></DT
+><DT
+>2.7. <A
+HREF="#AEN280"
+>Environment variables</A
+></DT
+><DD
+><DL
+><DT
+>2.7.1. <A
+HREF="#AEN284"
+>Common variables</A
+></DT
+><DT
+>2.7.2. <A
+HREF="#AEN323"
+>Specialised variables</A
+></DT
+></DL
+></DD
+></DL
+></DD
+></DL
+></DIV
+><P
+>Documents ganeti version 1.2</P
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN5"
+>1. Introduction</A
+></H2
+><P
+>      In order to allow customisation of operations, ganeti will run
+      scripts under <TT
+CLASS="FILENAME"
+>/etc/ganeti/hooks</TT
+> based on certain
+      rules.
+    </P
+><P
+>This is similar to the <TT
+CLASS="FILENAME"
+>/etc/network/</TT
+> structure present in
+      Debian for network interface handling.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H2
+CLASS="SECTION"
+><A
+NAME="AEN11"
+>2. Organisation</A
+></H2
+><P
+>For every operation, two sets of scripts are run:
+
+      <P
+></P
+><UL
+><LI
+><P
+>pre phase (for authorization/checking)</P
+></LI
+><LI
+><P
+>post phase (for logging)</P
+></LI
+></UL
+>
+      </P
+><P
+>Also, for each operation, the scripts are run on one or
+      more nodes, depending on the operation type.</P
+><P
+>Note that, even though we call them scripts, we are
+      actually talking about any executable.</P
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN21"
+>2.1. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pre</I
+></SPAN
+> scripts</A
+></H3
+><P
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pre</I
+></SPAN
+> scripts have a definite
+        target: to check that the operation is allowed given the
+        site-specific constraints. You could have, for example, a rule
+        that says every new instance is required to exists in a
+        database; to implement this, you could write a script that
+        checks the new instance parameters against your
+        database.</P
+><P
+>The objective of these scripts should be their return
+        code (zero or non-zero for success and failure). However, if
+        they modify the environment in any way, they should be
+        idempotent, as failed executions could be restarted and thus
+        the script(s) run again with exactly the same
+        parameters.</P
+><P
+>        Note that if a node is unreachable at the time a hooks is run,
+        this will not be interpreted as a deny for the execution. In
+        other words, only an actual error returned from a script will
+        cause abort, and not an unreachable node.
+      </P
+><P
+>        Therefore, if you want to guarantee that a hook script is run
+        and denies an action, it's best to put it on the master node.
+      </P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN29"
+>2.2. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>post</I
+></SPAN
+> scripts</A
+></H3
+><P
+>These scripts should do whatever you need as a reaction
+        to the completion of an operation. Their return code is not
+        checked (but logged), and they should not depend on the fact
+        that the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pre</I
+></SPAN
+> scripts have been
+        run.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN34"
+>2.3. Naming</A
+></H3
+><P
+>The allowed names for the scripts consist of (similar to
+        <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>run-parts</SPAN
+>(8)</SPAN
+>) upper and lower
+        case, digits, underscores and hyphens. In other words, the
+        regexp
+        <SAMP
+CLASS="COMPUTEROUTPUT"
+>^[a-zA-Z0-9_-]+$</SAMP
+>. Also,
+        non-executable scripts will be ignored.
+        </P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN41"
+>2.4. Order of execution</A
+></H3
+><P
+>On a single node, the scripts in a directory are run in
+        lexicographic order (more exactly, the python string
+        comparison order). It is advisable to implement the usual
+        <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>NN-name</I
+></SPAN
+> convention where
+        <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>NN</I
+></SPAN
+> is a two digit number.</P
+><P
+>For an operation whose hooks are run on multiple nodes,
+        there is no specific ordering of nodes with regard to hooks
+        execution; you should assume that the scripts are run in
+        parallel on the target nodes (keeping on each node the above
+        specified ordering).  If you need any kind of inter-node
+        synchronisation, you have to implement it yourself in the
+        scripts.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN47"
+>2.5. Execution environment</A
+></H3
+><P
+>The scripts will be run as follows:
+          <P
+></P
+><UL
+><LI
+><P
+>no command line arguments</P
+></LI
+><LI
+><P
+>no controlling <ACRONYM
+CLASS="ACRONYM"
+>tty</ACRONYM
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="VARNAME"
+>stdin</CODE
+> is
+                actually <TT
+CLASS="FILENAME"
+>/dev/null</TT
+></P
+></LI
+><LI
+><P
+><CODE
+CLASS="VARNAME"
+>stdout</CODE
+> and
+                <CODE
+CLASS="VARNAME"
+>stderr</CODE
+> are directed to
+                files</P
+></LI
+><LI
+><P
+>the <CODE
+CLASS="VARNAME"
+>PATH</CODE
+> is reset to
+                <TT
+CLASS="LITERAL"
+>/sbin:/bin:/usr/sbin:/usr/bin</TT
+></P
+></LI
+><LI
+><P
+>the environment is cleared, and only
+                ganeti-specific variables will be left</P
+></LI
+></UL
+>
+
+        </P
+><P
+>All informations about the cluster is passed using
+      environment variables. Different operations will have sligthly
+      different environments, but most of the variables are
+      common.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN71"
+>2.6. Operation list</A
+></H3
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN73"
+></A
+><P
+><B
+>Table 1. Operation list</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL
+WIDTH="1*"><COL
+WIDTH="1*"><COL
+WIDTH="1*"><COL
+WIDTH="1*"><COL
+WIDTH="1*"><COL
+WIDTH="1*"
+TITLE="prehooks"><COL
+WIDTH="1*"
+TITLE="posthooks"><THEAD
+><TR
+><TH
+>Operation ID</TH
+><TH
+>Directory prefix</TH
+><TH
+>Description</TH
+><TH
+>Command</TH
+><TH
+>Supported env. variables</TH
+><TH
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pre</I
+></SPAN
+> hooks</TH
+><TH
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>post</I
+></SPAN
+> hooks</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>OP_INIT_CLUSTER</TD
+><TD
+><TT
+CLASS="FILENAME"
+>cluster-init</TT
+></TD
+><TD
+>Initialises the cluster</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-cluster init</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>CLUSTER</CODE
+>, <CODE
+CLASS="CONSTANT"
+>MASTER</CODE
+></TD
+><TD
+COLSPAN="2"
+>master node, cluster name</TD
+></TR
+><TR
+><TD
+>OP_MASTER_FAILOVER</TD
+><TD
+><TT
+CLASS="FILENAME"
+>master-failover</TT
+></TD
+><TD
+>Changes the master</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-cluster master-failover</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>OLD_MASTER</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NEW_MASTER</CODE
+></TD
+><TD
+>the new master</TD
+><TD
+>all nodes</TD
+></TR
+><TR
+><TD
+>OP_ADD_NODE</TD
+><TD
+><TT
+CLASS="FILENAME"
+>node-add</TT
+></TD
+><TD
+>Adds a new node to the cluster</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-node add</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>NODE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NODE_PIP</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NODE_SIP</CODE
+></TD
+><TD
+>all existing nodes</TD
+><TD
+>all existing nodes plus the new node</TD
+></TR
+><TR
+><TD
+>OP_REMOVE_NODE</TD
+><TD
+><TT
+CLASS="FILENAME"
+>node-remove</TT
+></TD
+><TD
+>Removes a node from the cluster</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-node remove</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>NODE_NAME</CODE
+></TD
+><TD
+COLSPAN="2"
+>all existing nodes except the removed node</TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_ADD</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-add</TT
+></TD
+><TD
+>Creates a new instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance add</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_PRIMARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_SECONDARIES</CODE
+>, <CODE
+CLASS="CONSTANT"
+>DISK_TEMPLATE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>MEM_SIZE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>DISK_SIZE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>SWAP_SIZE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>VCPUS</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_IP</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_ADD_MODE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>SRC_NODE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>SRC_PATH</CODE
+>, <CODE
+CLASS="CONSTANT"
+>SRC_IMAGE</CODE
+></TD
+><TD
+COLSPAN="2"
+ROWSPAN="5"
+>master node, primary and
+                   secondary nodes</TD
+></TR
+><TR
+><TD
+>OP_BACKUP_EXPORT</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-export</TT
+></TD
+><TD
+>Export the instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-backup export</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>EXPORT_NODE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>EXPORT_DO_SHUTDOWN</CODE
+></TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_START</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-start</TT
+></TD
+><TD
+>Starts an instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance start</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_PRIMARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_SECONDARIES</CODE
+>, <CODE
+CLASS="CONSTANT"
+>FORCE</CODE
+></TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_SHUTDOWN</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-shutdown</TT
+></TD
+><TD
+>Stops an instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance shutdown</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_PRIMARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_SECONDARIES</CODE
+></TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_MODIFY</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-modify</TT
+></TD
+><TD
+>Modifies the instance parameters.</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance modify</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>MEM_SIZE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>VCPUS</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_IP</CODE
+></TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_FAILOVER</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-failover</TT
+></TD
+><TD
+>Failover an instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance start</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_PRIMARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_SECONDARIES</CODE
+>, <CODE
+CLASS="CONSTANT"
+>IGNORE_CONSISTENCY</CODE
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_REMOVE</TD
+><TD
+><TT
+CLASS="FILENAME"
+>instance-remove</TT
+></TD
+><TD
+>Remove an instance</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance remove</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_PRIMARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>INSTANCE_SECONDARIES</CODE
+></TD
+><TD
+COLSPAN="2"
+>master node</TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_ADD_MDDRBD</TD
+><TD
+><TT
+CLASS="FILENAME"
+>mirror-add</TT
+></TD
+><TD
+>Adds a mirror component</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance add-mirror</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NEW_SECONDARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>DISK_NAME</CODE
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_REMOVE_MDDRBD</TD
+><TD
+><TT
+CLASS="FILENAME"
+>mirror-remove</TT
+></TD
+><TD
+>Removes a mirror component</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance remove-mirror</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>OLD_SECONDARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>DISK_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>DISK_ID</CODE
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>OP_INSTANCE_REPLACE_DISKS</TD
+><TD
+><TT
+CLASS="FILENAME"
+>mirror-replace</TT
+></TD
+><TD
+>Replace all mirror components</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-instance replace-disks</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>INSTANCE_NAME</CODE
+>, <CODE
+CLASS="CONSTANT"
+>OLD_SECONDARY</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NEW_SECONDARY</CODE
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>OP_CLUSTER_VERIFY</TD
+><TD
+><TT
+CLASS="FILENAME"
+>cluster-verify</TT
+></TD
+><TD
+>Verifies the cluster status</TD
+><TD
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>gnt-cluster verify</SAMP
+></TD
+><TD
+><CODE
+CLASS="CONSTANT"
+>CLUSTER</CODE
+>, <CODE
+CLASS="CONSTANT"
+>MASTER</CODE
+></TD
+><TD
+>NONE</TD
+><TD
+>all nodes</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H3
+CLASS="SECTION"
+><A
+NAME="AEN280"
+>2.7. Environment variables</A
+></H3
+><P
+>Note that all variables listed here are actually prefixed
+      with <CODE
+CLASS="CONSTANT"
+>GANETI_</CODE
+> in order to provide a
+      different namespace.</P
+><DIV
+CLASS="SECTION"
+><HR><H4
+CLASS="SECTION"
+><A
+NAME="AEN284"
+>2.7.1. Common variables</A
+></H4
+><P
+>This is the list of environment variables supported by
+        all operations:</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>HOOKS_VERSION</DT
+><DD
+><P
+>Documents the hooks interface version. In case this
+            doesnt match what the script expects, it should not
+            run. The documents conforms to the version
+            <TT
+CLASS="LITERAL"
+>1</TT
+>.</P
+></DD
+><DT
+>HOOKS_PHASE</DT
+><DD
+><P
+>one of <CODE
+CLASS="CONSTANT"
+>PRE</CODE
+> or
+              <CODE
+CLASS="CONSTANT"
+>POST</CODE
+> denoting which phase are we
+              in.</P
+></DD
+><DT
+>CLUSTER</DT
+><DD
+><P
+>the cluster name</P
+></DD
+><DT
+>MASTER</DT
+><DD
+><P
+>the master node</P
+></DD
+><DT
+>OP_ID</DT
+><DD
+><P
+>one of the <CODE
+CLASS="CONSTANT"
+>OP_*</CODE
+> values from
+              the table of operations</P
+></DD
+><DT
+>OBJECT_TYPE</DT
+><DD
+><P
+>one of <CODE
+CLASS="CONSTANT"
+>INSTANCE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>NODE</CODE
+>, <CODE
+CLASS="CONSTANT"
+>CLUSTER</CODE
+>, showing the target of the operation.
+             </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H4
+CLASS="SECTION"
+><A
+NAME="AEN323"
+>2.7.2. Specialised variables</A
+></H4
+><P
+>This is the list of variables which are specific to one
+        or more operations.</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>INSTANCE_NAME</DT
+><DD
+><P
+>The name of the instance which is the target of
+              the operation.</P
+></DD
+><DT
+>INSTANCE_DISK_TYPE</DT
+><DD
+><P
+>The disk type for the instance.</P
+></DD
+><DT
+>INSTANCE_DISK_SIZE</DT
+><DD
+><P
+>The (OS) disk size for the instance.</P
+></DD
+><DT
+>INSTANCE_OS</DT
+><DD
+><P
+>The name of the instance OS.</P
+></DD
+><DT
+>INSTANCE_PRIMARY</DT
+><DD
+><P
+>The name of the node which is the primary for the
+              instance.</P
+></DD
+><DT
+>INSTANCE_SECONDARIES</DT
+><DD
+><P
+>Space-separated list of secondary nodes for the
+              instance.</P
+></DD
+><DT
+>NODE_NAME</DT
+><DD
+><P
+>The target node of this operation (not the node on
+              which the hook runs).</P
+></DD
+><DT
+>NODE_PIP</DT
+><DD
+><P
+>The primary IP of the target node (the one over
+              which inter-node communication is done).</P
+></DD
+><DT
+>NODE_SIP</DT
+><DD
+><P
+>The secondary IP of the target node (the one over
+              which drbd replication is done). This can be equal to
+              the primary ip, in case the cluster is not
+              dual-homed.</P
+></DD
+><DT
+>OLD_MASTER, NEW_MASTER</DT
+><DD
+><P
+>The old, respectively the new master for the
+              master failover operation.</P
+></DD
+><DT
+>FORCE</DT
+><DD
+><P
+>This is provided by some operations when the user
+              gave this flag.</P
+></DD
+><DT
+>IGNORE_CONSISTENCY</DT
+><DD
+><P
+>The user has specified this flag. It is used when
+              failing over instances in case the primary node is
+              down.</P
+></DD
+><DT
+>MEM_SIZE, DISK_SIZE, SWAP_SIZE, VCPUS</DT
+><DD
+><P
+>The memory, disk, swap size and the number of
+              processor selected for the instance (in
+              <B
+CLASS="COMMAND"
+>gnt-instance add</B
+> or
+              <B
+CLASS="COMMAND"
+>gnt-instance modify</B
+>).</P
+></DD
+><DT
+>INSTANCE_IP</DT
+><DD
+><P
+>If defined, the instance IP in the
+              <B
+CLASS="COMMAND"
+>gnt-instance add</B
+> and
+              <B
+CLASS="COMMAND"
+>gnt-instance set</B
+> commands. If not
+              defined, it means that no IP has been defined.</P
+></DD
+><DT
+>DISK_TEMPLATE</DT
+><DD
+><P
+>The disk template type when creating the instance.</P
+></DD
+><DT
+>INSTANCE_ADD_MODE</DT
+><DD
+><P
+>The mode of the create: either
+              <CODE
+CLASS="CONSTANT"
+>create</CODE
+> for create from scratch or
+              <CODE
+CLASS="CONSTANT"
+>import</CODE
+> for restoring from an
+              exported image.</P
+></DD
+><DT
+>SRC_NODE, SRC_PATH, SRC_IMAGE</DT
+><DD
+><P
+>In case the instance has been added by import,
+              these variables are defined and point to the source
+              node, source path (the directory containing the image
+              and the config file) and the source disk image
+              file.</P
+></DD
+><DT
+>DISK_NAME</DT
+><DD
+><P
+>The disk name (either <TT
+CLASS="FILENAME"
+>sda</TT
+> or
+              <TT
+CLASS="FILENAME"
+>sdb</TT
+>) in mirror operations
+              (add/remove mirror).</P
+></DD
+><DT
+>DISK_ID</DT
+><DD
+><P
+>The disk id for mirror remove operations. You can
+              look this up using <B
+CLASS="COMMAND"
+>gnt-instance
+              info</B
+>.</P
+></DD
+><DT
+>NEW_SECONDARY</DT
+><DD
+><P
+>The name of the node on which the new mirror
+              componet is being added. This can be the name of the
+              current secondary, if the new mirror is on the same
+              secondary.</P
+></DD
+><DT
+>OLD_SECONDARY</DT
+><DD
+><P
+>The name of the old secondary. This is used in
+              both <B
+CLASS="COMMAND"
+>replace-disks</B
+> and
+              <B
+CLASS="COMMAND"
+>remove-mirror</B
+>. Note that this can be
+              equal to the new secondary (only
+              <B
+CLASS="COMMAND"
+>replace-disks</B
+> has both variables) if
+              the secondary node hasn't actually changed).</P
+></DD
+><DT
+>EXPORT_NODE</DT
+><DD
+><P
+>The node on which the exported image of the
+              instance was done.</P
+></DD
+><DT
+>EXPORT_DO_SHUTDOWN</DT
+><DD
+><P
+>This variable tells if the instance has been
+              shutdown or not while doing the export. In the "was
+              shutdown" case, it's likely that the filesystem is
+              consistent, whereas in the "did not shutdown" case, the
+              filesystem would need a check (journal replay or full
+              fsck) in order to guarantee consistency.</P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+></DIV
+></DIV
+></BODY
+></HTML
+>

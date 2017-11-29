@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti-os-interface &mdash; Ganeti 2.8.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.8.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.8.4 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="ganeti-rapi" href="man-ganeti-rapi.html" />
+    <link rel="prev" title="ganeti-noded" href="man-ganeti-noded.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-rapi.html" title="ganeti-rapi"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-noded.html" title="ganeti-noded"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-os-interface">
+<h1>ganeti-os-interface<a class="headerlink" href="#ganeti-os-interface" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti-os-interface - Specifications for guest OS types</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The method of supporting guest operating systems in Ganeti is to have,
+for each guest OS type, a directory containing a number of required
+files. This directory must be present across all nodes (Ganeti doesn&#8217;t
+replicate it) in order for the OS to be usable by Ganeti.</p>
+</div>
+<div class="section" id="reference">
+<h2>REFERENCE<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<p>There are eight required files: <em>create</em>, <em>import</em>, <em>export</em>, <em>rename</em>,
+<em>verify</em> (executables), <em>ganeti_api_version</em>, <em>variants.list</em> and
+<em>parameters.list</em> (text files).</p>
+<div class="section" id="common-environment">
+<h3>Common environment<a class="headerlink" href="#common-environment" title="Permalink to this headline">¶</a></h3>
+<p>All commands will get their input via environment variables. A
+common set of variables will be exported for all commands, and some
+of them might have extra ones. Note that all counts are
+zero-based.</p>
+<p>Since Ganeti version 2.5, the environment will be cleaned up before
+being passed to scripts, therefore they will not inherit the environment
+in with which the ganeti node daemon was started. If you depend on any
+environment variables (non-Ganeti), then you will need to define or
+source them appropriately.</p>
+<dl class="docutils">
+<dt>OS_API_VERSION</dt>
+<dd>The OS API version that the rest of the environment conforms to.</dd>
+<dt>INSTANCE_NAME</dt>
+<dd>The instance name the script should operate on.</dd>
+<dt>INSTANCE_OS, OS_NAME</dt>
+<dd><p class="first">Both names point to the name of the instance&#8217;s OS as Ganeti knows
+it. This can simplify the OS scripts by providing the same scripts
+under multiple names, and then the scripts can use this name to
+alter their behaviour.</p>
+<p class="last">With OS API 15 changing the script behavior based on this variable
+is deprecated: OS_VARIANT should be used instead (see below).</p>
+</dd>
+<dt>OS_VARIANT</dt>
+<dd>The variant of the OS which should be installed. Each OS must
+support all variants listed under its variants.list file, and may
+support more. Any more supported variants should be properly
+documented in the per-OS documentation.</dd>
+<dt>HYPERVISOR</dt>
+<dd>The hypervisor of this instance.</dd>
+<dt>DISK_COUNT</dt>
+<dd>The number of disks the instance has. The actual disk defitions are
+in a set of additional variables. The instance&#8217;s disk will be
+numbered from 0 to this value minus one.</dd>
+<dt>DISK_%N_PATH</dt>
+<dd>The path to the storage for disk N of the instance. This might be
+either a block device or a regular file, in which case the OS
+scripts should use <tt class="docutils literal"><span class="pre">losetup</span></tt> (if they need to mount it). E.g. the
+first disk of the instance might be exported as
+<tt class="docutils literal"><span class="pre">DISK_0_PATH=/dev/drbd0</span></tt>.</dd>
+<dt>DISK_%N_ACCESS</dt>
+<dd>This is how the hypervisor will export the instance disks: either
+read-write (<tt class="docutils literal"><span class="pre">rw</span></tt>) or read-only (<tt class="docutils literal"><span class="pre">ro</span></tt>).</dd>
+<dt>DISK_%N_UUID</dt>
+<dd>The uuid associated with the N-th disk of the instance.</dd>
+<dt>DISK_%N_NAME</dt>
+<dd>(Optional) The name, if any, associated with the N-th disk of the instance.</dd>
+<dt>DISK_%N_FRONTEND_TYPE</dt>
+<dd>(Optional) If applicable to the current hypervisor type: the type
+of the device exported by the hypervisor. For example, the Xen HVM
+hypervisor can export disks as either <tt class="docutils literal"><span class="pre">paravirtual</span></tt> or
+<tt class="docutils literal"><span class="pre">ioemu</span></tt>.</dd>
+<dt>DISK_%N_BACKEND_TYPE</dt>
+<dd>How files are visible on the node side. This can be either
+<tt class="docutils literal"><span class="pre">block</span></tt> (when using block devices) or <tt class="docutils literal"><span class="pre">file:type</span></tt>, where
+<tt class="docutils literal"><span class="pre">type</span></tt> is either <tt class="docutils literal"><span class="pre">loop</span></tt>, <tt class="docutils literal"><span class="pre">blktap</span></tt> or <tt class="docutils literal"><span class="pre">blktap2</span></tt>, depending on how the
+hypervisor will be configured.  Note that not all backend types apply to all
+hypervisors.</dd>
+<dt>NIC_COUNT</dt>
+<dd>Similar to the <tt class="docutils literal"><span class="pre">DISK_COUNT</span></tt>, this represents the number of NICs
+of the instance.</dd>
+<dt>NIC_%N_MAC</dt>
+<dd>The MAC address associated with this interface.</dd>
+<dt>NIC_%N_UUID</dt>
+<dd>The uuid associated with the N-th NIC of the instance.</dd>
+<dt>NIC_%N_NAME</dt>
+<dd>(Optional) The name, if any, associated with the N-th NIC of the instance.</dd>
+<dt>NIC_%N_IP</dt>
+<dd>The IP address, if any, associated with the N-th NIC of the
+instance.</dd>
+<dt>NIC_%N_MODE</dt>
+<dd>The NIC mode, routed, bridged or openvswitch</dd>
+<dt>NIC_%N_BRIDGE</dt>
+<dd>The bridge to which this NIC will be attached. This variable is
+defined only when the NIC is in bridged mode.</dd>
+<dt>NIC_%N_LINK</dt>
+<dd>In bridged or openvswitch mode, this is the interface to which the
+NIC will be attached (same as <tt class="docutils literal"><span class="pre">NIC_%N_BRIDGE</span></tt> for bridged). In
+routed mode it is the routing table which will be used by the
+hypervisor to insert the appropriate routes.</dd>
+<dt>NIC_%N_FRONTEND_TYPE</dt>
+<dd>(Optional) If applicable, the type of the exported NIC to the
+instance, this can be one of: <tt class="docutils literal"><span class="pre">rtl8139</span></tt>, <tt class="docutils literal"><span class="pre">ne2k_pci</span></tt>,
+<tt class="docutils literal"><span class="pre">ne2k_isa</span></tt>, <tt class="docutils literal"><span class="pre">paravirtual</span></tt>.</dd>
+<dt>NIC_%d_NETWORK_NAME</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s name.</dd>
+<dt>NIC_%d_NETWORK_UUID</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s uuid.</dd>
+<dt>NIC_%d_NETWORK_FAMILY</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s family.</dd>
+<dt>NIC_%d_NETWORK_SUBNET</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s IPv4 subnet.</dd>
+<dt>NIC_%d_NETWORK_GATEWAY</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s IPv4
+gateway.</dd>
+<dt>NIC_%d_NETWORK_SUBNET6</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s IPv6 subnet.</dd>
+<dt>NIC_%d_NETWORK_GATEWAY6</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s IPv6
+gateway.</dd>
+<dt>NIC_%d_NETWORK_MAC_PREFIX</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s mac prefix.</dd>
+<dt>NIC_%d_NETWORK_TAGS</dt>
+<dd>(Optional) If a NIC network is specified, the network&#8217;s tags, space
+separated.</dd>
+<dt>OSP_*name*</dt>
+<dd>Each OS parameter (see below) will be exported in its own
+variable, prefixed with <tt class="docutils literal"><span class="pre">OSP_</span></tt>, and upper-cased. For example, a
+<tt class="docutils literal"><span class="pre">dhcp</span></tt> parameter will be exported as <tt class="docutils literal"><span class="pre">OSP_DHCP</span></tt>.</dd>
+<dt>DEBUG_LEVEL</dt>
+<dd>If non-zero, this should cause the OS script to generate verbose
+logs of its execution, for troubleshooting purposes. Currently
+only <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt> are valid values.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="executable-scripts">
+<h2>EXECUTABLE SCRIPTS<a class="headerlink" href="#executable-scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create">
+<h3>create<a class="headerlink" href="#create" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>create</strong> command is used for creating a new instance from
+scratch. It has no additional environment variables bside the
+common ones.</p>
+<p>The <tt class="docutils literal"><span class="pre">INSTANCE_NAME</span></tt> variable denotes the name of the instance,
+which is guaranteed to resolve to an IP address. The create script
+should configure the instance according to this name. It can
+configure the IP statically or not, depending on the deployment
+environment.</p>
+<p>The <tt class="docutils literal"><span class="pre">INSTANCE_REINSTALL</span></tt> variable is set to <tt class="docutils literal"><span class="pre">1</span></tt> when this create
+request is reinstalling an existing instance, rather than creating
+one anew. This can be used, for example, to preserve some data in the
+old instance in an OS-specific way.</p>
+</div>
+<div class="section" id="export">
+<h3>export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h3>
+<p>This command is used in order to make a backup of a given disk of
+the instance. The command should write to stdout a dump of the
+given block device. The output of this program will be passed
+during restore to the <strong>import</strong> command.</p>
+<p>The specific disk to backup is denoted by two additional environment
+variables: <tt class="docutils literal"><span class="pre">EXPORT_INDEX</span></tt> which denotes the index in the instance
+disks structure (and could be used for example to skip the second disk
+if not needed for backup) and <tt class="docutils literal"><span class="pre">EXPORT_DEVICE</span></tt> which has the same value
+as <tt class="docutils literal"><span class="pre">DISK_N_PATH</span></tt> but is duplicated here for easier usage by shell
+scripts (rather than parse the <tt class="docutils literal"><span class="pre">DISK_...</span></tt> variables).</p>
+<p>To provide the user with an estimate on how long the export will take,
+a predicted size can be written to the file descriptor passed in the
+variable <tt class="docutils literal"><span class="pre">EXP_SIZE_FD</span></tt>. The value is in bytes and must be terminated
+by a newline character (<tt class="docutils literal"><span class="pre">\n</span></tt>). Older versions of Ganeti don&#8217;t
+support this feature, hence the variable should be checked before
+use. Example:</p>
+<div class="highlight-python"><pre>if test -n "$EXP_SIZE_FD"; then
+  blockdev --getsize64 $blockdev &gt;&amp;$EXP_SIZE_FD
+fi</pre>
+</div>
+</div>
+<div class="section" id="import">
+<h3>import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>import</strong> command is used for restoring an instance from a
+backup as done by <strong>export</strong>. The arguments are the similar to
+those passed to <strong>export</strong>, whose output will be provided on
+stdin.</p>
+<p>The difference in variables is that the current disk is denoted by
+<tt class="docutils literal"><span class="pre">IMPORT_DEVICE</span></tt> and <tt class="docutils literal"><span class="pre">IMPORT_INDEX</span></tt> (instead of <tt class="docutils literal"><span class="pre">EXPORT_...</span></tt>).</p>
+</div>
+<div class="section" id="rename">
+<h3>rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h3>
+<p>This command is used in order to perform a rename at the instance
+OS level, after the instance has been renamed in Ganeti. The
+command should do whatever steps are required to ensure that the
+instance is updated to use the new name, if the operating system
+supports it.</p>
+<p>Note that it is acceptable for the rename script to do nothing at
+all, however be warned that in this case, there will be a
+desynchronization between what gnt-instance list shows you and the
+actual hostname of the instance.</p>
+<p>The script will be passed one additional environment variable
+called <tt class="docutils literal"><span class="pre">OLD_INSTANCE_NAME</span></tt> which holds the old instance name. The
+<tt class="docutils literal"><span class="pre">INSTANCE_NAME</span></tt> variable holds the new instance name.</p>
+<p>A very simple rename script should at least change the hostname and
+IP address of the instance, leaving the administrator to update the
+other services.</p>
+</div>
+<div class="section" id="verify">
+<h3>verify<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h3>
+<p>The <em>verify</em> script is used to verify consistency of the OS parameters
+(see below). The command should take one or more arguments denoting
+what checks should be performed, and return a proper exit code
+depending on whether the validation failed or succeeded.</p>
+<p>Currently (API version 20), only one parameter is supported:
+<tt class="docutils literal"><span class="pre">parameters</span></tt>. This should validate the <tt class="docutils literal"><span class="pre">OSP_</span></tt> variables from the
+environment, and output diagnostic messages in case the validation
+fails.</p>
+<p>For the <tt class="docutils literal"><span class="pre">dhcp</span></tt> parameter given as example above, a verification
+script could be:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+
+<span class="k">case</span> <span class="nv">$OSP_DHCP</span> in
+  <span class="s2">&quot;&quot;</span>|yes|no<span class="o">)</span>
+      ;;
+  *<span class="o">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;Invalid value &#39;$OSP_DHCP&#39; for the dhcp parameter&quot;</span> 1&gt;&amp;2
+    <span class="nb">exit </span>1;
+    ;;
+<span class="k">esac</span>
+
+<span class="nb">exit </span>0
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="text-files">
+<h2>TEXT FILES<a class="headerlink" href="#text-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ganeti-api-version">
+<h3>ganeti_api_version<a class="headerlink" href="#ganeti-api-version" title="Permalink to this headline">¶</a></h3>
+<p>The ganeti_api_version file is a plain text file containing the
+version(s) of the guest OS API that this OS definition complies
+with, one per line. The version documented by this man page is 20,
+so this file must contain the number 20 followed by a newline if
+only this version is supported. A script compatible with more than
+one Ganeti version should contain the most recent version first
+(i.e. 20), followed by the old version(s) (in this case 15 and/or
+10).</p>
+</div>
+<div class="section" id="variants-list">
+<h3>variants.list<a class="headerlink" href="#variants-list" title="Permalink to this headline">¶</a></h3>
+<p>variants.list is a plain text file containing all the declared supported
+variants for this OS, one per line. If this file is missing or empty,
+then the OS won&#8217;t be considered to support variants.</p>
+<p>Empty lines and lines starting with a hash (<tt class="docutils literal"><span class="pre">#</span></tt>) are ignored.</p>
+</div>
+<div class="section" id="parameters-list">
+<h3>parameters.list<a class="headerlink" href="#parameters-list" title="Permalink to this headline">¶</a></h3>
+<p>This file declares the parameters supported by the OS, one parameter
+per line, with name and description (space and/or tab separated). For
+example:</p>
+<div class="highlight-python"><pre>dhcp Whether to enable (yes) or disable (no) dhcp
+root_size The size of the root partition, in GiB</pre>
+</div>
+<p>The parameters can then be used in instance add or modification, as
+follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-instance add -O dhcp=no,root_size=8 ...</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="backwards-compatibility">
+<h3>Backwards compatibility<a class="headerlink" href="#backwards-compatibility" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti 2.3 and up is compatible with API versions 10, 15 and 20. The OS
+parameters and related scripts (verify) are only supported in
+version 20. The variants functionality (variants.list, and OS_VARIANT
+env. var) are supported/present only in version 15 and up.</p>
+</div>
+<div class="section" id="common-behaviour">
+<h3>Common behaviour<a class="headerlink" href="#common-behaviour" title="Permalink to this headline">¶</a></h3>
+<p>All the scripts should display an usage message when called with a
+wrong number of arguments or when the first argument is <tt class="docutils literal"><span class="pre">-h</span></tt> or
+<tt class="docutils literal"><span class="pre">--help</span></tt>.</p>
+</div>
+<div class="section" id="upgrading-from-old-versions">
+<h3>Upgrading from old versions<a class="headerlink" href="#upgrading-from-old-versions" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="version-15-to-20">
+<h4>Version 15 to 20<a class="headerlink" href="#version-15-to-20" title="Permalink to this headline">¶</a></h4>
+<p>The <tt class="docutils literal"><span class="pre">parameters.list</span></tt> file and <tt class="docutils literal"><span class="pre">verify</span></tt> script have been
+added. For no parameters, an empty parameters file and an empty verify
+script which returns success can be used.</p>
+</div>
+<div class="section" id="version-10-to-15">
+<h4>Version 10 to 15<a class="headerlink" href="#version-10-to-15" title="Permalink to this headline">¶</a></h4>
+<p>The <tt class="docutils literal"><span class="pre">variants.list</span></tt> file has been added, so OSes should support at
+least one variant, declaring it in that file and must be prepared to
+parse the OS_VARIANT environment variable. OSes are free to support more
+variants than just the declared ones. Note that this file is optional;
+without it, the variants functionality is disabled.</p>
+</div>
+<div class="section" id="version-5-to-10">
+<h4>Version 5 to 10<a class="headerlink" href="#version-5-to-10" title="Permalink to this headline">¶</a></h4>
+<p>The method for passing data has changed from command line options
+to environment variables, so scripts should be modified to use
+these. For an example of how this can be done in a way compatible
+with both versions, feel free to look at the debootstrap instance&#8217;s
+common.sh auxiliary script.</p>
+<p>Also, instances can have now a variable number of disks, not only
+two, and a variable number of NICs (instead of fixed one), so the
+scripts should deal with this. The biggest change is in the
+import/export, which are called once per disk, instead of once per
+instance.</p>
+</div>
+<div class="section" id="version-4-to-5">
+<h4>Version 4 to 5<a class="headerlink" href="#version-4-to-5" title="Permalink to this headline">¶</a></h4>
+<p>The rename script has been added. If you don&#8217;t want to do any
+changes on the instances after a rename, you can migrate the OS
+definition to version 5 by creating the rename script simply as:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+
+<span class="nb">exit </span>0
+</pre></div>
+</div>
+<p>Note that the script must be executable.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti-os-interface</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#reference">REFERENCE</a><ul>
+<li><a class="reference internal" href="#common-environment">Common environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#executable-scripts">EXECUTABLE SCRIPTS</a><ul>
+<li><a class="reference internal" href="#create">create</a></li>
+<li><a class="reference internal" href="#export">export</a></li>
+<li><a class="reference internal" href="#import">import</a></li>
+<li><a class="reference internal" href="#rename">rename</a></li>
+<li><a class="reference internal" href="#verify">verify</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#text-files">TEXT FILES</a><ul>
+<li><a class="reference internal" href="#ganeti-api-version">ganeti_api_version</a></li>
+<li><a class="reference internal" href="#variants-list">variants.list</a></li>
+<li><a class="reference internal" href="#parameters-list">parameters.list</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#notes">NOTES</a><ul>
+<li><a class="reference internal" href="#backwards-compatibility">Backwards compatibility</a></li>
+<li><a class="reference internal" href="#common-behaviour">Common behaviour</a></li>
+<li><a class="reference internal" href="#upgrading-from-old-versions">Upgrading from old versions</a><ul>
+<li><a class="reference internal" href="#version-15-to-20">Version 15 to 20</a></li>
+<li><a class="reference internal" href="#version-10-to-15">Version 10 to 15</a></li>
+<li><a class="reference internal" href="#version-5-to-10">Version 5 to 10</a></li>
+<li><a class="reference internal" href="#version-4-to-5">Version 4 to 5</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-noded.html"
+                        title="previous chapter">ganeti-noded</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-ganeti-rapi.html"
+                        title="next chapter">ganeti-rapi</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti-os-interface.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-rapi.html" title="ganeti-rapi"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-noded.html" title="ganeti-noded"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

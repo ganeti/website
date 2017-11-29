@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-group(8) Ganeti | Version 2.11.8</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-group(8) Ganeti | Version 2.11.8</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#add">ADD</a></li>
+<li><a href="#assign-nodes">ASSIGN-NODES</a></li>
+<li><a href="#modify">MODIFY</a></li>
+<li><a href="#remove">REMOVE</a></li>
+<li><a href="#list">LIST</a></li>
+<li><a href="#list-fields">LIST-FIELDS</a></li>
+<li><a href="#rename">RENAME</a></li>
+<li><a href="#evacuate">EVACUATE</a></li>
+<li><a href="#tags">Tags</a><ul>
+<li><a href="#add-tags">ADD-TAGS</a></li>
+<li><a href="#list-tags">LIST-TAGS</a></li>
+<li><a href="#remove-tags">REMOVE-TAGS</a></li>
+</ul></li>
+<li><a href="#info">INFO</a></li>
+<li><a href="#show-ispecs-cmd">SHOW-ISPECS-CMD</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-group - Ganeti node-group administration</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-group</strong> {command} [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-group</strong> command is used for node group administration in the Ganeti system.</p>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="add"><a href="#TOC">ADD</a></h2>
+<p><strong>add</strong> [--submit] [--print-job-id]<br />[--node-parameters=<em>NDPARAMS</em>]<br />[--alloc-policy=<em>POLICY</em>]<br />[{-D|--disk-parameters} <em>disk-template</em>:<em>disk-param</em>=<em>value</em>[,<em>disk-param</em>=<em>value</em>...]]<br />[--ipolicy-bounds-specs <em>bound_ispecs</em>]<br />[--ipolicy-disk-templates <em>template</em> [,<em>template</em>...]]<br />[--ipolicy-spindle-ratio <em>ratio</em>]<br />[--ipolicy-vcpu-ratio <em>ratio</em>]<br />[--disk-state <em>diskstate</em>]<br />[--hypervisor-state <em>hvstate</em>]<br />{<em>group</em>}</p>
+<p>Creates a new group with the given name. The node group will be initially empty; to add nodes to it, use <code>gnt-group assign-nodes</code>.</p>
+<p>The <code>--node-parameters</code> option allows you to set default node parameters for nodes in the group. Please see <strong>ganeti</strong>(7) for more information about supported key=value pairs and their corresponding options.</p>
+<p>The <code>--alloc-policy</code> option allows you to set an allocation policy for the group at creation time. Possible values are:</p>
+<dl>
+<dt>unallocable</dt>
+<dd><p>nodes in the group should not be candidates for instance allocation, and the operation (e.g., instance creation) should fail if only groups in this state could be found to satisfy the requirements.</p>
+</dd>
+<dt>last_resort</dt>
+<dd><p>nodes in the group should not be used for instance allocations, unless this would be the only way to have the operation succeed.</p>
+</dd>
+<dt>preferred</dt>
+<dd><p>nodes in the group can be used freely for allocation of instances (this is the default). Note that prioritization among groups in this state will be deferred to the iallocator plugin that's being used.</p>
+</dd>
+</dl>
+<p>The <code>-D (--disk-parameters)</code> option allows you to set the disk parameters for the node group; please see the section about <strong>gnt-cluster add</strong> in <strong>gnt-cluster</strong>(8) for more information about disk parameters</p>
+<p>The <code>--ipolicy-...</code> options specify instance policies on the node group, and are documented in the <strong>gnt-cluster</strong>(8) man page.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="assign-nodes"><a href="#TOC">ASSIGN-NODES</a></h2>
+<p><strong>assign-nodes</strong><br />[--force] [--submit] [--print-job-id]<br />{<em>group</em>} {<em>node</em>...}</p>
+<p>Assigns one or more nodes to the specified group, moving them from their original group (or groups).</p>
+<p>By default, this command will refuse to proceed if the move would split between groups any instance that was not previously split (a split instance is an instance with a mirrored disk template, e.g. DRBD, that has the primary and secondary nodes in different node groups). You can force the operation with <code>--force</code>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="modify"><a href="#TOC">MODIFY</a></h2>
+<p><strong>modify</strong> [--submit] [--print-job-id]<br />[--node-parameters=<em>NDPARAMS</em>]<br />[--alloc-policy=<em>POLICY</em>]<br />[--hypervisor-state <em>hvstate</em>]<br />[{-D|--disk-parameters} <em>disk-template</em>:<em>disk-param</em>=<em>value</em>[,<em>disk-param</em>=<em>value</em>...]]<br />[--disk-state <em>diskstate</em>]<br />[--ipolicy-bounds-specs <em>bound_ispecs</em>]<br />[--ipolicy-disk-templates <em>template</em> [,<em>template</em>...]]<br />[--ipolicy-spindle-ratio <em>ratio</em>]<br />[--ipolicy-vcpu-ratio <em>ratio</em>]<br />{<em>group</em>}</p>
+<p>Modifies some parameters from the node group.</p>
+<p>The <code>--node-parameters</code> and <code>--alloc-policy</code> options are documented in the <strong>add</strong> command above. <code>--hypervisor-state</code> as well as <code>--disk-state</code> are documented in detail in <strong>ganeti</strong>(7).</p>
+<p>The <code>--node-parameters</code>, <code>--alloc-policy</code>, <code>-D (--disk-parameters)</code> options are documented in the <strong>add</strong> command above.</p>
+<p>The <code>--ipolicy-...</code> options specify instance policies on the node group, and are documented in the <strong>gnt-cluster</strong>(8) man page.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="remove"><a href="#TOC">REMOVE</a></h2>
+<p><strong>remove</strong> [--submit] [--print-job-id] {<em>group</em>}</p>
+<p>Deletes the indicated node group, which must be empty. There must always be at least one group, so the last group cannot be removed.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--no-headers] [--separator=<em>SEPARATOR</em>] [-v]<br />[-o <em>[+]FIELD,...</em>] [--filter] [group...]</p>
+<p>Lists all existing node groups in the cluster.</p>
+<p>The <code>--no-headers</code> option will skip the initial header line. The <code>--separator</code> option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p>
+<p>The <code>-v</code> option activates verbose mode, which changes the display of special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <code>-o</code> option takes a comma-separated list of output fields. If the value of the option starts with the character <code>+</code>, the new fields will be added to the default list. This allows one to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p>
+<p>The available fields and their meaning are:</p>
+<dl>
+<dt><code>alloc_policy</code></dt>
+<dd><p>Allocation policy for group</p>
+</dd>
+<dt><code>ctime</code></dt>
+<dd><p>Creation timestamp</p>
+</dd>
+<dt><code>custom_diskparams</code></dt>
+<dd><p>Custom disk parameters</p>
+</dd>
+<dt><code>custom_ipolicy</code></dt>
+<dd><p>Custom instance policy limitations</p>
+</dd>
+<dt><code>custom_ndparams</code></dt>
+<dd><p>Custom node parameters</p>
+</dd>
+<dt><code>diskparams</code></dt>
+<dd><p>Disk parameters (merged)</p>
+</dd>
+<dt><code>ipolicy</code></dt>
+<dd><p>Instance policy limitations (merged)</p>
+</dd>
+<dt><code>mtime</code></dt>
+<dd><p>Modification timestamp</p>
+</dd>
+<dt><code>name</code></dt>
+<dd><p>Group name</p>
+</dd>
+<dt><code>ndp/exclusive_storage</code></dt>
+<dd><p>The &quot;exclusive_storage&quot; node parameter</p>
+</dd>
+<dt><code>ndp/oob_program</code></dt>
+<dd><p>The &quot;oob_program&quot; node parameter</p>
+</dd>
+<dt><code>ndp/ovs</code></dt>
+<dd><p>The &quot;ovs&quot; node parameter</p>
+</dd>
+<dt><code>ndp/ovs_link</code></dt>
+<dd><p>The &quot;ovs_link&quot; node parameter</p>
+</dd>
+<dt><code>ndp/ovs_name</code></dt>
+<dd><p>The &quot;ovs_name&quot; node parameter</p>
+</dd>
+<dt><code>ndp/spindle_count</code></dt>
+<dd><p>The &quot;spindle_count&quot; node parameter</p>
+</dd>
+<dt><code>ndp/ssh_port</code></dt>
+<dd><p>The &quot;ssh_port&quot; node parameter</p>
+</dd>
+<dt><code>ndparams</code></dt>
+<dd><p>Node parameters</p>
+</dd>
+<dt><code>node_cnt</code></dt>
+<dd><p>Number of nodes</p>
+</dd>
+<dt><code>node_list</code></dt>
+<dd><p>List of nodes</p>
+</dd>
+<dt><code>pinst_cnt</code></dt>
+<dd><p>Number of primary instances</p>
+</dd>
+<dt><code>pinst_list</code></dt>
+<dd><p>List of primary instances</p>
+</dd>
+<dt><code>serial_no</code></dt>
+<dd><p>Group object serial number, incremented on each modification</p>
+</dd>
+<dt><code>tags</code></dt>
+<dd><p>Tags</p>
+</dd>
+<dt><code>uuid</code></dt>
+<dd><p>Group UUID</p>
+</dd>
+</dl>
+<p>If exactly one argument is given and it appears to be a query filter (see <strong>ganeti</strong>(7)), the query result is filtered accordingly. For ambiguous cases (e.g. a single field name as a filter) the <code>--filter</code> (<code>-F</code>) option forces the argument to be treated as a filter.</p>
+<p>If no group names are given, then all groups are included. Otherwise, only the named groups will be listed.</p>
+<h2 id="list-fields"><a href="#TOC">LIST-FIELDS</a></h2>
+<p><strong>list-fields</strong> [field...]</p>
+<p>List available fields for node groups.</p>
+<h2 id="rename"><a href="#TOC">RENAME</a></h2>
+<p><strong>rename</strong> [--submit] [--print-job-id] {<em>oldname</em>} {<em>newname</em>}</p>
+<p>Renames a given group from <em>oldname</em> to <em>newname</em>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<h2 id="evacuate"><a href="#TOC">EVACUATE</a></h2>
+<p><strong>evacuate</strong> [--submit] [--print-job-id] [--sequential] [--force-failover]<br />[--iallocator <em>NAME</em>] [--to <em>GROUP</em>...] {<em>group</em>}</p>
+<p>This command will move all instances out of the given node group. Instances are placed in a new group by an iallocator, either given on the command line or as a cluster default.</p>
+<p>If no specific destination groups are specified using <code>--to</code>, all groups except the evacuated group are considered.</p>
+<p>The moves of the individual instances are handled as separate jobs to allow for maximal parallelism. If the <code>--sequential</code> option is given, the moves of the individual instances will be executed sequentially. This can be usefull if the link between the groups is vulnerable to congestion. If the <code>--force-failover</code> option is given, no migrations will be made. This might be necessary if the group being evacuated is too different from the other groups in the cluster.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--submit</code> and other common options.</p>
+<p>Example:</p>
+<pre><code># gnt-group evacuate -I hail --to rack4 rack1</code></pre>
+<h2 id="tags"><a href="#TOC">Tags</a></h2>
+<h3 id="add-tags"><a href="#TOC">ADD-TAGS</a></h3>
+<p><strong>add-tags</strong> [--from <em>file</em>] {<em>groupname</em>} {<em>tag</em>...}</p>
+<p>Add tags to the given node group. If any of the tags contains invalid characters, the entire operation will abort.</p>
+<p>If the <code>--from</code> option is given, the list of tags will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, both sources will be used). A file name of <code>-</code> will be interpreted as stdin.</p>
+<h3 id="list-tags"><a href="#TOC">LIST-TAGS</a></h3>
+<p><strong>list-tags</strong> {<em>groupname</em>}</p>
+<p>List the tags of the given node group.</p>
+<h3 id="remove-tags"><a href="#TOC">REMOVE-TAGS</a></h3>
+<p><strong>remove-tags</strong> [--from <em>file</em>] {<em>groupname</em>} {<em>tag</em>...}</p>
+<p>Remove tags from the given node group. If any of the tags are not existing on the node, the entire operation will abort.</p>
+<p>If the <code>--from</code> option is given, the list of tags to be removed will be extended with the contents of that file (each line becomes a tag). In this case, there is not need to pass tags on the command line (if you do, tags from both sources will be removed). A file name of <code>-</code> will be interpreted as stdin.</p>
+<h2 id="info"><a href="#TOC">INFO</a></h2>
+<p><strong>info</strong> [<em>group</em>...]</p>
+<p>Shows config information for all (or given) groups.</p>
+<h2 id="show-ispecs-cmd"><a href="#TOC">SHOW-ISPECS-CMD</a></h2>
+<p><strong>show-ispecs-cmd</strong> [--include-defaults] [<em>group</em>...]</p>
+<p>Shows the command line that can be used to recreate the given groups (or all groups, if none is given) with the same options relative to specs in the instance policies.</p>
+<p>If <code>--include-defaults</code> is specified, include also the default values (i.e. the cluster-level settings), and not only the configuration items that a group overrides.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2014 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

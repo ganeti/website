@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-listrunner(8) Ganeti | Version 2.14.2</title>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-listrunner(8) Ganeti | Version 2.14.2</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">NAME</a></li>
+<li><a href="#synopsis">SYNOPSIS</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#options">OPTIONS</a></li>
+<li><a href="#exit-status">EXIT STATUS</a></li>
+<li><a href="#example">EXAMPLE</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also-1">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">NAME</a></h1>
+<p>ganeti-listrunner - Run commands in parallel over multiple machines</p>
+<h1 id="synopsis"><a href="#TOC">SYNOPSIS</a></h1>
+<p><strong>ganeti-listrunner</strong> <code>-l</code> <em>logdir</em> {<code>-x</code> <em>executable</em> | <code>-c</code> <em>shell-cmd</em>} {<code>-f</code> <em>hostfile</em> | <code>-h</code> <em>hostlist</em>} [<code>-a</code> <em>aux-file</em>] [<code>-b</code> <em>batch-size</em>] [<code>-u</code> <em>username</em>] [<code>-A</code>]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p><strong>ganeti-listrunner</strong> is a tool to run commands in parallel over multiple machines. It differs from <code>dsh</code> or other tools in that it asks for the password once (if not using <code>ssh-agent</code>) and then reuses the password to connect to all machines, thus being easily usable even when public key authentication or Kerberos authentication is not available.</p>
+<p>It can run either a command or a script (which gets uploaded first and deleted after execution) on a list of hosts provided either via a file (one host per line) or as a comma-separated list on the commandline. The output (stdout and stderr are merged) of the remote execution is written to a logfile. One logfile per host is written.</p>
+<h1 id="options"><a href="#TOC">OPTIONS</a></h1>
+<p>The options that can be passed to the program are as follows:</p>
+<dl>
+<dt><code>-l</code> <em>logdir</em></dt>
+<dd><p>The directory under which the logfiles files should be written.</p>
+</dd>
+<dt><code>-x</code> <em>executable</em></dt>
+<dd><p>The executable to copy and run on the target hosts.</p>
+</dd>
+<dt><code>-c</code> <em>shell-cmd</em></dt>
+<dd><p>The shell command to run on the remote hosts.</p>
+</dd>
+<dt><code>-f</code> <em>hostfile</em></dt>
+<dd><p>The file with the target hosts, one hostname per line.</p>
+</dd>
+<dt><code>-h</code> <em>hostlist</em></dt>
+<dd><p>Comma-separated list of target hosts.</p>
+</dd>
+<dt><code>-a</code> <em>aux-file</em></dt>
+<dd><p>A file to copy to the target hosts. Can be given multiple times, in which case all files will be copied to the temporary directory. The executable or the shell command will be run from the (temporary) directory where these files have been copied.</p>
+</dd>
+<dt><code>-b</code> <em>batch-size</em></dt>
+<dd><p>The host list will be split into batches of batch-size which will be processed in parallel. The default if 15, and should be increased if faster processing is needed.</p>
+</dd>
+<dt><code>-u</code> <em>username</em></dt>
+<dd><p>Username to connect as instead of the default root username.</p>
+</dd>
+<dt><code>-A</code></dt>
+<dd><p>Use an existing ssh-agent instead of password authentication.</p>
+</dd>
+<dt><code>--args</code></dt>
+<dd><p>Arguments to pass to executable (<code>-x</code>).</p>
+</dd>
+</dl>
+<h1 id="exit-status"><a href="#TOC">EXIT STATUS</a></h1>
+<p>The exist status of the command will be zero, unless it was aborted in some way (e.g. ^C).</p>
+<h1 id="example"><a href="#TOC">EXAMPLE</a></h1>
+<p>Run a command on a list of hosts:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">listrunner -l logdir -c <span class="st">&quot;uname -a&quot;</span> -h host1,host2,host3</code></pre>
+<p>Upload a script, some auxiliary files and run the script:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">listrunner -l logdir -x runme.sh <span class="kw">\</span>
+  -a seed.dat -a golden.dat <span class="kw">\</span>
+  -h host1,host2,host3</code></pre>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p><strong>dsh</strong>(1), <strong>cssh</strong>(1)</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also-1"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

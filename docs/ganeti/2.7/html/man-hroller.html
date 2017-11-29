@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hroller &mdash; Ganeti 2.7.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.7.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.7.2 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="hscan" href="man-hscan.html" />
+    <link rel="prev" title="hinfo" href="man-hinfo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-hscan.html" title="hscan"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-hinfo.html" title="hinfo"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="hroller">
+<h1>hroller<a class="headerlink" href="#hroller" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>hroller - Cluster rolling maintenance scheduler for Ganeti</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>hroller</strong> {backend options...} [algorithm options...] [reporting options...]</p>
+<p><strong>hroller</strong> &#8211;version</p>
+<p>Backend options:</p>
+<p>{ <strong>-m</strong> <em>cluster</em> | <strong>-L[</strong> <em>path</em> <strong>]</strong> | <strong>-t</strong> <em>data-file</em> |
+<strong>-I</strong> <em>path</em> }</p>
+<p>Algorithm options:</p>
+<p><strong>[ -O *name...* ]</strong></p>
+<p>Reporting options:</p>
+<p><strong>[ -v... | -q ]</strong>
+<strong>[ -S *file* ]</strong></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>hroller is a cluster maintenance reboot scheduler. It can calculate
+which set of nodes can be rebooted at the same time while avoiding
+having both primary and secondary nodes being rebooted at the same time.</p>
+<div class="section" id="algorithm-for-calculating-offline-reboot-groups">
+<h3>ALGORITHM FOR CALCULATING OFFLINE REBOOT GROUPS<a class="headerlink" href="#algorithm-for-calculating-offline-reboot-groups" title="Permalink to this headline">¶</a></h3>
+<p>hroller will view the nodes as vertices of an undirected graph,
+connecting by instances which have both a primary and a secondary node.
+It will then color the graph using a few different heuristics, and
+return the minimum-size color set found. Node with the same color don&#8217;t
+share an edge, and as such don&#8217;t have an instance with both primary and
+secondary node on them, so they are safe to be rebooted concurrently.</p>
+</div>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p>Currently only standard htools options are supported. For a description of them
+check <strong>htools</strong>(1) and <strong>hbal</strong>(1).</p>
+</div>
+<div class="section" id="bugs">
+<h2>BUGS<a class="headerlink" href="#bugs" title="Permalink to this headline">¶</a></h2>
+<p>The master node should be always the last node of the last group, or anyway
+somehow easily identifiable. Right now this is not done.</p>
+<p>Offline nodes should be ignored.</p>
+<p>Filtering by nodegroup should be allowed.</p>
+<p>If instances are online the tool should refuse to do offline rolling
+maintenances, unless explicitly requested.</p>
+<p>End-to-end shelltests should be provided.</p>
+<p>Online rolling maintenances (where instance need not be shut down, but
+are migrated from node to node) are not supported yet. Hroller by design
+should support them both with and without secondary node replacement.</p>
+</div>
+<div class="section" id="example">
+<h2>EXAMPLE<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Note that these examples may not for the latest version.</p>
+<div class="section" id="offline-rolling-node-reboot-output">
+<h3>Offline Rolling node reboot output<a class="headerlink" href="#offline-rolling-node-reboot-output" title="Permalink to this headline">¶</a></h3>
+<p>With the default options, the program shows one reboot group per line as
+a comma-separated list.</p>
+<blockquote>
+<div>$ hroller
+&#8216;Node Reboot Groups&#8217;
+node1.example.com,node3.example.com,node5.example.com
+node8.example.com,node6.example.com,node2.example.com
+node7.example.com,node4.example.com</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">hroller</a><ul>
+<li><a class="reference internal" href="#name">NAME</a></li>
+<li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#algorithm-for-calculating-offline-reboot-groups">ALGORITHM FOR CALCULATING OFFLINE REBOOT GROUPS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#bugs">BUGS</a></li>
+<li><a class="reference internal" href="#example">EXAMPLE</a><ul>
+<li><a class="reference internal" href="#offline-rolling-node-reboot-output">Offline Rolling node reboot output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-hinfo.html"
+                        title="previous chapter">hinfo</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-hscan.html"
+                        title="next chapter">hscan</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-hroller.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-hscan.html" title="hscan"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-hinfo.html" title="hinfo"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>KVM daemon &mdash; Ganeti 2.12.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.12.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.12.6 documentation" href="index.html" />
+    <link rel="next" title="Linux HA integration" href="design-linuxha.html" />
+    <link rel="prev" title="Detection of user-initiated shutdown from inside an instance" href="design-internal-shutdown.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-linuxha.html" title="Linux HA integration"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-internal-shutdown.html" title="Detection of user-initiated shutdown from inside an instance"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="kvm-daemon">
+<h1>KVM daemon<a class="headerlink" href="#kvm-daemon" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<p>This design document describes the KVM daemon, which is responsible for
+determining whether a given KVM instance was shutdown by an
+administrator or a user.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2>Current state and shortcomings<a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>This design document describes the KVM daemon which addresses the KVM
+side of the user-initiated shutdown problem introduced in
+<a class="reference internal" href="design-internal-shutdown.html"><em>Detection of user-initiated shutdown from inside an instance</em></a>.  We are also interested in keeping this
+functionality optional.  That is, an administrator does not necessarily
+have to run the KVM daemon if either he is running Xen or even, if he
+is running KVM, he is not interested in instance shutdown detection.
+This requirement is important because it means the KVM daemon should
+be a modular component in the overall Ganeti design, i.e., it should
+be easy to enable and disable it.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2>Proposed changes<a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The instance shutdown feature for KVM requires listening on events from
+the Qemu Machine Protocol (QMP) Unix socket, which is created together
+with a KVM instance.  A QMP socket typically looks like
+<tt class="docutils literal"><span class="pre">/var/run/ganeti/kvm-hypervisor/ctrl/&lt;instance&gt;.qmp</span></tt> and implements
+the QMP protocol.  This is a bidirectional protocol that allows Ganeti
+to send commands, such as, system powerdown, as well as, receive events,
+such as, the powerdown and shutdown events.</p>
+<p>Listening in on these events allows Ganeti to determine whether a given
+KVM instance was shutdown by an administrator, either through
+<tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">stop|remove</span> <span class="pre">&lt;instance&gt;</span></tt> or <tt class="docutils literal"><span class="pre">kill</span> <span class="pre">-KILL</span>
+<span class="pre">&lt;instance-pid&gt;</span></tt>, or by a user, through <tt class="docutils literal"><span class="pre">poweroff</span></tt> from inside the
+instance.  Upon an administrator powerdown, the QMP protocol sends two
+events, namely, a powerdown event and a shutdown event, whereas upon a
+user shutdown only the shutdown event is sent.  This is enough to
+distinguish between an administrator and a user shutdown.  However,
+there is one limitation, which is, <tt class="docutils literal"><span class="pre">kill</span> <span class="pre">-TERM</span> <span class="pre">&lt;instance-pid&gt;</span></tt>.  Even
+though this is an action performed by the administrator, it will be
+considered a user shutdown by the approach described in this document.</p>
+<p>Several design strategies were considered.  Most of these strategies
+consisted of spawning some process listening on the QMP socket when a
+KVM instance is created.  However, having a listener process per KVM
+instance is not scalable.  Therefore, a different strategy is proposed,
+namely, having a single process, called the KVM daemon, listening on the
+QMP sockets of all KVM instances within a node.  That also means there
+is an instance of the KVM daemon on each node.</p>
+<p>In order to implement the KVM daemon, two problems need to be addressed,
+namely, how the KVM daemon knows when to open a connection to a given
+QMP socket and how the KVM daemon communicates with Ganeti whether a
+given instance was shutdown by an administrator or a user.</p>
+<div class="section" id="qmp-connections-management">
+<h3>QMP connections management<a class="headerlink" href="#qmp-connections-management" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned before, the QMP sockets reside in the KVM control
+directory, which is usually located under
+<tt class="docutils literal"><span class="pre">/var/run/ganeti/kvm-hypervisor/ctrl/</span></tt>.  When a KVM instance is
+created, a new QMP socket for this instance is also created in this
+directory.</p>
+<p>In order to simplify the design of the KVM daemon, instead of having
+Ganeti communicate to this daemon through a pipe or socket the creation
+of a new KVM instance, and thus a new QMP socket, this daemon will
+monitor the KVM control directory using <tt class="docutils literal"><span class="pre">inotify</span></tt>.  As a result, the
+daemon is not only able to deal with KVM instances being created and
+removed, but also capable of overcoming other problematic situations
+concerning the filesystem, such as, the case when the KVM control
+directory does not exist because, for example, Ganeti was not yet
+started, or the KVM control directory was removed, for example, as a
+result of a Ganeti reinstallation.</p>
+</div>
+<div class="section" id="shutdown-detection">
+<h3>Shutdown detection<a class="headerlink" href="#shutdown-detection" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned before, the KVM daemon is responsible for opening a
+connection to the QMP socket of a given instance and listening in on the
+shutdown and powerdown events, which allow the KVM daemon to determine
+whether the instance stopped because of an administrator or user
+shutdown.  Once the instance is stopped, the KVM daemon needs to
+communicate to Ganeti whether the user was responsible for shutting down
+the instance.</p>
+<p>In order to achieve this, the KVM daemon writes an empty file, called
+the shutdown file, in the KVM control directory with a name similar to
+the QMP socket file but with the extension <tt class="docutils literal"><span class="pre">.qmp</span></tt> replaced with
+<tt class="docutils literal"><span class="pre">.shutdown</span></tt>.  The presence of this file indicates that the shutdown
+was initiated by a user, whereas the absence of this file indicates that
+the shutdown was caused by an administrator.  This strategy also handles
+crashes and signals, such as, <tt class="docutils literal"><span class="pre">SIGKILL</span></tt>, to be handled correctly,
+given that in these cases the KVM daemon never receives the powerdown
+and shutdown events and, therefore, never creates the shutdown file.</p>
+</div>
+<div class="section" id="kvm-daemon-launch">
+<h3>KVM daemon launch<a class="headerlink" href="#kvm-daemon-launch" title="Permalink to this headline">¶</a></h3>
+<p>With the above issues addressed, a question remains as to when the KVM
+daemon should be started.  The KVM daemon is different from other Ganeti
+daemons, which start together with the Ganeti service, because the KVM
+daemon is optional, given that it is specific to KVM and should not be
+run on installations containing only Xen, and, even in a KVM
+installation, the user might still choose not to enable it.  And finally
+because the KVM daemon is not really necessary until the first KVM
+instance is started.  For these reasons, the KVM daemon is started from
+within Ganeti when a KVM instance is started.  And the job process
+spawned by the node daemon is responsible for starting the KVM daemon.</p>
+<p>Given the current design of Ganeti, in which the node daemon spawns a
+job process to handle the creation of the instance, when launching the
+KVM daemon it is necessary to first check whether an instance of this
+daemon is already running and, if this is not the case, then the KVM
+daemon can be safely started.</p>
+</div>
+</div>
+<div class="section" id="design-alternatives">
+<h2>Design alternatives<a class="headerlink" href="#design-alternatives" title="Permalink to this headline">¶</a></h2>
+<p>At first, it might seem natural to include the instance shutdown
+detection for KVM in the node daemon.  After all, the node daemon is
+already responsible for managing instances, for example, starting and
+stopping an instance.  Nevertheless, the node daemon is more complicated
+than it might seem at first.</p>
+<p>The node daemon is composed of the main loop, which runs in the main
+thread and is responsible for receiving requests and spawning jobs for
+handling these requests, and the jobs, which are independent processes
+spawned for executing the actual tasks, such as, creating an instance.</p>
+<p>Including instance shutdown detection in the node daemon is not viable
+because adding it to the main loop would cause KVM specific code to
+taint the generality of the node daemon.  In order to add it to the job
+processes, it would be possible to spawn either a foreground or a
+background process.  However, these options are also not viable because
+they would lead to the situation described before where there would be a
+monitoring process per instance, which is not scalable.  Moreover, the
+foreground process has an additional disadvantage: it would require
+modifications the node daemon in order not to expect a terminating job,
+which is the current node daemon design.</p>
+<p>There is another design issue to have in mind.  We could reconsider the
+place where to write the data that tell Ganeti whether an instance was
+shutdown by an administrator or the user.  Instead of using the KVM
+shutdown files presented above, in which the presence of the file
+indicates a user shutdown and its absence an administrator shutdown, we
+could store a value in the KVM runtime state file, which is where the
+relevant KVM state information is.  The advantage of this approach is
+that it would keep the KVM related information in one place, thus making
+it easier to manage.  However, it would lead to a more complex
+implementation and, in the context of the general transition in Ganeti
+from Python to Haskell, a simpler implementation is preferred.</p>
+<p>Finally, it should be noted that the KVM runtime state file benefits
+from automatic migration.  That is, when an instance is migrated so is
+the KVM state file.  However, the instance shutdown detection for KVM
+does not require this feature and, in fact, migrating the instance
+shutdown state would be incorrect.</p>
+</div>
+<div class="section" id="further-considerations">
+<h2>Further considerations<a class="headerlink" href="#further-considerations" title="Permalink to this headline">¶</a></h2>
+<p>There are potential race conditions between Ganeti and the KVM daemon,
+however, in practice they seem unlikely.  For example, the KVM daemon
+needs to add and remove watches to the parent directories of the KVM
+control directory until this directory is finally created.  It is
+possible that Ganeti creates this directory and a KVM instance before
+the KVM daemon has a chance to add a watch to the KVM control directory,
+thus causing this daemon to miss the <tt class="docutils literal"><span class="pre">inotify</span></tt> creation event for the
+QMP socket.</p>
+<p>There are other problems which arise from the limitations of
+<tt class="docutils literal"><span class="pre">inotify</span></tt>.  For example, if the KVM daemon is started after the first
+Ganeti instance has been created, then the <tt class="docutils literal"><span class="pre">inotify</span></tt> will not produce
+any event for the creation of the QMP socket.  This can happen, for
+example, if the KVM daemon needs to be restarted or upgraded.  As a
+result, it might be necessary to have an additional mechanism that runs
+at KVM daemon startup or at regular intervals to ensure that the current
+KVM internal state is consistent with the actual contents of the KVM
+control directory.</p>
+<p>Another race condition occurs when Ganeti shuts down a KVM instance
+using force.  Ganeti uses <tt class="docutils literal"><span class="pre">TERM</span></tt> signals to stop KVM instances when
+force is specified or ACPI is not enabled.  However, as mentioned
+before, <tt class="docutils literal"><span class="pre">TERM</span></tt> signals are interpreted by the KVM daemon as a user
+shutdown.  As a result, the KVM daemon creates a shutdown file which
+then must be removed by Ganeti.  The race condition occurs because the
+KVM daemon might create the shutdown file after the hypervisor code that
+tries to remove this file has already run.  In practice, the race
+condition seems unlikely because Ganeti stops the KVM instance in a
+retry loop, which allows Ganeti to stop the instance and cleanup its
+runtime information.</p>
+<p>It is possible to determine if a process, in this particular case the
+KVM process, was terminated by a <tt class="docutils literal"><span class="pre">TERM</span></tt> signal, using the <a class="reference external" href="https://web.archive.org/web/20121025062848/http://netsplit.com/2011/02/09/the-proc-connector-and-socket-filters/">proc
+connector and socket filters</a>.
+The proc connector is a socket connected between a userspace process and
+the kernel through the netlink protocol and can be used to receive
+notifications of process events, and the socket filters is a mechanism
+for subscribing only to events that are relevant.  There are several
+<a class="reference external" href="http://lwn.net/Articles/157150/">process events</a> which can be
+subscribed to, however, in this case, we are interested only in the exit
+event, which carries information about the exit signal.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">KVM daemon</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#qmp-connections-management">QMP connections management</a></li>
+<li><a class="reference internal" href="#shutdown-detection">Shutdown detection</a></li>
+<li><a class="reference internal" href="#kvm-daemon-launch">KVM daemon launch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#design-alternatives">Design alternatives</a></li>
+<li><a class="reference internal" href="#further-considerations">Further considerations</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-internal-shutdown.html"
+                        title="previous chapter">Detection of user-initiated shutdown from inside an instance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-linuxha.html"
+                        title="next chapter">Linux HA integration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-kvmd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-linuxha.html" title="Linux HA integration"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-internal-shutdown.html" title="Detection of user-initiated shutdown from inside an instance"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.12.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1411 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Luxi</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Luxi.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Luxi.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Luxi</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Utility functions
+</A
+></DT
+><DT
+><A HREF="#2"
+>Data querying functionality
+</A
+></DT
+><DT
+><A HREF="#3"
+>Main loader functionality
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the LUXI loader.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetData"
+>getData</A
+> :: Monad m =&gt; JSValue -&gt; m JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseQueryField"
+>parseQueryField</A
+> :: Monad m =&gt; JSValue -&gt; m (JSValue, JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseQueryRow"
+>parseQueryRow</A
+> :: Monad m =&gt; JSValue -&gt; m [(JSValue, JSValue)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseQueryResult"
+>parseQueryResult</A
+> :: Monad m =&gt; JSValue -&gt; m [[(JSValue, JSValue)]]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AextractArray"
+>extractArray</A
+> :: Monad m =&gt; JSValue -&gt; m [[(JSValue, JSValue)]]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromJValWithStatus"
+>fromJValWithStatus</A
+> :: (JSON a, Monad m) =&gt; (JSValue, JSValue) -&gt; m a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenericConvert"
+>genericConvert</A
+> :: JSON a =&gt; String -&gt; String -&gt; String -&gt; (JSValue, JSValue) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryNodesMsg"
+>queryNodesMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryInstancesMsg"
+>queryInstancesMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryClusterInfoMsg"
+>queryClusterInfoMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryGroupsMsg"
+>queryGroupsMsg</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryNodes"
+>queryNodes</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryInstances"
+>queryInstances</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryClusterInfo"
+>queryClusterInfo</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AqueryGroups"
+>queryGroups</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstances"
+>getInstances</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseInstance"
+>parseInstance</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetNodes"
+>getNodes</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseNode"
+>parseNode</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetClusterData"
+>getClusterData</A
+> :: JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> ([String], <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetGroups"
+>getGroups</A
+> :: JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseGroup"
+>parseGroup</A
+> :: [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadData"
+>readData</A
+> :: String -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseData"
+>parseData</A
+> :: (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadData"
+>loadData</A
+> :: String -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Utility functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getData"
+><A NAME="v%3AgetData"
+></A
+></A
+><B
+>getData</B
+> :: Monad m =&gt; JSValue -&gt; m JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#getData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Get values behind &quot;data&quot; part of the result.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseQueryField"
+><A NAME="v%3AparseQueryField"
+></A
+></A
+><B
+>parseQueryField</B
+> :: Monad m =&gt; JSValue -&gt; m (JSValue, JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseQueryField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a (status, value) into m value, if possible.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseQueryRow"
+><A NAME="v%3AparseQueryRow"
+></A
+></A
+><B
+>parseQueryRow</B
+> :: Monad m =&gt; JSValue -&gt; m [(JSValue, JSValue)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseQueryRow"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a result row.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseQueryResult"
+><A NAME="v%3AparseQueryResult"
+></A
+></A
+><B
+>parseQueryResult</B
+> :: Monad m =&gt; JSValue -&gt; m [[(JSValue, JSValue)]]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseQueryResult"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse an overall query result and get the [(status, value)] list
+ for each element queried.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:extractArray"
+><A NAME="v%3AextractArray"
+></A
+></A
+><B
+>extractArray</B
+> :: Monad m =&gt; JSValue -&gt; m [[(JSValue, JSValue)]]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#extractArray"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Prepare resulting output as parsers expect it.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromJValWithStatus"
+><A NAME="v%3AfromJValWithStatus"
+></A
+></A
+><B
+>fromJValWithStatus</B
+> :: (JSON a, Monad m) =&gt; (JSValue, JSValue) -&gt; m a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#fromJValWithStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Testing result status for more verbose error message.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genericConvert"
+><A NAME="v%3AgenericConvert"
+></A
+></A
+><B
+>genericConvert</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#genericConvert"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: JSON a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+>=&gt; String</TD
+><TD CLASS="rdoc"
+>The object name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The attribute we're trying to convert
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>The value we're trying to convert
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; (JSValue, JSValue)</TD
+><TD CLASS="rdoc"
+>The annotated result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Annotate errors when converting values with owner/attribute for
+ better debugging.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Data querying functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryNodesMsg"
+><A NAME="v%3AqueryNodesMsg"
+></A
+></A
+><B
+>queryNodesMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryNodesMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The input data for node query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryInstancesMsg"
+><A NAME="v%3AqueryInstancesMsg"
+></A
+></A
+><B
+>queryInstancesMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryInstancesMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The input data for instance query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryClusterInfoMsg"
+><A NAME="v%3AqueryClusterInfoMsg"
+></A
+></A
+><B
+>queryClusterInfoMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryClusterInfoMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The input data for cluster query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryGroupsMsg"
+><A NAME="v%3AqueryGroupsMsg"
+></A
+></A
+><B
+>queryGroupsMsg</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryGroupsMsg"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>The input data for node group query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryNodes"
+><A NAME="v%3AqueryNodes"
+></A
+></A
+><B
+>queryNodes</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wraper over callMethod doing node query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryInstances"
+><A NAME="v%3AqueryInstances"
+></A
+></A
+><B
+>queryInstances</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryInstances"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wraper over callMethod doing instance query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryClusterInfo"
+><A NAME="v%3AqueryClusterInfo"
+></A
+></A
+><B
+>queryClusterInfo</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryClusterInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over callMethod doing cluster information query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:queryGroups"
+><A NAME="v%3AqueryGroups"
+></A
+></A
+><B
+>queryGroups</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#queryGroups"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over callMethod doing group query.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstances"
+><A NAME="v%3AgetInstances"
+></A
+></A
+><B
+>getInstances</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#getInstances"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a instance list in JSON format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseInstance"
+><A NAME="v%3AparseInstance"
+></A
+></A
+><B
+>parseInstance</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Construct an instance from a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getNodes"
+><A NAME="v%3AgetNodes"
+></A
+></A
+><B
+>getNodes</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#getNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parse a node list in JSON format.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseNode"
+><A NAME="v%3AparseNode"
+></A
+></A
+><B
+>parseNode</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANameAssoc"
+>NameAssoc</A
+> -&gt; [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Construct a node from a JSON object.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getClusterData"
+><A NAME="v%3AgetClusterData"
+></A
+></A
+><B
+>getClusterData</B
+> :: JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> ([String], <A HREF="Ganeti-HTools-Types.html#t%3AIPolicy"
+>IPolicy</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#getClusterData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parses the cluster tags.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getGroups"
+><A NAME="v%3AgetGroups"
+></A
+></A
+><B
+>getGroups</B
+> :: JSValue -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [(String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#getGroups"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parses the cluster groups.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseGroup"
+><A NAME="v%3AparseGroup"
+></A
+></A
+><B
+>parseGroup</B
+> :: [(JSValue, JSValue)] -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> (String, <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parses a given group information.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Main loader functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readData"
+><A NAME="v%3AreadData"
+></A
+></A
+><B
+>readData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#readData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Unix socket to use as source
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Builds the cluster data by querying a given socket name.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseData"
+><A NAME="v%3AparseData"
+></A
+></A
+><B
+>parseData</B
+> :: (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue, <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> JSValue) -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#parseData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts the output of <TT
+><A HREF="Ganeti-HTools-Luxi.html#v%3AreadData"
+>readData</A
+></TT
+> into the internal cluster
+ representation.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadData"
+><A NAME="v%3AloadData"
+></A
+></A
+><B
+>loadData</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Luxi.html#loadData"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Unix socket to use as source
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Loader.html#t%3AClusterData"
+>ClusterData</A
+>)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Top level function for data loading.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

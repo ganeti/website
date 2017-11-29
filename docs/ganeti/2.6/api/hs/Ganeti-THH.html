@@ -1,0 +1,3672 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.THH</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-THH.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/THH.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.THH</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Exported types
+</A
+></DT
+><DT
+><A HREF="#2"
+>Common field declarations
+</A
+></DT
+><DT
+><A HREF="#3"
+>Helper functions
+</A
+></DT
+><DT
+><A HREF="#4"
+>Template code for simple raw type-equivalent ADTs
+</A
+></DT
+><DT
+><A HREF="#5"
+>Template code for opcodes
+</A
+></DT
+><DT
+><A HREF="#6"
+>Template code for luxi
+</A
+></DT
+><DT
+><A HREF="#7"
+><A HREF="Objects.html"
+>Objects</A
+> functionality
+</A
+></DT
+><DT
+><A HREF="#8"
+>Inheritable parameter tables implementation
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>TemplateHaskell helper for HTools.
+</P
+><P
+>As TemplateHaskell require that splices be defined in a separate
+module, we combine all the TemplateHaskell functionality that HTools
+needs in this module (except the one for unittests).
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AContainer"
+>Container</A
+> = Map String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AField"
+>Field</A
+>  = <A HREF="#v%3AField"
+>Field</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldName"
+>fieldName</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldType"
+>fieldType</A
+> :: Q Type</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldRead"
+>fieldRead</A
+> :: Maybe (Q Exp)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldShow"
+>fieldShow</A
+> :: Maybe (Q Exp)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldDefault"
+>fieldDefault</A
+> :: Maybe (Q Exp)</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldConstr"
+>fieldConstr</A
+> :: Maybe String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldIsContainer"
+>fieldIsContainer</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AfieldIsOptional"
+>fieldIsOptional</A
+> :: Bool</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsimpleField"
+>simpleField</A
+> :: String -&gt; Q Type -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArenameField"
+>renameField</A
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefaultField"
+>defaultField</A
+> :: Q Exp -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AoptionalField"
+>optionalField</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcontainerField"
+>containerField</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcustomField"
+>customField</A
+> :: Name -&gt; Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfieldRecordName"
+>fieldRecordName</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfieldVariable"
+>fieldVariable</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AactualFieldType"
+>actualFieldType</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Type</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckNonOptDef"
+>checkNonOptDef</A
+> :: Monad m =&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; m ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadFn"
+>loadFn</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp -&gt; Q Exp -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtimeStampFields"
+>timeStampFields</A
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AserialFields"
+>serialFields</A
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AuuidFields"
+>uuidFields</A
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AensureLower"
+>ensureLower</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AensureUpper"
+>ensureUpper</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AvarNameE"
+>varNameE</A
+> :: String -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowJSONE"
+>showJSONE</A
+> :: Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtoRawName"
+>toRawName</A
+> :: String -&gt; Name</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfromRawName"
+>fromRawName</A
+> :: String -&gt; Name</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreprE"
+>reprE</A
+> :: Either String Name -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AappFn"
+>appFn</A
+> :: Exp -&gt; Exp -&gt; Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadContainer"
+>readContainer</A
+> :: (Monad m, JSON a) =&gt; JSObject JSValue -&gt; m (<A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshowContainer"
+>showContainer</A
+> :: JSON a =&gt; <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> a -&gt; JSValue</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AstrADTDecl"
+>strADTDecl</A
+> :: Name -&gt; [String] -&gt; Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenToRaw"
+>genToRaw</A
+> :: Name -&gt; Name -&gt; Name -&gt; [(String, Either String Name)] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenFromRaw"
+>genFromRaw</A
+> :: Name -&gt; Name -&gt; Name -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeclareADT"
+>declareADT</A
+> :: Name -&gt; String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeclareIADT"
+>declareIADT</A
+> :: String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeclareSADT"
+>declareSADT</A
+> :: String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenShowJSON"
+>genShowJSON</A
+> :: String -&gt; Q Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenReadJSON"
+>genReadJSON</A
+> :: String -&gt; Q Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmakeJSONInstance"
+>makeJSONInstance</A
+> :: Name -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdeCamelCase"
+>deCamelCase</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcamelCase"
+>camelCase</A
+> :: String -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AconstructorName"
+>constructorName</A
+> :: Con -&gt; Q Name</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenConstrToStr"
+>genConstrToStr</A
+> :: (String -&gt; String) -&gt; Name -&gt; String -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenOpID"
+>genOpID</A
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AOpParam"
+>OpParam</A
+> = (String, Q Type, Q Exp)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenOpCode"
+>genOpCode</A
+> :: String -&gt; [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisOptional"
+>isOptional</A
+> :: Type -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveConstructor"
+>saveConstructor</A
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q Clause</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenSaveOpCode"
+>genSaveOpCode</A
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])] -&gt; Q (Dec, Dec)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConstructor"
+>loadConstructor</A
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenLoadOpCode"
+>genLoadOpCode</A
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])] -&gt; Q (Dec, Dec)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenStrOfOp"
+>genStrOfOp</A
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenStrOfKey"
+>genStrOfKey</A
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3ALuxiParam"
+>LuxiParam</A
+> = (String, Q Type, Q Exp)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenLuxiOp"
+>genLuxiOp</A
+> :: String -&gt; [(String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>])] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveLuxiField"
+>saveLuxiField</A
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+> -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveLuxiConstructor"
+>saveLuxiConstructor</A
+> :: (String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>]) -&gt; Q Clause</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenSaveLuxiOp"
+>genSaveLuxiOp</A
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>])] -&gt; Q (Dec, Dec)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfieldTypeInfo"
+>fieldTypeInfo</A
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Strict, Type)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildObject"
+>buildObject</A
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildObjectSerialisation"
+>buildObjectSerialisation</A
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenSaveObject"
+>genSaveObject</A
+> :: (Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp) -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveObjectField"
+>saveObjectField</A
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AobjectShowJSON"
+>objectShowJSON</A
+> :: String -&gt; Q Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenLoadObject"
+>genLoadObject</A
+> :: (<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)) -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q (Dec, Dec)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadObjectField"
+>loadObjectField</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AobjectReadJSON"
+>objectReadJSON</A
+> :: String -&gt; Q Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparamTypeNames"
+>paramTypeNames</A
+> :: String -&gt; (String, String)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparamFieldTypeInfo"
+>paramFieldTypeInfo</A
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Strict, Type)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildParam"
+>buildParam</A
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildPParamSerialisation"
+>buildPParamSerialisation</A
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsavePParamField"
+>savePParamField</A
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadPParamField"
+>loadPParamField</A
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildFromMaybe"
+>buildFromMaybe</A
+> :: String -&gt; Q Dec</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfillParam"
+>fillParam</A
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Exported types
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:Container"
+><A NAME="t%3AContainer"
+></A
+></A
+><B
+>Container</B
+> = Map String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#Container"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Field"
+><A NAME="t%3AField"
+></A
+></A
+><B
+>Field</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#Field"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Serialised field data type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Field"
+><A NAME="v%3AField"
+></A
+></A
+><B
+>Field</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldName"
+><A NAME="v%3AfieldName"
+></A
+></A
+><B
+>fieldName</B
+> :: String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldType"
+><A NAME="v%3AfieldType"
+></A
+></A
+><B
+>fieldType</B
+> :: Q Type</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldRead"
+><A NAME="v%3AfieldRead"
+></A
+></A
+><B
+>fieldRead</B
+> :: Maybe (Q Exp)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldShow"
+><A NAME="v%3AfieldShow"
+></A
+></A
+><B
+>fieldShow</B
+> :: Maybe (Q Exp)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldDefault"
+><A NAME="v%3AfieldDefault"
+></A
+></A
+><B
+>fieldDefault</B
+> :: Maybe (Q Exp)</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldConstr"
+><A NAME="v%3AfieldConstr"
+></A
+></A
+><B
+>fieldConstr</B
+> :: Maybe String</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldIsContainer"
+><A NAME="v%3AfieldIsContainer"
+></A
+></A
+><B
+>fieldIsContainer</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:fieldIsOptional"
+><A NAME="v%3AfieldIsOptional"
+></A
+></A
+><B
+>fieldIsOptional</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:simpleField"
+><A NAME="v%3AsimpleField"
+></A
+></A
+><B
+>simpleField</B
+> :: String -&gt; Q Type -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#simpleField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a simple field.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:renameField"
+><A NAME="v%3ArenameField"
+></A
+></A
+><B
+>renameField</B
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#renameField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the renamed constructor field.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defaultField"
+><A NAME="v%3AdefaultField"
+></A
+></A
+><B
+>defaultField</B
+> :: Q Exp -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#defaultField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Sets the default value on a field (makes it optional with a
+ default value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:optionalField"
+><A NAME="v%3AoptionalField"
+></A
+></A
+><B
+>optionalField</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#optionalField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Marks a field optional (turning its base type into a Maybe).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:containerField"
+><A NAME="v%3AcontainerField"
+></A
+></A
+><B
+>containerField</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#containerField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Marks a field as a container.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:customField"
+><A NAME="v%3AcustomField"
+></A
+></A
+><B
+>customField</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#customField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Name</TD
+><TD CLASS="rdoc"
+>The name of the read function
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Name</TD
+><TD CLASS="rdoc"
+>The name of the show function
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="rdoc"
+>The original field
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="rdoc"
+>Updated field
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Sets custom functions on a field.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fieldRecordName"
+><A NAME="v%3AfieldRecordName"
+></A
+></A
+><B
+>fieldRecordName</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#fieldRecordName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fieldVariable"
+><A NAME="v%3AfieldVariable"
+></A
+></A
+><B
+>fieldVariable</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#fieldVariable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the preferred variable name to use for the value of this
+ field. If the field has a specific constructor name, then we use a
+ first-letter-lowercased version of that; otherwise, we simply use
+ the field name. See also <TT
+><A HREF="Ganeti-THH.html#v%3AfieldRecordName"
+>fieldRecordName</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:actualFieldType"
+><A NAME="v%3AactualFieldType"
+></A
+></A
+><B
+>actualFieldType</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Type</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#actualFieldType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkNonOptDef"
+><A NAME="v%3AcheckNonOptDef"
+></A
+></A
+><B
+>checkNonOptDef</B
+> :: Monad m =&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; m ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#checkNonOptDef"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadFn"
+><A NAME="v%3AloadFn"
+></A
+></A
+><B
+>loadFn</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#loadFn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+></TD
+><TD CLASS="rdoc"
+>The field definition
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Q Exp</TD
+><TD CLASS="rdoc"
+>The value of the field as existing in the JSON message
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Q Exp</TD
+><TD CLASS="rdoc"
+>The entire object in JSON object format
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Q Exp</TD
+><TD CLASS="rdoc"
+>Resulting expression
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Produces the expression that will de-serialise a given
+ field. Since some custom parsing functions might need to use the
+ entire object, we do take and pass the object to any custom read
+ functions.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Common field declarations
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:timeStampFields"
+><A NAME="v%3AtimeStampFields"
+></A
+></A
+><B
+>timeStampFields</B
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#timeStampFields"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:serialFields"
+><A NAME="v%3AserialFields"
+></A
+></A
+><B
+>serialFields</B
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#serialFields"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:uuidFields"
+><A NAME="v%3AuuidFields"
+></A
+></A
+><B
+>uuidFields</B
+> :: [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#uuidFields"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Helper functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:ensureLower"
+><A NAME="v%3AensureLower"
+></A
+></A
+><B
+>ensureLower</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#ensureLower"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Ensure first letter is lowercase.
+</P
+><P
+>Used to convert type name to function prefix, e.g. in <TT
+>data Aa -&gt;
+ aaToRaw</TT
+>.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:ensureUpper"
+><A NAME="v%3AensureUpper"
+></A
+></A
+><B
+>ensureUpper</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#ensureUpper"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Ensure first letter is uppercase.
+</P
+><P
+>Used to convert constructor name to component
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:varNameE"
+><A NAME="v%3AvarNameE"
+></A
+></A
+><B
+>varNameE</B
+> :: String -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#varNameE"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper for quoted expressions.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:showJSONE"
+><A NAME="v%3AshowJSONE"
+></A
+></A
+><B
+>showJSONE</B
+> :: Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#showJSONE"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>showJSON as an expression, for reuse.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:toRawName"
+><A NAME="v%3AtoRawName"
+></A
+></A
+><B
+>toRawName</B
+> :: String -&gt; Name</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#toRawName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>ToRaw function name.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fromRawName"
+><A NAME="v%3AfromRawName"
+></A
+></A
+><B
+>fromRawName</B
+> :: String -&gt; Name</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#fromRawName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>FromRaw function name.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:reprE"
+><A NAME="v%3AreprE"
+></A
+></A
+><B
+>reprE</B
+> :: Either String Name -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#reprE"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Converts a name to it's varE/litE representations.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:appFn"
+><A NAME="v%3AappFn"
+></A
+></A
+><B
+>appFn</B
+> :: Exp -&gt; Exp -&gt; Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#appFn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Smarter function application.
+</P
+><P
+>This does simply f x, except that if is <TT
+>id</TT
+>, it will skip it, in
+ order to generate more readable code when using -ddump-splices.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readContainer"
+><A NAME="v%3AreadContainer"
+></A
+></A
+><B
+>readContainer</B
+> :: (Monad m, JSON a) =&gt; JSObject JSValue -&gt; m (<A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#readContainer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Container loader
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:showContainer"
+><A NAME="v%3AshowContainer"
+></A
+></A
+><B
+>showContainer</B
+> :: JSON a =&gt; <A HREF="Ganeti-THH.html#t%3AContainer"
+>Container</A
+> a -&gt; JSValue</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#showContainer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Container dumper
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Template code for simple raw type-equivalent ADTs
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:strADTDecl"
+><A NAME="v%3AstrADTDecl"
+></A
+></A
+><B
+>strADTDecl</B
+> :: Name -&gt; [String] -&gt; Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#strADTDecl"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates a data type declaration.
+</P
+><P
+>The type will have a fixed list of instances.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genToRaw"
+><A NAME="v%3AgenToRaw"
+></A
+></A
+><B
+>genToRaw</B
+> :: Name -&gt; Name -&gt; Name -&gt; [(String, Either String Name)] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genToRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates a toRaw function.
+</P
+><P
+>This generates a simple function of the form:
+</P
+><PRE
+>
+ nameToRaw :: Name -&gt; <EM
+>traw</EM
+>
+ nameToRaw Cons1 = var1
+ nameToRaw Cons2 = &quot;value2&quot;
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genFromRaw"
+><A NAME="v%3AgenFromRaw"
+></A
+></A
+><B
+>genFromRaw</B
+> :: Name -&gt; Name -&gt; Name -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genFromRaw"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates a fromRaw function.
+</P
+><P
+>The function generated is monadic and can fail parsing the
+ raw value. It is of the form:
+</P
+><PRE
+>
+ nameFromRaw :: (Monad m) =&gt; <EM
+>traw</EM
+> -&gt; m Name
+ nameFromRaw s | s == var1       = Cons1
+               | s == &quot;value2&quot; = Cons2
+               | otherwise = fail <EM
+>...</EM
+>
+</PRE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:declareADT"
+><A NAME="v%3AdeclareADT"
+></A
+></A
+><B
+>declareADT</B
+> :: Name -&gt; String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#declareADT"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates a data type from a given raw format.
+</P
+><P
+>The format is expected to multiline. The first line contains the
+ type name, and the rest of the lines must contain two words: the
+ constructor name and then the string representation of the
+ respective constructor.
+</P
+><P
+>The function will generate the data type declaration, and then two
+ functions:
+</P
+><UL
+><LI
+> <EM
+>name</EM
+>ToRaw, which converts the type to a raw type
+</LI
+><LI
+> <EM
+>name</EM
+>FromRaw, which (monadically) converts from a raw type to the type
+</LI
+></UL
+><P
+>Note that this is basically just a custom show/read instance,
+ nothing else.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:declareIADT"
+><A NAME="v%3AdeclareIADT"
+></A
+></A
+><B
+>declareIADT</B
+> :: String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#declareIADT"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:declareSADT"
+><A NAME="v%3AdeclareSADT"
+></A
+></A
+><B
+>declareSADT</B
+> :: String -&gt; [(String, Name)] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#declareSADT"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genShowJSON"
+><A NAME="v%3AgenShowJSON"
+></A
+></A
+><B
+>genShowJSON</B
+> :: String -&gt; Q Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genShowJSON"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Creates the showJSON member of a JSON instance declaration.
+</P
+><P
+>This will create what is the equivalent of:
+</P
+><PRE
+>
+ showJSON = showJSON . <EM
+>name</EM
+>ToRaw
+</PRE
+><P
+>in an instance JSON <EM
+>name</EM
+> declaration
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genReadJSON"
+><A NAME="v%3AgenReadJSON"
+></A
+></A
+><B
+>genReadJSON</B
+> :: String -&gt; Q Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genReadJSON"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Creates the readJSON member of a JSON instance declaration.
+</P
+><P
+>This will create what is the equivalent of:
+</P
+><PRE
+>
+ readJSON s = case readJSON s of
+                Ok s' -&gt; <EM
+>name</EM
+>FromRaw s'
+                Error e -&gt; Error <EM
+>description</EM
+>
+</PRE
+><P
+>in an instance JSON <EM
+>name</EM
+> declaration
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:makeJSONInstance"
+><A NAME="v%3AmakeJSONInstance"
+></A
+></A
+><B
+>makeJSONInstance</B
+> :: Name -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#makeJSONInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates a JSON instance for a given type.
+</P
+><P
+>This assumes that the <EM
+>name</EM
+>ToRaw and <EM
+>name</EM
+>FromRaw functions
+ have been defined as by the <TT
+><A HREF="Ganeti-THH.html#v%3AdeclareSADT"
+>declareSADT</A
+></TT
+> function.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="5"
+><A NAME="5"
+>Template code for opcodes
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:deCamelCase"
+><A NAME="v%3AdeCamelCase"
+></A
+></A
+><B
+>deCamelCase</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#deCamelCase"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Transforms a CamelCase string into an_underscore_based_one.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:camelCase"
+><A NAME="v%3AcamelCase"
+></A
+></A
+><B
+>camelCase</B
+> :: String -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#camelCase"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Transform an underscore_name into a CamelCase one.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:constructorName"
+><A NAME="v%3AconstructorName"
+></A
+></A
+><B
+>constructorName</B
+> :: Con -&gt; Q Name</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#constructorName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the name of a given constructor.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genConstrToStr"
+><A NAME="v%3AgenConstrToStr"
+></A
+></A
+><B
+>genConstrToStr</B
+> :: (String -&gt; String) -&gt; Name -&gt; String -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genConstrToStr"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Builds the generic constructor-to-string function.
+</P
+><P
+>This generates a simple function of the following form:
+</P
+><PRE
+>
+ fname (ConStructorOne {}) = trans_fun(<A HREF="ConStructorOne.html"
+>ConStructorOne</A
+>)
+ fname (ConStructorTwo {}) = trans_fun(<A HREF="ConStructorTwo.html"
+>ConStructorTwo</A
+>)
+</PRE
+><P
+>This builds a custom list of name/string pairs and then uses
+ <TT
+><A HREF="Ganeti-THH.html#v%3AgenToRaw"
+>genToRaw</A
+></TT
+> to actually generate the function
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genOpID"
+><A NAME="v%3AgenOpID"
+></A
+></A
+><B
+>genOpID</B
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genOpID"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constructor-to-string for OpCode.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:OpParam"
+><A NAME="t%3AOpParam"
+></A
+></A
+><B
+>OpParam</B
+> = (String, Q Type, Q Exp)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#OpParam"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>OpCode parameter (field) type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genOpCode"
+><A NAME="v%3AgenOpCode"
+></A
+></A
+><B
+>genOpCode</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genOpCode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>Type name to use
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])]</TD
+><TD CLASS="rdoc"
+>Constructor name and parameters
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Q [Dec]</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Generates the OpCode data type.
+</P
+><P
+>This takes an opcode logical definition, and builds both the
+ datatype and the JSON serialisation out of it. We can't use a
+ generic serialisation since we need to be compatible with Ganeti's
+ own, so we have a few quirks to work around.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isOptional"
+><A NAME="v%3AisOptional"
+></A
+></A
+><B
+>isOptional</B
+> :: Type -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#isOptional"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Checks whether a given parameter is options.
+</P
+><P
+>This requires that it's a <TT
+>Maybe</TT
+>.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveConstructor"
+><A NAME="v%3AsaveConstructor"
+></A
+></A
+><B
+>saveConstructor</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#saveConstructor"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: String</TD
+><TD CLASS="rdoc"
+>The constructor name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>]</TD
+><TD CLASS="rdoc"
+>The parameter definitions for this
+ constructor
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Q Clause</TD
+><TD CLASS="rdoc"
+>Resulting clause
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Generates the &quot;save&quot; clause for an entire opcode constructor.
+</P
+><P
+>This matches the opcode with variables named the same as the
+ constructor fields (just so that the spliced in code looks nicer),
+ and passes those name plus the parameter definition to <TT
+><A HREF="Ganeti-THH.html#v%3AsaveObjectField"
+>saveObjectField</A
+></TT
+>.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genSaveOpCode"
+><A NAME="v%3AgenSaveOpCode"
+></A
+></A
+><B
+>genSaveOpCode</B
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])] -&gt; Q (Dec, Dec)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genSaveOpCode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates the main save opcode function.
+</P
+><P
+>This builds a per-constructor match clause that contains the
+ respective constructor-serialisation code.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConstructor"
+><A NAME="v%3AloadConstructor"
+></A
+></A
+><B
+>loadConstructor</B
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#loadConstructor"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genLoadOpCode"
+><A NAME="v%3AgenLoadOpCode"
+></A
+></A
+><B
+>genLoadOpCode</B
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>])] -&gt; Q (Dec, Dec)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genLoadOpCode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="6"
+><A NAME="6"
+>Template code for luxi
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genStrOfOp"
+><A NAME="v%3AgenStrOfOp"
+></A
+></A
+><B
+>genStrOfOp</B
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genStrOfOp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constructor-to-string for LuxiOp.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genStrOfKey"
+><A NAME="v%3AgenStrOfKey"
+></A
+></A
+><B
+>genStrOfKey</B
+> :: Name -&gt; String -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genStrOfKey"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constructor-to-string for MsgKeys.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:LuxiParam"
+><A NAME="t%3ALuxiParam"
+></A
+></A
+><B
+>LuxiParam</B
+> = (String, Q Type, Q Exp)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#LuxiParam"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>LuxiOp parameter type.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genLuxiOp"
+><A NAME="v%3AgenLuxiOp"
+></A
+></A
+><B
+>genLuxiOp</B
+> :: String -&gt; [(String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>])] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genLuxiOp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Generates the LuxiOp data type.
+</P
+><P
+>This takes a Luxi operation definition and builds both the
+ datatype and the function trnasforming the arguments to JSON.
+ We can't use anything less generic, because the way different
+ operations are serialized differs on both parameter- and top-level.
+</P
+><P
+>There are three things to be defined for each parameter:
+</P
+><UL
+><LI
+> name
+</LI
+><LI
+> type
+</LI
+><LI
+> operation; this is the operation performed on the parameter before
+   serialization
+</LI
+></UL
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveLuxiField"
+><A NAME="v%3AsaveLuxiField"
+></A
+></A
+><B
+>saveLuxiField</B
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+> -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#saveLuxiField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates the &quot;save&quot; expression for a single luxi parameter.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveLuxiConstructor"
+><A NAME="v%3AsaveLuxiConstructor"
+></A
+></A
+><B
+>saveLuxiConstructor</B
+> :: (String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>]) -&gt; Q Clause</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#saveLuxiConstructor"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates the &quot;save&quot; clause for entire LuxiOp constructor.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genSaveLuxiOp"
+><A NAME="v%3AgenSaveLuxiOp"
+></A
+></A
+><B
+>genSaveLuxiOp</B
+> :: [(String, [<A HREF="Ganeti-THH.html#t%3ALuxiParam"
+>LuxiParam</A
+>])] -&gt; Q (Dec, Dec)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genSaveLuxiOp"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates the main save LuxiOp function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="7"
+><A NAME="7"
+><A HREF="Objects.html"
+>Objects</A
+> functionality
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fieldTypeInfo"
+><A NAME="v%3AfieldTypeInfo"
+></A
+></A
+><B
+>fieldTypeInfo</B
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Strict, Type)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#fieldTypeInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Extract the field's declaration from a Field structure.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildObject"
+><A NAME="v%3AbuildObject"
+></A
+></A
+><B
+>buildObject</B
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#buildObject"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Build an object declaration.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildObjectSerialisation"
+><A NAME="v%3AbuildObjectSerialisation"
+></A
+></A
+><B
+>buildObjectSerialisation</B
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#buildObjectSerialisation"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genSaveObject"
+><A NAME="v%3AgenSaveObject"
+></A
+></A
+><B
+>genSaveObject</B
+> :: (Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp) -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genSaveObject"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveObjectField"
+><A NAME="v%3AsaveObjectField"
+></A
+></A
+><B
+>saveObjectField</B
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#saveObjectField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:objectShowJSON"
+><A NAME="v%3AobjectShowJSON"
+></A
+></A
+><B
+>objectShowJSON</B
+> :: String -&gt; Q Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#objectShowJSON"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genLoadObject"
+><A NAME="v%3AgenLoadObject"
+></A
+></A
+><B
+>genLoadObject</B
+> :: (<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)) -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q (Dec, Dec)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#genLoadObject"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadObjectField"
+><A NAME="v%3AloadObjectField"
+></A
+></A
+><B
+>loadObjectField</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#loadObjectField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:objectReadJSON"
+><A NAME="v%3AobjectReadJSON"
+></A
+></A
+><B
+>objectReadJSON</B
+> :: String -&gt; Q Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#objectReadJSON"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="8"
+><A NAME="8"
+>Inheritable parameter tables implementation
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:paramTypeNames"
+><A NAME="v%3AparamTypeNames"
+></A
+></A
+><B
+>paramTypeNames</B
+> :: String -&gt; (String, String)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#paramTypeNames"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute parameter type names.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:paramFieldTypeInfo"
+><A NAME="v%3AparamFieldTypeInfo"
+></A
+></A
+><B
+>paramFieldTypeInfo</B
+> :: String -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Strict, Type)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#paramFieldTypeInfo"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Compute information about the type of a parameter field.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildParam"
+><A NAME="v%3AbuildParam"
+></A
+></A
+><B
+>buildParam</B
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#buildParam"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Build a parameter declaration.
+</P
+><P
+>This function builds two different data structures: a <EM
+>filled</EM
+> one,
+ in which all fields are required, and a <EM
+>partial</EM
+> one, in which all
+ fields are optional. Due to the current record syntax issues, the
+ fields need to be named differrently for the two structures, so the
+ partial ones get a <EM
+>P</EM
+> suffix.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildPParamSerialisation"
+><A NAME="v%3AbuildPParamSerialisation"
+></A
+></A
+><B
+>buildPParamSerialisation</B
+> :: String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#buildPParamSerialisation"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:savePParamField"
+><A NAME="v%3AsavePParamField"
+></A
+></A
+><B
+>savePParamField</B
+> :: Name -&gt; <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q Exp</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#savePParamField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadPParamField"
+><A NAME="v%3AloadPParamField"
+></A
+></A
+><B
+>loadPParamField</B
+> :: <A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+> -&gt; Q (Name, Stmt)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#loadPParamField"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildFromMaybe"
+><A NAME="v%3AbuildFromMaybe"
+></A
+></A
+><B
+>buildFromMaybe</B
+> :: String -&gt; Q Dec</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#buildFromMaybe"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Builds a simple declaration of type <TT
+>n_x = fromMaybe f_x p_x</TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:fillParam"
+><A NAME="v%3AfillParam"
+></A
+></A
+><B
+>fillParam</B
+> :: String -&gt; String -&gt; [<A HREF="Ganeti-THH.html#t%3AField"
+>Field</A
+>] -&gt; Q [Dec]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/THH.html#fillParam"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

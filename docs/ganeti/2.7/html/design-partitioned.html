@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Partitioned Ganeti &mdash; Ganeti 2.7.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.7.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.7.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Ganeti monitoring agent" href="design-monitoring-agent.html" />
+    <link rel="prev" title="Instance auto-repair" href="design-autorepair.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-monitoring-agent.html" title="Ganeti monitoring agent"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-autorepair.html" title="Instance auto-repair"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="partitioned-ganeti">
+<h1><a class="toc-backref" href="#id1">Partitioned Ganeti</a><a class="headerlink" href="#partitioned-ganeti" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#partitioned-ganeti" id="id1">Partitioned Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#exclusive-use-of-disks" id="id4">Exclusive use of disks</a><ul>
+<li><a class="reference internal" href="#spindles-as-a-resource" id="id5">Spindles as a resource</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dedicated-cpus" id="id6">Dedicated CPUs</a></li>
+<li><a class="reference internal" href="#dedicated-ram" id="id7">Dedicated RAM</a><ul>
+<li><a class="reference internal" href="#xen" id="id8">Xen</a></li>
+<li><a class="reference internal" href="#kvm" id="id9">KVM</a></li>
+<li><a class="reference internal" href="#numa" id="id10">NUMA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constrained-instance-sizes" id="id11">Constrained instance sizes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-order" id="id12">Implementation order</a></li>
+<li><a class="reference internal" href="#possible-future-enhancements" id="id13">Possible future enhancements</a><ul>
+<li><a class="reference internal" href="#network-bandwidth" id="id14">Network bandwidth</a></li>
+<li><a class="reference internal" href="#cpu-pinning" id="id15">CPU pinning</a></li>
+<li><a class="reference internal" href="#overcommit-for-ram-and-disks" id="id16">Overcommit for RAM and disks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently Ganeti can be used to easily share a node between multiple
+virtual instances. While it&#8217;s easy to do a completely &#8220;best effort&#8221;
+sharing it&#8217;s quite harder to completely reserve resources for the use of
+a particular instance. In particular this has to be done manually for
+CPUs and disk, is implemented for RAM under Xen, but not under KVM, and
+there&#8217;s no provision for network level QoS.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We want to make it easy to partition a node between machines with
+exclusive use of hardware resources. While some sharing will anyway need
+to happen (e.g. for operations that use the host domain, or use
+resources, like buses, which are unique or very scarce on host systems)
+we&#8217;ll strive to maintain contention at a minimum, but won&#8217;t try to avoid
+all possible sources of it.</p>
+<div class="section" id="exclusive-use-of-disks">
+<h3><a class="toc-backref" href="#id4">Exclusive use of disks</a><a class="headerlink" href="#exclusive-use-of-disks" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> is a new node parameter. When it&#8217;s enabled, Ganeti
+will allocate entire disks to instances. Though it&#8217;s possible to think
+of ways of doing something similar for other storage back-ends, this
+design targets only <tt class="docutils literal"><span class="pre">plain</span></tt> and <tt class="docutils literal"><span class="pre">drbd</span></tt>. The name is generic enough
+in case the feature will be extended to other back-ends. The flag value
+should be homogeneous within a node-group; <tt class="docutils literal"><span class="pre">cluster-verify</span></tt> will report
+any violation of this condition.</p>
+<p>Ganeti will consider each physical volume in the destination volume
+group as a host disk (for proper isolation, an administrator should
+make sure that there aren&#8217;t multiple PVs on the same physical
+disk). When <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> is enabled in a node group, all PVs
+in the node group must have the same size (within a certain margin, say
+1%, defined through a new parameter). Ganeti will check this condition
+when the <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> flag is set, whenever a new node is added
+and as part of <tt class="docutils literal"><span class="pre">cluster-verify</span></tt>.</p>
+<p>When creating a new disk for an instance, Ganeti will allocate the
+minimum number of PVs to hold the disk, and those PVs will be excluded
+from the pool of available PVs for further disk creations. The
+underlying LV will be striped, when striping is allowed by the current
+configuration. Ganeti will continue to track only the LVs, and query the
+LVM layer to figure out which PVs are available and how much space is
+free. Yet, creation, disk growing, and free-space reporting will ignore
+any partially allocated PVs, so that PVs won&#8217;t be shared between
+instance disks.</p>
+<p>For compatibility with the DRBD template and to take into account disk
+variability, Ganeti will always subtract 2% (this will be a parameter)
+from the PV space when calculating how many PVs are needed to allocate
+an instance and when nodes report free space.</p>
+<p>The obvious target for this option is plain disk template, which doesn&#8217;t
+provide redundancy. An administrator can still provide resilience
+against disk failures by setting up RAID under PVs, but this is
+transparent to Ganeti.</p>
+<div class="section" id="spindles-as-a-resource">
+<h4><a class="toc-backref" href="#id5">Spindles as a resource</a><a class="headerlink" href="#spindles-as-a-resource" title="Permalink to this headline">¶</a></h4>
+<p>When resources are dedicated and there are more spindles than instances
+on a node, it is natural to assign more spindles to instances than what
+is strictly needed. For this reason, we introduce a new resource:
+spindles. A spindle is a PV in LVM. The number of spindles required for
+a disk of an instance is specified together with the size. Specifying
+the number of spindles is possible only when <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> is
+enabled. It is an error to specify a number of spindles insufficient to
+contain the requested disk size.</p>
+<p>When <tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> is not enabled, spindles are not used in free
+space calculation, in allocation algorithms, and policies. When it&#8217;s
+enabled, <tt class="docutils literal"><span class="pre">hspace</span></tt>, <tt class="docutils literal"><span class="pre">hbal</span></tt>, and allocators will use spindles instead
+of disk size for their computation. For each node, the number of all the
+spindles in every LVM group is recorded, and different LVM groups are
+accounted separately in allocation and balancing.</p>
+<p>There is already a concept of spindles in Ganeti. It&#8217;s not related to
+any actual spindle or volume count, but it&#8217;s used in <tt class="docutils literal"><span class="pre">spindle_use</span></tt> to
+measure the pressure of an instance on the storage system and in
+<tt class="docutils literal"><span class="pre">spindle_ratio</span></tt> to balance the I/O load on the nodes. These two
+parameters will be renamed to <tt class="docutils literal"><span class="pre">storage_io_use</span></tt> and
+<tt class="docutils literal"><span class="pre">storage_io_ratio</span></tt> to reflect better their meaning. When
+<tt class="docutils literal"><span class="pre">exclusive_storage</span></tt> is enabled, such parameters are ignored, as
+balancing the use of storage I/O is already addressed by the exclusive
+assignment of PVs.</p>
+</div>
+</div>
+<div class="section" id="dedicated-cpus">
+<h3><a class="toc-backref" href="#id6">Dedicated CPUs</a><a class="headerlink" href="#dedicated-cpus" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">vpcu_ratio</span></tt> can be used to tie the number of VCPUs to the number of
+CPUs provided by the hardware. We need to take into account the CPU
+usage of the hypervisor. For Xen, this means counting the number of
+VCPUs assigned to <tt class="docutils literal"><span class="pre">Domain-0</span></tt>.</p>
+<p>For KVM, it&#8217;s more difficult to limit the number of CPUs used by the
+node OS. <tt class="docutils literal"><span class="pre">cgroups</span></tt> could be a solution to restrict the node OS to use
+some of the CPUs, leaving the other ones to instances and KVM processes.
+For KVM, the number of CPUs for the host system should also be a
+hypervisor parameter (set at the node group level).</p>
+</div>
+<div class="section" id="dedicated-ram">
+<h3><a class="toc-backref" href="#id7">Dedicated RAM</a><a class="headerlink" href="#dedicated-ram" title="Permalink to this headline">¶</a></h3>
+<p>Instances should not compete for RAM. This is easily done on Xen, but it
+is tricky on KVM.</p>
+<div class="section" id="xen">
+<h4><a class="toc-backref" href="#id8">Xen</a><a class="headerlink" href="#xen" title="Permalink to this headline">¶</a></h4>
+<p>Memory is already fully segregated under Xen, if sharing mechanisms
+(transcendent memory, auto ballooning, etc) are not in use.</p>
+</div>
+<div class="section" id="kvm">
+<h4><a class="toc-backref" href="#id9">KVM</a><a class="headerlink" href="#kvm" title="Permalink to this headline">¶</a></h4>
+<p>Under KVM or LXC memory is fully shared between the host system and all
+the guests, and instances can even be swapped out by the host OS.</p>
+<p>It&#8217;s not clear if the problem can be solved by limiting the size of the
+instances, so that there is plenty of room for the host OS.</p>
+<p>We could implement segregation using cgroups to limit the memory used by
+the host OS. This requires finishing the implementation of the memory
+hypervisor status (set at the node group level) that changes how free
+memory is computed under KVM systems. Then we have to add a way to
+enforce this limit on the host system itself, rather than leaving it as
+a calculation tool only.</p>
+<p>Another problem for KVM is that we need to decide about the size of the
+cgroup versus the size of the VM: some overhead will in particular
+exist, due to the fact that an instance and its encapsulating KVM
+process share the same space. For KVM systems the physical memory
+allocatable to instances should be computed by subtracting an overhead
+for the KVM processes, whose value can be either statically configured
+or set in a hypervisor status parameter.</p>
+</div>
+<div class="section" id="numa">
+<h4><a class="toc-backref" href="#id10">NUMA</a><a class="headerlink" href="#numa" title="Permalink to this headline">¶</a></h4>
+<p>If instances are pinned to CPUs, and the amount of memory used for every
+instance is proportionate to the number of VCPUs, NUMA shouldn&#8217;t be a
+problem, as the hypervisors allocate memory in the appropriate NUMA
+node. Work is in progress in Xen and the Linux kernel to always allocate
+memory correctly even without pinning. Therefore, we don&#8217;t need to
+address this problem specifically; it will be solved by future versions
+of the hypervisors or by implementing CPU pinning.</p>
+</div>
+</div>
+<div class="section" id="constrained-instance-sizes">
+<h3><a class="toc-backref" href="#id11">Constrained instance sizes</a><a class="headerlink" href="#constrained-instance-sizes" title="Permalink to this headline">¶</a></h3>
+<p>In order to simplify allocation and resource provisioning we want to
+limit the possible sizes of instances to a finite set of specifications,
+defined at node-group level.</p>
+<p>Currently it&#8217;s possible to define an instance policy that limits the
+minimum and maximum value for CPU, memory, and disk usage (and spindles
+and any other resource, when implemented), independently from each other. We
+extend the policy by allowing it to specify more specifications, where
+each specification contains the limits (minimum, maximum, and standard)
+for all the resources. Each specification has a unique priority (an
+integer) associated to it, which is used by <tt class="docutils literal"><span class="pre">hspace</span></tt> (see below).</p>
+<p>For example, a policy could be set up to allow instances with this
+constraints:
+- between 1 and 2 CPUs, 2 GB of RAM, and between 10 GB and 400 GB of
+disk space;
+- 4 CPUs, 4 GB of RAM, and between 10 GB and 800 GB of disk space.</p>
+<p>Then, an instance using 1 CPU, 2 GB of RAM and 50 GB of disk would be
+legal, as an instance using 4 CPUs, 4 GB of RAM, and 20 GB of disk,
+while an instance using 2 CPUs, 4 GB of RAM and 40 GB of disk would be
+illegal.</p>
+<p>Ganeti will refuse to create (or modify) instances that violate instance
+policy constraints, unless the flag <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is passed.</p>
+<p>While the changes needed to check constraint violations are
+straightforward, <tt class="docutils literal"><span class="pre">hspace</span></tt> behavior needs some adjustments. For both
+standard and tiered allocation, <tt class="docutils literal"><span class="pre">hspace</span></tt> will start to allocate
+instances using the specification with the highest priority, then it
+will fall back to second highest priority, and so on. For tiered
+allocation, it will try to lower the most constrained resources (without
+breaking the policy) before going to the next specification.</p>
+<p>For consistent results in capacity calculation, the specifications
+inside a policy should be ordered so that the biggest specifications
+have the highest priorities. Also, specifications should not overlap.
+Ganeti won&#8217;t check nor enforce such constraints, though.</p>
+</div>
+</div>
+<div class="section" id="implementation-order">
+<h2><a class="toc-backref" href="#id12">Implementation order</a><a class="headerlink" href="#implementation-order" title="Permalink to this headline">¶</a></h2>
+<p>We will implement this design in the following order:</p>
+<ul class="simple">
+<li>Exclusive use of disks (without spindles as a resource)</li>
+<li>Constrained instance sizes</li>
+<li>Spindles as a resource</li>
+<li>Dedicated CPU and memory</li>
+</ul>
+<p>In this way have always new features that are immediately useful.
+Spindles as a resource are not needed for correct capacity calculation,
+as long as allowed disk sizes are multiples of spindle size, so it&#8217;s
+been moved after constrained instance sizes. If it turns out that it&#8217;s
+easier to implement dedicated disks with spindles as a resource, then we
+will do that.</p>
+</div>
+<div class="section" id="possible-future-enhancements">
+<h2><a class="toc-backref" href="#id13">Possible future enhancements</a><a class="headerlink" href="#possible-future-enhancements" title="Permalink to this headline">¶</a></h2>
+<p>This section briefly describes some enhancements to the current design.
+They may require their own design document, and must be re-evaluated
+when considered for implementation, as Ganeti and the hypervisors may
+change substantially in the meantime.</p>
+<div class="section" id="network-bandwidth">
+<h3><a class="toc-backref" href="#id14">Network bandwidth</a><a class="headerlink" href="#network-bandwidth" title="Permalink to this headline">¶</a></h3>
+<p>A new resource is introduced: network bandwidth. An administrator must
+be able to assign some network bandwidth to the virtual interfaces of an
+instance, and set limits in instance policies. Also, a list of the
+physical network interfaces available for Ganeti use and their maximum
+bandwidth must be kept at node-group or node level. This information
+will be taken into account for allocation, balancing, and free-space
+calculation.</p>
+<p>An additional enhancement is Ganeti enforcing the values set in the
+bandwidth resource. This can be done by configuring limits for example
+via openvswitch or normal QoS for bridging or routing. The bandwidth
+resource represents the average bandwidth usage, so a few new back-end
+parameters are needed to configure how to deal with bursts (they depend
+on the actual way used to enforce the limit).</p>
+</div>
+<div class="section" id="cpu-pinning">
+<h3><a class="toc-backref" href="#id15">CPU pinning</a><a class="headerlink" href="#cpu-pinning" title="Permalink to this headline">¶</a></h3>
+<p>In order to avoid unwarranted migrations between CPUs and to deal with
+NUMA effectively we may need CPU pinning. CPU scheduling is a complex
+topic and still under active development in Xen and the Linux kernel, so
+we wont&#8217; try to outsmart their developers. If we need pinning it&#8217;s more
+to have predictable performance than to get the maximum performance
+(which is best done by the hypervisor), so we&#8217;ll implement a very simple
+algorithm that allocates CPUs when an instance is assigned to a node
+(either when it&#8217;s created or when it&#8217;s moved) and takes into account
+NUMA and maybe CPU multithreading. A more refined version might run also
+when an instance is deleted, but that would involve reassigning CPUs,
+which could be bad with NUMA.</p>
+</div>
+<div class="section" id="overcommit-for-ram-and-disks">
+<h3><a class="toc-backref" href="#id16">Overcommit for RAM and disks</a><a class="headerlink" href="#overcommit-for-ram-and-disks" title="Permalink to this headline">¶</a></h3>
+<p>Right now it is possible to assign more VCPUs to the instances running
+on a node than there are CPU available. This works as normally CPU usage
+on average is way below 100%. There are ways to share memory pages
+(e.g. KSM, transcendent memory) and disk blocks, so we could add new
+parameters to overcommit memory and disks, similar to <tt class="docutils literal"><span class="pre">vcpu_ratio</span></tt>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Partitioned Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#exclusive-use-of-disks">Exclusive use of disks</a><ul>
+<li><a class="reference internal" href="#spindles-as-a-resource">Spindles as a resource</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dedicated-cpus">Dedicated CPUs</a></li>
+<li><a class="reference internal" href="#dedicated-ram">Dedicated RAM</a><ul>
+<li><a class="reference internal" href="#xen">Xen</a></li>
+<li><a class="reference internal" href="#kvm">KVM</a></li>
+<li><a class="reference internal" href="#numa">NUMA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#constrained-instance-sizes">Constrained instance sizes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-order">Implementation order</a></li>
+<li><a class="reference internal" href="#possible-future-enhancements">Possible future enhancements</a><ul>
+<li><a class="reference internal" href="#network-bandwidth">Network bandwidth</a></li>
+<li><a class="reference internal" href="#cpu-pinning">CPU pinning</a></li>
+<li><a class="reference internal" href="#overcommit-for-ram-and-disks">Overcommit for RAM and disks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-autorepair.html"
+                        title="previous chapter">Instance auto-repair</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-monitoring-agent.html"
+                        title="next chapter">Ganeti monitoring agent</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-partitioned.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-monitoring-agent.html" title="Ganeti monitoring agent"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-autorepair.html" title="Instance auto-repair"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.7.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

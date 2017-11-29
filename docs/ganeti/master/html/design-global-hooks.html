@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Better Ganeti customization using global hooks &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="KVM + SCSI" href="design-scsi-kvm.html" />
+    <link rel="prev" title="MacVTap support" href="design-macvtap.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-scsi-kvm.html" title="KVM + SCSI"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-macvtap.html" title="MacVTap support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="better-ganeti-customization-using-global-hooks">
+<h1><a class="toc-backref" href="#id2">Better Ganeti customization using global hooks</a><a class="headerlink" href="#better-ganeti-customization-using-global-hooks" title="Permalink to this headline">¶</a></h1>
+<p>This document describes an enhancement of Ganeti&#8217;s customisation by
+introducing global hooks that will be run before and after each Ganeti
+opcode even if the job process has dead.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#better-ganeti-customization-using-global-hooks" id="id2">Better Ganeti customization using global hooks</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id3">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id4">Proposed changes</a><ul>
+<li><a class="reference internal" href="#additional-variables" id="id5">Additional variables</a></li>
+<li><a class="reference internal" href="#behaviour-details" id="id6">Behaviour details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id3">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Currently, Ganeti allows customization of operations by running scripts
+in sub-directories of <tt class="docutils literal"><span class="pre">&#64;SYSCONFDIR&#64;/ganeti/hooks</span></tt>. These
+sub-directories are named <tt class="docutils literal"><span class="pre">$hook-$phase.d</span></tt>, where <tt class="docutils literal"><span class="pre">$phase</span></tt> is either
+<tt class="docutils literal"><span class="pre">pre</span></tt> or <tt class="docutils literal"><span class="pre">post</span></tt> and <tt class="docutils literal"><span class="pre">$hook</span></tt> matches the directory name given for
+a hook (e.g. <tt class="docutils literal"><span class="pre">cluster-verify-post.d</span></tt> or <tt class="docutils literal"><span class="pre">node-add-pre.d</span></tt>). Post
+hooks for opcodes don&#8217;t run in case of the job process has died. The
+<a class="reference internal" href="hooks.html"><em>Ganeti customisation using hooks</em></a> design document describes currently existing hooks in
+more details.</p>
+<p>In some situations, e.g., reporting to upper level tools controlling
+Ganeti, it is desirable to run hooks before and after each opcode
+execution. Users currently work around this problem by creating symbolic
+links for each opcode directory. But in that case, a problem of the job
+processes death remains. In that case post-opcode hooks wouldn&#8217;t run
+because the opcode execution didn&#8217;t finish.</p>
+<p>Other problem is that some opcodes don&#8217;t support hooks. That makes it
+impossible for external tools to setup hook for each opcode execution
+that might be useful, e.g. for monitoring puproses.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id4">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to introduce a new type of hooks, the <em>global</em> hooks, that
+run before and after each opcode execution even in case of opcode
+process death. The organization of such hooks will be preserved the
+same as for the <a class="reference internal" href="hooks.html#hooks-organization"><em>existing per-opcode hooks</em></a>.
+The same <a class="reference internal" href="hooks.html#common-variables"><em>common variables</em></a> will be available as
+for the usual hooks. In addition to common variables,
+<a class="reference internal" href="#additional-variables"><em>additional variables</em></a> and
+<a class="reference internal" href="hooks.html#specialized-variables"><em>specialized variables</em></a>, corresponding to
+the surrounded opcode, will also be provided. See
+<a class="reference internal" href="hooks.html#opcode-params"><em>per-opcode hooks parameters documentation</em></a> for
+more details.</p>
+<p>For the opcodes that are currently unsupported by hooks, and thus, don&#8217;t
+presented in <a class="reference internal" href="hooks.html#opcode-params"><em>opcodes list</em></a>, only
+<a class="reference internal" href="hooks.html#common-variables"><em>common variables</em></a> and
+<a class="reference internal" href="#additional-variables"><em>additional variables</em></a> will be available
+inside the <em>global</em> hooks. <em>OBJECT_TYPE</em> variable for such hooks will
+be initialized with special <tt class="docutils literal"><span class="pre">NOT_APPLICABLE</span></tt> value. The hooks will be
+executed only on master daemon as their opcodes won&#8217;t provide any lists
+containing target nodes.</p>
+<p>For the <em>global</em> post hooks executing after a failure or death of
+the job process, only <a class="reference internal" href="hooks.html#common-variables"><em>common variables</em></a>
+(except OBJECT_TYPE) and
+<a class="reference internal" href="#additional-variables"><em>additional variables</em></a> will be provided.</p>
+<div class="section" id="additional-variables">
+<span id="id1"></span><h3><a class="toc-backref" href="#id5">Additional variables</a><a class="headerlink" href="#additional-variables" title="Permalink to this headline">¶</a></h3>
+<p>The additional variable is introduced for both pre and post hooks
+in order to identify the current job:</p>
+<dl class="docutils">
+<dt>GANETI_JOB_ID</dt>
+<dd>Id of the job current opcode belongs to.</dd>
+<dt>GANETI_IS_MASTER</dt>
+<dd><p class="first">The variable showing if the current node is a master node. It might
+be useful e.g. if global hooks are used for the logging purposes.</p>
+<p>The <tt class="docutils literal"><span class="pre">master</span></tt> value means that the node is the master node</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">not_master</span></tt> value means that the node is not the master</p>
+</dd>
+</dl>
+<p>Due to the fact that global hooks will be executed even after job
+process has dead, a new environmental variable is introduced for the
+<em>global</em> post hooks:</p>
+<dl class="docutils">
+<dt>GANETI_POST_STATUS</dt>
+<dd><p class="first">String containing status of the opcode execution: <tt class="docutils literal"><span class="pre">success</span></tt>,
+<tt class="docutils literal"><span class="pre">error</span></tt> or <tt class="docutils literal"><span class="pre">disappeared</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">success</span></tt> status means that the logical unit corresponding to
+the opcode and the non-global post hooks for the opcodes have
+succesfully finished.</p>
+<p>The <tt class="docutils literal"><span class="pre">error</span></tt> status means that the corresponding logical unit or
+the non-global hooks caused an exception which has been logged.</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">disappeared</span></tt> status means that the job process has died during
+the logical unit or the non-global hooks execution.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="behaviour-details">
+<h3><a class="toc-backref" href="#id6">Behaviour details</a><a class="headerlink" href="#behaviour-details" title="Permalink to this headline">¶</a></h3>
+<p><em>Global</em> pre hooks will always be executed just before the usual pre
+hooks on the same node set and on the master node. The hooks
+execution result will be ignored. In case of opcodes which don&#8217;t
+support hooks, <em>global</em> pre hooks also will be executed but only on
+the master node.</p>
+<p>With the post hooks the situation is more complicated. In case of
+successful job process execution, <em>global</em> hooks will be executed just
+after the usual post hooks have run and all the errors have been
+checked. In case of <tt class="docutils literal"><span class="pre">error</span></tt> status, <em>global</em> post hooks will be
+executed only on the master node from the exception handler. Just after
+the <em>global</em> post hooks execution, the exception will be raised again
+as usual. In case of job process disappear, the scheduler will execute
+the <em>global</em> post hooks in a separate process as soon as the job
+process death is registered. The <em>global</em> post hooks will be executed
+only for the opcodes with an initialized start_timestamp.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Better Ganeti customization using global hooks</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#additional-variables">Additional variables</a></li>
+<li><a class="reference internal" href="#behaviour-details">Behaviour details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-macvtap.html"
+                        title="previous chapter">MacVTap support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-scsi-kvm.html"
+                        title="next chapter">KVM + SCSI</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-global-hooks.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-scsi-kvm.html" title="KVM + SCSI"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-macvtap.html" title="MacVTap support"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

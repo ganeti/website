@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Security in Ganeti &mdash; Ganeti 2.11.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.11.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.11.8 documentation" href="index.html" />
+    <link rel="next" title="Upgrade notes" href="upgrade.html" />
+    <link rel="prev" title="Ganeti remote API" href="rapi.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="upgrade.html" title="Upgrade notes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="rapi.html" title="Ganeti remote API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="security-in-ganeti">
+<h1>Security in Ganeti<a class="headerlink" href="#security-in-ganeti" title="Permalink to this headline">¶</a></h1>
+<p>Documents Ganeti version 2.11</p>
+<p>Ganeti was developed to run on internal, trusted systems. As such, the
+security model is all-or-nothing.</p>
+<p>Up to version 2.3 all Ganeti code ran as root. Since version 2.4 it is
+possible to run all daemons except the node daemon and the monitoring daemon
+as non-root users by specifying user names and groups at build time.
+The node daemon continues to require root privileges to create logical volumes,
+DRBD devices, start instances, etc. Cluster commands can be run as root or by
+users in a group specified at build time. The monitoring daemon requires root
+privileges in order to be able to access and present information that are only
+avilable to root (such as the output of the <tt class="docutils literal"><span class="pre">xm</span></tt> command of Xen).</p>
+<div class="section" id="host-issues">
+<h2>Host issues<a class="headerlink" href="#host-issues" title="Permalink to this headline">¶</a></h2>
+<p>For a host on which the Ganeti software has been installed, but not
+joined to a cluster, there are no changes to the system.</p>
+<p>For a host that has been joined to the cluster, there are very important
+changes:</p>
+<ul class="simple">
+<li>The host will have its SSH host key replaced with the one of the
+cluster (which is the one the initial node had at the cluster
+creation)</li>
+<li>A new public key will be added to root&#8217;s <tt class="docutils literal"><span class="pre">authorized_keys</span></tt> file,
+granting root access to all nodes of the cluster. The private part of
+the key is also distributed to all nodes. Old files are renamed.</li>
+<li>Communication between nodes is encrypted using SSL/TLS. A common key
+and certificate combo is shared between all nodes of the cluster.  At
+this time, no CA is used.</li>
+<li>The Ganeti node daemon will accept RPC requests from any host that is
+master candidate within the cluster, and the operations it will
+do as a result of these requests are:<ul>
+<li>running commands under the <tt class="docutils literal"><span class="pre">/etc/ganeti/hooks</span></tt> directory</li>
+<li>creating DRBD disks between it and the IP it has been told</li>
+<li>overwrite a defined list of files on the host</li>
+</ul>
+</li>
+</ul>
+<p>As you can see, as soon as a node is joined, it becomes equal to all
+other nodes in the cluster wrt to SSH and equal to all non-master
+candidate nodes wrt to RPC, and the security of the cluster is
+determined by the weakest node.</p>
+<p>Note that only the SSH key will allow other machines to run any command
+on this node; the RPC method will run only:</p>
+<ul class="simple">
+<li>well defined commands to create, remove, activate logical volumes,
+drbd devices, start/stop instances, etc;</li>
+<li>run well-defined SSH commands on other nodes in the cluster</li>
+<li>scripts under the <tt class="docutils literal"><span class="pre">/etc/ganeti/hooks</span></tt> directory</li>
+<li>scripts under the <tt class="docutils literal"><span class="pre">/etc/ganeti/restricted-commands</span></tt> directory, if
+this feature has been enabled at build time (see below)</li>
+</ul>
+<p>It is therefore important to make sure that the contents of the
+<tt class="docutils literal"><span class="pre">/etc/ganeti/hooks</span></tt> and <tt class="docutils literal"><span class="pre">/etc/ganeti/restricted-commands</span></tt>
+directories are supervised and only trusted sources can populate them.</p>
+<div class="section" id="restricted-commands">
+<h3>Restricted commands<a class="headerlink" href="#restricted-commands" title="Permalink to this headline">¶</a></h3>
+<p>The restricted commands feature is new in Ganeti 2.7. It enables the
+administrator to run any commands in the
+<tt class="docutils literal"><span class="pre">/etc/ganeti/restricted-commands</span></tt> directory, if the feature has been
+enabled at build time, subject to the following restrictions:</p>
+<ul class="simple">
+<li>No parameters may be passed</li>
+<li>No absolute or relative path may be passed, only a filename</li>
+<li>The <tt class="docutils literal"><span class="pre">/etc/ganeti/restricted-commands</span></tt> directory must
+be owned by root:root and have mode 0755 or stricter</li>
+<li>Executables must be regular files or symlinks, and must be executable
+by root:root</li>
+</ul>
+<p>Note that it&#8217;s not possible to list the contents of the directory, and
+there is an intentional delay when trying to execute a non-existing
+command (to slow-down dictionary attacks).</p>
+<p>Since for Ganeti itself this functionality is not needed, and is only
+provided as a way to help administrate or recover nodes, it is a local
+site decision whether to enable or not the restricted commands feature.</p>
+<p>By default, this feature is disabled.</p>
+</div>
+</div>
+<div class="section" id="cluster-issues">
+<h2>Cluster issues<a class="headerlink" href="#cluster-issues" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned above, there are multiple ways of communication between
+cluster nodes:</p>
+<ul class="simple">
+<li>SSH-based, for high-volume traffic like image dumps or for low-level
+command, e.g. restarting the Ganeti node daemon</li>
+<li>RPC communication between master and nodes</li>
+<li>DRBD real-time disk replication traffic</li>
+</ul>
+<p>The SSH traffic is protected (after the initial login to a new node) by
+the cluster-wide shared SSH key.</p>
+<p>RPC communication between the master and nodes is protected using
+SSL/TLS encryption. The server must have must have the cluster-wide
+shared SSL/TLS certificate. When acting as a client, the nodes use an
+individual SSL/TLS certificate. On incoming requests, the server checks
+whether the client&#8217;s certificate is that of a master candidate by
+verifying its finterprint to a list of known master candidate
+certificates. We decided not to use a CA (yet) to simplify the key
+handling.</p>
+<p>The DRBD traffic is not protected by encryption, as DRBD does not
+support this. It&#8217;s therefore recommended to implement host-level
+firewalling or to use a separate range of IP addresses for the DRBD
+traffic (this is supported in Ganeti through the use of a secondary
+interface) which is not routed outside the cluster. DRBD connections are
+protected from erroneous connections to other machines (as may happen
+due to software issues), and from accepting connections from other
+machines, by using a shared secret, exchanged via RPC requests from the
+master to the nodes when configuring the device.</p>
+</div>
+<div class="section" id="master-daemon">
+<h2>Master daemon<a class="headerlink" href="#master-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The command-line tools to master daemon communication is done via a
+UNIX socket, whose permissions are reset to <tt class="docutils literal"><span class="pre">0660</span></tt> after listening but
+before serving requests. This permission-based protection is documented
+and works on Linux, but is not-portable; however, Ganeti doesn&#8217;t work on
+non-Linux system at the moment.</p>
+</div>
+<div class="section" id="luxi-daemon">
+<h2>Luxi daemon<a class="headerlink" href="#luxi-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">luxid</span></tt> daemon (automatically enabled if <tt class="docutils literal"><span class="pre">confd</span></tt> is enabled at
+build time) serves local (UNIX socket) queries about the run-time
+configuration. Answering these means talking to other cluster nodes,
+exactly as <tt class="docutils literal"><span class="pre">masterd</span></tt> does. See the notes for <tt class="docutils literal"><span class="pre">masterd</span></tt> regarding
+permission-based protection.</p>
+</div>
+<div class="section" id="conf-daemon">
+<h2>Conf daemon<a class="headerlink" href="#conf-daemon" title="Permalink to this headline">¶</a></h2>
+<p>In Ganeti 2.8, the <tt class="docutils literal"><span class="pre">confd</span></tt> daemon (if enabled at build time), serves
+network-originated queries about parts of the static cluster
+configuration.</p>
+<p>If Ganeti is not configured (at build time) to use separate users,
+<tt class="docutils literal"><span class="pre">confd</span></tt> has access to all Ganeti related files (including internal RPC
+SSL certificates). This makes it a bit more sensitive to bugs (a remote
+attacker could get direct access to the intra-cluster RPC), so to harden
+security it&#8217;s recommended to:</p>
+<ul class="simple">
+<li>disable confd at build time if it (and <tt class="docutils literal"><span class="pre">luxid</span></tt>) is not needed in
+your setup.</li>
+<li>configure Ganeti (at build time) to use separate users, so that the
+confd daemon doesn&#8217;t also have access to the server SSL/TLS
+certificates.</li>
+<li>add firewall rules to protect the <tt class="docutils literal"><span class="pre">confd</span></tt> port or bind it to a
+trusted address. Make sure that all nodes can access the daemon, as
+the monitoring daemon requires it.</li>
+</ul>
+</div>
+<div class="section" id="monitoring-daemon">
+<h2>Monitoring daemon<a class="headerlink" href="#monitoring-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The monitoring daemon provides information about the status and the
+performance of the cluster over HTTP.
+It is currently unencrypted and non-authenticated, therefore it is strongly
+advised to set proper firewalling rules to prevent unwanted access.</p>
+<p>The monitoring daemon runs as root, because it needs to be able to access
+privileged information (such as the state of the instances as provided by
+the Xen hypervisor). Nevertheless, the security implications are mitigated
+by the fact that the agent only provides reporting functionalities,
+without the ability to actually modify the state of the cluster.</p>
+</div>
+<div class="section" id="remote-api">
+<h2>Remote API<a class="headerlink" href="#remote-api" title="Permalink to this headline">¶</a></h2>
+<p>Starting with Ganeti 2.0, Remote API traffic is encrypted using SSL/TLS
+by default. It supports Basic authentication as per <span class="target" id="index-0"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2617.html"><strong>RFC 2617</strong></a>. Users
+can be granted different capabilities. Details can be found in the
+<a class="reference internal" href="rapi.html#rapi-users"><em>RAPI documentation</em></a>.</p>
+<p>Paths for certificate, private key and CA files required for SSL/TLS
+will be set at source configure time. Symlinks or command line
+parameters may be used to use different files.</p>
+<p>The RAPI binds to all interfaces by default, and allows read-only
+requests without the need for authentication. In the case that one of
+the interfaces RAPI binds to is publicly exposed, this will allow
+anyone in the world to read the state of the cluster, divulging
+potentially useful data such as the names of instances, their IP
+addresses, etc. Since the RAPI daemon resides on the master node as
+well, DoS attacks can result in Ganeti outages or issues with instances
+located on the master node.</p>
+<p>We recommend that you reduce the attack surface by either placing RAPI
+in an environment where you can control access to it, or should you
+need to expose it publicly, use various RAPI daemon options to lock
+functionality down to only what you need. RAPI daemon options are best
+added to <tt class="docutils literal"><span class="pre">/etc/default/ganeti</span></tt>, the <tt class="docutils literal"><span class="pre">RAPI_ARGS</span></tt> variable. Some
+examples of situations where you might want to expose the RAPI are
+cross-cluster instance moves, which can be done only via the RAPI.</p>
+<p>If you do not use RAPI at all, we recommend that you lock it down by
+binding it to the loopback interface. This can be done by passing the
+<tt class="docutils literal"><span class="pre">-b</span> <span class="pre">127.0.0.1</span></tt> parameter to the RAPI daemon. Preventing the RAPI
+from starting or making it unreachable on the master node is not
+recommended, as the watcher performs health checks and will attempt to
+restart the daemon repeatedly.</p>
+<p>If you intend to use the RAPI and to expose it to the public, make sure
+to use the <tt class="docutils literal"><span class="pre">--require-authentication</span></tt> flag, disabling anonymous HTTP
+requests.</p>
+<p>Ganeti currently cannot protect users adequately from DoS attacks based
+on client-side HTTPS parameter renegotiation due to the Python OpenSSL
+library lacking necessary features. To protect yourself from these, the
+use of a HTTPS proxy handling this correctly is needed (e.g. nginx).
+Useful options for setting RAPI up for cooperation with the proxy are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">-p</span> <span class="pre">PORT</span></tt> for allowing the default RAPI port to be used by the
+proxy</li>
+<li><tt class="docutils literal"><span class="pre">--no-ssl</span></tt> to disable SSL as it will be handled by the proxy anyway</li>
+</ul>
+</div>
+<div class="section" id="inter-cluster-instance-moves">
+<h2>Inter-cluster instance moves<a class="headerlink" href="#inter-cluster-instance-moves" title="Permalink to this headline">¶</a></h2>
+<p>To move instances between clusters, different clusters must be able to
+communicate with each other over a secure channel. Up to and including
+Ganeti 2.1, clusters were self-contained entities and had no knowledge
+of other clusters. With Ganeti 2.2, clusters can exchange data if tokens
+(an encryption certificate) was exchanged by a trusted third party
+before.</p>
+</div>
+<div class="section" id="kvm-security">
+<h2>KVM Security<a class="headerlink" href="#kvm-security" title="Permalink to this headline">¶</a></h2>
+<p>When running KVM instances under Ganeti three security models ara
+available: &#8220;none&#8221;, &#8220;user&#8221; and &#8220;pool&#8221;.</p>
+<p>Under security model &#8220;none&#8221; instances run by default as root. This means
+that, if an instance gets jail broken, it will be able to own the host
+node, and thus the ganeti cluster. This is the default model, and the
+only one available before Ganeti 2.1.2.</p>
+<p>Under security model &#8220;user&#8221; an instance is run as the user specified by
+the hypervisor parameter &#8220;security_domain&#8221;. This makes it easy to run
+all instances as non privileged users, and allows one to manually
+allocate specific users to specific instances or sets of instances. If
+the specified user doesn&#8217;t have permissions a jail broken instance will
+need some local privilege escalation before being able to take over the
+node and the cluster. It&#8217;s possible though for a jail broken instance to
+affect other ones running under the same user.</p>
+<p>Under security model &#8220;pool&#8221; a global cluster-level uid pool is used to
+start each instance on the same node under a different user. The uids in
+the cluster pool can be set with <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">init</span></tt> and <tt class="docutils literal"><span class="pre">gnt-cluster</span>
+<span class="pre">modify</span></tt>, and must correspond to existing users on all nodes. Ganeti
+will then allocate one to each instance, as needed. This way a jail
+broken instance won&#8217;t be able to affect any other. Since the users are
+handed out by ganeti in a per-node randomized way, in this mode there is
+no way to make sure a particular instance is always run as a certain
+user. Use mode &#8220;user&#8221; for that.</p>
+<p>In addition to these precautions, if you want to avoid instances sending
+traffic on your node network, you can use an iptables rule such as:</p>
+<div class="highlight-python"><pre>iptables -A OUTPUT -m owner --uid-owner &lt;uid&gt;[-&lt;uid&gt;] -j LOG \
+  --log-prefix "ganeti uid pool user network traffic"
+iptables -A OUTPUT -m owner --uid-owner &lt;uid&gt;[-&lt;uid&gt;] -j DROP</pre>
+</div>
+<p>This won&#8217;t affect regular instance traffic (that comes out of the tapX
+allocated to the instance, and can be filtered or subject to appropriate
+policy routes) but will stop any user generated traffic that might come
+from a jailbroken instance.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Security in Ganeti</a><ul>
+<li><a class="reference internal" href="#host-issues">Host issues</a><ul>
+<li><a class="reference internal" href="#restricted-commands">Restricted commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cluster-issues">Cluster issues</a></li>
+<li><a class="reference internal" href="#master-daemon">Master daemon</a></li>
+<li><a class="reference internal" href="#luxi-daemon">Luxi daemon</a></li>
+<li><a class="reference internal" href="#conf-daemon">Conf daemon</a></li>
+<li><a class="reference internal" href="#monitoring-daemon">Monitoring daemon</a></li>
+<li><a class="reference internal" href="#remote-api">Remote API</a></li>
+<li><a class="reference internal" href="#inter-cluster-instance-moves">Inter-cluster instance moves</a></li>
+<li><a class="reference internal" href="#kvm-security">KVM Security</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rapi.html"
+                        title="previous chapter">Ganeti remote API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="upgrade.html"
+                        title="next chapter">Upgrade notes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/security.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="upgrade.html" title="Upgrade notes"
+             >next</a></li>
+        <li class="right" >
+          <a href="rapi.html" title="Ganeti remote API"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.11.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

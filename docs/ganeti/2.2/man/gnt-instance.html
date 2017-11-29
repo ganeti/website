@@ -1,0 +1,3778 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>gnt-instance</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><H1
+><A
+NAME="AEN1"
+></A
+>gnt-instance</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN15"
+></A
+><H2
+>Name</H2
+>gnt-instance&nbsp;--&nbsp;Ganeti instance administration</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN18"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>gnt-instance </B
+>  {command} [arguments...]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN23"
+></A
+><H2
+>DESCRIPTION</H2
+><P
+>      The <B
+CLASS="COMMAND"
+>gnt-instance</B
+> is used for instance
+      administration in the Ganeti system.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN27"
+></A
+><H2
+>COMMANDS</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN29"
+></A
+><H3
+>Creation/removal/querying</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN31"
+></A
+><H4
+>ADD</H4
+><P
+><B
+CLASS="COMMAND"
+>add</B
+> <BR> {-t {diskless | file | plain | drbd}}<BR> {--disk=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>: {size=<TT
+CLASS="REPLACEABLE"
+><I
+>VAL</I
+></TT
+> | adopt=<TT
+CLASS="REPLACEABLE"
+><I
+>LV</I
+></TT
+>},mode=<TT
+CLASS="REPLACEABLE"
+><I
+>ro|rw</I
+></TT
+> | -s <TT
+CLASS="REPLACEABLE"
+><I
+>SIZE</I
+></TT
+>}<BR> [--no-ip-check] [--no-name-check] [--no-start] [--no-install]<BR> [--net=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+> [:options...] | --no-nics]<BR> [-B <TT
+CLASS="REPLACEABLE"
+><I
+>BEPARAMS</I
+></TT
+>]<BR> [-H <TT
+CLASS="REPLACEABLE"
+><I
+>HYPERVISOR</I
+></TT
+> [:  option=<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>... ]]<BR> [--file-storage-dir <TT
+CLASS="REPLACEABLE"
+><I
+>dir_path</I
+></TT
+>] [--file-driver {loop | blktap}]<BR> {-n <TT
+CLASS="REPLACEABLE"
+><I
+>node[<SPAN
+CLASS="OPTIONAL"
+>:secondary-node</SPAN
+>]</I
+></TT
+> | --iallocator <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>}<BR> {-o <TT
+CLASS="REPLACEABLE"
+><I
+>os-type</I
+></TT
+>}<BR> [--submit]<BR> {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Creates a new instance on the specified host. The
+          <TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+> argument must be in DNS,
+          but depending on the bridge/routing setup, need not be in
+          the same network as the nodes in the cluster.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>disk</CODE
+> option specifies the parameters
+          for the disks of the instance. The numbering of disks starts
+          at zero, and at least one disk needs to be passed. For each
+          disk, either the size or the adoption source needs to be
+          given, and optionally the access mode (read-only or the
+          default of read-write) can also be specified.  The size is
+          interpreted (when no unit is given) in mebibytes. You can
+          also use one of the suffixes
+          <TT
+CLASS="LITERAL"
+>m</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+> or
+          <TT
+CLASS="LITERAL"
+>t</TT
+> to specify the exact the units used;
+          these suffixes map to mebibytes, gibibytes and tebibytes.
+        </P
+><P
+>          When using the <CODE
+CLASS="OPTION"
+>adopt</CODE
+> key in the disk
+          definition, Ganeti will reuse those volumes (instead of
+          creating new ones) as the instance's disks. Ganeti will
+          rename these volumes to the standard format, and (without
+          installing the OS) will use them as-is for the
+          instance. This allows migrating instances from non-managed
+          mode (e.q. plain KVM with LVM) to being managed via
+          Ganeti. Note that this works only for the `plain' disk
+          template (see below for template details).
+        </P
+><P
+>          Alternatively, a single-disk instance can be created via the
+          <CODE
+CLASS="OPTION"
+>-s</CODE
+> option which takes a single argument,
+          the size of the disk. This is similar to the Ganeti 1.2
+          version (but will only create one disk).
+        </P
+><P
+>          The minimum disk specification is therefore
+          <KBD
+CLASS="USERINPUT"
+>--disk 0:size=20G</KBD
+> (or <KBD
+CLASS="USERINPUT"
+>-s
+          20G</KBD
+> when using the <CODE
+CLASS="OPTION"
+>-s</CODE
+> option),
+          and a three-disk instance can be specified as
+          <KBD
+CLASS="USERINPUT"
+>--disk 0:size=20G --disk 1:size=4G --disk
+          2:size=100G</KBD
+>.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--no-ip-check</CODE
+> skips the checks that are
+          done to see if the instance's IP is not already alive
+          (i.e. reachable from the master node).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--no-name-check</CODE
+> skips the check for the
+          instance name via the resolver (e.g. in DNS or /etc/hosts,
+          depending on your setup). Since the name check is used to
+          compute the IP address, if you pass this option you must
+          also pass the <CODE
+CLASS="OPTION"
+>--no-ip-check</CODE
+> option.
+        </P
+><P
+>          If you don't wat the instance to automatically start after
+          creation, this is possible via the
+          <CODE
+CLASS="OPTION"
+>--no-start</CODE
+> option. This will leave the
+          instance down until a subsequent <B
+CLASS="COMMAND"
+>gnt-instance
+          start</B
+> command.
+        </P
+><P
+>          The NICs of the instances can be specified via the
+          <CODE
+CLASS="OPTION"
+>--net</CODE
+> option. By default, one NIC is
+          created for the instance, with a random MAC, and set
+          up according the the cluster level nic parameters.
+          Each NIC can take these parameters (all optional):
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>mac</DT
+><DD
+><P
+>either a value or 'generate' to generate a
+                  new unique MAC</P
+></DD
+><DT
+>ip</DT
+><DD
+><P
+>specifies the IP address assigned to the
+                  instance from the Ganeti side (this is not necessarily
+                  what the instance will use, but what the node expects
+                  the instance to use)</P
+></DD
+><DT
+>mode</DT
+><DD
+><P
+>specifies the connection mode for this nic:
+                  routed or bridged.</P
+></DD
+><DT
+>link</DT
+><DD
+><P
+>in bridged mode specifies the bridge to attach
+                  this NIC to, in routed mode it's intended to
+                  differentiate between different routing tables/instance
+                  groups (but the meaning is dependent on the network
+                  script, see gnt-cluster(8) for more details)</P
+></DD
+></DL
+></DIV
+>
+          Of these "mode" and "link" are nic parameters, and inherit their
+          default at cluster level.
+        </P
+><P
+>          Alternatively, if no network is desired for the instance, you
+          can prevent the default of one NIC with the
+          <CODE
+CLASS="OPTION"
+>--no-nics</CODE
+> option.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-o</CODE
+> options specifies the operating
+          system to be installed. The available operating systems can
+          be listed with <B
+CLASS="COMMAND"
+>gnt-os
+          list</B
+>. Passing <CODE
+CLASS="OPTION"
+>--no-install</CODE
+> will
+          however skip the OS installation, allowing a manual import
+          if so desired. Note that the no-installation mode will
+          automatically disable the start-up of the instance (without
+          an OS, it most likely won't be able to start-up
+          successfully).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-B</CODE
+> option specifies the backend
+          parameters for the instance. If no such parameters are
+          specified, the values are inherited from the cluster. Possible
+          parameters are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>memory</DT
+><DD
+><P
+>the memory size of the instance; as usual,
+                  suffixes can be used to denote the unit, otherwise the
+                  value is taken in mebibites</P
+></DD
+><DT
+>vcpus</DT
+><DD
+><P
+>the number of VCPUs to assign to the instance
+                  (if this value makes sense for the hypervisor)</P
+></DD
+><DT
+>auto_balance</DT
+><DD
+><P
+>whether the instance is considered in the N+1
+                  cluster checks (enough redundancy in the cluster to
+                  survive a node failure)</P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-H</CODE
+> option specified the hypervisor to
+          use for the instance (must be one of the enabled hypervisors
+          on the cluster) and optionally custom parameters for this
+          instance. If not other options are used (i.e. the invocation
+          is just <KBD
+CLASS="USERINPUT"
+>-H
+          <TT
+CLASS="REPLACEABLE"
+><I
+>NAME</I
+></TT
+></KBD
+>) the instance
+          will inherit the cluster options. The defaults below show
+          the cluster defaults at cluster creation time.
+        </P
+><P
+>          The possible hypervisor options are as follows:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>boot_order</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM
+                hypervisors.</P
+><P
+>A string value denoting the boot order. This
+                has different meaning for the Xen HVM hypervisor and
+                for the KVM one.</P
+><P
+>                  For Xen HVM, The boot order is a string of letters
+                  listing the boot devices, with valid device letters
+                  being:
+                </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>a</DT
+><DD
+><P
+>                          floppy drive
+                        </P
+></DD
+><DT
+>c</DT
+><DD
+><P
+>                          hard disk
+                        </P
+></DD
+><DT
+>d</DT
+><DD
+><P
+>                          CDROM drive
+                        </P
+></DD
+><DT
+>n</DT
+><DD
+><P
+>                          network boot (PXE)
+                        </P
+></DD
+></DL
+></DIV
+><P
+>                  The default is not to set an HVM boot order which is
+                  interpreted as 'dc'.
+                </P
+><P
+>                  For KVM the boot order is either
+                  <SPAN
+CLASS="QUOTE"
+>"cdrom"</SPAN
+>, <SPAN
+CLASS="QUOTE"
+>"disk"</SPAN
+> or
+                  <SPAN
+CLASS="QUOTE"
+>"network"</SPAN
+>. Please note that older
+                  versions of KVM couldn't netboot from virtio
+                  interfaces. This has been fixed in more recent
+                  versions and is confirmed to work at least with
+                  qemu-kvm 0.11.1.
+                </P
+></DD
+><DT
+>cdrom_image_path</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>The path to a CDROM image to attach to the
+                instance.</P
+></DD
+><DT
+>nic_type</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>                  This parameter determines the way the network cards
+                  are presented to the instance. The possible options are:
+                  <P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+>rtl8139 (default for Xen HVM) (HVM &#38; KVM)</TD
+></TR
+><TR
+><TD
+>ne2k_isa (HVM &#38; KVM)</TD
+></TR
+><TR
+><TD
+>ne2k_pci (HVM &#38; KVM)</TD
+></TR
+><TR
+><TD
+>i82551 (KVM)</TD
+></TR
+><TR
+><TD
+>i82557b (KVM)</TD
+></TR
+><TR
+><TD
+>i82559er (KVM)</TD
+></TR
+><TR
+><TD
+>pcnet (KVM)</TD
+></TR
+><TR
+><TD
+>e1000 (KVM)</TD
+></TR
+><TR
+><TD
+>paravirtual (default for KVM) (HVM &#38; KVM)</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+                </P
+></DD
+><DT
+>disk_type</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>                  This parameter determines the way the disks are
+                  presented to the instance. The possible options are:
+                  <P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+>ioemu (default for HVM &#38; KVM) (HVM &#38; KVM)</TD
+></TR
+><TR
+><TD
+>ide (HVM &#38; KVM)</TD
+></TR
+><TR
+><TD
+>scsi (KVM)</TD
+></TR
+><TR
+><TD
+>sd (KVM)</TD
+></TR
+><TR
+><TD
+>mtd (KVM)</TD
+></TR
+><TR
+><TD
+>pflash (KVM)</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+                </P
+></DD
+><DT
+>vnc_bind_address</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>Specifies the address that the VNC listener for
+                this instance should bind to. Valid values are IPv4
+                addresses. Use the address 0.0.0.0 to bind to all
+                available interfaces (this is the default) or specify
+                the address of one of the interfaces on the node to
+                restrict listening to that interface.</P
+></DD
+><DT
+>vnc_tls</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>A boolean option that controls whether the
+                VNC connection is secured with TLS.</P
+></DD
+><DT
+>vnc_x509_path</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>If <CODE
+CLASS="OPTION"
+>vnc_tls</CODE
+> is enabled, this
+                options specifies the path to the x509 certificate to
+                use.</P
+></DD
+><DT
+>vnc_x509_verify</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+></DD
+><DT
+>acpi</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>                  A boolean option that specifies if the hypervisor
+                  should enable ACPI support for this instance. By
+                  default, ACPI is disabled.
+                </P
+></DD
+><DT
+>pae</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>                  A boolean option that specifies if the hypervisor
+                  should enabled PAE support for this instance. The
+                  default is false, disabling PAE support.
+                </P
+></DD
+><DT
+>use_localtime</DT
+><DD
+><P
+>Valid for the Xen HVM and KVM hypervisors.</P
+><P
+>                  A boolean option that specifies if the instance
+                  should be started with its clock set to the
+                  localtime of the machine (when true) or to the UTC
+                  (When false). The default is false, which is useful
+                  for Linux/Unix machines; for Windows OSes, it is
+                  recommended to enable this parameter.
+                </P
+></DD
+><DT
+>kernel_path</DT
+><DD
+><P
+>Valid for the Xen PVM and KVM hypervisors.</P
+><P
+>                  This option specifies the path (on the node) to the
+                  kernel to boot the instance with. Xen PVM instances
+                  always require this, while for KVM if this option is
+                  empty, it will cause the machine to load the kernel
+                  from its disks.
+                </P
+></DD
+><DT
+>kernel_args</DT
+><DD
+><P
+>Valid for the Xen PVM and KVM hypervisors.</P
+><P
+>                  This options specifies extra arguments to the kernel
+                  that will be loaded.  device. This is always used
+                  for Xen PVM, while for KVM it is only used if the
+                  <CODE
+CLASS="OPTION"
+>kernel_path</CODE
+> option is also
+                  specified.
+                </P
+><P
+>                  The default setting for this value is simply
+                  <CODE
+CLASS="CONSTANT"
+>"ro"</CODE
+>, which mounts the root
+                  disk (initially) in read-only one. For example,
+                  setting this to <KBD
+CLASS="USERINPUT"
+>single</KBD
+> will
+                  cause the instance to start in single-user mode.
+                </P
+></DD
+><DT
+>initrd_path</DT
+><DD
+><P
+>Valid for the Xen PVM and KVM hypervisors.</P
+><P
+>                  This option specifies the path (on the node) to the
+                  initrd to boot the instance with. Xen PVM instances
+                  can use this always, while for KVM if this option is
+                  only used if the <CODE
+CLASS="OPTION"
+>kernel_path</CODE
+> option
+                  is also specified. You can pass here either an
+                  absolute filename (the path to the initrd) if you
+                  want to use an initrd, or use the format
+                  <KBD
+CLASS="USERINPUT"
+>no_initrd_path</KBD
+> for no initrd.
+                </P
+></DD
+><DT
+>root_path</DT
+><DD
+><P
+>Valid for the Xen PVM and KVM hypervisors.</P
+><P
+>                  This options specifies the name of the root
+                  device. This is always needed for Xen PVM, while for
+                  KVM it is only used if the
+                  <CODE
+CLASS="OPTION"
+>kernel_path</CODE
+> option is also
+                  specified.
+                </P
+></DD
+><DT
+>serial_console</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>This boolean option specifies whether to
+                emulate a serial console for the instance.</P
+></DD
+><DT
+>disk_cache</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>The disk cache mode. It can be either
+                <KBD
+CLASS="USERINPUT"
+>default</KBD
+> to not pass any cache
+                option to KVM, or one of the KVM cache modes: none
+                (for direct I/O), writethrough (to use the host cache
+                but report completion to the guest only when the host
+                has committed the changes to disk) or writeback (to
+                use the host cache and report completion as soon as
+                the data is in the host cache). Note that there are
+                special considerations for the cache mode depending on
+                version of KVM used and disk type (always raw file
+                under Ganeti), please refer to the KVM documentation
+                for more details.
+                </P
+></DD
+><DT
+>security_model</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>The security model for kvm. Currently one of
+                <SPAN
+CLASS="QUOTE"
+>"none"</SPAN
+>, <SPAN
+CLASS="QUOTE"
+>"user"</SPAN
+> or
+                <SPAN
+CLASS="QUOTE"
+>"pool"</SPAN
+>. Under <SPAN
+CLASS="QUOTE"
+>"none"</SPAN
+>, the
+                default, nothing is done and instances are run as
+                the Ganeti daemon user (normally root).
+                </P
+><P
+>Under <SPAN
+CLASS="QUOTE"
+>"user"</SPAN
+> kvm will drop
+                privileges and become the user specified by the
+                security_domain parameter.
+                </P
+><P
+>Under <SPAN
+CLASS="QUOTE"
+>"pool"</SPAN
+> a global cluster
+                pool of users will be used, making sure no two
+                instances share the same user on the same node.
+                (this mode is not implemented yet)
+                </P
+></DD
+><DT
+>security_domain</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>Under security model <SPAN
+CLASS="QUOTE"
+>"user"</SPAN
+> the
+                username to run the instance under. It must be a valid
+                username existing on the host.
+                </P
+><P
+>Cannot be set under security model <SPAN
+CLASS="QUOTE"
+>"none"</SPAN
+>
+                or <SPAN
+CLASS="QUOTE"
+>"pool"</SPAN
+>.
+                </P
+></DD
+><DT
+>kvm_flag</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>If <SPAN
+CLASS="QUOTE"
+>"enabled"</SPAN
+> the -enable-kvm flag is
+                passed to kvm. If <SPAN
+CLASS="QUOTE"
+>"disabled"</SPAN
+> -disable-kvm is
+                passed. If unset no flag is passed, and the default running
+                mode for your kvm binary will be used.
+                </P
+></DD
+><DT
+>mem_path</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>This option passes the -mem-path argument to kvm with
+                the path (on the node) to the mount point of the hugetlbfs
+                file system, along with the -mem-prealloc argument too.
+                </P
+></DD
+><DT
+>use_chroot</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>This boolean option determines wether to run the KVM
+                instance in a chroot directory.
+                </P
+><P
+>If it is set to <SPAN
+CLASS="QUOTE"
+>"true"</SPAN
+>, an empty directory
+                is created before starting the instance and its path is passed via
+                the -chroot flag to kvm.
+                The directory is removed when the instance is stopped.
+                </P
+><P
+>It is set to <SPAN
+CLASS="QUOTE"
+>"false"</SPAN
+> by default.</P
+></DD
+><DT
+>migration_downtime</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>The maximum amount of time (in ms) a KVM instance is
+                allowed to be frozen during a live migration, in order to copy
+                dirty memory pages. Default value is 30ms, but you may need to
+                increase this value for busy instances.
+                </P
+><P
+>This option is only effective with kvm versions &#62;= 87
+                and qemu-kvm versions &#62;= 0.11.0.
+                </P
+></DD
+><DT
+>use_chroot</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>This boolean option determines wether to run the KVM
+                instance in a chroot directory.
+                </P
+><P
+>If it is set to <SPAN
+CLASS="QUOTE"
+>"true"</SPAN
+>, an empty
+                directory is created before starting the instance and
+                its path is passed via the <CODE
+CLASS="OPTION"
+>-chroot</CODE
+>
+                flag to kvm.  The directory is removed when the
+                instance is stopped.
+                </P
+><P
+>It is set to <SPAN
+CLASS="QUOTE"
+>"false"</SPAN
+> by
+                default.</P
+></DD
+><DT
+>cpu_mask</DT
+><DD
+><P
+>Valid for the LXC hypervisor.</P
+><P
+>The processes belonging to the given instance are
+                only scheduled on the specified CPUs.
+                </P
+><P
+>                The parameter format is a comma-separated list of CPU IDs or
+                CPU ID ranges. The ranges are defined by a lower and higher
+                boundary, separated by a dash. The boundaries are inclusive.
+                </P
+></DD
+><DT
+>usb_mouse</DT
+><DD
+><P
+>Valid for the KVM hypervisor.</P
+><P
+>This option specifies the usb mouse type to be used.
+                It can be <SPAN
+CLASS="QUOTE"
+>"mouse"</SPAN
+> or <SPAN
+CLASS="QUOTE"
+>"tablet"</SPAN
+>. When
+                using VNC it's recommended to set it to <SPAN
+CLASS="QUOTE"
+>"tablet"</SPAN
+>.
+                </P
+></DD
+></DL
+></DIV
+>
+
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--iallocator</CODE
+> option specifies the instance
+          allocator plugin to use. If you pass in this option the allocator
+          will select nodes for this instance automatically, so you don't need
+          to pass them with the <CODE
+CLASS="OPTION"
+>-n</CODE
+> option. For more
+          information please refer to the instance allocator documentation.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-t</CODE
+> options specifies the disk layout type for
+          the instance. The available choices are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>diskless</DT
+><DD
+><P
+>                  This creates an instance with no disks. Its useful for
+                  testing only (or other special cases).
+                </P
+></DD
+><DT
+>file</DT
+><DD
+><P
+>Disk devices will be regular files.</P
+></DD
+><DT
+>plain</DT
+><DD
+><P
+>Disk devices will be logical volumes.</P
+></DD
+><DT
+>drbd</DT
+><DD
+><P
+>                  Disk devices will be drbd (version 8.x) on top of
+                  lvm volumes.
+                </P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          The optional second value of the <CODE
+CLASS="OPTION"
+>--node</CODE
+> is used for
+          the drbd template type and specifies the remote node.
+        </P
+><P
+>          If you do not want gnt-instance to wait for the disk mirror
+          to be synced, use the <CODE
+CLASS="OPTION"
+>--no-wait-for-sync</CODE
+>
+          option.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--file-storage-dir</CODE
+> specifies the relative path
+          under the cluster-wide file storage directory to store file-based
+          disks. It is useful for having different subdirectories for
+          different instances. The full path of the directory where the disk
+          files are stored will consist of cluster-wide file storage directory
+          + optional subdirectory + instance name. Example:
+          /srv/ganeti/file-storage/mysubdir/instance1.example.com. This option
+          is only relevant for instances using the file storage backend.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--file-driver</CODE
+> specifies the driver to use for
+          file-based disks. Note that currently these drivers work with the
+          xen hypervisor only. This option is only relevant for instances using
+          the file storage backend. The available choices are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>loop</DT
+><DD
+><P
+>                  Kernel loopback driver. This driver uses loopback
+                  devices to access the filesystem within the
+                  file. However, running I/O intensive applications in
+                  your instance using the loop driver might result in
+                  slowdowns.  Furthermore, if you use the loopback
+                  driver consider increasing the maximum amount of
+                  loopback devices (on most systems it's 8) using the
+                  max_loop param.
+                </P
+></DD
+><DT
+>blktap</DT
+><DD
+><P
+>The blktap driver (for Xen hypervisors). In
+                order to be able to use the blktap driver you should
+                check if the 'blktapctrl' user space disk agent is
+                running (usually automatically started via xend). This
+                user-level disk I/O interface has the advantage of
+                better performance. Especially if you use a network
+                file system (e.g. NFS) to store your instances this is
+                the recommended choice.
+                </P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance add -t file --disk 0:size=30g -B memory=512 -o debian-etch \
+  -n node1.example.com --file-storage-dir=mysubdir instance1.example.com
+# gnt-instance add -t plain --disk 0:size=30g -B memory=512 -o debian-etch \
+  -n node1.example.com instance1.example.com
+# gnt-instance add -t drbd --disk 0:size=30g -B memory=512 -o debian-etch \
+  -n node1.example.com:node2.example.com instance2.example.com
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN416"
+></A
+><H4
+>BATCH-CREATE</H4
+><P
+><B
+CLASS="COMMAND"
+>batch-create</B
+>  {instances_file.json}</P
+><P
+>          This command (similar to the Ganeti 1.2
+          <B
+CLASS="COMMAND"
+>batcher</B
+> tool) submits multiple instance
+          creation jobs based on a definition file. The instance
+          configurations do not encompass all the possible options for
+          the <B
+CLASS="COMMAND"
+>add</B
+> command, but only a subset.
+        </P
+><P
+>          The instance file should be a valid-formed JSON file,
+          containing a dictionary with instance name and instance
+          parameters. The accepted parameters are:
+
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>disk_size</DT
+><DD
+><P
+>The size of the disks of the instance.</P
+></DD
+><DT
+>disk_template</DT
+><DD
+><P
+>The disk template to use for the instance,
+                the same as in the <B
+CLASS="COMMAND"
+>add</B
+>
+                command.</P
+></DD
+><DT
+>backend</DT
+><DD
+><P
+>A dictionary of backend parameters.</P
+></DD
+><DT
+>hypervisor</DT
+><DD
+><P
+>A dictionary with a single key (the
+                hypervisor name), and as value the hypervisor
+                options. If not passed, the default hypervisor and
+                hypervisor options will be inherited.</P
+></DD
+><DT
+>mac, ip, mode, link</DT
+><DD
+><P
+>Specifications for the one NIC that will be
+                created for the instance. 'bridge' is also accepted
+                as a backwards compatibile key.</P
+></DD
+><DT
+>nics</DT
+><DD
+><P
+>List of nics that will be created for the
+                instance. Each entry should be a dict, with mac, ip, mode
+                and link as possible keys. Please don't provide the "mac,
+                ip, mode, link" parent keys if you use this method for
+                specifying nics.</P
+></DD
+><DT
+>primary_node, secondary_node</DT
+><DD
+><P
+>The primary and optionally the secondary node
+                to use for the instance (in case an iallocator script
+                is not used).</P
+></DD
+><DT
+>iallocator</DT
+><DD
+><P
+>Instead of specifying the nodes, an
+                iallocator script can be used to automatically compute
+                them.</P
+></DD
+><DT
+>start</DT
+><DD
+><P
+>whether to start the instance</P
+></DD
+><DT
+>ip_check</DT
+><DD
+><P
+>Skip the check for already-in-use instance;
+                see the description in the <B
+CLASS="COMMAND"
+>add</B
+>
+                command for details.</P
+></DD
+><DT
+>name_check</DT
+><DD
+><P
+>Skip the name check for instances;
+                see the description in the <B
+CLASS="COMMAND"
+>add</B
+>
+                command for details.</P
+></DD
+><DT
+>file_storage_dir, file_driver</DT
+><DD
+><P
+>Configuration for the <TT
+CLASS="LITERAL"
+>file</TT
+>
+                disk type, see the <B
+CLASS="COMMAND"
+>add</B
+> command for
+                details.</P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          A simple definition for one instance can be (with most of
+          the parameters taken from the cluster defaults):
+          <PRE
+CLASS="SCREEN"
+>{
+  "instance3": {
+    "template": "drbd",
+    "os": "debootstrap",
+    "disk_size": ["25G"],
+    "iallocator": "dumb"
+  },
+  "instance5": {
+    "template": "drbd",
+    "os": "debootstrap",
+    "disk_size": ["25G"],
+    "iallocator": "dumb",
+    "hypervisor": "xen-hvm",
+    "hvparams": {"acpi": true},
+    "backend": {"memory": 512}
+  }
+}</PRE
+>
+        </P
+><P
+>          The command will display the job id for each submitted
+          instance, as follows:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance batch-create instances.json
+instance3: 11224
+instance5: 11225</PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN483"
+></A
+><H4
+>REMOVE</H4
+><P
+><B
+CLASS="COMMAND"
+>remove</B
+>  [--ignore-failures] [--shutdown-timeout=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>] [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Remove an instance. This will remove all data from the
+          instance and there is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>no way back</I
+></SPAN
+>. If
+          you are not sure if you use an instance again, use
+          <B
+CLASS="COMMAND"
+>shutdown</B
+> first and leave it in the
+          shutdown state for a while.
+
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--ignore-failures</CODE
+> option will cause the
+          removal to proceed even in the presence of errors during the
+          removal of the instance (e.g. during the shutdown or the
+          disk removal). If this option is not given, the command will
+          stop at the first error.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--shutdown-timeout</CODE
+> is used to specify how
+          much time to wait before forcing the shutdown (xm destroy in xen,
+          killing the kvm process, for kvm). By default two minutes are
+          given to each instance to stop.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance remove instance1.example.com
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN505"
+></A
+><H4
+>LIST</H4
+><P
+><B
+CLASS="COMMAND"
+>list</B
+>  [--no-headers] [--separator=<TT
+CLASS="REPLACEABLE"
+><I
+>SEPARATOR</I
+></TT
+>]<BR> [--units=<TT
+CLASS="REPLACEABLE"
+><I
+>UNITS</I
+></TT
+>] [-o <TT
+CLASS="REPLACEABLE"
+><I
+>[+]FIELD,...</I
+></TT
+>] [--roman] [instance...]</P
+><P
+>          Shows the currently configured instances with memory usage,
+          disk usage, the node they are running on, and their run
+          status.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--no-headers</CODE
+> option will skip the
+          initial header line. The <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option
+          takes an argument which denotes what will be used between
+          the output fields. Both these options are to help scripting.
+        </P
+><P
+>          The units used to display the numeric values in the output
+          varies, depending on the options given. By default, the values
+          will be formatted in the most appropriate unit. If the
+          <CODE
+CLASS="OPTION"
+>--separator</CODE
+> option is given, then the values
+          are shown in mebibytes to allow parsing by scripts. In both
+          cases, the <CODE
+CLASS="OPTION"
+>--units</CODE
+> option can be used to
+          enforce a given output unit.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--roman</CODE
+> option allows latin people to better
+          understand the cluster instances' status.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-o</CODE
+> option takes a comma-separated list
+          of output fields. The available fields and their meaning
+          are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>name</DT
+><DD
+><P
+>the instance name</P
+></DD
+><DT
+>os</DT
+><DD
+><P
+>the OS of the instance</P
+></DD
+><DT
+>pnode</DT
+><DD
+><P
+>the primary node of the instance</P
+></DD
+><DT
+>snodes</DT
+><DD
+><P
+>comma-separated list of secondary nodes for the
+                  instance; usually this will be just one node</P
+></DD
+><DT
+>admin_state</DT
+><DD
+><P
+>the desired state of the instance (either "yes"
+                  or "no" denoting the instance should run or
+                  not)</P
+></DD
+><DT
+>disk_template</DT
+><DD
+><P
+>the disk template of the instance</P
+></DD
+><DT
+>oper_state</DT
+><DD
+><P
+>the actual state of the instance; can be
+                one of the values "running", "stopped", "(node
+                down)"</P
+></DD
+><DT
+>status</DT
+><DD
+><P
+>combined form of admin_state and oper_stat;
+                this can be one of:
+                <SAMP
+CLASS="COMPUTEROUTPUT"
+>ERROR_nodedown</SAMP
+> if the
+                node of the instance is down,
+                <SAMP
+CLASS="COMPUTEROUTPUT"
+>ERROR_down</SAMP
+> if the
+                instance should run but is down,
+                <SAMP
+CLASS="COMPUTEROUTPUT"
+>ERROR_up</SAMP
+> if the
+                instance should be stopped but is actually running,
+                <SAMP
+CLASS="COMPUTEROUTPUT"
+>ADMIN_down</SAMP
+> if the
+                instance has been stopped (and is stopped) and
+                <SAMP
+CLASS="COMPUTEROUTPUT"
+>running</SAMP
+> if the
+                instance is set to be running (and is
+                running)</P
+></DD
+><DT
+>oper_ram</DT
+><DD
+><P
+>the actual memory usage of the instance as seen
+                  by the hypervisor</P
+></DD
+><DT
+>oper_vcpus</DT
+><DD
+><P
+>the actual number of VCPUs the instance is using
+                  as seen by the hypervisor</P
+></DD
+><DT
+>ip</DT
+><DD
+><P
+>the ip address Ganeti recognizes as associated with
+                the first instance interface</P
+></DD
+><DT
+>mac</DT
+><DD
+><P
+>the first instance interface MAC address</P
+></DD
+><DT
+>nic_mode</DT
+><DD
+><P
+>the mode of the first instance NIC
+                (routed or bridged)</P
+></DD
+><DT
+>nic_link</DT
+><DD
+><P
+>the link of the first instance NIC
+                </P
+></DD
+><DT
+>sda_size</DT
+><DD
+><P
+>the size of the instance's first disk</P
+></DD
+><DT
+>sdb_size</DT
+><DD
+><P
+>the size of the instance's second disk, if
+                any</P
+></DD
+><DT
+>vcpus</DT
+><DD
+><P
+>the number of VCPUs allocated to the
+                instance</P
+></DD
+><DT
+>tags</DT
+><DD
+><P
+>comma-separated list of the instances's
+                tags</P
+></DD
+><DT
+>serial_no</DT
+><DD
+><P
+>the so called 'serial number' of the
+                instance; this is a numeric field that is incremented
+                each time the instance is modified, and it can be used
+                to track modifications</P
+></DD
+><DT
+>ctime</DT
+><DD
+><P
+>                  the creation time of the instance; note that this
+                  field contains spaces and as such it's harder to
+                  parse
+                </P
+><P
+>                  if this attribute is not present (e.g. when
+                  upgrading from older versions), then "N/A" will be
+                  shown instead
+                </P
+></DD
+><DT
+>mtime</DT
+><DD
+><P
+>                  the last modification time of the instance; note
+                  that this field contains spaces and as such it's
+                  harder to parse
+                </P
+><P
+>                  if this attribute is not present (e.g. when
+                  upgrading from older versions), then "N/A" will be
+                  shown instead
+                </P
+></DD
+><DT
+>uuid</DT
+><DD
+><P
+>Show the UUID of the instance (generated
+                automatically by Ganeti)</P
+></DD
+><DT
+>network_port</DT
+><DD
+><P
+>If the instance has a network port assigned
+                to it (e.g. for VNC connections), this will be shown,
+                otherwise <TT
+CLASS="LITERAL"
+>-</TT
+> will be
+                displayed.</P
+></DD
+><DT
+>beparams</DT
+><DD
+><P
+>A text format of the entire beparams for the
+                instance. It's more useful to select individual fields
+                from this dictionary, see below.</P
+></DD
+><DT
+>disk.count</DT
+><DD
+><P
+>The number of instance disks.</P
+></DD
+><DT
+>disk.size/N</DT
+><DD
+><P
+>The size of the instance's Nth disk. This is
+                a more generic form of the <TT
+CLASS="LITERAL"
+>sda_size</TT
+>
+                and <TT
+CLASS="LITERAL"
+>sdb_size</TT
+> fields.</P
+></DD
+><DT
+>disk.sizes</DT
+><DD
+><P
+>A comma-separated list of the disk sizes for
+                this instance.</P
+></DD
+><DT
+>disk_usage</DT
+><DD
+><P
+>The total disk space used by this instance on
+                each of its nodes. This is not the instance-visible
+                disk size, but the actual disk "cost" of the
+                instance.</P
+></DD
+><DT
+>nic.mac/N</DT
+><DD
+><P
+>The MAC of the Nth instance NIC.</P
+></DD
+><DT
+>nic.ip/N</DT
+><DD
+><P
+>The IP address of the Nth instance NIC.</P
+></DD
+><DT
+>nic.mode/N</DT
+><DD
+><P
+>The mode of the Nth instance NIC</P
+></DD
+><DT
+>nic.link/N</DT
+><DD
+><P
+>The link of the Nth instance NIC</P
+></DD
+><DT
+>nic.macs</DT
+><DD
+><P
+>A comma-separated list of all the MACs of the
+                instance's NICs.</P
+></DD
+><DT
+>nic.ips</DT
+><DD
+><P
+>A comma-separated list of all the IP
+                addresses of the instance's NICs.</P
+></DD
+><DT
+>nic.modes</DT
+><DD
+><P
+>A comma-separated list of all the modes of the
+                instance's NICs.</P
+></DD
+><DT
+>nic.links</DT
+><DD
+><P
+>A comma-separated list of all the link parameters
+                of the instance's NICs.</P
+></DD
+><DT
+>nic.count</DT
+><DD
+><P
+>The number of instance nics.</P
+></DD
+><DT
+>hv/<TT
+CLASS="REPLACEABLE"
+><I
+>NAME</I
+></TT
+></DT
+><DD
+><P
+>The value of the hypervisor parameter called
+                <TT
+CLASS="REPLACEABLE"
+><I
+>NAME</I
+></TT
+>. For details of what
+                hypervisor parameters exist and their meaning, see the
+                <B
+CLASS="COMMAND"
+>add</B
+> command.</P
+></DD
+><DT
+>be/memory</DT
+><DD
+><P
+>The configured memory for the instance.</P
+></DD
+><DT
+>be/vcpus</DT
+><DD
+><P
+>The configured number of VCPUs for the
+                instance.</P
+></DD
+><DT
+>be/auto_balance</DT
+><DD
+><P
+>Whether the instance is considered in N+1
+                checks.</P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          If the value of the option starts with the character
+          <CODE
+CLASS="CONSTANT"
+>+</CODE
+>, the new field(s) will be added to the
+          default list. This allows to quickly see the default list
+          plus a few other fields, instead of retyping the entire list
+          of fields.
+        </P
+><P
+>          There is a subtle grouping about the available output
+          fields: all fields except for <CODE
+CLASS="OPTION"
+>oper_state</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>oper_ram</CODE
+>, <CODE
+CLASS="OPTION"
+>oper_vcpus</CODE
+> and
+          <CODE
+CLASS="OPTION"
+>status</CODE
+> are
+          configuration value and not run-time values. So if you don't
+          select any of the these fields, the query will be satisfied
+          instantly from the cluster configuration, without having to
+          ask the remote nodes for the data. This can be helpful for
+          big clusters when you only want some data and it makes sense
+          to specify a reduced set of output fields.
+        </P
+><P
+>The default output field list is:
+          name, os, pnode, admin_state, oper_state, oper_ram.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN723"
+></A
+><H4
+>INFO</H4
+><P
+><B
+CLASS="COMMAND"
+>info</B
+>  [-s | --static] [--roman] {--all | <TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Show detailed information about the given instance(s). This is
+          different from <B
+CLASS="COMMAND"
+>list</B
+> as it shows detailed data
+          about the instance's disks (especially useful for the drbd disk
+          template).
+        </P
+><P
+>          If the option <CODE
+CLASS="OPTION"
+>-s</CODE
+> is used, only information
+          available in the configuration file is returned, without
+          querying nodes, making the operation faster.
+        </P
+><P
+>          Use the <CODE
+CLASS="OPTION"
+>--all</CODE
+> to get info about all instances,
+          rather than explicitly passing the ones you're interested in.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--roman</CODE
+> option can be used to cause envy among
+          people who like ancient cultures, but are stuck with non-latin-friendly
+          cluster virtualization technologies.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN743"
+></A
+><H4
+>MODIFY</H4
+><P
+><B
+CLASS="COMMAND"
+>modify</B
+> <BR> [-H <TT
+CLASS="REPLACEABLE"
+><I
+>HYPERVISOR_PARAMETERS</I
+></TT
+>]<BR> [-B <TT
+CLASS="REPLACEABLE"
+><I
+>BACKEND_PARAMETERS</I
+></TT
+>]<BR> [--net add<TT
+CLASS="REPLACEABLE"
+><I
+>[<SPAN
+CLASS="OPTIONAL"
+>:options</SPAN
+>]</I
+></TT
+> | --net remove | --net <TT
+CLASS="REPLACEABLE"
+><I
+>N:options</I
+></TT
+>]<BR> [--disk add:size=<TT
+CLASS="REPLACEABLE"
+><I
+>SIZE</I
+></TT
+> | --disk remove | --disk <TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>:mode=<TT
+CLASS="REPLACEABLE"
+><I
+>MODE</I
+></TT
+>]<BR> [-t {plain | drbd}]<BR> [--os-name=<TT
+CLASS="REPLACEABLE"
+><I
+>OS</I
+></TT
+>  [--force-variant]]<BR> [--submit]<BR> {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Modifies the memory size, number of vcpus, ip address, MAC
+          address and/or nic parameters for an instance. It can also
+          add and remove disks and NICs to/from the instance. Note
+          that you need to give at least one of the arguments, otherwise
+          the command complains.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-H</CODE
+> option specifies hypervisor options
+          in the form of <KBD
+CLASS="USERINPUT"
+>name=value[,...]</KBD
+>. For details which options can be specified, see the <B
+CLASS="COMMAND"
+>add</B
+> command.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-t</CODE
+> option will change the disk template
+          of the instance. Currently only conversions between the
+          plain and drbd disk templates are supported, and the
+          instance must be stopped before attempting the
+          conversion. When changing from the plain to the drbd disk
+          template, a new secondary node must be specified via
+          the <CODE
+CLASS="OPTION"
+>-n</CODE
+> option.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--disk
+          add:size=<TT
+CLASS="REPLACEABLE"
+><I
+>SIZE</I
+></TT
+></CODE
+> option
+          adds a disk to the instance. The <CODE
+CLASS="OPTION"
+>--disk
+          remove</CODE
+> will remove the last disk of the
+          instance. The <CODE
+CLASS="OPTION"
+>--disk
+          <TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>:mode=<TT
+CLASS="REPLACEABLE"
+><I
+>MODE</I
+></TT
+></CODE
+>
+          option will change the mode of the Nth disk of the instance
+          between read-only (<TT
+CLASS="LITERAL"
+>ro</TT
+>) and read-write
+          (<TT
+CLASS="LITERAL"
+>rw</TT
+>).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--net
+          add:<TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+></CODE
+> option will
+          add a new NIC to the instance. The available options are the
+          same as in the <B
+CLASS="COMMAND"
+>add</B
+> command (mac, ip, link,
+          mode). The <CODE
+CLASS="OPTION"
+>--net remove</CODE
+> will remove the
+          last NIC of the instance, while the <CODE
+CLASS="OPTION"
+>--net
+          <TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+></CODE
+>
+          option will change the parameters of the Nth instance NIC.
+        </P
+><P
+>          The option <CODE
+CLASS="OPTION"
+>--os-name</CODE
+> will change the OS
+          name for the instance (without reinstallation). In case an
+          OS variant is specified that is not found, then by default
+          the modification is refused,
+          unless <CODE
+CLASS="OPTION"
+>--force-variant</CODE
+> is passed. An
+          invalid OS will also be refused, unless
+          the <CODE
+CLASS="OPTION"
+>--force</CODE
+> option is given.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          All the changes take effect at the next restart. If the
+          instance is running, there is no effect on the instance.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN816"
+></A
+><H4
+>REINSTALL</H4
+><P
+><B
+CLASS="COMMAND"
+>reinstall</B
+>  [-o <TT
+CLASS="REPLACEABLE"
+><I
+>os-type</I
+></TT
+>] [--select-os] [-f <TT
+CLASS="REPLACEABLE"
+><I
+>force</I
+></TT
+>] [--force-multiple]<BR> [--instance | --node | --primary | --secondary | --all] [--submit] [<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>...]</P
+><P
+>          Reinstalls the operating system on the given instance(s). The
+          instance(s) must be stopped when running this command. If the
+          <CODE
+CLASS="OPTION"
+>--os-type</CODE
+> is specified, the operating
+          system is changed.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--select-os</CODE
+> option switches to an
+          interactive OS reinstall. The user is prompted to select the OS
+          template from the list of available OS templates.
+        </P
+><P
+>          Since this is a potentially dangerous command, the user will
+          be required to confirm this action, unless the
+          <CODE
+CLASS="OPTION"
+>-f</CODE
+> flag is passed. When multiple instances
+          are selected (either by passing multiple arguments or by
+          using the <CODE
+CLASS="OPTION"
+>--node</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--primary</CODE
+>, <CODE
+CLASS="OPTION"
+>--secondary</CODE
+> or
+          <CODE
+CLASS="OPTION"
+>--all</CODE
+> options), the user must pass the
+          <CODE
+CLASS="OPTION"
+>--force-multiple</CODE
+> options to skip the
+          interactive confirmation.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN850"
+></A
+><H4
+>RENAME</H4
+><P
+><B
+CLASS="COMMAND"
+>rename</B
+>  [--no-ip-check] [--no-name-check] [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>}</P
+><P
+>          Renames the given instance. The instance must be stopped
+          when running this command. The requirements for the new name
+          are the same as for adding an instance: the new name must be
+          resolvable and the IP it resolves to must not be reachable
+          (in order to prevent duplicate IPs the next time the
+          instance is started). The IP test can be skipped if the
+          <CODE
+CLASS="OPTION"
+>--no-ip-check</CODE
+> option is passed.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--no-name-check</CODE
+> skips the check for the
+          new instance name via the resolver (e.g. in DNS or /etc/hosts,
+          depending on your setup). Since the name check is used to
+          compute the IP address, if you pass this option you must
+          also pass the <CODE
+CLASS="OPTION"
+>--no-ip-check</CODE
+> option.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN869"
+></A
+><H3
+>Starting/stopping/connecting to console</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN871"
+></A
+><H4
+>STARTUP</H4
+><P
+><B
+CLASS="COMMAND"
+>startup</B
+> <BR> [--force]<BR> [--force-multiple]<BR> [--instance | --node | --primary | --secondary | --all | --tags | --node-tags | --pri-node-tags | --sec-node-tags]<BR> [-H <CODE
+CLASS="OPTION"
+>key=value...</CODE
+>] [-B <CODE
+CLASS="OPTION"
+>key=value...</CODE
+>]<BR> [--submit]<BR> [<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>...]</P
+><P
+>          Starts one or more instances, depending on the following
+          options. The four available modes are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="OPTION"
+>--instance</CODE
+></DT
+><DD
+><P
+>will start the instances given as arguments
+                (at least one argument required); this is the default
+                selection</P
+></DD
+><DT
+>--node</DT
+><DD
+><P
+>will start the instances who have the given
+                node as either primary or secondary</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--primary</CODE
+></DT
+><DD
+><P
+>will start all instances whose primary node
+                is in the list of nodes passed as arguments (at least
+                one node required)</P
+></DD
+><DT
+><CODE
+CLASS="OPTION"
+>--secondary</CODE
+></DT
+><DD
+><P
+>will start all instances whose secondary node
+                is in the list of nodes passed as arguments (at least
+                one node required)</P
+></DD
+><DT
+>--all</DT
+><DD
+><P
+>will start all instances in the cluster (no
+                arguments accepted)</P
+></DD
+><DT
+>--tags</DT
+><DD
+><P
+>will start all instances in the cluster with
+                the tags given as arguments</P
+></DD
+><DT
+>--node-tags</DT
+><DD
+><P
+>will start all instances in the cluster on
+                nodes with the tags given as arguments</P
+></DD
+><DT
+>--pri-node-tags</DT
+><DD
+><P
+>will start all instances in the cluster on
+                primary nodes with the tags given as
+                arguments</P
+></DD
+><DT
+>--sec-node-tags</DT
+><DD
+><P
+>will start all instances in the cluster on
+                secondary nodes with the tags given as
+                arguments</P
+></DD
+></DL
+></DIV
+>
+        </P
+><P
+>          Note that although you can pass more than one selection
+          option, the last one wins, so in order to guarantee the
+          desired result, don't pass more than one such option.
+        </P
+><P
+>          Use <CODE
+CLASS="OPTION"
+>--force</CODE
+> to start even if secondary disks are
+          failing.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--force-multiple</CODE
+> will skip the
+          interactive confirmation in the case the more than one
+          instance will be affected.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>-H</CODE
+> and <CODE
+CLASS="OPTION"
+>-B</CODE
+> options
+          specify temporary hypervisor and backend parameters that can
+          be used to start an instance with modified parameters. They
+          can be useful for quick testing without having to modify an
+          instance back and forth, e.g.:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance start -H root_args="single" instance1
+# gnt-instance start -B memory=2048 instance2
+          </PRE
+>
+          The first form will start the instance
+          <KBD
+CLASS="USERINPUT"
+>instance1</KBD
+> in single-user mode, and
+          the instance <KBD
+CLASS="USERINPUT"
+>instance2</KBD
+> with 2GB of
+          RAM (this time only, unless that is the actual instance
+          memory size already). Note that the values override the
+          instance parameters (and not extend them): an instance with
+          "root_args=ro" when started with <KBD
+CLASS="USERINPUT"
+>-H
+          root_args=single</KBD
+> will result in "single", not
+          "ro single".
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance start instance1.example.com
+# gnt-instance start --node node1.example.com node2.example.com
+# gnt-instance start --all
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN958"
+></A
+><H4
+>SHUTDOWN</H4
+><P
+><B
+CLASS="COMMAND"
+>shutdown</B
+> <BR> [--timeout=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>]<BR> [--force-multiple]<BR> [--instance | --node | --primary | --secondary | --all | --tags | --node-tags | --pri-node-tags | --sec-node-tags]<BR> [--submit]<BR> [<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>...]</P
+><P
+>          Stops one or more instances. If the instance cannot be
+          cleanly stopped during a hardcoded interval (currently 2
+          minutes), it will forcibly stop the instance (equivalent to
+          switching off the power on a physical machine).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--timeout</CODE
+> is used to specify how much time to
+          wait before forcing the shutdown (xm destroy in xen, killing the kvm
+          process, for kvm). By default two minutes are given to each instance
+          to stop.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--instance</CODE
+>, <CODE
+CLASS="OPTION"
+>--node</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--primary</CODE
+>, <CODE
+CLASS="OPTION"
+>--secondary</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--all</CODE
+>, <CODE
+CLASS="OPTION"
+>--tags</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--node-tags</CODE
+>, <CODE
+CLASS="OPTION"
+>--pri-node-tags</CODE
+> and
+          <CODE
+CLASS="OPTION"
+>--sec-node-tags</CODE
+> options are similar as for the
+          <B
+CLASS="COMMAND"
+>startup</B
+> command and they influence the
+          actual instances being shutdown.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance shutdown instance1.example.com
+# gnt-instance shutdown --all
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1002"
+></A
+><H4
+>REBOOT</H4
+><P
+><B
+CLASS="COMMAND"
+>reboot</B
+> <BR> [--type=<TT
+CLASS="REPLACEABLE"
+><I
+>REBOOT-TYPE</I
+></TT
+>]<BR> [--ignore-secondaries]<BR> [--shutdown-timeout=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>]<BR> [--force-multiple]<BR> [--instance | --node | --primary | --secondary | --all | --tags | --node-tags | --pri-node-tags | --sec-node-tags]<BR> [--submit]<BR> [<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>...]</P
+><P
+>          Reboots one or more instances. The type of reboot depends on
+          the value of <CODE
+CLASS="OPTION"
+>--type</CODE
+>. A soft reboot does a
+          hypervisor reboot, a hard reboot does a instance stop,
+          recreates the hypervisor config for the instance and
+          starts the instance. A full reboot does the equivalent
+          of <B
+CLASS="COMMAND"
+>gnt-instance shutdown &amp;&amp; gnt-instance
+          startup</B
+>. The default is hard reboot.
+        </P
+><P
+>          For the hard reboot the option
+          <CODE
+CLASS="OPTION"
+>--ignore-secondaries</CODE
+> ignores errors for the
+          secondary node while re-assembling the instance disks.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--instance</CODE
+>, <CODE
+CLASS="OPTION"
+>--node</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--primary</CODE
+>, <CODE
+CLASS="OPTION"
+>--secondary</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--all</CODE
+>, <CODE
+CLASS="OPTION"
+>--tags</CODE
+>,
+          <CODE
+CLASS="OPTION"
+>--node-tags</CODE
+>, <CODE
+CLASS="OPTION"
+>--pri-node-tags</CODE
+> and
+          <CODE
+CLASS="OPTION"
+>--sec-node-tags</CODE
+> options are similar as for the
+          <B
+CLASS="COMMAND"
+>startup</B
+> command and they influence the
+          actual instances being rebooted.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--shutdown-timeout</CODE
+> is used to specify how
+          much time to wait before forcing the shutdown (xm destroy in xen,
+          killing the kvm process, for kvm). By default two minutes are
+          given to each instance to stop.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--force-multiple</CODE
+> will skip the
+          interactive confirmation in the case the more than one
+          instance will be affected.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance reboot instance1.example.com
+# gnt-instance reboot --type=full instance1.example.com
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1054"
+></A
+><H4
+>CONSOLE</H4
+><P
+><B
+CLASS="COMMAND"
+>console</B
+>  [--show-cmd] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Connects to the console of the given instance. If the
+          instance is not up, an error is returned. Use the
+          <CODE
+CLASS="OPTION"
+>--show-cmd</CODE
+> option to display the command
+          instead of executing it.
+        </P
+><P
+>          For HVM instances, this will attempt to connect to the
+          serial console of the instance. To connect to the
+          virtualized "physical" console of a HVM instance, use a VNC
+          client with the connection info from the
+          <B
+CLASS="COMMAND"
+>info</B
+> command.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance console instance1.example.com
+          </PRE
+>
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1067"
+></A
+><H3
+>Disk management</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1069"
+></A
+><H4
+>REPLACE-DISKS</H4
+><P
+><B
+CLASS="COMMAND"
+>replace-disks</B
+>  [--submit] [--early-release] {-p} [--disks <TT
+CLASS="REPLACEABLE"
+><I
+>idx</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>replace-disks</B
+>  [--submit] [--early-release] {-s} [--disks <TT
+CLASS="REPLACEABLE"
+><I
+>idx</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>replace-disks</B
+>  [--submit] [--early-release] {--iallocator <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> | --new-secondary <TT
+CLASS="REPLACEABLE"
+><I
+>NODE</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>replace-disks</B
+>  [--submit] [--early-release] {--auto} {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          This command is a generalized form for replacing disks. It
+          is currently only valid for the mirrored (DRBD) disk
+          template.
+        </P
+><P
+>          The first form (when passing the <CODE
+CLASS="OPTION"
+>-p</CODE
+> option)
+          will replace the disks on the primary, while the second form
+          (when passing the <CODE
+CLASS="OPTION"
+>-s</CODE
+> option will replace
+          the disks on the secondary node. For these two cases (as the
+          node doesn't change), it is possible to only run the replace
+          for a subset of the disks, using the option
+          <CODE
+CLASS="OPTION"
+>--disks</CODE
+> which takes a list of
+          comma-delimited disk indices (zero-based),
+          e.g. <KBD
+CLASS="USERINPUT"
+>0,2</KBD
+> to replace only the first
+          and third disks.
+        </P
+><P
+>          The third form (when passing either the
+          <CODE
+CLASS="OPTION"
+>--iallocator</CODE
+> or the
+          <CODE
+CLASS="OPTION"
+>--new-secondary</CODE
+> option) is designed to
+          change secondary node of the instance.  Specifying
+          <CODE
+CLASS="OPTION"
+>--iallocator</CODE
+> makes the new secondary be
+          selected automatically by the specified allocator plugin,
+          otherwise the new secondary node will be the one chosen
+          manually via the <CODE
+CLASS="OPTION"
+>--new-secondary</CODE
+> option.
+        </P
+><P
+>          The fourth form (when using <CODE
+CLASS="OPTION"
+>--auto</CODE
+>) will
+          automatically determine which disks of an instance are faulty and
+          replace them within the same node. The <CODE
+CLASS="OPTION"
+>--auto</CODE
+>
+          option works only when an instance has only faulty disks on
+          either the primary or secondary node; it doesn't work when
+          both sides have faulty disks.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--early-release</CODE
+> changes the code so
+          that the old storage on secondary node(s) is removed early
+          (before the resync is completed) and the internal Ganeti
+          locks for the current (and new, if any) secondary node are
+          also released, thus allowing more parallelism in the cluster
+          operation. This should be used only when recovering from a
+          disk failure on the current secondary (thus the old storage
+          is already broken) or when the storage on the primary node
+          is known to be fine (thus we won't need the old storage for
+          potential recovery).
+        </P
+><P
+>          Note that it is not possible to select an offline or drained
+          node as a new secondary.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1127"
+></A
+><H4
+>ACTIVATE-DISKS</H4
+><P
+><B
+CLASS="COMMAND"
+>activate-disks</B
+>  [--submit] [--ignore-size] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Activates the block devices of the given instance. If
+          successful, the command will show the location and name of
+          the block devices:
+          <PRE
+CLASS="SCREEN"
+>node1.example.com:disk/0:/dev/drbd0
+node1.example.com:disk/1:/dev/drbd1
+          </PRE
+>
+
+          In this example, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>node1.example.com</I
+></SPAN
+> is
+          the name of the node on which the devices have been
+          activated. The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>disk/0</I
+></SPAN
+> and
+          <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>disk/1</I
+></SPAN
+> are the Ganeti-names of the
+          instance disks; how they are visible inside the instance is
+          hypervisor-specific. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>/dev/drbd0</I
+></SPAN
+> and
+          <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>/dev/drbd1</I
+></SPAN
+> are the actual block devices
+          as visible on the node.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--ignore-size</CODE
+> option can be used to
+          activate disks ignoring the currently configured size in
+          Ganeti. This can be used in cases where the configuration
+          has gotten out of sync with the real-world (e.g. after a
+          partially-failed grow-disk operation or due to rounding in
+          LVM devices). This should not be used in normal cases, but
+          only when activate-disks fails without it.
+        </P
+><P
+>          Note that it is safe to run this command while the instance
+          is already running.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1148"
+></A
+><H4
+>DEACTIVATE-DISKS</H4
+><P
+><B
+CLASS="COMMAND"
+>deactivate-disks</B
+>  [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          De-activates the block devices of the given instance. Note
+          that if you run this command for an instance with a drbd
+          disk template, while it is running, it will not be able to
+          shutdown the block devices on the primary node, but it will
+          shutdown the block devices on the secondary nodes, thus
+          breaking the replication.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1159"
+></A
+><H4
+>GROW-DISK</H4
+><P
+><B
+CLASS="COMMAND"
+>grow-disk</B
+>  [--no-wait-for-sync] [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>disk</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>amount</I
+></TT
+>}</P
+><P
+>          Grows an instance's disk. This is only possible for
+          instances having a <TT
+CLASS="LITERAL"
+>plain</TT
+> or
+          <TT
+CLASS="LITERAL"
+>drbd</TT
+> disk template.
+        </P
+><P
+>          Note that this command only change the block device size; it
+          will not grow the actual filesystems, partitions, etc. that
+          live on that disk. Usually, you will need to:
+          <P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>use <B
+CLASS="COMMAND"
+>gnt-instance grow-disk</B
+></P
+></LI
+><LI
+><P
+>reboot the instance (later, at a convenient
+              time)</P
+></LI
+><LI
+><P
+>use a filesystem resizer, such as
+              <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ext2online</SPAN
+>(8)</SPAN
+> or
+              <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>xfs_growfs</SPAN
+>(8)</SPAN
+> to resize the
+              filesystem, or use <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>fdisk</SPAN
+>(8)</SPAN
+> to change the
+              partition table on the disk
+              </P
+></LI
+></OL
+>
+        </P
+><P
+>          The <TT
+CLASS="REPLACEABLE"
+><I
+>disk</I
+></TT
+> argument is the index of
+          the instance disk to grow. The
+          <TT
+CLASS="REPLACEABLE"
+><I
+>amount</I
+></TT
+> argument is given either
+          as a number (and it represents the amount to increase the
+          disk with in mebibytes) or can be given similar to the
+          arguments in the create instance operation, with a suffix
+          denoting the unit.
+        </P
+><P
+>          Note that the disk grow operation might complete on one node
+          but fail on the other; this will leave the instance with
+          different-sized LVs on the two nodes, but this will not
+          create problems (except for unused space).
+        </P
+><P
+>          If you do not want gnt-instance to wait for the new disk
+          region to be synced, use the
+          <CODE
+CLASS="OPTION"
+>--no-wait-for-sync</CODE
+> option.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>Example (increase the first disk for instance1 by 16GiB):
+          <PRE
+CLASS="SCREEN"
+># gnt-instance grow-disk instance1.example.com 0 16g
+          </PRE
+>
+        </P
+><P
+>          Also note that disk shrinking is not supported; use
+          <B
+CLASS="COMMAND"
+>gnt-backup export</B
+> and then
+          <B
+CLASS="COMMAND"
+>gnt-backup import</B
+> to reduce the disk size
+          of an instance.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1206"
+></A
+><H4
+>RECREATE-DISKS</H4
+><P
+><B
+CLASS="COMMAND"
+>recreate-disks</B
+>  [--submit] [--disks=<CODE
+CLASS="OPTION"
+>indices</CODE
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Recreates the disks of the given instance, or only a subset
+          of the disks (if the option <CODE
+CLASS="OPTION"
+>disks</CODE
+> is
+          passed, which must be a comma-separated list of disk
+          indices, starting from zero).
+        </P
+><P
+>          Note that this functionality should only be used for missing
+          disks; if any of the given disks already exists, the
+          operation will fail. While this is suboptimal,
+          recreate-disks should hopefully not be needed in normal
+          operation and as such the impact of this is low.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1221"
+></A
+><H3
+>Recovery</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1223"
+></A
+><H4
+>FAILOVER</H4
+><P
+><B
+CLASS="COMMAND"
+>failover</B
+>  [-f] [--ignore-consistency] [--shutdown-timeout=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>] [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Failover will fail the instance over its secondary
+          node. This works only for instances having a drbd disk
+          template.
+        </P
+><P
+>          Normally the failover will check the consistency of the
+          disks before failing over the instance. If you are trying to
+          migrate instances off a dead node, this will fail. Use the
+          <CODE
+CLASS="OPTION"
+>--ignore-consistency</CODE
+> option for this
+          purpose. Note that this option can be dangerous as errors in
+          shutting down the instance will be ignored, resulting in
+          possibly having the instance running on two machines in
+          parallel (on disconnected DRBD drives).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--shutdown-timeout</CODE
+> is used to specify how
+          much time to wait before forcing the shutdown (xm destroy in xen,
+          killing the kvm process, for kvm). By default two minutes are
+          given to each instance to stop.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance failover instance1.example.com
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1244"
+></A
+><H4
+>MIGRATE</H4
+><P
+><B
+CLASS="COMMAND"
+>migrate</B
+>  [-f] {--cleanup} {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>migrate</B
+>  [-f] [--non-live] [--migration-mode=live|non-live] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Migrate will move the instance to its secondary node without
+          shutdown. It only works for instances having the drbd8 disk
+          template type.
+        </P
+><P
+>          The migration command needs a perfectly healthy instance, as
+          we rely on the dual-master capability of drbd8 and the disks
+          of the instance are not allowed to be degraded.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--non-live</CODE
+>
+          and <CODE
+CLASS="OPTION"
+>--migration-mode=non-live</CODE
+> options will
+          switch (for the hypervisors that support it) between a
+          "fully live" (i.e. the interruption is as minimal as
+          possible) migration and one in which the instance is frozen,
+          its state saved and transported to the remote node, and then
+          resumed there. This all depends on the hypervisor support
+          for two different methods. In any case, it is not an error
+          to pass this parameter (it will just be ignored if the
+          hypervisor doesn't support it). The
+          option <CODE
+CLASS="OPTION"
+>--migration-mode=live</CODE
+> option will
+          request a fully-live migration. The default, when neither
+          option is passed, depends on the hypervisor parameters (and
+          can be viewed with the <B
+CLASS="COMMAND"
+>gnt-cluster info</B
+>
+          command).
+        </P
+><P
+>          If the <CODE
+CLASS="OPTION"
+>--cleanup</CODE
+> option is passed, the
+          operation changes from migration to attempting recovery from
+          a failed previous migration. In this mode, Ganeti checks if
+          the instance runs on the correct node (and updates its
+          configuration if not) and ensures the instances's disks are
+          configured correctly. In this mode, the
+          <CODE
+CLASS="OPTION"
+>--non-live</CODE
+> option is ignored.
+        </P
+><P
+>          The option <CODE
+CLASS="OPTION"
+>-f</CODE
+> will skip the prompting for
+          confirmation.
+        </P
+><P
+>          Example (and expected output):
+          <PRE
+CLASS="SCREEN"
+># gnt-instance migrate instance1
+Migrate will happen to the instance instance1. Note that migration is
+**experimental** in this version. This might impact the instance if
+anything goes wrong. Continue?
+y/[n]/?: y
+* checking disk consistency between source and target
+* ensuring the target is in secondary mode
+* changing disks into dual-master mode
+ - INFO: Waiting for instance instance1 to sync disks.
+ - INFO: Instance instance1's disks are in sync.
+* migrating instance to node2.example.com
+* changing the instance's disks on source node to secondary
+ - INFO: Waiting for instance instance1 to sync disks.
+ - INFO: Instance instance1's disks are in sync.
+* changing the instance's disks to single-master
+#
+          </PRE
+>
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1273"
+></A
+><H4
+>MOVE</H4
+><P
+><B
+CLASS="COMMAND"
+>move</B
+>  [-f] [-n <TT
+CLASS="REPLACEABLE"
+><I
+>node</I
+></TT
+>] [--shutdown-timeout=<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>] [--submit] {<TT
+CLASS="REPLACEABLE"
+><I
+>instance</I
+></TT
+>}</P
+><P
+>          Move will move the instance to an arbitrary node in the
+          cluster. This works only for instances having a plain or
+          file disk template.
+        </P
+><P
+>          Note that since this operation is done via data copy, it
+          will take a long time for big disks (similar to
+          replace-disks for a drbd instance).
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--shutdown-timeout</CODE
+> is used to specify how
+          much time to wait before forcing the shutdown (xm destroy in xen,
+          killing the kvm process, for kvm). By default two minutes are
+          given to each instance to stop.
+        </P
+><P
+>          The <CODE
+CLASS="OPTION"
+>--submit</CODE
+> option is used to send the job to
+          the master daemon but not wait for its completion. The job
+          ID will be shown so that it can be examined via
+          <B
+CLASS="COMMAND"
+>gnt-job info</B
+>.
+        </P
+><P
+>          Example:
+          <PRE
+CLASS="SCREEN"
+># gnt-instance move -n node3.example.com instance1.example.com
+          </PRE
+>
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1294"
+></A
+><H3
+>TAGS</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1296"
+></A
+><H4
+>ADD-TAGS</H4
+><P
+><B
+CLASS="COMMAND"
+>add-tags</B
+>  [--from <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>instancename</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>tag</I
+></TT
+>...}</P
+><P
+>          Add tags to the given instance. If any of the tags contains
+          invalid characters, the entire operation will abort.
+        </P
+><P
+>          If the <CODE
+CLASS="OPTION"
+>--from</CODE
+> option is given, the list of
+          tags will be extended with the contents of that file (each
+          line becomes a tag). In this case, there is not need to pass
+          tags on the command line (if you do, both sources will be
+          used). A file name of - will be interpreted as stdin.
+        </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1309"
+></A
+><H4
+>LIST-TAGS</H4
+><P
+><B
+CLASS="COMMAND"
+>list-tags</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>instancename</I
+></TT
+>}</P
+><P
+>List the tags of the given instance.</P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN1316"
+></A
+><H4
+>REMOVE-TAGS</H4
+><P
+><B
+CLASS="COMMAND"
+>remove-tags</B
+>  [--from <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>] {<TT
+CLASS="REPLACEABLE"
+><I
+>instancename</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>tag</I
+></TT
+>...}</P
+><P
+>          Remove tags from the given instance. If any of the tags are
+          not existing on the node, the entire operation will abort.
+        </P
+><P
+>          If the <CODE
+CLASS="OPTION"
+>--from</CODE
+> option is given, the list of
+          tags will be extended with the contents of that file (each
+          line becomes a tag). In this case, there is not need to pass
+          tags on the command line (if you do, both sources will be
+          used). A file name of - will be interpreted as stdin.
+        </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1329"
+></A
+><H2
+>REPORTING BUGS</H2
+><P
+>      Report bugs to <A
+HREF="http://code.google.com/p/ganeti/"
+TARGET="_top"
+>http://code.google.com/p/ganeti/</A
+> or contact the
+      developers using the Ganeti mailing list
+      &lt;ganeti@googlegroups.com&gt;.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1333"
+></A
+><H2
+>SEE ALSO</H2
+><P
+>      Ganeti overview and specifications:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti</SPAN
+>(7)</SPAN
+> (general overview),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-os-interface</SPAN
+>(7)</SPAN
+> (guest OS definitions).
+
+    </P
+><P
+>Ganeti commands:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-cluster</SPAN
+>(8)</SPAN
+> (cluster-wide commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-job</SPAN
+>(8)</SPAN
+> (job-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-node</SPAN
+>(8)</SPAN
+> (node-related commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-instance</SPAN
+>(8)</SPAN
+> (instance commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-os</SPAN
+>(8)</SPAN
+> (guest OS commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-backup</SPAN
+>(8)</SPAN
+> (instance import/export commands),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>gnt-debug</SPAN
+>(8)</SPAN
+> (debug commands).
+    </P
+><P
+>Ganeti daemons:
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-watcher</SPAN
+>(8)</SPAN
+> (automatic instance restarter),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-cleaner</SPAN
+>(8)</SPAN
+> (job queue cleaner),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-noded</SPAN
+>(8)</SPAN
+> (node daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-masterd</SPAN
+>(8)</SPAN
+> (master daemon),
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ganeti-rapi</SPAN
+>(8)</SPAN
+> (remote API daemon).
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1380"
+></A
+><H2
+>COPYRIGHT</H2
+><P
+>      Copyright (C) 2006, 2007, 2008, 2009, 2010 Google Inc. Permission is
+      granted to copy, distribute and/or modify under the terms of the
+      <ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> General Public License as published by the Free Software
+      Foundation; either version 2 of the License, or (at your option)
+      any later version.
+    </P
+><P
+>      On Debian systems, the complete text of the GNU General Public
+      License can be found in /usr/share/common-licenses/GPL.
+    </P
+></DIV
+></BODY
+></HTML
+>

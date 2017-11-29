@@ -1,0 +1,624 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti Instance Import/Export using Open Virtualization Format &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="next" title="Partitioned Ganeti" href="design-partitioned.html" />
+    <link rel="prev" title="Design for parallelized instance creations and opportunistic locking" href="design-opportunistic-locking.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-instance-import-export-using-open-virtualization-format">
+<h1>Ganeti Instance Import/Export using Open Virtualization Format<a class="headerlink" href="#ganeti-instance-import-export-using-open-virtualization-format" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Open Virtualization Format is an open standard for packaging
+information regarding virtual machines. It is used, among other, by
+VMWare, VirtualBox and XenServer. OVF allows users to migrate between
+virtualization software without the need of reconfiguring hardware,
+network or operating system.</p>
+<p>Currently, exporting instance in Ganeti results with a configuration
+file that is readable only for Ganeti. It disallows the users to
+change the platform they use without loosing all the machine&#8217;s
+configuration.  Import function in Ganeti is also currently limited to
+the previously prepared instances.</p>
+<p>Implementation of OVF support allows users to migrate to Ganeti from
+other platforms, thus potentially increasing the usage. It also
+enables virtual machine end-users to create their own machines
+(e.g. in VirtualBox or SUSE Studio) and then add them to Ganeti
+cluster, thus providing better personalization.</p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="open-virtualization-format-description">
+<h3>Open Virtualization Format description<a class="headerlink" href="#open-virtualization-format-description" title="Permalink to this headline">¶</a></h3>
+<p>According to the DMTF document introducing the standard: &#8220;The Open
+Virtualization Format (OVF) Specification describes an open, secure,
+portable, efficient and extensible format for the packaging and
+distribution of software to be run in virtual machines.&#8221;  OVF supports
+both single and multiple- configurations of VMs in one package, is
+host- and virtualization platform-independent and optimized for
+distribution (e.g. by allowing usage of public key infrastructure and
+providing tools for management of basic software licensing).</p>
+<p>There are no limitations regarding disk images used, as long as the
+description is provided. Any hardware described in a proper format
+(i.e. CIM - Common Information Model) is accepted, although there is no
+guarantee that every virtualization software will support all types of
+hardware.</p>
+<p>OVF package should contain exactly one file with <tt class="docutils literal"><span class="pre">.ovf</span></tt> extension,
+which is an XML file specifying the following (per virtual machine):</p>
+<ul class="simple">
+<li>virtual disks</li>
+<li>network description</li>
+<li>list of virtual hardware</li>
+<li>operating system, if any</li>
+</ul>
+<p>Each of the elements in <tt class="docutils literal"><span class="pre">.ovf</span></tt> file may, if desired, contain a
+human-readable description to every piece of information given.</p>
+<p>Additionally, the package may have some disk image files and other
+additional resources (e.g. ISO images).</p>
+<p>In order to provide secure means of distribution for OVF packages, the
+manifest and certificate are provided. Manifest (<tt class="docutils literal"><span class="pre">.mf</span></tt> file) contains
+checksums for all the files in OVF package, whereas certificate
+(<tt class="docutils literal"><span class="pre">.cert</span></tt> file) contains X.509 certificate and a checksum of manifest
+file. Both files are not compulsory, but certificate requires manifest
+to be present.</p>
+</div>
+<div class="section" id="supported-disk-formats">
+<h3>Supported disk formats<a class="headerlink" href="#supported-disk-formats" title="Permalink to this headline">¶</a></h3>
+<p>Although OVF is claimed to support &#8216;any disk format&#8217;, what we are
+interested in is which formats are supported by VM managers that
+currently use OVF.</p>
+<ul class="simple">
+<li>VMWare: <tt class="docutils literal"><span class="pre">.vmdk</span></tt> (which comes in at least 3 different flavours:
+<tt class="docutils literal"><span class="pre">sparse</span></tt>, <tt class="docutils literal"><span class="pre">compressed</span></tt> and <tt class="docutils literal"><span class="pre">streamOptimized</span></tt>)</li>
+<li>VirtualBox: <tt class="docutils literal"><span class="pre">.vdi</span></tt> (VirtualBox&#8217;s format), <tt class="docutils literal"><span class="pre">.vmdk</span></tt>, <tt class="docutils literal"><span class="pre">.vhd</span></tt>
+(Microsoft and XenServer); export disk format is always <tt class="docutils literal"><span class="pre">.vmdk</span></tt></li>
+<li>XenServer: <tt class="docutils literal"><span class="pre">.vmdk</span></tt>, <tt class="docutils literal"><span class="pre">.vhd</span></tt>; export disk format is always
+<tt class="docutils literal"><span class="pre">.vhd</span></tt></li>
+<li>Red Hat Enterprise Virtualization: <tt class="docutils literal"><span class="pre">.raw</span></tt> (raw disk format),
+<tt class="docutils literal"><span class="pre">.cow</span></tt> (qemu&#8217;s <tt class="docutils literal"><span class="pre">QCOW2</span></tt>)</li>
+<li>other: AbiCloud, OpenNode Cloud, SUSE Studio, Morfeo Claudia,
+OpenStack: mostly <tt class="docutils literal"><span class="pre">.vmdk</span></tt></li>
+</ul>
+<p>In our implementation of the OVF we allow a choice between raw, cow and
+vmdk disk formats for both import and export. Other formats covertable
+using <tt class="docutils literal"><span class="pre">qemu-img</span></tt> are allowed in import mode, but not tested.
+The justification is the following:</p>
+<ul class="simple">
+<li>Raw format is supported as it is the main format of disk images used
+in Ganeti, thus it is effortless to provide support for this format</li>
+<li>Cow is used in Qemu</li>
+<li>Vmdk is most commonly supported in virtualization software, it also
+has the advantage of producing relatively small disk images, which
+is extremely important advantage when moving instances.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="import-and-export-the-closer-look">
+<h2>Import and export - the closer look<a class="headerlink" href="#import-and-export-the-closer-look" title="Permalink to this headline">¶</a></h2>
+<p>This section contains an overview of how different parts of
+Ganeti&#8217;s export info are included in <tt class="docutils literal"><span class="pre">.ovf</span></tt> configuration file.
+It also explains how import is designed to work with incomplete
+information.</p>
+<div class="section" id="ganeti-s-backup-format-vs-ovf">
+<h3>Ganeti&#8217;s backup format vs OVF<a class="headerlink" href="#ganeti-s-backup-format-vs-ovf" title="Permalink to this headline">¶</a></h3>
+<p>The basic structure of Ganeti <tt class="docutils literal"><span class="pre">.ovf</span></tt> file is the following:</p>
+<div class="highlight-xml"><pre>&lt;Envelope&gt;
+    &lt;References&gt;&lt;/References&gt;
+    &lt;DiskSection&gt;&lt;/DiskSection&gt;
+    &lt;NetworkSection&gt;&lt;/NetworkSection&gt;
+    &lt;VirtualSystem&gt;
+        &lt;Name&gt;&lt;/Name&gt;
+        &lt;OperatingSystemSection&gt;&lt;/OperatingSystemSection&gt;
+        &lt;VirtualHardwareSection&gt;&lt;VirtualHardwareSection&gt;
+    &lt;/VirtualSystem&gt;
+    &lt;gnt:GanetiSection&gt;
+        &lt;gnt:VersionId/&gt;
+        &lt;gnt:AutoBalance/&gt;
+        &lt;gnt:Tags&gt;&lt;/gnt:Tags&gt;
+        &lt;gnt:DiskTemplate&lt;/gnt:DiskTemplate&gt;
+        &lt;gnt:OperatingSystem&gt;
+            &lt;gnt:Name/&gt;
+            &lt;gnt:Parameters&gt;&lt;/gnt:Parameters&gt;
+        &lt;/gnt:OperatingSystem&gt;
+        &lt;gnt:Hypervisor&gt;
+            &lt;gnt:Name/&gt;
+            &lt;gnt:Parameters&gt;&lt;/gnt:Parameters&gt;
+        &lt;/gnt:Hypervisor&gt;
+        &lt;gnt:Network&gt;
+        &lt;gnt:Mode/&gt;
+        &lt;gnt:MACAddress/&gt;
+        &lt;gnt:Link/&gt;
+        &lt;gnt:IPAddress/&gt;
+        &lt;/gnt:Network&gt;
+    &lt;/gnt:GanetiSection&gt;
+&lt;/Envelope&gt;</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Tags with <tt class="docutils literal"><span class="pre">gnt:</span></tt> prefix are Ganeti-specific and are not a part of
+OVF standard.</p>
+</div>
+<p>Whereas Ganeti&#8217;s export info is of the following form, <tt class="docutils literal"><span class="pre">=&gt;</span></tt> showing
+where will the data be in OVF format:</p>
+<div class="highlight-text"><div class="highlight"><pre>[instance]
+    disk0_dump = filename     =&gt; File in References
+    disk0_ivname = name       =&gt; generated automatically
+    disk0_size = size_in_mb   =&gt; calculated after disk conversion
+    disk_count = number       =&gt; generated automatically
+    disk_template = disk_type =&gt; gnt:DiskTemplate
+    hypervisor = hyp-name     =&gt; gnt:Name in gnt:Hypervisor
+    name = inst-name          =&gt; Name in VirtualSystem
+    nic0_ip = ip              =&gt; gnt:IPAddress in gnt:Network
+    nic0_link = link          =&gt; gnt:Link in gnt:Network
+    nic0_mac = mac            =&gt; gnt:MACAddress in gnt:Network or
+                                 Item in VirtualHardwareSection
+    nic0_mode = mode          =&gt; gnt:Mode in gnt:Network
+    nic_count = number        =&gt; generated automatically
+    tags                      =&gt; gnt:Tags
+
+[backend]
+    auto_balanced             =&gt; gnt:AutoBalance
+    memory = mem_in_mb        =&gt; Item in VirtualHardwareSection
+    vcpus = number            =&gt; Item in VirtualHardwareSection
+
+[export]
+    compression               =&gt; ignored
+    os                        =&gt; gnt:Name in gnt:OperatingSystem
+    source                    =&gt; ignored
+    timestamp                 =&gt; ignored
+    version                   =&gt; gnt:VersionId or
+                                 constants.EXPORT_VERSION
+
+[os]                          =&gt; gnt:Parameters in gnt:OperatingSystem
+
+[hypervisor]                  =&gt; gnt:Parameters in gnt:Hypervisor
+</pre></div>
+</div>
+<p>In case of multiple networks/disks used by an instance, they will
+all be saved in appropriate sections as specified above for the first
+network/disk.</p>
+</div>
+<div class="section" id="import-from-other-virtualization-software">
+<h3>Import from other virtualization software<a class="headerlink" href="#import-from-other-virtualization-software" title="Permalink to this headline">¶</a></h3>
+<p>In case of importing to Ganeti OVF package generated in other software,
+e.g. VirtualBox, some fields required for Ganeti to properly handle
+import may be missing. Most often it will happen that such OVF package
+will lack the <tt class="docutils literal"><span class="pre">gnt:GanetiSection</span></tt>.</p>
+<p>If this happens you can specify all the missing parameters in
+the command line. Please refer to <a class="reference internal" href="#command-line">Command Line</a> section.</p>
+<p>In the <a class="reference internal" href="ovfconverter.html"><em>OVF converter</em></a> we provide examples of
+options when converting from VirtualBox, VMWare and OpenSuseStudio.</p>
+</div>
+<div class="section" id="export-to-other-virtualization-software">
+<h3>Export to other virtualization software<a class="headerlink" href="#export-to-other-virtualization-software" title="Permalink to this headline">¶</a></h3>
+<p>When exporting to other virtualization software, you may notice that
+there is a section <tt class="docutils literal"><span class="pre">gnt:GanetiSection</span></tt>, containing Ganeti-specific
+information. This may on <strong>rare</strong> cases cause trouble in importing your
+instance. If that is the case please do one of the two:</p>
+<p>1. Export from Ganeti to OVF with <tt class="docutils literal"><span class="pre">--external</span></tt> option - this will
+cause to skip the non-standard information.</p>
+<p>2. Manually remove the gnt:GanetiSection from the <tt class="docutils literal"><span class="pre">.ovf</span></tt> file. You
+will also have to recompute sha1 sum (<tt class="docutils literal"><span class="pre">sha1sum</span></tt> command) of the .ovf
+file and update your <tt class="docutils literal"><span class="pre">.mf</span></tt> file with new value.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Manual change option is only recommended when you have exported your
+instance with <tt class="docutils literal"><span class="pre">-format</span></tt> option other that <tt class="docutils literal"><span class="pre">raw</span></tt> or selected
+<tt class="docutils literal"><span class="pre">--compress</span></tt>. It saves you the time of converting or compressing
+the disk image.</p>
+</div>
+</div>
+</div>
+<div class="section" id="planned-limitations">
+<h2>Planned limitations<a class="headerlink" href="#planned-limitations" title="Permalink to this headline">¶</a></h2>
+<p>The limitations regarding import of the OVF instances generated
+outside Ganeti will be (in general) the same, as limitations for
+Ganeti itself.  The desired behavior in case of encountering
+unsupported element will be to ignore this element&#8217;s tag without
+interruption of the import process.</p>
+<div class="section" id="package">
+<h3>Package<a class="headerlink" href="#package" title="Permalink to this headline">¶</a></h3>
+<p>There are no limitations regarding support for multiple files in
+package or packing the OVF package into one OVA (Open Virtual
+Appliance) file. As for certificates and licenses in the package,
+their support will be under discussion after completion of the basic
+features implementation.</p>
+</div>
+<div class="section" id="multiple-virtual-systems">
+<h3>Multiple Virtual Systems<a class="headerlink" href="#multiple-virtual-systems" title="Permalink to this headline">¶</a></h3>
+<p>At first only singular instances (i.e. VirtualSystem, not
+VirtualSystemCollection) will be supported. In the future multi-tiered
+appliances containing whole nodes (or even clusters) are considered an
+option.</p>
+</div>
+<div class="section" id="disks">
+<h3>Disks<a class="headerlink" href="#disks" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned, Ganeti will allow export in  <tt class="docutils literal"><span class="pre">raw</span></tt>, <tt class="docutils literal"><span class="pre">cow</span></tt> and <tt class="docutils literal"><span class="pre">vmdk</span></tt>
+formats.  This means i.e. that the appropriate <tt class="docutils literal"><span class="pre">ovf:format</span></tt>
+will be provided.
+As for import, we will support all formats that <tt class="docutils literal"><span class="pre">qemu-img</span></tt> can convert
+to <tt class="docutils literal"><span class="pre">raw</span></tt>. At this point this means <tt class="docutils literal"><span class="pre">raw</span></tt>, <tt class="docutils literal"><span class="pre">cow</span></tt>, <tt class="docutils literal"><span class="pre">qcow</span></tt>,
+<tt class="docutils literal"><span class="pre">qcow2</span></tt>, <tt class="docutils literal"><span class="pre">vmdk</span></tt> and <tt class="docutils literal"><span class="pre">cloop</span></tt>.  We do not plan for now to support
+<tt class="docutils literal"><span class="pre">vdi</span></tt> or <tt class="docutils literal"><span class="pre">vhd</span></tt> unless they become part of qemu-img supported formats.</p>
+<p>We plan to support compression both for import and export - in gzip
+format. There is also a possibility to provide virtual disk in chunks
+of equal size. The latter will not be implemented in the first version,
+but we do plan to support it eventually.</p>
+<p>The <tt class="docutils literal"><span class="pre">ovf:format</span></tt> tag is not used in our case when importing. Instead
+we use <tt class="docutils literal"><span class="pre">qemu-img</span> <span class="pre">info</span></tt>, which provides enough information for our
+purposes and is better standardized.</p>
+<p>Please note, that due to security reasons we require the disk image to
+be in the same directory as the <tt class="docutils literal"><span class="pre">.ovf</span></tt> description file for both
+import and export.</p>
+<p>In order to completely ignore disk-related information in resulting
+config file, please use <tt class="docutils literal"><span class="pre">--disk-template=diskless</span></tt> option.</p>
+</div>
+<div class="section" id="network">
+<h3>Network<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti provides support for routed and bridged mode for the networks.
+Since the standard OVF format does not contain any information regarding
+used network type, we add our own source of such information in
+<tt class="docutils literal"><span class="pre">gnt:GanetiSection</span></tt>. In case this additional information is not
+present, we perform a simple check - if network name specified in
+<tt class="docutils literal"><span class="pre">NetworkSection</span></tt> contains words <tt class="docutils literal"><span class="pre">bridged</span></tt> or <tt class="docutils literal"><span class="pre">routed</span></tt>, we consider
+this to be the network type. Otherwise option <tt class="docutils literal"><span class="pre">auto</span></tt> is chosen, in
+which case the cluster&#8217;s default value for that field will be used when
+importing.
+This provides a safe fallback in case of NAT networks usage, which are
+commonly used e.g. in VirtualBox.</p>
+</div>
+<div class="section" id="hardware">
+<h3>Hardware<a class="headerlink" href="#hardware" title="Permalink to this headline">¶</a></h3>
+<p>The supported hardware is limited to virtual CPUs, RAM memory, disks and
+networks. In particular, no USB support is currently provided, as Ganeti
+does not support them.</p>
+</div>
+<div class="section" id="operating-systems">
+<h3>Operating Systems<a class="headerlink" href="#operating-systems" title="Permalink to this headline">¶</a></h3>
+<p>Support for different operating systems depends solely on their
+accessibility for Ganeti instances. List of installed OSes can be
+checked using <tt class="docutils literal"><span class="pre">gnt-os</span> <span class="pre">list</span></tt> command.</p>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<p>Files listed in <tt class="docutils literal"><span class="pre">ovf:References</span></tt> section cannot be hyperlinks.</p>
+</div>
+<div class="section" id="other">
+<h3>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
+<p>The instance name (<tt class="docutils literal"><span class="pre">gnt:VirtualSystem\gnt:Name</span></tt> or command line&#8217;s
+<tt class="docutils literal"><span class="pre">--name</span></tt> option ) has to be resolvable in order for successful import
+using <tt class="docutils literal"><span class="pre">gnt-backup</span> <span class="pre">import</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="id1">
+<h2><span class="target" id="command-line">Command Line</span><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The basic usage of the ovf tool is one of the following:</p>
+<div class="highlight-text"><div class="highlight"><pre>ovfconverter import filename
+ovfconverter export --format=&lt;format&gt; filename
+</pre></div>
+</div>
+<p>This will result in a conversion based solely on the content of provided
+file. In case some information required to make the conversion is
+missing, an error will occur.</p>
+<p>If output directory should be different than the standard Ganeti export
+directory (usually <tt class="docutils literal"><span class="pre">/srv/ganeti/export</span></tt>), option <tt class="docutils literal"><span class="pre">--output-dir</span></tt>
+can be used.</p>
+<p>If name of resulting entity should be different than the one read from
+the file, use <tt class="docutils literal"><span class="pre">--name</span></tt> option.</p>
+<div class="section" id="import-options">
+<h3>Import options<a class="headerlink" href="#import-options" title="Permalink to this headline">¶</a></h3>
+<p>Import options that <tt class="docutils literal"><span class="pre">ovfconverter</span></tt> supports include options for
+backend, disks, hypervisor, networks and operating system. If an option
+is given, it overrides the values provided in the OVF file.</p>
+<div class="section" id="backend">
+<h4>Backend<a class="headerlink" href="#backend" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--backend=option=value</span></tt> can be used to set auto balance, number of
+vcpus and amount of RAM memory.</p>
+<p>Please note that when you do not provide full set of options, the
+omitted ones will be set to cluster defaults (<tt class="docutils literal"><span class="pre">auto</span></tt>).</p>
+</div>
+<div class="section" id="id2">
+<h4>Disks<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--disk-template=diskless</span></tt> causes the converter to ignore all other
+disk option - both from .ovf file and the command line. Other disk
+template options include <tt class="docutils literal"><span class="pre">plain</span></tt>, <tt class="docutils literal"><span class="pre">drdb</span></tt>, <tt class="docutils literal"><span class="pre">file</span></tt>, <tt class="docutils literal"><span class="pre">sharedfile</span></tt>
+and <tt class="docutils literal"><span class="pre">blockdev</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">--disk=number:size=value</span></tt> causes to create disks instead of
+converting them from OVF package; numbers should start with <tt class="docutils literal"><span class="pre">0</span></tt> and be
+consecutive.</p>
+</div>
+<div class="section" id="hypervisor">
+<h4>Hypervisor<a class="headerlink" href="#hypervisor" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">-H</span> <span class="pre">hypervisor_name</span></tt> and <tt class="docutils literal"><span class="pre">-H</span> <span class="pre">hypervisor_name:option=value</span></tt>
+provide options for hypervisor.</p>
+</div>
+<div class="section" id="id3">
+<h4>Network<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--no-nics</span></tt> option causes converter to ignore any network information
+provided.</p>
+<p><tt class="docutils literal"><span class="pre">--network=number:option=value</span></tt> sets network information according to
+provided data, ignoring the OVF package configuration.</p>
+</div>
+<div class="section" id="operating-system">
+<h4>Operating System<a class="headerlink" href="#operating-system" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--os-type=type</span></tt> sets os type accordingly, this option is <strong>required</strong>
+when importing from OVF instance not created from Ganeti config file.</p>
+<p><tt class="docutils literal"><span class="pre">--os-parameters</span></tt> provides options for chosen operating system.</p>
+</div>
+<div class="section" id="tags">
+<h4>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--tags=tag1,tag2,tag3</span></tt> is a means of providing tags specific for the
+instance.</p>
+<p>After the conversion is completed, you may use <tt class="docutils literal"><span class="pre">gnt-backup</span> <span class="pre">import</span></tt> to
+import the instance into Ganeti.</p>
+<p>Example:</p>
+<div class="highlight-text"><div class="highlight"><pre>ovfconverter import file.ovf --disk-template=diskless \
+  --os-type=lenny-image \
+  --backend=vcpus=1,memory=512,auto_balance \
+  -H:xen-pvm \
+  --net=0:mode=bridged,link=xen-br0 \
+  --name=xen.i1
+[...]
+gnt-backup import xen.i1
+[...]
+gnt-instance list
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="export-options">
+<h3>Export options<a class="headerlink" href="#export-options" title="Permalink to this headline">¶</a></h3>
+<p>Export options include choice of disk formats to convert the disk image
+(<tt class="docutils literal"><span class="pre">--format</span></tt>) and compression of the disk into gzip format
+(<tt class="docutils literal"><span class="pre">--compress</span></tt>). User has also the choice of allowing to skip the
+Ganeti-specific part of the OVF document (<tt class="docutils literal"><span class="pre">--external</span></tt>).</p>
+<p>By default, exported OVF package will not be contained in the OVA
+package, but this may be changed by adding <tt class="docutils literal"><span class="pre">--ova</span></tt> option.</p>
+<p>Please note that in order to create an OVF package, it is first
+required that you export your VM using <tt class="docutils literal"><span class="pre">gnt-backup</span> <span class="pre">export</span></tt>.</p>
+<p>Example:</p>
+<div class="highlight-text"><div class="highlight"><pre>gnt-backup export -n node1.xen xen.i1
+[...]
+ovfconverter export --format=vmdk --ova --external \
+  --output-dir=~/xen.i1 \
+  /srv/ganeti/export/xen.i1.node1.xen/config.ini
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="implementation-details">
+<h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="disk-conversion">
+<h3>Disk conversion<a class="headerlink" href="#disk-conversion" title="Permalink to this headline">¶</a></h3>
+<p>Disk conversion for both import and export is done using external tool
+called <tt class="docutils literal"><span class="pre">qemu-img</span></tt>. The same tool is used to determine the type of
+disk, as well as its virtual size.</p>
+</div>
+<div class="section" id="import">
+<h3>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h3>
+<p>Import functionality is implemented using two classes - OVFReader and
+OVFImporter.</p>
+<p>OVFReader class is used to read the contents of the <tt class="docutils literal"><span class="pre">.ovf</span></tt> file. Every
+action that requires <tt class="docutils literal"><span class="pre">.ovf</span></tt> file access is done through that class.
+It also performs validation of manifest, if one is present.</p>
+<p>The result of reading some part of file is typically a dictionary or a
+string, containing options which correspond to the ones in
+<tt class="docutils literal"><span class="pre">config.ini</span></tt> file. Only in case of disks, the resulting value is
+different - it is then a list of disk names. The reason for that is the
+need for conversion.</p>
+<p>OVFImporter class performs all the command-line-like tasks, such as
+unpacking OVA package, removing temporary directory, converting disk
+file to raw format or saving the configuration file on disk.
+It also contains a set of functions that read the options provided in
+the command line.</p>
+<p>Typical workflow for the import is very simple:</p>
+<ul>
+<li><p class="first">read the <tt class="docutils literal"><span class="pre">.ovf</span></tt> file into memory</p>
+</li>
+<li><p class="first">verify manifest</p>
+</li>
+<li><p class="first">parse each element of the configuration file: name, disk template,
+hypervisor, operating system, backend parameters, network and disks</p>
+<blockquote>
+<div><ul>
+<li><p class="first">check if option for the element can be read from command line
+options</p>
+<blockquote>
+<div><ul class="simple">
+<li>if yes: parse options from command line</li>
+<li>otherwise: read the appropriate portion of <tt class="docutils literal"><span class="pre">.ovf</span></tt> file</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">save gathered information in <tt class="docutils literal"><span class="pre">config.ini</span></tt> file</p>
+</li>
+</ul>
+</div>
+<div class="section" id="export">
+<h3>Export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h3>
+<p>Similar to import, export functionality also uses two classes -
+OVFWriter and OVFExporter.</p>
+<p>OVFWriter class produces XML output based on the information given. Its
+sole role is to separate the creation of <tt class="docutils literal"><span class="pre">.ovf</span></tt> file content.</p>
+<p>OVFExporter class gathers information from <tt class="docutils literal"><span class="pre">config.ini</span></tt> file or
+command line and performs necessary operations like disk conversion, disk
+compression, manifest creation and OVA package creation.</p>
+<p>Typical workflow for the export is even simpler, than for the import:</p>
+<ul class="simple">
+<li>read the <tt class="docutils literal"><span class="pre">config.ini</span></tt> file into memory</li>
+<li>gather information about certain parts of the instance, convert and
+compress disks if desired</li>
+<li>save each of these elements as a fragment of XML tree</li>
+<li>save the XML tree as <tt class="docutils literal"><span class="pre">.ovf</span></tt> file</li>
+<li>create manifest file and fill it with appropriate checksums</li>
+<li>if <tt class="docutils literal"><span class="pre">--ova</span></tt> option was chosen, pack the results into <tt class="docutils literal"><span class="pre">.ova</span></tt> tarfile</li>
+</ul>
+</div>
+<div class="section" id="work-in-progress">
+<h3>Work in progress<a class="headerlink" href="#work-in-progress" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>conversion to/from raw disk should be quicker</li>
+<li>add graphic card memory to export information (12 MB of memory)</li>
+<li>space requirements for conversion + compression + ova are currently
+enormous</li>
+<li>add support for disks in chunks</li>
+<li>add support for certificates</li>
+<li>investigate why VMWare&#8217;s ovftool does not work with ovfconverter&#8217;s
+compression and ova packaging &#8211; maybe noteworty: if OVA archive does
+not have a disk (i.e. in OVA package there is only .ovf ad .mf file),
+then the ovftool works</li>
+<li>investigate why new versions of VirtualBox have problems with OVF
+created by ovfconverter (everything works fine with 3.16 version, but
+not with 4.0)</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti Instance Import/Export using Open Virtualization Format</a><ul>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#open-virtualization-format-description">Open Virtualization Format description</a></li>
+<li><a class="reference internal" href="#supported-disk-formats">Supported disk formats</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#import-and-export-the-closer-look">Import and export - the closer look</a><ul>
+<li><a class="reference internal" href="#ganeti-s-backup-format-vs-ovf">Ganeti&#8217;s backup format vs OVF</a></li>
+<li><a class="reference internal" href="#import-from-other-virtualization-software">Import from other virtualization software</a></li>
+<li><a class="reference internal" href="#export-to-other-virtualization-software">Export to other virtualization software</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#planned-limitations">Planned limitations</a><ul>
+<li><a class="reference internal" href="#package">Package</a></li>
+<li><a class="reference internal" href="#multiple-virtual-systems">Multiple Virtual Systems</a></li>
+<li><a class="reference internal" href="#disks">Disks</a></li>
+<li><a class="reference internal" href="#network">Network</a></li>
+<li><a class="reference internal" href="#hardware">Hardware</a></li>
+<li><a class="reference internal" href="#operating-systems">Operating Systems</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#other">Other</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">Command Line</a><ul>
+<li><a class="reference internal" href="#import-options">Import options</a><ul>
+<li><a class="reference internal" href="#backend">Backend</a></li>
+<li><a class="reference internal" href="#id2">Disks</a></li>
+<li><a class="reference internal" href="#hypervisor">Hypervisor</a></li>
+<li><a class="reference internal" href="#id3">Network</a></li>
+<li><a class="reference internal" href="#operating-system">Operating System</a></li>
+<li><a class="reference internal" href="#tags">Tags</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#export-options">Export options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a><ul>
+<li><a class="reference internal" href="#disk-conversion">Disk conversion</a></li>
+<li><a class="reference internal" href="#import">Import</a></li>
+<li><a class="reference internal" href="#export">Export</a></li>
+<li><a class="reference internal" href="#work-in-progress">Work in progress</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-opportunistic-locking.html"
+                        title="previous chapter">Design for parallelized instance creations and opportunistic locking</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-partitioned.html"
+                        title="next chapter">Partitioned Ganeti</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-ovf-support.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-partitioned.html" title="Partitioned Ganeti"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

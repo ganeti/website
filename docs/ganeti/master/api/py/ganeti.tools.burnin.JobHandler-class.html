@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.tools.burnin.JobHandler</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        <a href="ganeti.tools-module.html">Package&nbsp;tools</a> ::
+        <a href="ganeti.tools.burnin-module.html">Module&nbsp;burnin</a> ::
+        Class&nbsp;JobHandler
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.tools.burnin.JobHandler-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class JobHandler</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_ganeti_t_5" name="uml_class_diagram_for_ganeti_t_5">
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#queued_ops" title="ganeti.tools.burnin.JobHandler.queued_ops" alt="" coords="17,159,357,177"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#queue_retry" title="ganeti.tools.burnin.JobHandler.queue_retry" alt="" coords="17,177,357,196"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#__init__" title="x.__init__(...) initializes x; see help(type(x)) for signature" alt="" coords="17,199,357,217"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#MaybeRetry" title="Possibly retry a given function execution." alt="" coords="17,217,357,236"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#ExecOp" title="Execute one or more opcodes and manage the exec buffer." alt="" coords="17,236,357,255"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#ExecOrQueue" title="Execute an opcode and manage the exec buffer." alt="" coords="17,255,357,273"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#StartBatch" title="Start a new batch of jobs." alt="" coords="17,273,357,292"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#CommitQueue" title="Execute all submitted opcodes in case of parallel burnin" alt="" coords="17,292,357,311"/>
+<area shape="rect" id="node1624" href="ganeti.tools.burnin.JobHandler-class.html#ExecJobSet" title="Execute a set of jobs and return once all are done." alt="" coords="17,311,357,329"/>
+<area shape="rect" id="node1" href="ganeti.tools.burnin.JobHandler-class.html" title="Class for handling Ganeti jobs." alt="" coords="5,134,368,335"/>
+<area shape="rect" id="node1625" href="ganeti.tools.burnin.FeedbackAccumulator-class.html#opts" title="hash(x)" alt="" coords="111,31,264,49"/>
+<area shape="rect" id="node1625" href="ganeti.tools.burnin.FeedbackAccumulator-class.html#ClearFeedbackBuf" title="Clear the feedback buffer." alt="" coords="111,52,264,71"/>
+<area shape="rect" id="node1625" href="ganeti.tools.burnin.FeedbackAccumulator-class.html#GetFeedbackBuf" title="Return the contents of the buffer." alt="" coords="111,71,264,89"/>
+<area shape="rect" id="node1625" href="ganeti.tools.burnin.FeedbackAccumulator-class.html#Feedback" title="Acumulate feedback in our buffer." alt="" coords="111,89,264,108"/>
+<area shape="rect" id="node2" href="ganeti.tools.burnin.FeedbackAccumulator-class.html" title="Feedback accumulator class." alt="" coords="99,6,275,114"/>
+</map>
+  <img src="uml_class_diagram_for_ganeti_t_5.gif" alt='' usemap="#uml_class_diagram_for_ganeti_t_5" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Class for handling Ganeti jobs.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#MaybeRetry" class="summary-sig-name">MaybeRetry</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">retry_count</span>,
+        <span class="summary-sig-arg">msg</span>,
+        <span class="summary-sig-arg">fn</span>,
+        <span class="summary-sig-arg">*args</span>)</span><br />
+      Possibly retry a given function execution.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.MaybeRetry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#_ExecOp" class="summary-sig-name" onclick="show_private();">_ExecOp</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*ops</span>)</span><br />
+      Execute one or more opcodes and manage the exec buffer.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler._ExecOp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#ExecOp" class="summary-sig-name">ExecOp</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">retry</span>,
+        <span class="summary-sig-arg">*ops</span>)</span><br />
+      Execute one or more opcodes and manage the exec buffer.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.ExecOp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="ExecOrQueue"></a><span class="summary-sig-name">ExecOrQueue</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">ops</span>,
+        <span class="summary-sig-arg">post_process</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Execute an opcode and manage the exec buffer.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.ExecOrQueue">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#StartBatch" class="summary-sig-name">StartBatch</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">retry</span>)</span><br />
+      Start a new batch of jobs.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.StartBatch">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="CommitQueue"></a><span class="summary-sig-name">CommitQueue</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Execute all submitted opcodes in case of parallel burnin</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.CommitQueue">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.tools.burnin.JobHandler-class.html#ExecJobSet" class="summary-sig-name">ExecJobSet</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">jobs</span>)</span><br />
+      Execute a set of jobs and return once all are done.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.ExecJobSet">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html">FeedbackAccumulator</a></code></b>:
+      <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html#ClearFeedbackBuf">ClearFeedbackBuf</a></code>,
+      <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html#Feedback">Feedback</a></code>,
+      <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html#GetFeedbackBuf">GetFeedbackBuf</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="queued_ops"></a><span class="summary-name">queued_ops</span> = <code title="[]">[]</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="queue_retry"></a><span class="summary-name">queue_retry</span> = <code title="False">False</code>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html">FeedbackAccumulator</a></code></b>:
+      <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html#opts">opts</a></code>
+      </p>
+    <div class="private">    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html">FeedbackAccumulator</a></code></b> (private):
+      <code><a href="ganeti.tools.burnin.FeedbackAccumulator-class.html#_feed_buf" onclick="show_private();">_feed_buf</a></code>
+      </p></div>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="MaybeRetry"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">MaybeRetry</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">retry_count</span>,
+        <span class="sig-arg">msg</span>,
+        <span class="sig-arg">fn</span>,
+        <span class="sig-arg">*args</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.MaybeRetry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Possibly retry a given function execution.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>retry_count</code></strong> (int) - retry counter:
+          <ul>
+            <li>
+              0: non-retryable action
+            </li>
+            <li>
+              1: last retry for a retryable action
+            </li>
+            <li>
+              MAX_RETRIES: original try for a retryable action
+            </li>
+          </ul></li>
+        <li><strong class="pname"><code>msg</code></strong> (str) - the kind of the operation</li>
+        <li><strong class="pname"><code>fn</code></strong> (callable) - the function to be called</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_ExecOp"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ExecOp</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">*ops</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler._ExecOp">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Execute one or more opcodes and manage the exec buffer.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>if only opcode has been passed, we return its result; otherwise 
+          we return the list of results</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ExecOp"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ExecOp</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">retry</span>,
+        <span class="sig-arg">*ops</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.ExecOp">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Execute one or more opcodes and manage the exec buffer.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>if only opcode has been passed, we return its result; otherwise 
+          we return the list of results</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="StartBatch"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">StartBatch</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">retry</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.StartBatch">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Start a new batch of jobs.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>retry</code></strong> - whether this is a retryable batch</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ExecJobSet"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ExecJobSet</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">jobs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.tools.burnin-pysrc.html#JobHandler.ExecJobSet">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Execute a set of jobs and return once all are done.</p>
+  <p>The method will return the list of results, if all jobs are 
+  successful. Otherwise, OpExecError will be raised from within cli.py.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Mar 11 11:23:58 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RADOS/Ceph support in Ganeti &mdash; Ganeti 2.15.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.15.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.15.2 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Ganeti OS installation redesign" href="design-os.html" />
+    <link rel="prev" title="Huge Pages Support for Ganeti" href="design-hugepages-support.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-os.html" title="Ganeti OS installation redesign"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rados-ceph-support-in-ganeti">
+<h1><a class="toc-backref" href="#id2">RADOS/Ceph support in Ganeti</a><a class="headerlink" href="#rados-ceph-support-in-ganeti" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#rados-ceph-support-in-ganeti" id="id2">RADOS/Ceph support in Ganeti</a><ul>
+<li><a class="reference internal" href="#objective" id="id3">Objective</a></li>
+<li><a class="reference internal" href="#background" id="id4">Background</a><ul>
+<li><a class="reference internal" href="#ceph-rbd" id="id5">Ceph RBD</a></li>
+<li><a class="reference internal" href="#rbd-support-in-ganeti" id="id6">RBD support in Ganeti</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qemu-kvm-direct-rbd-integration" id="id7">Qemu/KVM Direct RBD Integration</a><ul>
+<li><a class="reference internal" href="#updated-commands" id="id8">Updated commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ceph-configuration-on-ganeti-nodes" id="id9">Ceph configuration on Ganeti nodes</a><ul>
+<li><a class="reference internal" href="#id1" id="id10">Updated Commands</a></li>
+<li><a class="reference internal" href="#data-collector-for-ceph" id="id11">Data collector for Ceph</a></li>
+<li><a class="reference internal" href="#future-work" id="id12">Future Work</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="objective">
+<h2><a class="toc-backref" href="#id3">Objective</a><a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>The project aims to improve Ceph RBD support in Ganeti. It can be
+primarily divided into following tasks.</p>
+<ul class="simple">
+<li>Use Qemu/KVM RBD driver to provide instances with direct RBD
+support. [implemented as of Ganeti 2.10]</li>
+<li>Allow Ceph RBDs&#8217; configuration through Ganeti. [unimplemented]</li>
+<li>Write a data collector to monitor Ceph nodes. [unimplemented]</li>
+</ul>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id4">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ceph-rbd">
+<h3><a class="toc-backref" href="#id5">Ceph RBD</a><a class="headerlink" href="#ceph-rbd" title="Permalink to this headline">¶</a></h3>
+<p>Ceph is a distributed storage system which provides data access as
+files, objects and blocks. As part of this project, we&#8217;re interested in
+integrating ceph&#8217;s block device (RBD) directly with Qemu/KVM.</p>
+<p>Primary components/daemons of Ceph.
+- Monitor - Serve as authentication point for clients.
+- Metadata - Store all the filesystem metadata (Not configured here as
+they are not required for RBD)
+- OSD - Object storage devices. One daemon for each drive/location.</p>
+</div>
+<div class="section" id="rbd-support-in-ganeti">
+<h3><a class="toc-backref" href="#id6">RBD support in Ganeti</a><a class="headerlink" href="#rbd-support-in-ganeti" title="Permalink to this headline">¶</a></h3>
+<p>Currently, Ganeti supports RBD volumes on a pre-configured Ceph cluster.
+This is enabled through RBD disk templates. These templates allow RBD
+volume&#8217;s access through RBD Linux driver. The volumes are mapped to host
+as local block devices which are then attached to the instances. This
+method incurs an additional overhead. We plan to resolve it by using
+Qemu&#8217;s RBD driver to enable direct access to RBD volumes for KVM
+instances.</p>
+<p>Also, Ganeti currently uses RBD volumes on a pre-configured ceph cluster.
+Allowing configuration of ceph nodes through Ganeti will be a good
+addition to its prime features.</p>
+</div>
+</div>
+<div class="section" id="qemu-kvm-direct-rbd-integration">
+<h2><a class="toc-backref" href="#id7">Qemu/KVM Direct RBD Integration</a><a class="headerlink" href="#qemu-kvm-direct-rbd-integration" title="Permalink to this headline">¶</a></h2>
+<p>A new disk param <tt class="docutils literal"><span class="pre">access</span></tt> is introduced. It&#8217;s added at
+cluster/node-group level to simplify prototype implementation.
+It will specify the access method either as <tt class="docutils literal"><span class="pre">userspace</span></tt> or
+<tt class="docutils literal"><span class="pre">kernelspace</span></tt>. It&#8217;s accessible to StartInstance() in hv_kvm.py. The
+device path, <tt class="docutils literal"><span class="pre">rbd:&lt;pool&gt;/&lt;vol_name&gt;</span></tt>, is generated by RADOSBlockDevice
+and is added to the params dictionary as <tt class="docutils literal"><span class="pre">kvm_dev_path</span></tt>.</p>
+<p>This approach ensures that no disk template specific changes are
+required in hv_kvm.py allowing easy integration of other distributed
+storage systems (like Gluster).</p>
+<p>Note that the RBD volume is mapped as a local block device as before.
+The local mapping won&#8217;t be used during instance operation in the
+<tt class="docutils literal"><span class="pre">userspace</span></tt> access mode, but can be used by administrators and OS
+scripts.</p>
+<div class="section" id="updated-commands">
+<h3><a class="toc-backref" href="#id8">Updated commands</a><a class="headerlink" href="#updated-commands" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>::</dt>
+<dd>$ gnt-instance info</dd>
+</dl>
+<p><tt class="docutils literal"><span class="pre">access:userspace/kernelspace</span></tt> will be added to Disks category. This
+output applies to KVM based instances only.</p>
+</div>
+</div>
+<div class="section" id="ceph-configuration-on-ganeti-nodes">
+<h2><a class="toc-backref" href="#id9">Ceph configuration on Ganeti nodes</a><a class="headerlink" href="#ceph-configuration-on-ganeti-nodes" title="Permalink to this headline">¶</a></h2>
+<p>This document proposes configuration of distributed storage
+pool (Ceph or Gluster) through ganeti. Currently, this design document
+focuses on configuring a Ceph cluster. A prerequisite of this setup
+would be installation of ceph packages on all the concerned nodes.</p>
+<p>At Ganeti Cluster init, the user will set distributed-storage specific
+options which will be stored at cluster level. The Storage cluster
+will be initialized using <tt class="docutils literal"><span class="pre">gnt-storage</span></tt>. For the prototype, only a
+single storage pool/node-group is configured.</p>
+<p>Following steps take place when a node-group is initialized as a storage
+cluster.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Check for an existing ceph cluster through /etc/ceph/ceph.conf file
+on each node.</li>
+<li>Fetch cluster configuration parameters and create a distributed
+storage object accordingly.</li>
+<li>Issue an &#8216;init distributed storage&#8217; RPC to group nodes (if any).</li>
+<li>On each node, <tt class="docutils literal"><span class="pre">ceph</span></tt> cli tool will run appropriate services.</li>
+<li>Mark nodes as well as the node-group as distributed-storage-enabled.</li>
+</ul>
+</div></blockquote>
+<p>The storage cluster will operate at a node-group level. The ceph
+cluster will be initiated using gnt-storage. A new sub-command
+<tt class="docutils literal"><span class="pre">init-distributed-storage</span></tt> will be added to it.</p>
+<p>The configuration of the nodes will be handled through an init function
+called by the node daemons running on the respective nodes. A new RPC is
+introduced to handle the calls.</p>
+<p>A new object will be created to send the storage parameters to the node
+- storage_type, devices, node_role (mon/osd) etc.</p>
+<p>A new node can be directly assigned to the storage enabled node-group.
+During the &#8216;gnt-node add&#8217; process, required ceph daemons will be started
+and node will be added to the ceph cluster.</p>
+<p>Only an offline node can be assigned to storage enabled node-group.
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">--readd</span></tt> needs to be performed to issue RPCs for spawning
+appropriate services on the newly assigned node.</p>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id10">Updated Commands</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Following are the affected commands.:</p>
+<div class="highlight-python"><pre>$ gnt-cluster init -S ceph:disk=/dev/sdb,option=value...</pre>
+</div>
+<p>During cluster initialization, ceph specific options are provided which
+apply at cluster-level.:</p>
+<div class="highlight-python"><pre>$ gnt-cluster modify -S ceph:option=value2...</pre>
+</div>
+<p>For now, cluster modification will be allowed when there is no
+initialized storage cluster.:</p>
+<div class="highlight-python"><pre>$ gnt-storage init-distributed-storage -s{--storage-type} ceph \
+  &lt;node-group&gt;</pre>
+</div>
+<p>Ensure that no other node-group is configured as distributed storage
+cluster and configure ceph on the specified node-group. If there is no
+node in the node-group, it&#8217;ll only be marked as distributed storage
+enabled and no action will be taken.:</p>
+<div class="highlight-python"><pre>$ gnt-group assign-nodes &lt;group&gt; &lt;node&gt;</pre>
+</div>
+<p>It ensures that the node is offline if the node-group specified is
+distributed storage capable. Ceph configuration on the newly assigned
+node is not performed at this step.:</p>
+<div class="highlight-python"><pre>$ gnt-node --offline</pre>
+</div>
+<p>If the node is part of storage node-group, an offline call will stop/remove
+ceph daemons.:</p>
+<div class="highlight-python"><pre>$ gnt-node add --readd</pre>
+</div>
+<p>If the node is now part of the storage node-group, issue init
+distributed storage RPC to the respective node. This step is required
+after assigning a node to the storage enabled node-group:</p>
+<div class="highlight-python"><pre>$ gnt-node remove</pre>
+</div>
+<p>A warning will be issued stating that the node is part of distributed
+storage, mark it offline before removal.</p>
+</div>
+<div class="section" id="data-collector-for-ceph">
+<h3><a class="toc-backref" href="#id11">Data collector for Ceph</a><a class="headerlink" href="#data-collector-for-ceph" title="Permalink to this headline">¶</a></h3>
+<p>TBD</p>
+</div>
+<div class="section" id="future-work">
+<h3><a class="toc-backref" href="#id12">Future Work</a><a class="headerlink" href="#future-work" title="Permalink to this headline">¶</a></h3>
+<p>Due to the loopback bug in ceph, one may run into daemon hang issues
+while performing writes to a RBD volumes through block device mapping.
+This bug is applicable only when the RBD volume is stored on the OSD
+running on the local node. In order to mitigate this issue, we can
+create storage pools on different nodegroups and access RBD
+volumes on different pools.
+<a class="reference external" href="http://tracker.ceph.com/issues/3076">http://tracker.ceph.com/issues/3076</a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">RADOS/Ceph support in Ganeti</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#background">Background</a><ul>
+<li><a class="reference internal" href="#ceph-rbd">Ceph RBD</a></li>
+<li><a class="reference internal" href="#rbd-support-in-ganeti">RBD support in Ganeti</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qemu-kvm-direct-rbd-integration">Qemu/KVM Direct RBD Integration</a><ul>
+<li><a class="reference internal" href="#updated-commands">Updated commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ceph-configuration-on-ganeti-nodes">Ceph configuration on Ganeti nodes</a><ul>
+<li><a class="reference internal" href="#id1">Updated Commands</a></li>
+<li><a class="reference internal" href="#data-collector-for-ceph">Data collector for Ceph</a></li>
+<li><a class="reference internal" href="#future-work">Future Work</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-hugepages-support.html"
+                        title="previous chapter">Huge Pages Support for Ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-os.html"
+                        title="next chapter">Ganeti OS installation redesign</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-ceph-ganeti-support.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-os.html" title="Ganeti OS installation redesign"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-hugepages-support.html" title="Huge Pages Support for Ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.15.2 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

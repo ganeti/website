@@ -1,0 +1,1780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Instance</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Instance.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Instance.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Instance</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Type declarations
+</A
+></DT
+><DT
+><A HREF="#2"
+>Initialization
+</A
+></DT
+><DT
+><A HREF="#3"
+>Update functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Module describing an instance.
+</P
+><P
+>The instance data type holds very few fields, the algorithm
+intelligence is in the <A HREF="Node.html"
+>Node</A
+> and <A HREF="Cluster.html"
+>Cluster</A
+> modules.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A HREF="#t%3AInstance"
+>Instance</A
+>  = <A HREF="#v%3AInstance"
+>Instance</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aname"
+>name</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aalias"
+>alias</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Amem"
+>mem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Adsk"
+>dsk</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Avcpus"
+>vcpus</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Arunning"
+>running</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ArunSt"
+>runSt</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3ApNode"
+>pNode</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AsNode"
+>sNode</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Aidx"
+>idx</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Autil"
+>util</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Amovable"
+>movable</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AautoBalance"
+>autoBalance</A
+> :: Bool</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3Atags"
+>tags</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdiskTemplate"
+>diskTemplate</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArunningStates"
+>runningStates</A
+> :: [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AlocalStorageTemplates"
+>localStorageTemplates</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmovableDiskTemplates"
+>movableDiskTemplates</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AAssocList"
+>AssocList</A
+> = [(<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3AList"
+>List</A
+> = <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Acreate"
+>create</A
+> :: String -&gt; Int -&gt; Int -&gt; Int -&gt; String -&gt; [String] -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetIdx"
+>setIdx</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetName"
+>setName</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetAlias"
+>setAlias</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; String -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetPri"
+>setPri</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetSec"
+>setSec</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetBoth"
+>setBoth</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsetMovable"
+>setMovable</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AshrinkByType"
+>shrinkByType</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AspecOf"
+>specOf</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhasSecondary"
+>hasSecondary</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArequiredNodes"
+>requiredNodes</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AallNodes"
+>allNodes</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AusesLocalStorage"
+>usesLocalStorage</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsupportsMoves"
+>supportsMoves</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Bool</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Type declarations
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>data</SPAN
+>  <A NAME="t:Instance"
+><A NAME="t%3AInstance"
+></A
+></A
+><B
+>Instance</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#Instance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>The instance type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:Instance"
+><A NAME="v%3AInstance"
+></A
+></A
+><B
+>Instance</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:name"
+><A NAME="v%3Aname"
+></A
+></A
+><B
+>name</B
+> :: String</TD
+><TD CLASS="rdoc"
+>The instance name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:alias"
+><A NAME="v%3Aalias"
+></A
+></A
+><B
+>alias</B
+> :: String</TD
+><TD CLASS="rdoc"
+>The shortened name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:mem"
+><A NAME="v%3Amem"
+></A
+></A
+><B
+>mem</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Memory of the instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:dsk"
+><A NAME="v%3Adsk"
+></A
+></A
+><B
+>dsk</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Disk size of instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:vcpus"
+><A NAME="v%3Avcpus"
+></A
+></A
+><B
+>vcpus</B
+> :: Int</TD
+><TD CLASS="rdoc"
+>Number of VCPUs
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:running"
+><A NAME="v%3Arunning"
+></A
+></A
+><B
+>running</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Is the instance running?
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:runSt"
+><A NAME="v%3ArunSt"
+></A
+></A
+><B
+>runSt</B
+> :: String</TD
+><TD CLASS="rdoc"
+>Original (text) run status
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:pNode"
+><A NAME="v%3ApNode"
+></A
+></A
+><B
+>pNode</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>Original primary node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:sNode"
+><A NAME="v%3AsNode"
+></A
+></A
+><B
+>sNode</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>Original secondary node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:idx"
+><A NAME="v%3Aidx"
+></A
+></A
+><B
+>idx</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+><TD CLASS="rdoc"
+>Internal index
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:util"
+><A NAME="v%3Autil"
+></A
+></A
+><B
+>util</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADynUtil"
+>DynUtil</A
+></TD
+><TD CLASS="rdoc"
+>Dynamic resource usage
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:movable"
+><A NAME="v%3Amovable"
+></A
+></A
+><B
+>movable</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Can and should the instance be moved?
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:autoBalance"
+><A NAME="v%3AautoBalance"
+></A
+></A
+><B
+>autoBalance</B
+> :: Bool</TD
+><TD CLASS="rdoc"
+>Is the instance auto-balanced?
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:tags"
+><A NAME="v%3Atags"
+></A
+></A
+><B
+>tags</B
+> :: [String]</TD
+><TD CLASS="rdoc"
+>List of instance tags
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+><A NAME="v:diskTemplate"
+><A NAME="v%3AdiskTemplate"
+></A
+></A
+><B
+>diskTemplate</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+></TD
+><TD CLASS="rdoc"
+>The disk template of the instance
+</TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:runningStates"
+><A NAME="v%3ArunningStates"
+></A
+></A
+><B
+>runningStates</B
+> :: [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#runningStates"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Constant holding the running instance states.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:localStorageTemplates"
+><A NAME="v%3AlocalStorageTemplates"
+></A
+></A
+><B
+>localStorageTemplates</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#localStorageTemplates"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Constant holding the local storage templates.
+</P
+><P
+><EM
+>Note:</EM
+> Currently Ganeti only exports node total/free disk space
+ for LVM-based storage; file-based storage is ignored in this model,
+ so even though file-based storage uses in reality disk space on the
+ node, in our model it won't affect it and we can't compute whether
+ there is enough disk space for a file-based instance. Therefore we
+ will treat this template as 'foreign' storage.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:movableDiskTemplates"
+><A NAME="v%3AmovableDiskTemplates"
+></A
+></A
+><B
+>movableDiskTemplates</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#movableDiskTemplates"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Constant holding the movable disk templates.
+</P
+><P
+>This only determines the initial <TT
+><A HREF="Ganeti-HTools-Instance.html#v%3Amovable"
+>movable</A
+></TT
+> state of the
+ instance. Further the movable state can be restricted more due to
+ user choices, etc.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:AssocList"
+><A NAME="t%3AAssocList"
+></A
+></A
+><B
+>AssocList</B
+> = [(<A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#AssocList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A simple name for the int, instance association list.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:List"
+><A NAME="t%3AList"
+></A
+></A
+><B
+>List</B
+> = <A HREF="Ganeti-HTools-Container.html#t%3AContainer"
+>Container</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#List"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>A simple name for an instance map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Initialization
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:create"
+><A NAME="v%3Acreate"
+></A
+></A
+><B
+>create</B
+> :: String -&gt; Int -&gt; Int -&gt; Int -&gt; String -&gt; [String] -&gt; Bool -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#create"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Create an instance.
+</P
+><P
+>Some parameters are not initialized by function, and must be set
+ later (via <TT
+><A HREF="Ganeti-HTools-Instance.html#v%3AsetIdx"
+>setIdx</A
+></TT
+> for example).
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setIdx"
+><A NAME="v%3AsetIdx"
+></A
+></A
+><B
+>setIdx</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setIdx"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+></TD
+><TD CLASS="rdoc"
+>New index
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Changes the index.
+</P
+><P
+>This is used only during the building of the data structures.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setName"
+><A NAME="v%3AsetName"
+></A
+></A
+><B
+>setName</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>New name
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Changes the name.
+</P
+><P
+>This is used only during the building of the data structures.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setAlias"
+><A NAME="v%3AsetAlias"
+></A
+></A
+><B
+>setAlias</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setAlias"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; String</TD
+><TD CLASS="rdoc"
+>New alias
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+><P
+>Changes the alias.
+</P
+><P
+>This is used only during the building of the data structures.
+</P
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Update functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setPri"
+><A NAME="v%3AsetPri"
+></A
+></A
+><B
+>setPri</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setPri"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>the new primary node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Changes the primary node of the instance.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setSec"
+><A NAME="v%3AsetSec"
+></A
+></A
+><B
+>setSec</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setSec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>the new secondary node
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Changes the secondary node of the instance.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setBoth"
+><A NAME="v%3AsetBoth"
+></A
+></A
+><B
+>setBoth</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setBoth"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>new primary node index
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+></TD
+><TD CLASS="rdoc"
+>new secondary node index
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>the modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Changes both nodes of the instance.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:setMovable"
+><A NAME="v%3AsetMovable"
+></A
+></A
+><B
+>setMovable</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#setMovable"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The original instance
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>New movable flag
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="rdoc"
+>The modified instance
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Sets the movable flag on an instance.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:shrinkByType"
+><A NAME="v%3AshrinkByType"
+></A
+></A
+><B
+>shrinkByType</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AFailMode"
+>FailMode</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#shrinkByType"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Try to shrink the instance based on the reason why we can't
+ allocate it.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:specOf"
+><A NAME="v%3AspecOf"
+></A
+></A
+><B
+>specOf</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3ARSpec"
+>RSpec</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#specOf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Return the spec of an instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:hasSecondary"
+><A NAME="v%3AhasSecondary"
+></A
+></A
+><B
+>hasSecondary</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#hasSecondary"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Checks whether the instance uses a secondary node.
+</P
+><P
+><EM
+>Note:</EM
+> This should be reconciled with <TT
+><TT
+><A HREF="Ganeti-HTools-Instance.html#v%3AsNode"
+>sNode</A
+></TT
+> ==
+ Node.noSecondary</TT
+>.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:requiredNodes"
+><A NAME="v%3ArequiredNodes"
+></A
+></A
+><B
+>requiredNodes</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#requiredNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computed the number of nodes for a given disk template.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:allNodes"
+><A NAME="v%3AallNodes"
+></A
+></A
+><B
+>allNodes</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3ANdx"
+>Ndx</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#allNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes all nodes of an instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:usesLocalStorage"
+><A NAME="v%3AusesLocalStorage"
+></A
+></A
+><B
+>usesLocalStorage</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#usesLocalStorage"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks whether a given disk template uses local storage.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:supportsMoves"
+><A NAME="v%3AsupportsMoves"
+></A
+></A
+><B
+>supportsMoves</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Instance.html#supportsMoves"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks whether a given disk template supported moves.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

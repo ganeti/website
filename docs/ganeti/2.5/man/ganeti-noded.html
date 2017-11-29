@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>ganeti-noded(8) Ganeti | Version 2.5.2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">ganeti-noded(8) Ganeti | Version 2.5.2</h1>
+<div id="name"
+><h1
+  >Name</h1
+  ><p
+  >ganeti-noded - Ganeti node daemon</p
+  ></div
+><div id="synopsis"
+><h1
+  >Synopsis</h1
+  ><p
+  ><strong
+    >ganeti-noded</strong
+    > [-f] [-d]</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >The <strong
+    >ganeti-noded</strong
+    > is the daemon which is responsible for the node functions in the Ganeti system.</p
+  ><p
+  >By default, in order to be able to support features such as node powercycling even on systems with a very damaged root disk, <strong
+    >ganeti-noded</strong
+    > locks itself in RAM using <strong
+    >mlockall</strong
+    >(2). You can disable this feature by passing in the <code
+    >--no-mlock</code
+    > to the daemon.</p
+  ><p
+  >For testing purposes, you can give the <code
+    >-f</code
+    > option and the program won't detach from the running terminal.</p
+  ><p
+  >Debug-level message can be activated by giving the <code
+    >-d</code
+    > option.</p
+  ><p
+  >Logging to syslog, rather than its own log file, can be enabled by passing in the <code
+    >--syslog</code
+    > option.</p
+  ><p
+  >The <strong
+    >ganeti-noded</strong
+    > daemon listens to port 1811 TCP, on all interfaces, by default. The port can be overridden by an entry the services database (usually <code
+    >/etc/services</code
+    >) or by passing the <code
+    >-p</code
+    > option. The <code
+    >-b</code
+    > option can be used to specify the address to bind to (defaults to <code
+    >0.0.0.0</code
+    >).</p
+  ><p
+  >Ganeti noded communication is protected via SSL, with a key generated at cluster init time. This can be disabled with the <code
+    >--no-ssl</code
+    > option, or a different SSL key and certificate can be specified using the <code
+    >-K</code
+    > and <code
+    >-C</code
+    > options.</p
+  ><div id="role"
+  ><h2
+    >ROLE</h2
+    ><p
+    >The role of the node daemon is to do almost all the actions that change the state of the node. Things like creating disks for instances, activating disks, starting/stopping instance and so on are done via the node daemon.</p
+    ><p
+    >Also, in some cases the startup/shutdown of the master daemon are done via the node daemon, and the cluster IP address is also added/removed to the master node via it.</p
+    ><p
+    >If the node daemon is stopped, the instances are not affected, but the master won't be able to talk to that node.</p
+    ></div
+  ><div id="communication-protocol"
+  ><h2
+    >COMMUNICATION PROTOCOL</h2
+    ><p
+    >Currently the master-node RPC is done using a simple RPC protocol built using JSON over HTTP(S).</p
+    ></div
+  ></div
+>
+<div id="reporting-bugs"
+><h1
+  >REPORTING BUGS</h1
+  ><p
+  >Report bugs to <a href="http://code.google.com/p/ganeti/"
+    >project website</a
+    > or contact the developers using the <a href="ganeti@googlegroups.com"
+    >Ganeti mailing list</a
+    >.</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  >Ganeti overview and specifications: <strong
+    >ganeti</strong
+    >(7) (general overview), <strong
+    >ganeti-os-interface</strong
+    >(7) (guest OS definitions).</p
+  ><p
+  >Ganeti commands: <strong
+    >gnt-cluster</strong
+    >(8) (cluster-wide commands), <strong
+    >gnt-job</strong
+    >(8) (job-related commands), <strong
+    >gnt-node</strong
+    >(8) (node-related commands), <strong
+    >gnt-instance</strong
+    >(8) (instance commands), <strong
+    >gnt-os</strong
+    >(8) (guest OS commands), <strong
+    >gnt-group</strong
+    >(8) (node group commands), <strong
+    >gnt-backup</strong
+    >(8) (instance import/export commands), <strong
+    >gnt-debug</strong
+    >(8) (debug commands).</p
+  ><p
+  >Ganeti daemons: <strong
+    >ganeti-watcher</strong
+    >(8) (automatic instance restarter), <strong
+    >ganeti-cleaner</strong
+    >(8) (job queue cleaner), <strong
+    >ganeti-noded</strong
+    >(8) (node daemon), <strong
+    >ganeti-masterd</strong
+    >(8) (master daemon), <strong
+    >ganeti-rapi</strong
+    >(8) (remote API daemon).</p
+  ><p
+  >Ganeti htools: <strong
+    >htools</strong
+    >(1) (generic binary), <strong
+    >hbal</strong
+    >(1) (cluster balancer), <strong
+    >hspace</strong
+    >(1) (capacity calculation), <strong
+    >hail</strong
+    >(1) (IAllocator plugin), <strong
+    >hscan</strong
+    >(1) (data gatherer from remote clusters).</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ganeti-masterd &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="ganeti-mond" href="man-ganeti-mond.html" />
+    <link rel="prev" title="ganeti-luxid" href="man-ganeti-luxid.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-mond.html" title="ganeti-mond"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-luxid.html" title="ganeti-luxid"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-masterd">
+<h1>ganeti-masterd<a class="headerlink" href="#ganeti-masterd" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>ganeti-masterd - Ganeti master daemon</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>ganeti-masterd</strong> [-f] [-d] [&#8211;no-voting]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>ganeti-masterd</strong> is the daemon which is responsible for the
+overall cluster coordination. Without it, no change can be
+performed on the cluster.</p>
+<p>For testing purposes, you can give the <tt class="docutils literal"><span class="pre">-f</span></tt> option and the
+program won&#8217;t detach from the running terminal.</p>
+<p>Debug-level message can be activated by giving the <tt class="docutils literal"><span class="pre">-d</span></tt> option.</p>
+<div class="section" id="role">
+<h3>ROLE<a class="headerlink" href="#role" title="Permalink to this headline">¶</a></h3>
+<p>The role of the master daemon is to coordinate all the actions that
+change the state of the cluster. Things like accepting new jobs,
+coordinating the changes on nodes (via RPC calls to the respective
+node daemons), maintaining the configuration and so on are done via
+this daemon.</p>
+<p>The only action that can be done without the master daemon is the
+failover of the master role to another node in the cluster, via the
+<strong>gnt-cluster master-failover</strong> command.</p>
+<p>If the master daemon is stopped, the instances are not affected,
+but they won&#8217;t be restarted automatically in case of failure.</p>
+</div>
+<div class="section" id="startup">
+<h3>STARTUP<a class="headerlink" href="#startup" title="Permalink to this headline">¶</a></h3>
+<p>At startup, the master daemon will confirm with the node daemons
+that the node it is running is indeed the master node of the
+cluster. It will abort if it doesn&#8217;t get half plus one positive
+answers (offline nodes are queried too, just in case our
+configuration is stale).</p>
+<p>For small clusters with a number of nodes down, and especially for
+two-node clusters where the other has gone done, this creates a
+problem. In this case the <tt class="docutils literal"><span class="pre">--no-voting</span></tt> option can be used to
+skip this process. The option requires interactive confirmation, as
+having two masters on the same cluster is a very dangerous
+situation and will most likely lead to data loss.</p>
+</div>
+<div class="section" id="shutdown">
+<h3>SHUTDOWN<a class="headerlink" href="#shutdown" title="Permalink to this headline">¶</a></h3>
+<p>When the master daemon receives a <tt class="docutils literal"><span class="pre">SIGINT</span></tt> (Ctrl-C) or <tt class="docutils literal"><span class="pre">SIGTERM</span></tt>
+signal, it stops accepting new jobs and prepares to shut down shortly
+after jobs running at the time finish. Meanwhile it still responds to
+LUXI requests. Pending jobs are re-queued after the daemon is started
+again. When a second signal is received, the master daemon terminates
+without waiting (it might still need to wait for some threads to
+finish). Note that the latter, as well as sending <tt class="docutils literal"><span class="pre">SIGKILL</span></tt>, may leave
+the cluster in an inconsistent state.</p>
+</div>
+<div class="section" id="job-queue">
+<h3>JOB QUEUE<a class="headerlink" href="#job-queue" title="Permalink to this headline">¶</a></h3>
+<p>The master daemon maintains a job queue (located under the directory
+<tt class="docutils literal"><span class="pre">/var/lib/ganeti/queue</span></tt>) in which all current jobs are
+stored, one job per file serialized in JSON format; in this directory
+a subdirectory called <tt class="docutils literal"><span class="pre">archive</span></tt> holds archived job files.</p>
+<p>The moving of jobs from the current to the queue directory is done
+via a request to the master; this can be accomplished from the
+command line with the <strong>gnt-job archive</strong> or
+<strong>gnt-job autoarchive</strong> commands. In case of problems with the
+master, a job file can simply be moved away or deleted (but this
+might leave the cluster inconsistent).</p>
+</div>
+<div class="section" id="communication-protocol">
+<h3>COMMUNICATION PROTOCOL<a class="headerlink" href="#communication-protocol" title="Permalink to this headline">¶</a></h3>
+<p>The master accepts commands over a Unix socket, using JSON
+serialized messages separated by a specific byte sequence. For more
+details, see the design documentation supplied with Ganeti.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ganeti-masterd</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li><a class="reference internal" href="#role">ROLE</a></li>
+<li><a class="reference internal" href="#startup">STARTUP</a></li>
+<li><a class="reference internal" href="#shutdown">SHUTDOWN</a></li>
+<li><a class="reference internal" href="#job-queue">JOB QUEUE</a></li>
+<li><a class="reference internal" href="#communication-protocol">COMMUNICATION PROTOCOL</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti-luxid.html"
+                        title="previous chapter">ganeti-luxid</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-ganeti-mond.html"
+                        title="next chapter">ganeti-mond</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-ganeti-masterd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-ganeti-mond.html" title="ganeti-mond"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti-luxid.html" title="ganeti-luxid"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Developer notes &mdash; Ganeti v2.2.2 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.2.2 documentation" href="index.html" />
+    <link rel="next" title="News" href="news.html" />
+    <link rel="prev" title="Moving instances between clusters" href="move-instance.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="news.html" title="News"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="move-instance.html" title="Moving instances between clusters"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.2.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="developer-notes">
+<h1>Developer notes<a class="headerlink" href="#developer-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="build-dependencies">
+<h2>Build dependencies<a class="headerlink" href="#build-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Most dependencies from <a class="reference external" href="install-quick.html"><em>Ganeti quick installation guide</em></a>, plus:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.gnu.org/software/make/">GNU make</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/tar/">GNU tar</a></li>
+<li><a class="reference external" href="http://www.gnu.org/software/gzip/">Gzip</a></li>
+<li><a class="reference external" href="http://sources.redhat.com/docbook-tools/">Docbook tools</a>
+(docbook2html and docbook2man)</li>
+<li><a class="reference external" href="http://sphinx.pocoo.org/">python-sphinx</a>
+(tested with version 0.6.1)</li>
+<li><a class="reference external" href="http://www.graphviz.org/">graphviz</a></li>
+<li>the <cite>en_US.UTF-8</cite> locale must be enabled on the system</li>
+</ul>
+<p>To generate unittest coverage reports (<tt class="docutils literal"><span class="pre">make</span> <span class="pre">coverage</span></tt>), <a class="reference external" href="http://pypi.python.org/pypi/coverage">coverage</a> needs to be installed.</p>
+</div>
+<div class="section" id="configuring-for-development">
+<h2>Configuring for development<a class="headerlink" href="#configuring-for-development" title="Permalink to this headline">¶</a></h2>
+<p>Run the following command (only use <tt class="docutils literal"><span class="pre">PYTHON=...</span></tt> if you need to use a
+different python version):</p>
+<div class="highlight-sh"><div class="highlight"><pre>./autogen.sh <span class="o">&amp;&amp;</span> <span class="se">\</span>
+./configure <span class="nv">PYTHON</span><span class="o">=</span>python2.4 <span class="se">\</span>
+  --prefix<span class="o">=</span>/usr/local --sysconfdir<span class="o">=</span>/etc --localstatedir<span class="o">=</span>/var
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="packaging-notes">
+<h1>Packaging notes<a class="headerlink" href="#packaging-notes" title="Permalink to this headline">¶</a></h1>
+<p>Ganeti is mostly developped and tested on <a class="reference external" href="http://www.debian.org/">Debian</a>-based distributions, while still keeping
+adoptability to other Linux distributions in mind.</p>
+<p>The <tt class="docutils literal"><span class="pre">doc/examples/</span></tt> directory contains a number of potentially useful
+scripts and configuration files. Some of them might need adjustment
+before use.</p>
+<div class="section" id="daemon-util">
+<h2><tt class="docutils literal"><span class="pre">daemon-util</span></tt><a class="headerlink" href="#daemon-util" title="Permalink to this headline">¶</a></h2>
+<p>This script, in the source code as <tt class="docutils literal"><span class="pre">daemons/daemon-util.in</span></tt>, is used
+to start/stop Ganeti and do a few other things related to system
+daemons. Is is recommended to use <tt class="docutils literal"><span class="pre">daemon-util</span></tt> also from the system&#8217;s
+init scripts. That way the code starting and stopping daemons is shared
+and future changes have to be made in only one place.</p>
+<p><tt class="docutils literal"><span class="pre">daemon-util</span></tt> reads extra arguments from variables (<tt class="docutils literal"><span class="pre">*_ARGS</span></tt>) in
+<tt class="docutils literal"><span class="pre">/etc/default/ganeti</span></tt>. When modifying <tt class="docutils literal"><span class="pre">daemon-util</span></tt>, keep in mind to
+not remove support for the <tt class="docutils literal"><span class="pre">EXTRA_*_ARGS</span></tt> variables for starting
+daemons. Some parts of Ganeti use them to pass additional arguments when
+starting a daemon.</p>
+<p>The <tt class="docutils literal"><span class="pre">reload_ssh_keys</span></tt> function can be adjusted to use another command
+for reloading the OpenSSH daemon&#8217;s host keys.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Developer notes</a><ul>
+<li><a class="reference external" href="#build-dependencies">Build dependencies</a></li>
+<li><a class="reference external" href="#configuring-for-development">Configuring for development</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#packaging-notes">Packaging notes</a><ul>
+<li><a class="reference external" href="#daemon-util"><tt class="docutils literal"><span class="pre">daemon-util</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="move-instance.html"
+                                  title="previous chapter">Moving instances between clusters</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="news.html"
+                                  title="next chapter">News</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/devnotes.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="news.html" title="News"
+             >next</a></li>
+        <li class="right" >
+          <a href="move-instance.html" title="Moving instances between clusters"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.2.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, 2010, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.7.
+    </div>
+  </body>
+</html>

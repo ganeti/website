@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti automatic instance allocation &mdash; Ganeti 2.6.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.6.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.6.2 documentation" href="index.html" />
+    <link rel="next" title="Ganeti remote API" href="rapi.html" />
+    <link rel="prev" title="Ganeti customisation using hooks" href="hooks.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="rapi.html" title="Ganeti remote API"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="hooks.html" title="Ganeti customisation using hooks"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.6.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-automatic-instance-allocation">
+<h1><a class="toc-backref" href="#id3">Ganeti automatic instance allocation</a><a class="headerlink" href="#ganeti-automatic-instance-allocation" title="Permalink to this headline">¶</a></h1>
+<p>Documents Ganeti version 2.6</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-automatic-instance-allocation" id="id3">Ganeti automatic instance allocation</a><ul>
+<li><a class="reference internal" href="#introduction" id="id4">Introduction</a><ul>
+<li><a class="reference internal" href="#user-visible-changes" id="id5">User-visible changes</a></li>
+<li><a class="reference internal" href="#cluster-configuration" id="id6">Cluster configuration</a></li>
+<li><a class="reference internal" href="#command-line-interface-changes" id="id7">Command line interface changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iallocator-api" id="id8">IAllocator API</a><ul>
+<li><a class="reference internal" href="#input-message" id="id9">Input message</a><ul>
+<li><a class="reference internal" href="#common-information" id="id10">Common information</a></li>
+<li><a class="reference internal" href="#operation-specific-input" id="id11">Operation-specific input</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#response-message" id="id12">Response message</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id13">Examples</a><ul>
+<li><a class="reference internal" href="#input-messages-to-scripts" id="id14">Input messages to scripts</a></li>
+<li><a class="reference internal" href="#response-messages" id="id15">Response messages</a></li>
+<li><a class="reference internal" href="#command-line-messages" id="id16">Command line messages</a></li>
+<li><a class="reference internal" href="#reference-implementation" id="id17">Reference implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id4">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Currently in Ganeti the admin has to specify the exact locations for
+an instance&#8217;s node(s). This prevents a completely automatic node
+evacuation, and is in general a nuisance.</p>
+<p>The <em>iallocator</em> framework will enable automatic placement via
+external scripts, which allows customization of the cluster layout per
+the site&#8217;s requirements.</p>
+<div class="section" id="user-visible-changes">
+<h3><a class="toc-backref" href="#id5">User-visible changes</a><a class="headerlink" href="#user-visible-changes" title="Permalink to this headline">¶</a></h3>
+<p>There are two parts of the ganeti operation that are impacted by the
+auto-allocation: how the cluster knows what the allocator algorithms
+are and how the admin uses these in creating instances.</p>
+<p>An allocation algorithm is just the filename of a program installed in
+a defined list of directories.</p>
+</div>
+<div class="section" id="cluster-configuration">
+<h3><a class="toc-backref" href="#id6">Cluster configuration</a><a class="headerlink" href="#cluster-configuration" title="Permalink to this headline">¶</a></h3>
+<p>At configure time, the list of the directories can be selected via the
+<tt class="docutils literal"><span class="pre">--with-iallocator-search-path=LIST</span></tt> option, where <em>LIST</em> is a
+comma-separated list of directories. If not given, this defaults to
+<tt class="docutils literal"><span class="pre">$libdir/ganeti/iallocators</span></tt>, i.e. for an installation under
+<tt class="docutils literal"><span class="pre">/usr</span></tt>, this will be <tt class="docutils literal"><span class="pre">/usr/lib/ganeti/iallocators</span></tt>.</p>
+<p>Ganeti will then search for allocator script in the configured list,
+using the first one whose filename matches the one given by the user.</p>
+</div>
+<div class="section" id="command-line-interface-changes">
+<h3><a class="toc-backref" href="#id7">Command line interface changes</a><a class="headerlink" href="#command-line-interface-changes" title="Permalink to this headline">¶</a></h3>
+<p>The node selection options in instance add and instance replace disks
+can be replace by the new <tt class="docutils literal"><span class="pre">--iallocator=NAME</span></tt> option (shortened to
+<tt class="docutils literal"><span class="pre">-I</span></tt>), which will cause the auto-assignement of nodes with the
+passed iallocator. The selected node(s) will be show as part of the
+command output.</p>
+</div>
+</div>
+<div class="section" id="iallocator-api">
+<h2><a class="toc-backref" href="#id8">IAllocator API</a><a class="headerlink" href="#iallocator-api" title="Permalink to this headline">¶</a></h2>
+<p>The protocol for communication between Ganeti and an allocator script
+will be the following:</p>
+<ol class="arabic simple">
+<li>ganeti launches the program with a single argument, a filename that
+contains a JSON-encoded structure (the input message)</li>
+<li>if the script finishes with exit code different from zero, it is
+considered a general failure and the full output will be reported to
+the users; this can be the case when the allocator can&#8217;t parse the
+input message</li>
+<li>if the allocator finishes with exit code zero, it is expected to
+output (on its stdout) a JSON-encoded structure (the response)</li>
+</ol>
+<div class="section" id="input-message">
+<h3><a class="toc-backref" href="#id9">Input message</a><a class="headerlink" href="#input-message" title="Permalink to this headline">¶</a></h3>
+<p>The input message will be the JSON encoding of a dictionary containing
+all the required information to perform the operation. We explain the
+contents of this dictionary in two parts: common information that every
+type of operation requires, and operation-specific information.</p>
+<div class="section" id="common-information">
+<h4><a class="toc-backref" href="#id10">Common information</a><a class="headerlink" href="#common-information" title="Permalink to this headline">¶</a></h4>
+<p>All input dictionaries to the IAllocator must carry the following keys:</p>
+<dl class="docutils">
+<dt>version</dt>
+<dd>the version of the protocol; this document
+specifies version 2</dd>
+<dt>cluster_name</dt>
+<dd>the cluster name</dd>
+<dt>cluster_tags</dt>
+<dd>the list of cluster tags</dd>
+<dt>enabled_hypervisors</dt>
+<dd>the list of enabled hypervisors</dd>
+<dt>ipolicy</dt>
+<dd>the cluster-wide instance policy (for information; the per-node group
+values take precedence and should be used instead)</dd>
+<dt>request</dt>
+<dd>a dictionary containing the details of the request; the keys vary
+depending on the type of operation that&#8217;s being requested, as
+explained in <a class="reference internal" href="#operation-specific-input">Operation-specific input</a> below.</dd>
+<dt>nodegroups</dt>
+<dd><p class="first">a dictionary with the data for the cluster&#8217;s node groups; it is keyed
+on the group UUID, and the values are a dictionary with the following
+keys:</p>
+<dl class="last docutils">
+<dt>name</dt>
+<dd>the node group name</dd>
+<dt>alloc_policy</dt>
+<dd>the allocation policy of the node group (consult the semantics of
+this attribute in the <em class="manpage">gnt-group(8)</em> manpage)</dd>
+<dt>ipolicy</dt>
+<dd>the instance policy of the node group</dd>
+</dl>
+</dd>
+<dt>instances</dt>
+<dd><p class="first">a dictionary with the data for the current existing instance on the
+cluster, indexed by instance name; the contents are similar to the
+instance definitions for the allocate mode, with the addition of:</p>
+<dl class="last docutils">
+<dt>admin_state</dt>
+<dd>if this instance is set to run (but not the actual status of the
+instance)</dd>
+<dt>nodes</dt>
+<dd>list of nodes on which this instance is placed; the primary node
+of the instance is always the first one</dd>
+</dl>
+</dd>
+<dt>nodes</dt>
+<dd><p class="first">dictionary with the data for the nodes in the cluster, indexed by
+the node name; the dict contains <a class="footnote-reference" href="#id2" id="id1">[*]</a> :</p>
+<dl class="docutils">
+<dt>total_disk</dt>
+<dd>the total disk size of this node (mebibytes)</dd>
+<dt>free_disk</dt>
+<dd>the free disk space on the node</dd>
+<dt>total_memory</dt>
+<dd>the total memory size</dd>
+<dt>free_memory</dt>
+<dd>free memory on the node; note that currently this does not take
+into account the instances which are down on the node</dd>
+<dt>total_cpus</dt>
+<dd>the physical number of CPUs present on the machine; depending on
+the hypervisor, this might or might not be equal to how many CPUs
+the node operating system sees;</dd>
+<dt>primary_ip</dt>
+<dd>the primary IP address of the node</dd>
+<dt>secondary_ip</dt>
+<dd>the secondary IP address of the node (the one used for the DRBD
+replication); note that this can be the same as the primary one</dd>
+<dt>tags</dt>
+<dd>list with the tags of the node</dd>
+<dt>master_candidate:</dt>
+<dd>a boolean flag denoting whether this node is a master candidate</dd>
+<dt>drained:</dt>
+<dd>a boolean flag denoting whether this node is being drained</dd>
+<dt>offline:</dt>
+<dd>a boolean flag denoting whether this node is offline</dd>
+<dt>i_pri_memory:</dt>
+<dd>total memory required by primary instances</dd>
+<dt>i_pri_up_memory:</dt>
+<dd>total memory required by running primary instances</dd>
+<dt>group:</dt>
+<dd>the node group that this node belongs to</dd>
+</dl>
+<p class="last">No allocations should be made on nodes having either the <tt class="docutils literal"><span class="pre">drained</span></tt>
+or <tt class="docutils literal"><span class="pre">offline</span></tt> flags set. More details about these of node status
+flags is available in the manpage <em class="manpage">ganeti(7)</em>.</p>
+</dd>
+</dl>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>Note that no run-time data is present for offline, drained or
+non-vm_capable nodes; this means the tags total_memory,
+reserved_memory, free_memory, total_disk, free_disk, total_cpus,
+i_pri_memory and i_pri_up memory will be absent</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="operation-specific-input">
+<h4><a class="toc-backref" href="#id11">Operation-specific input</a><a class="headerlink" href="#operation-specific-input" title="Permalink to this headline">¶</a></h4>
+<p>All input dictionaries to the IAllocator carry, in the <tt class="docutils literal"><span class="pre">request</span></tt>
+dictionary, detailed information about the operation that&#8217;s being
+requested. The required keys vary depending on the type of operation, as
+follows.</p>
+<p>In all cases, it includes:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>type</dt>
+<dd><p class="first">the request type; this can be either <tt class="docutils literal"><span class="pre">allocate</span></tt>, <tt class="docutils literal"><span class="pre">relocate</span></tt>,
+<tt class="docutils literal"><span class="pre">change-group</span></tt> or <tt class="docutils literal"><span class="pre">node-evacuate</span></tt>. The
+<tt class="docutils literal"><span class="pre">allocate</span></tt> request is used when a new instance needs to be placed
+on the cluster. The <tt class="docutils literal"><span class="pre">relocate</span></tt> request is used when an existing
+instance needs to be moved within its node group.</p>
+<p>The <tt class="docutils literal"><span class="pre">multi-evacuate</span></tt> protocol used to request that the script
+computes the optimal relocate solution for all secondary instances
+of the given nodes. It is now deprecated and needs only be
+implemented if backwards compatibility with Ganeti 2.4 and lower is
+needed.</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">change-group</span></tt> request is used to relocate multiple instances
+across multiple node groups. <tt class="docutils literal"><span class="pre">node-evacuate</span></tt> evacuates instances
+off their node(s). These are described in a separate <a class="reference internal" href="design-multi-reloc.html#multi-reloc-detailed-design"><em>design
+document</em></a>.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>For both allocate and relocate mode, the following extra keys are needed
+in the <tt class="docutils literal"><span class="pre">request</span></tt> dictionary:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>name</dt>
+<dd>the name of the instance; if the request is a realocation, then this
+name will be found in the list of instances (see below), otherwise
+is the FQDN of the new instance; type <em>string</em></dd>
+<dt>required_nodes</dt>
+<dd>how many nodes should the algorithm return; while this information
+can be deduced from the instace&#8217;s disk template, it&#8217;s better if
+this computation is left to Ganeti as then allocator scripts are
+less sensitive to changes to the disk templates; type <em>integer</em></dd>
+<dt>disk_space_total</dt>
+<dd>the total disk space that will be used by this instance on the
+(new) nodes; again, this information can be computed from the list
+of instance disks and its template type, but Ganeti is better
+suited to compute it; type <em>integer</em></dd>
+</dl>
+</div></blockquote>
+<p>Allocation needs, in addition:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>disks</dt>
+<dd><p class="first">list of dictionaries holding the disk definitions for this
+instance (in the order they are exported to the hypervisor):</p>
+<dl class="last docutils">
+<dt>mode</dt>
+<dd>either <tt class="docutils literal"><span class="pre">ro</span></tt> or
+<tt class="docutils literal"><span class="pre">rw</span></tt> denoting if the disk is read-only or
+writable</dd>
+<dt>size</dt>
+<dd>the size of this disk in mebibytes</dd>
+</dl>
+</dd>
+<dt>nics</dt>
+<dd><p class="first">a list of dictionaries holding the network interfaces for this
+instance, containing:</p>
+<dl class="last docutils">
+<dt>ip</dt>
+<dd>the IP address that Ganeti know for this instance, or null</dd>
+<dt>mac</dt>
+<dd>the MAC address for this interface</dd>
+<dt>bridge</dt>
+<dd>the bridge to which this interface will be connected</dd>
+</dl>
+</dd>
+<dt>vcpus</dt>
+<dd>the number of VCPUs for the instance</dd>
+<dt>disk_template</dt>
+<dd>the disk template for the instance</dd>
+<dt>memory</dt>
+<dd>the memory size for the instance</dd>
+<dt>os</dt>
+<dd>the OS type for the instance</dd>
+<dt>tags</dt>
+<dd>the list of the instance&#8217;s tags</dd>
+<dt>hypervisor</dt>
+<dd>the hypervisor of this instance</dd>
+</dl>
+</div></blockquote>
+<p>Relocation:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>relocate_from</dt>
+<dd>a list of nodes to move the instance away from; for DRBD-based
+instances, this will contain a single node, the current secondary
+of the instance, whereas for shared-storage instance, this will
+contain also a single node, the current primary of the instance;
+type <em>list of strings</em></dd>
+</dl>
+</div></blockquote>
+<p>As for <tt class="docutils literal"><span class="pre">node-evacuate</span></tt>, it needs the following request arguments:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>instances</dt>
+<dd>a list of instance names to evacuate; type <em>list of strings</em></dd>
+<dt>evac_mode</dt>
+<dd>specify which instances to evacuate; one of <tt class="docutils literal"><span class="pre">primary-only</span></tt>,
+<tt class="docutils literal"><span class="pre">secondary-only</span></tt>, <tt class="docutils literal"><span class="pre">all</span></tt>, type <em>string</em></dd>
+</dl>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">change-group</span></tt> needs the following request arguments:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>instances</dt>
+<dd>a list of instance names whose group to change; type
+<em>list of strings</em></dd>
+<dt>target_groups</dt>
+<dd>must either be the empty list, or contain a list of group UUIDs that
+should be considered for relocating instances to; type
+<em>list of strings</em></dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="response-message">
+<h3><a class="toc-backref" href="#id12">Response message</a><a class="headerlink" href="#response-message" title="Permalink to this headline">¶</a></h3>
+<p>The response message is much more simple than the input one. It is
+also a dict having three keys:</p>
+<dl class="docutils">
+<dt>success</dt>
+<dd>a boolean value denoting if the allocation was successful or not</dd>
+<dt>info</dt>
+<dd>a string with information from the scripts; if the allocation fails,
+this will be shown to the user</dd>
+<dt>result</dt>
+<dd><p class="first">the output of the algorithm; even if the algorithm failed
+(i.e. success is false), this must be returned as an empty list</p>
+<p>for allocate/relocate, this is the list of node(s) for the instance;
+note that the length of this list must equal the <tt class="docutils literal"><span class="pre">requested_nodes</span></tt>
+entry in the input message, otherwise Ganeti will consider the result
+as failed</p>
+<p class="last">for the <tt class="docutils literal"><span class="pre">node-evacuate</span></tt> and <tt class="docutils literal"><span class="pre">change-group</span></tt> modes, this is a
+dictionary containing, among other information, a list of lists of
+serialized opcodes; see the <a class="reference internal" href="design-multi-reloc.html#multi-reloc-result"><em>design document</em></a> for a detailed description</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Current Ganeti version accepts either <tt class="docutils literal"><span class="pre">result</span></tt> or <tt class="docutils literal"><span class="pre">nodes</span></tt>
+as a backwards-compatibility measure (older versions only supported
+<tt class="docutils literal"><span class="pre">nodes</span></tt>)</p>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id13">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="input-messages-to-scripts">
+<h3><a class="toc-backref" href="#id14">Input messages to scripts</a><a class="headerlink" href="#input-messages-to-scripts" title="Permalink to this headline">¶</a></h3>
+<p>Input message, new instance allocation (common elements are listed this
+time, but not included in further examples below):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s">&quot;cluster_name&quot;</span><span class="p">:</span> <span class="s">&quot;cluster1.example.com&quot;</span><span class="p">,</span>
+  <span class="s">&quot;cluster_tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="s">&quot;enabled_hypervisors&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s">&quot;xen-pvm&quot;</span>
+  <span class="p">],</span>
+  <span class="s">&quot;nodegroups&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;f4e06e0d-528a-4963-a5ad-10f3e114232d&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s">&quot;alloc_policy&quot;</span><span class="p">:</span> <span class="s">&quot;preferred&quot;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s">&quot;instances&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;instance1.example.com&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s">&quot;should_run&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s">&quot;disks&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+          <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">64</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+          <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">512</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s">&quot;nics&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s">&quot;mac&quot;</span><span class="p">:</span> <span class="s">&quot;aa:00:00:00:60:bf&quot;</span><span class="p">,</span>
+          <span class="s">&quot;bridge&quot;</span><span class="p">:</span> <span class="s">&quot;xen-br0&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s">&quot;vcpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s">&quot;disk_template&quot;</span><span class="p">:</span> <span class="s">&quot;plain&quot;</span><span class="p">,</span>
+      <span class="s">&quot;memory&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+      <span class="s">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">&quot;nodee1.com&quot;</span>
+      <span class="p">],</span>
+      <span class="s">&quot;os&quot;</span><span class="p">:</span> <span class="s">&quot;debootstrap+default&quot;</span>
+    <span class="p">},</span>
+    <span class="s">&quot;instance2.example.com&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s">&quot;should_run&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s">&quot;disks&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+          <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">512</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+          <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">256</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s">&quot;nics&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s">&quot;mac&quot;</span><span class="p">:</span> <span class="s">&quot;aa:00:00:55:f8:38&quot;</span><span class="p">,</span>
+          <span class="s">&quot;bridge&quot;</span><span class="p">:</span> <span class="s">&quot;xen-br0&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s">&quot;vcpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s">&quot;disk_template&quot;</span><span class="p">:</span> <span class="s">&quot;drbd&quot;</span><span class="p">,</span>
+      <span class="s">&quot;memory&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+      <span class="s">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">&quot;node2.example.com&quot;</span><span class="p">,</span>
+        <span class="s">&quot;node3.example.com&quot;</span>
+      <span class="p">],</span>
+      <span class="s">&quot;os&quot;</span><span class="p">:</span> <span class="s">&quot;debootstrap+default&quot;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;node1.example.com&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;total_disk&quot;</span><span class="p">:</span> <span class="mi">858276</span><span class="p">,</span>
+      <span class="s">&quot;primary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;198.51.100.1&quot;</span><span class="p">,</span>
+      <span class="s">&quot;secondary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;192.0.2.1&quot;</span><span class="p">,</span>
+      <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;f4e06e0d-528a-4963-a5ad-10f3e114232d&quot;</span><span class="p">,</span>
+      <span class="s">&quot;free_memory&quot;</span><span class="p">:</span> <span class="mi">3505</span><span class="p">,</span>
+      <span class="s">&quot;free_disk&quot;</span><span class="p">:</span> <span class="mi">856740</span><span class="p">,</span>
+      <span class="s">&quot;total_memory&quot;</span><span class="p">:</span> <span class="mi">4095</span>
+    <span class="p">},</span>
+    <span class="s">&quot;node2.example.com&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;total_disk&quot;</span><span class="p">:</span> <span class="mi">858240</span><span class="p">,</span>
+      <span class="s">&quot;primary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;198.51.100.2&quot;</span><span class="p">,</span>
+      <span class="s">&quot;secondary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;192.0.2.2&quot;</span><span class="p">,</span>
+      <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;test&quot;</span><span class="p">],</span>
+      <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;f4e06e0d-528a-4963-a5ad-10f3e114232d&quot;</span><span class="p">,</span>
+      <span class="s">&quot;free_memory&quot;</span><span class="p">:</span> <span class="mi">3505</span><span class="p">,</span>
+      <span class="s">&quot;free_disk&quot;</span><span class="p">:</span> <span class="mi">848320</span><span class="p">,</span>
+      <span class="s">&quot;total_memory&quot;</span><span class="p">:</span> <span class="mi">4095</span>
+    <span class="p">},</span>
+    <span class="s">&quot;node3.example.com.com&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&quot;total_disk&quot;</span><span class="p">:</span> <span class="mi">572184</span><span class="p">,</span>
+      <span class="s">&quot;primary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;198.51.100.3&quot;</span><span class="p">,</span>
+      <span class="s">&quot;secondary_ip&quot;</span><span class="p">:</span> <span class="s">&quot;192.0.2.3&quot;</span><span class="p">,</span>
+      <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s">&quot;group&quot;</span><span class="p">:</span> <span class="s">&quot;f4e06e0d-528a-4963-a5ad-10f3e114232d&quot;</span><span class="p">,</span>
+      <span class="s">&quot;free_memory&quot;</span><span class="p">:</span> <span class="mi">3505</span><span class="p">,</span>
+      <span class="s">&quot;free_disk&quot;</span><span class="p">:</span> <span class="mi">570648</span><span class="p">,</span>
+      <span class="s">&quot;total_memory&quot;</span><span class="p">:</span> <span class="mi">4095</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s">&quot;request&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;allocate&quot;</span><span class="p">,</span>
+    <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;instance3.example.com&quot;</span><span class="p">,</span>
+    <span class="s">&quot;required_nodes&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s">&quot;disk_space_total&quot;</span><span class="p">:</span> <span class="mi">3328</span><span class="p">,</span>
+    <span class="s">&quot;disks&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+        <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">1024</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s">&quot;mode&quot;</span><span class="p">:</span> <span class="s">&quot;w&quot;</span><span class="p">,</span>
+        <span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">2048</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s">&quot;nics&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">&quot;ip&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="s">&quot;mac&quot;</span><span class="p">:</span> <span class="s">&quot;00:11:22:33:44:55&quot;</span><span class="p">,</span>
+        <span class="s">&quot;bridge&quot;</span><span class="p">:</span> <span class="n">null</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s">&quot;vcpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s">&quot;disk_template&quot;</span><span class="p">:</span> <span class="s">&quot;drbd&quot;</span><span class="p">,</span>
+    <span class="s">&quot;memory&quot;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+    <span class="s">&quot;os&quot;</span><span class="p">:</span> <span class="s">&quot;debootstrap+default&quot;</span><span class="p">,</span>
+    <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s">&quot;type:test&quot;</span><span class="p">,</span>
+      <span class="s">&quot;owner:foo&quot;</span>
+    <span class="p">],</span>
+    <span class="n">hypervisor</span><span class="p">:</span> <span class="s">&quot;xen-pvm&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Input message, reallocation:</p>
+<div class="highlight-python"><pre>{
+  "version": 2,
+  ...
+  "request": {
+    "type": "relocate",
+    "name": "instance2.example.com",
+    "required_nodes": 1,
+    "disk_space_total": 832,
+    "relocate_from": [
+      "node3.example.com"
+    ]
+  }
+}</pre>
+</div>
+</div>
+<div class="section" id="response-messages">
+<h3><a class="toc-backref" href="#id15">Response messages</a><a class="headerlink" href="#response-messages" title="Permalink to this headline">¶</a></h3>
+<p>Successful response message:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;success&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s">&quot;info&quot;</span><span class="p">:</span> <span class="s">&quot;Allocation successful&quot;</span><span class="p">,</span>
+  <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s">&quot;node2.example.com&quot;</span><span class="p">,</span>
+    <span class="s">&quot;node1.example.com&quot;</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Failed response message:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;success&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s">&quot;info&quot;</span><span class="p">:</span> <span class="s">&quot;Can&#39;t find a suitable node for position 2 (already selected: node2.example.com)&quot;</span><span class="p">,</span>
+  <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Successful node evacuation message:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&quot;success&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s">&quot;info&quot;</span><span class="p">:</span> <span class="s">&quot;Request successful&quot;</span><span class="p">,</span>
+  <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">[</span>
+      <span class="s">&quot;instance1&quot;</span><span class="p">,</span>
+      <span class="s">&quot;node3&quot;</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+      <span class="s">&quot;instance2&quot;</span><span class="p">,</span>
+      <span class="s">&quot;node1&quot;</span>
+    <span class="p">]</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="command-line-messages">
+<h3><a class="toc-backref" href="#id16">Command line messages</a><a class="headerlink" href="#command-line-messages" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># gnt-instance add -t plain -m 2g --os-size 1g --swap-size 512m --iallocator hail -o debootstrap+default instance3
+Selected nodes for the instance: node1.example.com
+* creating instance disks...
+[...]
+
+# gnt-instance add -t plain -m 3400m --os-size 1g --swap-size 512m --iallocator hail -o debootstrap+default instance4
+Failure: prerequisites not met for this operation:
+Can't compute nodes using iallocator 'hail': Can't find a suitable node for position 1 (already selected: )
+
+# gnt-instance add -t drbd -m 1400m --os-size 1g --swap-size 512m --iallocator hail -o debootstrap+default instance5
+Failure: prerequisites not met for this operation:
+Can't compute nodes using iallocator 'hail': Can't find a suitable node for position 2 (already selected: node1.example.com)</pre>
+</div>
+</div>
+<div class="section" id="reference-implementation">
+<h3><a class="toc-backref" href="#id17">Reference implementation</a><a class="headerlink" href="#reference-implementation" title="Permalink to this headline">¶</a></h3>
+<p>Ganeti&#8217;s default iallocator is &#8220;hail&#8221; which is available when &#8220;htools&#8221;
+components have been enabled at build time (see <a class="reference internal" href="install-quick.html"><em>Ganeti quick installation guide</em></a> for
+more details).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti automatic instance allocation</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#user-visible-changes">User-visible changes</a></li>
+<li><a class="reference internal" href="#cluster-configuration">Cluster configuration</a></li>
+<li><a class="reference internal" href="#command-line-interface-changes">Command line interface changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iallocator-api">IAllocator API</a><ul>
+<li><a class="reference internal" href="#input-message">Input message</a><ul>
+<li><a class="reference internal" href="#common-information">Common information</a></li>
+<li><a class="reference internal" href="#operation-specific-input">Operation-specific input</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#response-message">Response message</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#input-messages-to-scripts">Input messages to scripts</a></li>
+<li><a class="reference internal" href="#response-messages">Response messages</a></li>
+<li><a class="reference internal" href="#command-line-messages">Command line messages</a></li>
+<li><a class="reference internal" href="#reference-implementation">Reference implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hooks.html"
+                        title="previous chapter">Ganeti customisation using hooks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rapi.html"
+                        title="next chapter">Ganeti remote API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/iallocator.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="rapi.html" title="Ganeti remote API"
+             >next</a></li>
+        <li class="right" >
+          <a href="hooks.html" title="Ganeti customisation using hooks"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.6.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

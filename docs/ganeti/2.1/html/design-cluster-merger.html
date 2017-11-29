@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti Cluster Merger &mdash; Ganeti v2.1.0~rc5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.1.0~rc5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti v2.1.0~rc5 documentation" href="index.html" />
+    <link rel="next" title="Ganeti locking" href="locking.html" />
+    <link rel="prev" title="Ganeti 2.2 design" href="design-2.2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="locking.html" title="Ganeti locking"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.0~rc5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-cluster-merger">
+<h1>Ganeti Cluster Merger<a class="headerlink" href="#ganeti-cluster-merger" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="current-situation">
+<h2>Current situation<a class="headerlink" href="#current-situation" title="Permalink to this headline">¶</a></h2>
+<p>Currently there&#8217;s no easy way to merge two or more clusters together.
+But in order to optimize resources this is a needed missing piece. The
+goal of this design doc is to come up with a easy to use solution which
+allows you to merge two or more cluster together.</p>
+</div>
+<div class="section" id="initial-contact">
+<h2>Initial contact<a class="headerlink" href="#initial-contact" title="Permalink to this headline">¶</a></h2>
+<p>As the design of Ganeti is based on an autonomous system, Ganeti by
+itself has no way to reach nodes outside of its cluster. To overcome
+this situation we&#8217;re required to prepare the cluster before we can go
+ahead with the actual merge: We&#8217;ve to replace at least the ssh keys on
+the affected nodes before we can do any operation within <tt class="docutils literal"><span class="pre">gnt-</span></tt>
+commands.</p>
+<p>To make this a automated process we&#8217;ll ask the user to provide us with
+the root password of every cluster we&#8217;ve to merge. We use the password
+to grab the current <tt class="docutils literal"><span class="pre">id_dsa</span></tt> key and then rely on that ssh key for any
+further communication to be made until the cluster is fully merged.</p>
+</div>
+<div class="section" id="cluster-merge">
+<h2>Cluster merge<a class="headerlink" href="#cluster-merge" title="Permalink to this headline">¶</a></h2>
+<p>After initial contact we do the cluster merge:</p>
+<ol class="arabic simple">
+<li>Grab the list of nodes</li>
+<li>On all nodes add our own <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> key to <tt class="docutils literal"><span class="pre">authorized_keys</span></tt></li>
+<li>Stop all instances running on the merging cluster</li>
+<li>Disable <tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> as it tries to restart Ganeti daemons</li>
+<li>Stop all Ganeti daemons on all merging nodes</li>
+<li>Grab the <tt class="docutils literal"><span class="pre">config.data</span></tt> from the master of the merging cluster</li>
+<li>Stop local <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt></li>
+<li>Merge the config:<ol class="arabic">
+<li>Open our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+<li>Open cluster <tt class="docutils literal"><span class="pre">config.data</span></tt> of the merging cluster</li>
+<li>Grab all nodes of the merging cluster</li>
+<li>Set <tt class="docutils literal"><span class="pre">master_candidate</span></tt> to false on all merging nodes</li>
+<li>Add the nodes to our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+<li>Grab all the instances on the merging cluster</li>
+<li>Adjust the port if the instance has drbd layout:<ol class="arabic">
+<li>In <tt class="docutils literal"><span class="pre">logical_id</span></tt> (index 2)</li>
+<li>In <tt class="docutils literal"><span class="pre">physical_id</span></tt> (index 1 and 3)</li>
+</ol>
+</li>
+<li>Add the instances to our own cluster <tt class="docutils literal"><span class="pre">config.data</span></tt></li>
+</ol>
+</li>
+<li>Start <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt> with <tt class="docutils literal"><span class="pre">--no-voting</span></tt> <tt class="docutils literal"><span class="pre">--yes-do-it</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">add</span> <span class="pre">--readd</span></tt> on all merging nodes</li>
+<li><tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">redist-conf</span></tt></li>
+<li>Restart <tt class="docutils literal"><span class="pre">ganeti-masterd</span></tt> normally</li>
+<li>Enable <tt class="docutils literal"><span class="pre">ganeti-watcher</span></tt> again</li>
+<li>Start all merging instances again</li>
+</ol>
+</div>
+<div class="section" id="rollback">
+<h2>Rollback<a class="headerlink" href="#rollback" title="Permalink to this headline">¶</a></h2>
+<p>Until we actually (re)add any nodes we can abort and rollback the merge
+at any point. After merging the config, though, we&#8217;ve to get the backup
+copy of <tt class="docutils literal"><span class="pre">config.data</span></tt> (from another master candidate node). And for
+security reasons it&#8217;s a good idea to undo <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> distribution by
+going on every affected node and remove the <tt class="docutils literal"><span class="pre">id_dsa.pub</span></tt> key again.
+Also we&#8217;ve to keep in mind, that we&#8217;ve to start the Ganeti daemons and
+starting up the instances again.</p>
+</div>
+<div class="section" id="verification">
+<h2>Verification<a class="headerlink" href="#verification" title="Permalink to this headline">¶</a></h2>
+<p>Last but not least we should verify that the merge was successful.
+Therefore we run <tt class="docutils literal"><span class="pre">gnt-cluster</span> <span class="pre">verify</span></tt>, which ensures that the cluster
+overall is in a healthy state. Additional it&#8217;s also possible to compare
+the list of instances/nodes with a list made prior to the upgrade to
+make sure we didn&#8217;t lose any data/instance/node.</p>
+</div>
+<div class="section" id="appendix">
+<h2>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cluster-merge-py">
+<h3>cluster-merge.py<a class="headerlink" href="#cluster-merge-py" title="Permalink to this headline">¶</a></h3>
+<p>Used to merge the cluster config. This is a POC and might differ from
+actual production code.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">ganeti</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">ganeti</span> <span class="kn">import</span> <span class="n">constants</span>
+
+<span class="n">c_mine</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigWriter</span><span class="p">(</span><span class="n">offline</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">c_other</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigWriter</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">fake_id</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetNodeList</span><span class="p">():</span>
+  <span class="n">node_info</span> <span class="o">=</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetNodeInfo</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+  <span class="n">node_info</span><span class="o">.</span><span class="n">master_candidate</span> <span class="o">=</span> <span class="bp">False</span>
+  <span class="n">c_mine</span><span class="o">.</span><span class="n">AddNode</span><span class="p">(</span><span class="n">node_info</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fake_id</span><span class="p">))</span>
+  <span class="n">fake_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetInstanceList</span><span class="p">():</span>
+  <span class="n">instance_info</span> <span class="o">=</span> <span class="n">c_other</span><span class="o">.</span><span class="n">GetInstanceInfo</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">dsk</span> <span class="ow">in</span> <span class="n">instance_info</span><span class="o">.</span><span class="n">disks</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dsk</span><span class="o">.</span><span class="n">dev_type</span> <span class="ow">in</span> <span class="n">constants</span><span class="o">.</span><span class="n">LDS_DRBD</span><span class="p">:</span>
+       <span class="n">port</span> <span class="o">=</span> <span class="n">c_mine</span><span class="o">.</span><span class="n">AllocatePort</span><span class="p">()</span>
+       <span class="n">logical_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsk</span><span class="o">.</span><span class="n">logical_id</span><span class="p">)</span>
+       <span class="n">logical_id</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">port</span>
+       <span class="n">dsk</span><span class="o">.</span><span class="n">logical_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">logical_id</span><span class="p">)</span>
+       <span class="n">physical_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsk</span><span class="o">.</span><span class="n">physical_id</span><span class="p">)</span>
+       <span class="n">physical_id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">physical_id</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">port</span>
+       <span class="n">dsk</span><span class="o">.</span><span class="n">physical_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">physical_id</span><span class="p">)</span>
+  <span class="n">c_mine</span><span class="o">.</span><span class="n">AddInstance</span><span class="p">(</span><span class="n">instance_info</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fake_id</span><span class="p">))</span>
+  <span class="n">fake_id</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Ganeti Cluster Merger</a><ul>
+<li><a class="reference" href="#current-situation">Current situation</a></li>
+<li><a class="reference" href="#initial-contact">Initial contact</a></li>
+<li><a class="reference" href="#cluster-merge">Cluster merge</a></li>
+<li><a class="reference" href="#rollback">Rollback</a></li>
+<li><a class="reference" href="#verification">Verification</a></li>
+<li><a class="reference" href="#appendix">Appendix</a><ul>
+<li><a class="reference" href="#cluster-merge-py">cluster-merge.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="design-2.2.html"
+                                  title="previous chapter">Ganeti 2.2 design</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="locking.html"
+                                  title="next chapter">Ganeti locking</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/design-cluster-merger.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="locking.html" title="Ganeti locking"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-2.2.html" title="Ganeti 2.2 design"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti v2.1.0~rc5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2006, 2007, 2008, 2009, Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

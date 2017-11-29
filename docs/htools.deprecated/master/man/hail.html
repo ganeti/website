@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>HAIL(1) htools | Ganeti H-tools</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="date" content="" />
+</head>
+<body>
+<h1 class="title">HAIL(1) htools | Ganeti H-tools</h1>
+<div id="name"
+><h1
+  >NAME</h1
+  ><p
+  >hail - Ganeti IAllocator plugin</p
+  ></div
+><div id="synopsis"
+><h1
+  >SYNOPSIS</h1
+  ><p
+  ><strong
+    >hail</strong
+    > [ <strong
+    >-t</strong
+    > <em
+    >datafile</em
+    > | <strong
+    >--simulate</strong
+    > <em
+    >spec</em
+    > ] <em
+    >input-file</em
+    ></p
+  ><p
+  ><strong
+    >hail</strong
+    > --version</p
+  ></div
+><div id="description"
+><h1
+  >DESCRIPTION</h1
+  ><p
+  >hail is a Ganeti IAllocator plugin that allows automatic instance placement and automatic instance secondary node replacement using the same algorithm as <strong
+    >hbal</strong
+    >(1).</p
+  ><p
+  >The program takes input via a JSON-file containing current cluster state and the request details, and output (on stdout) a JSON-formatted response. In case of critical failures, the error message is printed on stderr and the exit code is changed to show failure.</p
+  ><div id="algorithm"
+  ><h2
+    >ALGORITHM</h2
+    ><p
+    >The program uses a simplified version of the hbal algorithm.</p
+    ><p
+    >For relocations, we try to change the secondary node of the instance to all the valid other nodes; the node which results in the best cluster score is chosen.</p
+    ><p
+    >For single-node allocations (non-mirrored instances), again we select the node which, when chosen as the primary node, gives the best score.</p
+    ><p
+    >For dual-node allocations (mirrored instances), we chose the best pair; this is the only choice where the algorithm is non-trivial with regard to cluster size.</p
+    ><p
+    >For node evacuations (<em
+      >multi-evacuate</em
+      > mode), we iterate over all instances which live as secondaries on those nodes and try to relocate them using the single-instance relocation algorithm.</p
+    ><p
+    >In all cases, the cluster scoring is identical to the hbal algorithm.</p
+    ></div
+  ></div
+><div id="options"
+><h1
+  >OPTIONS</h1
+  ><p
+  >The options that can be passed to the program are as follows:</p
+  ><dl
+  ><dt
+    >-p, --print-nodes</dt
+    ><dd
+    ><p
+      >Prints the before and after node status, in a format designed to allow the user to understand the node's most important parameters. See the man page <strong
+	>hbal</strong
+	>(1) for more details about this field.</p
+      ></dd
+    ><dt
+    >-t <em
+      >datafile</em
+      >, --text-data=<em
+      >datafile</em
+      ></dt
+    ><dd
+    ><p
+      >The name of the file holding cluster information, to override the data in the JSON request itself. This is mostly used for debugging.</p
+      ></dd
+    ><dt
+    >--simulate <em
+      >description</em
+      ></dt
+    ><dd
+    ><p
+      >Similar to the <strong
+	>-t</strong
+	> option, this allows overriding the cluster data with a simulated cluster. For details about the description, see the man page <strong
+	>hspace</strong
+	>(1).</p
+      ></dd
+    ></dl
+  ></div
+><div id="configuration"
+><h1
+  >CONFIGURATION</h1
+  ><p
+  >For the tag-exclusion configuration (see the manpage of hbal for more details), the list of which instance tags to consider as exclusion tags will be read from the cluster tags, configured as follows:</p
+  ><ul
+  ><li
+    >get all cluster tags starting with <strong
+      >htools:iextags:</strong
+      ></li
+    ><li
+    >use their suffix as the prefix for exclusion tags</li
+    ></ul
+  ><p
+  >For example, given a cluster tag like <strong
+    >htools:iextags:service</strong
+    >, all instance tags of the form <strong
+    >service:X</strong
+    > will be considered as exclusion tags, meaning that (e.g.) two instances which both have a tag <strong
+    >service:foo</strong
+    > will not be placed on the same primary node.</p
+  ></div
+><div id="options-1"
+><h1
+  >OPTIONS</h1
+  ><p
+  >The options that can be passed to the program are as follows:</p
+  ></div
+><div id="exit-status"
+><h1
+  >EXIT STATUS</h1
+  ><p
+  >The exist status of the command will be zero, unless for some reason the algorithm fatally failed (e.g. wrong node or instance data).</p
+  ></div
+><div id="see-also"
+><h1
+  >SEE ALSO</h1
+  ><p
+  ><strong
+    >hbal</strong
+    >(1), <strong
+    >hspace</strong
+    >(1), <strong
+    >hscan</strong
+    >(1), <strong
+    >ganeti</strong
+    >(7), <strong
+    >gnt-instance</strong
+    >(8), <strong
+    >gnt-node</strong
+    >(8)</p
+  ></div
+><div id="copyright"
+><h1
+  >COPYRIGHT</h1
+  ><p
+  >Copyright (C) 2009, 2010, 2011 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p
+  ><p
+  >On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p
+  ></div
+>
+</body>
+</html>
+

@@ -1,0 +1,2104 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>ganeti.query</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="ganeti-module.html">Package&nbsp;ganeti</a> ::
+        Module&nbsp;query
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="ganeti.query-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module query</h1><p class="nomargin-top"><span class="codelink"><a href="ganeti.query-pysrc.html">source&nbsp;code</a></span></p>
+<p>Module for query operations</p>
+  <p>How it works:</p>
+  <ul>
+    <li>
+      Add field definitions
+      <ul>
+        <li>
+          See how <a href="ganeti.query-module.html#NODE_FIELDS" 
+          class="link">NODE_FIELDS</a> is built
+        </li>
+        <li>
+          Each field gets:
+          <ul>
+            <li>
+              Query field definition (<a 
+              href="ganeti.objects.QueryFieldDefinition-class.html" 
+              class="link" 
+              onclick="show_private();">objects.QueryFieldDefinition</a>, 
+              use <a href="ganeti.query-module.html#_MakeField" 
+              class="link" onclick="show_private();">_MakeField</a> for 
+              creating), containing:
+              <ul>
+                <li>
+                  Name, must be lowercase and match <a 
+                  href="ganeti.query-module.html#FIELD_NAME_RE" 
+                  class="link">FIELD_NAME_RE</a>
+                </li>
+                <li>
+                  Title for tables, must not contain whitespace and match 
+                  <a href="ganeti.query-module.html#TITLE_RE" 
+                  class="link">TITLE_RE</a>
+                </li>
+                <li>
+                  Value data type, e.g. <a 
+                  href="ganeti.constants-module.html#QFT_NUMBER" 
+                  class="link">constants.QFT_NUMBER</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              Data request type, see e.g. <code>NQ_*</code>
+            </li>
+            <li>
+              A retrieval function, see <a 
+              href="ganeti.query.Query-class.html#__init__" 
+              class="link">Query.__init__</a> for description
+            </li>
+          </ul>
+        </li>
+        <li>
+          Pass list of fields through <a 
+          href="ganeti.query-module.html#_PrepareFieldList" class="link" 
+          onclick="show_private();">_PrepareFieldList</a> for preparation 
+          and checks
+        </li>
+      </ul>
+    </li>
+    <li>
+      Instantiate <a href="ganeti.query.Query-class.html" 
+      class="link">Query</a> with prepared field list definition and 
+      selected fields
+    </li>
+    <li>
+      Call <a href="ganeti.query.Query-class.html#RequestedData" 
+      class="link">Query.RequestedData</a> to determine what data to 
+      collect/compute
+    </li>
+    <li>
+      Call <a href="ganeti.query.Query-class.html#Query" 
+      class="link">Query.Query</a> or <a 
+      href="ganeti.query.Query-class.html#OldStyleQuery" 
+      class="link">Query.OldStyleQuery</a> with collected data and use 
+      result
+      <ul>
+        <li>
+          Data container must support iteration using <code>__iter__</code>
+        </li>
+        <li>
+          Items are passed to retrieval functions and can have any format
+        </li>
+      </ul>
+    </li>
+    <li>
+      Call <a href="ganeti.query.Query-class.html#GetFields" 
+      class="link">Query.GetFields</a> to get list of definitions for 
+      selected fields
+    </li>
+  </ul>
+
+<hr />
+<div class="fields">      <p><strong>Attention:</strong>
+        Retrieval functions must be idempotent. They can be called multiple
+        times, in any order and any number of times. This is important to 
+        keep in mind for implementing filters in the future.
+      </p>
+</div><!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query.Query-class.html" class="summary-name">Query</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query.NodeQueryData-class.html" class="summary-name">NodeQueryData</a><br />
+      Data container for node data queries.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query.InstanceQueryData-class.html" class="summary-name">InstanceQueryData</a><br />
+      Data container for instance data queries.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query.LockQueryData-class.html" class="summary-name">LockQueryData</a><br />
+      Data container for lock data queries.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query.GroupQueryData-class.html" class="summary-name">GroupQueryData</a><br />
+      Data container for node group data queries.
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_GetUnknownField"></a><span class="summary-sig-name">_GetUnknownField</span>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">item</span>)</span><br />
+      Gets the contents of an unknown field.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetUnknownField">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetQueryFields" class="summary-sig-name" onclick="show_private();">_GetQueryFields</a>(<span class="summary-sig-arg">fielddefs</span>,
+        <span class="summary-sig-arg">selected</span>)</span><br />
+      Calculates the internal list of selected fields.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetQueryFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list of <a href="ganeti.objects.QueryFieldDefinition-class.html" 
+      class="link" 
+      onclick="show_private();">objects.QueryFieldDefinition</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="GetAllFields"></a><span class="summary-sig-name">GetAllFields</span>(<span class="summary-sig-arg">fielddefs</span>)</span><br />
+      Extract <a href="ganeti.objects.QueryFieldDefinition-class.html" 
+      class="link" 
+      onclick="show_private();">objects.QueryFieldDefinition</a> from field
+      definitions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#GetAllFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_ProcessResult"></a><span class="summary-sig-name">_ProcessResult</span>(<span class="summary-sig-arg">value</span>)</span><br />
+      Converts result values into externally-visible ones.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_ProcessResult">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_VerifyResultRow" class="summary-sig-name" onclick="show_private();">_VerifyResultRow</a>(<span class="summary-sig-arg">fields</span>,
+        <span class="summary-sig-arg">row</span>)</span><br />
+      Verifies the contents of a query result row.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_VerifyResultRow">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">dict</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_PrepareFieldList" class="summary-sig-name" onclick="show_private();">_PrepareFieldList</a>(<span class="summary-sig-arg">fields</span>,
+        <span class="summary-sig-arg">aliases</span>)</span><br />
+      Prepares field list for use by <a 
+      href="ganeti.query.Query-class.html" class="link">Query</a>.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_PrepareFieldList">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#GetQueryResponse" class="summary-sig-name">GetQueryResponse</a>(<span class="summary-sig-arg">query</span>,
+        <span class="summary-sig-arg">ctx</span>)</span><br />
+      Prepares the response for a query.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#GetQueryResponse">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#QueryFields" class="summary-sig-name">QueryFields</a>(<span class="summary-sig-arg">fielddefs</span>,
+        <span class="summary-sig-arg">selected</span>)</span><br />
+      Returns list of available fields.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#QueryFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_MakeField" class="summary-sig-name" onclick="show_private();">_MakeField</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">title</span>,
+        <span class="summary-sig-arg">kind</span>)</span><br />
+      Wrapper for creating <a 
+      href="ganeti.objects.QueryFieldDefinition-class.html" class="link" 
+      onclick="show_private();">objects.QueryFieldDefinition</a> instances.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_MakeField">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetNodeRole" class="summary-sig-name" onclick="show_private();">_GetNodeRole</a>(<span class="summary-sig-arg">node</span>,
+        <span class="summary-sig-arg">master_name</span>)</span><br />
+      Determine node role.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodeRole">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetItemAttr" class="summary-sig-name" onclick="show_private();">_GetItemAttr</a>(<span class="summary-sig-arg">attr</span>)</span><br />
+      Returns a field function to return an attribute of the item.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemAttr">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetItemTimestamp" class="summary-sig-name" onclick="show_private();">_GetItemTimestamp</a>(<span class="summary-sig-arg">getter</span>)</span><br />
+      Returns function for getting timestamp of item.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemTimestamp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetItemTimestampFields" class="summary-sig-name" onclick="show_private();">_GetItemTimestampFields</a>(<span class="summary-sig-arg">datatype</span>)</span><br />
+      Returns common timestamp fields.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemTimestampFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetGroup" class="summary-sig-name" onclick="show_private();">_GetGroup</a>(<span class="summary-sig-arg">cb</span>)</span><br />
+      Build function for calling another function with an node group.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetGroup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetNodeGroup" class="summary-sig-name" onclick="show_private();">_GetNodeGroup</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">node</span>,
+        <span class="summary-sig-arg">ng</span>)</span><br />
+      Returns the name of a node's group.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodeGroup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetNodePower" class="summary-sig-name" onclick="show_private();">_GetNodePower</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">node</span>)</span><br />
+      Returns the node powered state</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodePower">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetNdParams" class="summary-sig-name" onclick="show_private();">_GetNdParams</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">node</span>,
+        <span class="summary-sig-arg">ng</span>)</span><br />
+      Returns the ndparams for this node.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetNdParams">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetLiveNodeField" class="summary-sig-name" onclick="show_private();">_GetLiveNodeField</a>(<span class="summary-sig-arg">field</span>,
+        <span class="summary-sig-arg">kind</span>,
+        <span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">node</span>)</span><br />
+      Gets the value of a &quot;live&quot; field from <a 
+      href="ganeti.query.NodeQueryData-class.html" 
+      class="link">NodeQueryData</a>.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetLiveNodeField">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_BuildNodeFields"></a><span class="summary-sig-name">_BuildNodeFields</span>()</span><br />
+      Builds list of fields for node queries.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_BuildNodeFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstOperState" class="summary-sig-name" onclick="show_private();">_GetInstOperState</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">inst</span>)</span><br />
+      Get instance's operational status.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstOperState">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstLiveData" class="summary-sig-name" onclick="show_private();">_GetInstLiveData</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Build function for retrieving live data.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstLiveData">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstStatus" class="summary-sig-name" onclick="show_private();">_GetInstStatus</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">inst</span>)</span><br />
+      Get instance status.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstStatus">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstDiskSize" class="summary-sig-name" onclick="show_private();">_GetInstDiskSize</a>(<span class="summary-sig-arg">index</span>)</span><br />
+      Build function for retrieving disk size.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstDiskSize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstNic" class="summary-sig-name" onclick="show_private();">_GetInstNic</a>(<span class="summary-sig-arg">index</span>,
+        <span class="summary-sig-arg">cb</span>)</span><br />
+      Build function for calling another function with an instance NIC.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNic">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstNicIp" class="summary-sig-name" onclick="show_private();">_GetInstNicIp</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">_</span>,
+        <span class="summary-sig-arg">nic</span>)</span><br />
+      Get a NIC's IP address.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicIp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstNicBridge" class="summary-sig-name" onclick="show_private();">_GetInstNicBridge</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">index</span>,
+        <span class="summary-sig-arg">_</span>)</span><br />
+      Get a NIC's bridge.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicBridge">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstAllNicBridges" class="summary-sig-name" onclick="show_private();">_GetInstAllNicBridges</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">inst</span>)</span><br />
+      Get all network bridges for an instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstAllNicBridges">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstNicParam" class="summary-sig-name" onclick="show_private();">_GetInstNicParam</a>(<span class="summary-sig-arg">name</span>)</span><br />
+      Build function for retrieving a NIC parameter.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicParam">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstanceNetworkFields" class="summary-sig-name" onclick="show_private();">_GetInstanceNetworkFields</a>()</span><br />
+      Get instance fields involving network interfaces.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceNetworkFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstDiskUsage" class="summary-sig-name" onclick="show_private();">_GetInstDiskUsage</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">inst</span>)</span><br />
+      Get disk usage for an instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstDiskUsage">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstanceConsole" class="summary-sig-name" onclick="show_private();">_GetInstanceConsole</a>(<span class="summary-sig-arg">ctx</span>,
+        <span class="summary-sig-arg">inst</span>)</span><br />
+      Get console information for instance.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceConsole">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstanceDiskFields" class="summary-sig-name" onclick="show_private();">_GetInstanceDiskFields</a>()</span><br />
+      Get instance fields involving disks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceDiskFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="ganeti.query-module.html#_GetInstanceParameterFields" class="summary-sig-name" onclick="show_private();">_GetInstanceParameterFields</a>()</span><br />
+      Get instance fields involving parameters.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceParameterFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_BuildInstanceFields"></a><span class="summary-sig-name">_BuildInstanceFields</span>()</span><br />
+      Builds list of fields for instance queries.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_BuildInstanceFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_GetLockOwners"></a><span class="summary-sig-name">_GetLockOwners</span>(<span class="summary-sig-arg">_</span>,
+        <span class="summary-sig-arg">data</span>)</span><br />
+      Returns a sorted list of a lock's current owners.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetLockOwners">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_GetLockPending"></a><span class="summary-sig-name">_GetLockPending</span>(<span class="summary-sig-arg">_</span>,
+        <span class="summary-sig-arg">data</span>)</span><br />
+      Returns a sorted list of a lock's pending acquires.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_GetLockPending">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_BuildLockFields"></a><span class="summary-sig-name">_BuildLockFields</span>()</span><br />
+      Builds list of fields for lock queries.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_BuildLockFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_BuildGroupFields"></a><span class="summary-sig-name">_BuildGroupFields</span>()</span><br />
+      Builds list of fields for node group queries.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="ganeti.query-pysrc.html#_BuildGroupFields">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FIELD_NAME_RE"></a><span class="summary-name">FIELD_NAME_RE</span> = <code title="re.compile(r&quot;^[a-z0-9/._]+$&quot;)">re.compile(r&quot;^[a-z0-9/._]+$&quot;)</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TITLE_RE"></a><span class="summary-name">TITLE_RE</span> = <code title="re.compile(r&quot;^[^\s]+$&quot;)">re.compile(r&quot;^[^\s]+$&quot;)</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_VERIFY_FN" class="summary-name" onclick="show_private();">_VERIFY_FN</a> = <code title="{QFT_UNKNOWN: ht.TNone, QFT_TEXT: ht.TString, QFT_BOOL: ht.TBool, QFT_\
+NUMBER: ht.TInt, QFT_UNIT: ht.TInt, QFT_TIMESTAMP: ht.TNumber, QFT_OTH\
+ER: lambda _: True,}">{QFT_UNKNOWN: ht.TNone, QFT_TEXT: ht.TString, QFT<code class="variable-ellipsis">...</code></code><br />
+      Verification function for each field type
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_FS_UNKNOWN"></a><span class="summary-name">_FS_UNKNOWN</span> = <code title="object()">object()</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_FS_NODATA"></a><span class="summary-name">_FS_NODATA</span> = <code title="object()">object()</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_FS_UNAVAIL"></a><span class="summary-name">_FS_UNAVAIL</span> = <code title="object()">object()</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_FS_OFFLINE"></a><span class="summary-name">_FS_OFFLINE</span> = <code title="object()">object()</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_VTToQFT" class="summary-name" onclick="show_private();">_VTToQFT</a> = <code title="{constants.VTYPE_STRING: QFT_OTHER, constants.VTYPE_MAYBE_STRING: QFT_\
+OTHER, constants.VTYPE_BOOL: QFT_BOOL, constants.VTYPE_SIZE: QFT_UNIT,\
+ constants.VTYPE_INT: QFT_NUMBER,}">{constants.VTYPE_STRING: QFT_OTHER, constants.VTYPE<code class="variable-ellipsis">...</code></code><br />
+      VType to QFT mapping
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_NODE_SIMPLE_FIELDS" class="summary-name" onclick="show_private();">_NODE_SIMPLE_FIELDS</a> = <code title="{&quot;drained&quot;:(&quot;Drained&quot;, QFT_BOOL), &quot;master_candidate&quot;:(&quot;MasterC&quot;, QFT_B\
+OOL), &quot;master_capable&quot;:(&quot;MasterCapable&quot;, QFT_BOOL), &quot;name&quot;:(&quot;Node&quot;, QF\
+T_TEXT), &quot;offline&quot;:(&quot;Offline&quot;, QFT_BOOL), &quot;serial_no&quot;:(&quot;SerialNo&quot;, QFT\
+_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT), &quot;vm_capable&quot;:(&quot;VMCapable&quot;, QFT_BO\
+OL),}">{&quot;drained&quot;:(&quot;Drained&quot;, QFT_BOOL), &quot;maste<code class="variable-ellipsis">...</code></code><br />
+      Fields that are direct attributes of an <a 
+      href="ganeti.objects.Node-class.html" class="link">objects.Node</a> 
+      object
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_NODE_LIVE_FIELDS" class="summary-name" onclick="show_private();">_NODE_LIVE_FIELDS</a> = <code title="{&quot;bootid&quot;:(&quot;BootID&quot;, QFT_TEXT, &quot;bootid&quot;), &quot;cnodes&quot;:(&quot;CNodes&quot;, QFT_NUMB\
+ER, &quot;cpu_nodes&quot;), &quot;csockets&quot;:(&quot;CSockets&quot;, QFT_NUMBER, &quot;cpu_sockets&quot;), \
+&quot;ctotal&quot;:(&quot;CTotal&quot;, QFT_NUMBER, &quot;cpu_total&quot;), &quot;dfree&quot;:(&quot;DFree&quot;, QFT_UN\
+IT, &quot;vg_free&quot;), &quot;dtotal&quot;:(&quot;DTotal&quot;, QFT_UNIT, &quot;vg_size&quot;), &quot;mfree&quot;:(&quot;MF\
+ree&quot;, QFT_UNIT, &quot;memory_free&quot;), &quot;mnode&quot;:(&quot;MNode&quot;, QFT_UNIT, &quot;memory_do\
+m0&quot;), &quot;mtotal&quot;:(&quot;MTotal&quot;, QFT_UNIT, &quot;memory_total&quot;),}">{&quot;bootid&quot;:(&quot;BootID&quot;, QFT_TEXT, &quot;bootid&quot;), <code class="variable-ellipsis">...</code></code><br />
+      Fields requiring talking to the node
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_INST_SIMPLE_FIELDS" class="summary-name" onclick="show_private();">_INST_SIMPLE_FIELDS</a> = <code title="{&quot;disk_template&quot;:(&quot;Disk_template&quot;, QFT_TEXT), &quot;hypervisor&quot;:(&quot;Hyperviso\
+r&quot;, QFT_TEXT), &quot;name&quot;:(&quot;Instance&quot;, QFT_TEXT), &quot;network_port&quot;:(&quot;Network\
+_port&quot;, QFT_OTHER), &quot;os&quot;:(&quot;OS&quot;, QFT_TEXT), &quot;serial_no&quot;:(&quot;SerialNo&quot;, QF\
+T_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT),}">{&quot;disk_template&quot;:(&quot;Disk_template&quot;, QFT_T<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#_GROUP_SIMPLE_FIELDS" class="summary-name" onclick="show_private();">_GROUP_SIMPLE_FIELDS</a> = <code title="{&quot;alloc_policy&quot;:(&quot;AllocPolicy&quot;, QFT_TEXT), &quot;name&quot;:(&quot;Group&quot;, QFT_TEXT),\
+ &quot;serial_no&quot;:(&quot;SerialNo&quot;, QFT_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT), &quot;ndp\
+arams&quot;:(&quot;NDParams&quot;, QFT_OTHER),}">{&quot;alloc_policy&quot;:(&quot;AllocPolicy&quot;, QFT_TEX<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="NODE_FIELDS"></a><span class="summary-name">NODE_FIELDS</span> = <code title="_BuildNodeFields()">_BuildNodeFields()</code><br />
+      Fields available for node queries
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="INSTANCE_FIELDS"></a><span class="summary-name">INSTANCE_FIELDS</span> = <code title="_BuildInstanceFields()">_BuildInstanceFields()</code><br />
+      Fields available for instance queries
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="LOCK_FIELDS"></a><span class="summary-name">LOCK_FIELDS</span> = <code title="_BuildLockFields()">_BuildLockFields()</code><br />
+      Fields available for lock queries
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="GROUP_FIELDS"></a><span class="summary-name">GROUP_FIELDS</span> = <code title="_BuildGroupFields()">_BuildGroupFields()</code><br />
+      Fields available for node group queries
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="ganeti.query-module.html#ALL_FIELD_LISTS" class="summary-name">ALL_FIELD_LISTS</a> = <code title="[NODE_FIELDS, INSTANCE_FIELDS, LOCK_FIELDS, GROUP_FIELDS]">[NODE_FIELDS, INSTANCE_FIELDS, LOCK_FIELDS, <code class="variable-ellipsis">...</code></code><br />
+      All available field lists
+    </td>
+  </tr>
+</table>
+<p class="indent-wrapped-lines"><b>Imports:</b>
+  <span title="logging">logging</span>,
+  <span title="operator">operator</span>,
+  <span title="re">re</span>,
+  <a href="ganeti.constants-module.html" title="ganeti.constants">constants</a>,
+  <a href="ganeti.errors-module.html" title="ganeti.errors">errors</a>,
+  <a href="ganeti.utils-module.html" title="ganeti.utils">utils</a>,
+  <a href="ganeti.compat-module.html" title="ganeti.compat">compat</a>,
+  <a href="ganeti.objects-module.html" title="ganeti.objects">objects</a>,
+  <a href="ganeti.ht-module.html" title="ganeti.ht">ht</a>,
+  <span title="ganeti.constants.QFT_UNKNOWN">QFT_UNKNOWN</span>,
+  <span title="ganeti.constants.QFT_TEXT">QFT_TEXT</span>,
+  <span title="ganeti.constants.QFT_BOOL">QFT_BOOL</span>,
+  <span title="ganeti.constants.QFT_NUMBER">QFT_NUMBER</span>,
+  <span title="ganeti.constants.QFT_UNIT">QFT_UNIT</span>,
+  <span title="ganeti.constants.QFT_TIMESTAMP">QFT_TIMESTAMP</span>,
+  <span title="ganeti.constants.QFT_OTHER">QFT_OTHER</span>,
+  <span title="ganeti.constants.RS_NORMAL">RS_NORMAL</span>,
+  <span title="ganeti.constants.RS_UNKNOWN">RS_UNKNOWN</span>,
+  <span title="ganeti.constants.RS_NODATA">RS_NODATA</span>,
+  <span title="ganeti.constants.RS_UNAVAIL">RS_UNAVAIL</span>,
+  <span title="ganeti.constants.RS_OFFLINE">RS_OFFLINE</span>
+</p><br />
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="_GetQueryFields"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetQueryFields</span>(<span class="sig-arg">fielddefs</span>,
+        <span class="sig-arg">selected</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetQueryFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Calculates the internal list of selected fields.</p>
+  <p>Unknown fields are returned as <a 
+  href="ganeti.constants-module.html#QFT_UNKNOWN" 
+  class="link">constants.QFT_UNKNOWN</a>.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>fielddefs</code></strong> (dict) - Field definitions</li>
+        <li><strong class="pname"><code>selected</code></strong> (list of strings) - List of selected fields</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_VerifyResultRow"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_VerifyResultRow</span>(<span class="sig-arg">fields</span>,
+        <span class="sig-arg">row</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_VerifyResultRow">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Verifies the contents of a query result row.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>fields</code></strong> (list) - Field definitions for result</li>
+        <li><strong class="pname"><code>row</code></strong> (list of tuples) - Row data</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_PrepareFieldList"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_PrepareFieldList</span>(<span class="sig-arg">fields</span>,
+        <span class="sig-arg">aliases</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_PrepareFieldList">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Prepares field list for use by <a href="ganeti.query.Query-class.html"
+  class="link">Query</a>.</p>
+  <p>Converts the list to a dictionary and does some verification.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>fields</code></strong> (list of tuples; (<a 
+          href="ganeti.objects.QueryFieldDefinition-class.html" 
+          class="link" 
+          onclick="show_private();">objects.QueryFieldDefinition</a>, data 
+          kind, retrieval function)) - List of fields, see <a 
+          href="ganeti.query.Query-class.html#__init__" 
+          class="link">Query.__init__</a> for a better description</li>
+        <li><strong class="pname"><code>aliases</code></strong> (list of tuples; (alias, target)) - list of tuples containing aliases; for each alias/target pair, a 
+          duplicate will be created in the field list</li>
+    </ul></dd>
+    <dt>Returns: dict</dt>
+        <dd>Field dictionary for <a href="ganeti.query.Query-class.html" 
+          class="link">Query</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="GetQueryResponse"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">GetQueryResponse</span>(<span class="sig-arg">query</span>,
+        <span class="sig-arg">ctx</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#GetQueryResponse">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Prepares the response for a query.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ctx</code></strong> - Data container, see <a href="ganeti.query.Query-class.html#Query"
+          class="link">Query.Query</a></li>
+        <li><strong class="pname"><code>query</code></strong> (<a href="ganeti.query.Query-class.html" class="link">Query</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="QueryFields"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">QueryFields</span>(<span class="sig-arg">fielddefs</span>,
+        <span class="sig-arg">selected</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#QueryFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns list of available fields.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>fielddefs</code></strong> (dict) - Field definitions</li>
+        <li><strong class="pname"><code>selected</code></strong> (list of strings) - List of selected fields</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>List of <a href="ganeti.objects.QueryFieldDefinition-class.html" 
+          class="link" 
+          onclick="show_private();">objects.QueryFieldDefinition</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_MakeField"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_MakeField</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">title</span>,
+        <span class="sig-arg">kind</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_MakeField">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Wrapper for creating <a 
+  href="ganeti.objects.QueryFieldDefinition-class.html" class="link" 
+  onclick="show_private();">objects.QueryFieldDefinition</a> instances.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - Field name as a regular expression</li>
+        <li><strong class="pname"><code>title</code></strong> - Human-readable title</li>
+        <li><strong class="pname"><code>kind</code></strong> - Field type</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetNodeRole"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetNodeRole</span>(<span class="sig-arg">node</span>,
+        <span class="sig-arg">master_name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodeRole">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Determine node role.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>node</code></strong> (<a href="ganeti.objects.Node-class.html" 
+          class="link">objects.Node</a>) - Node object</li>
+        <li><strong class="pname"><code>master_name</code></strong> (string) - Master node name</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetItemAttr"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetItemAttr</span>(<span class="sig-arg">attr</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemAttr">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns a field function to return an attribute of the item.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>attr</code></strong> - Attribute name</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetItemTimestamp"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetItemTimestamp</span>(<span class="sig-arg">getter</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemTimestamp">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns function for getting timestamp of item.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>getter</code></strong> (callable) - Function to retrieve timestamp attribute</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetItemTimestampFields"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetItemTimestampFields</span>(<span class="sig-arg">datatype</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetItemTimestampFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns common timestamp fields.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>datatype</code></strong> - Field data type for use by <a 
+          href="ganeti.query.Query-class.html#RequestedData" 
+          class="link">Query.RequestedData</a></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetGroup"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetGroup</span>(<span class="sig-arg">cb</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetGroup">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build function for calling another function with an node group.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cb</code></strong> - The callback to be called with the nodegroup</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetNodeGroup"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetNodeGroup</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">node</span>,
+        <span class="sig-arg">ng</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodeGroup">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the name of a node's group.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>node</code></strong> (<a href="ganeti.objects.Node-class.html" 
+          class="link">objects.Node</a>) - Node object</li>
+        <li><strong class="pname"><code>ng</code></strong> (<a href="ganeti.objects.NodeGroup-class.html" 
+          class="link">objects.NodeGroup</a>) - The node group this node belongs to</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.NodeQueryData-class.html" 
+          class="link">NodeQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetNodePower"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetNodePower</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetNodePower">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the node powered state</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>node</code></strong> (<a href="ganeti.objects.Node-class.html" 
+          class="link">objects.Node</a>) - Node object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.NodeQueryData-class.html" 
+          class="link">NodeQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetNdParams"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetNdParams</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">node</span>,
+        <span class="sig-arg">ng</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetNdParams">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the ndparams for this node.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>node</code></strong> (<a href="ganeti.objects.Node-class.html" 
+          class="link">objects.Node</a>) - Node object</li>
+        <li><strong class="pname"><code>ng</code></strong> (<a href="ganeti.objects.NodeGroup-class.html" 
+          class="link">objects.NodeGroup</a>) - The node group this node belongs to</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.NodeQueryData-class.html" 
+          class="link">NodeQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetLiveNodeField"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetLiveNodeField</span>(<span class="sig-arg">field</span>,
+        <span class="sig-arg">kind</span>,
+        <span class="sig-arg">ctx</span>,
+        <span class="sig-arg">node</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetLiveNodeField">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets the value of a &quot;live&quot; field from <a 
+  href="ganeti.query.NodeQueryData-class.html" 
+  class="link">NodeQueryData</a>.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>field</code></strong> - Live field name</li>
+        <li><strong class="pname"><code>kind</code></strong> - Data kind, one of <a href="ganeti.constants-module.html#QFT_ALL" 
+          class="link">constants.QFT_ALL</a></li>
+        <li><strong class="pname"><code>node</code></strong> (<a href="ganeti.objects.Node-class.html" 
+          class="link">objects.Node</a>) - Node object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.NodeQueryData-class.html" 
+          class="link">NodeQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstOperState"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstOperState</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">inst</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstOperState">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get instance's operational status.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>inst</code></strong> (<a href="ganeti.objects.Instance-class.html" 
+          class="link">objects.Instance</a>) - Instance object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstLiveData"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstLiveData</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstLiveData">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build function for retrieving live data.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> (string) - Live data field name</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstStatus"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstStatus</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">inst</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstStatus">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get instance status.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>inst</code></strong> (<a href="ganeti.objects.Instance-class.html" 
+          class="link">objects.Instance</a>) - Instance object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstDiskSize"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstDiskSize</span>(<span class="sig-arg">index</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstDiskSize">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build function for retrieving disk size.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>index</code></strong> (int) - Disk index</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstNic"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstNic</span>(<span class="sig-arg">index</span>,
+        <span class="sig-arg">cb</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNic">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build function for calling another function with an instance NIC.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>index</code></strong> (int) - NIC index</li>
+        <li><strong class="pname"><code>cb</code></strong> (callable) - Callback</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstNicIp"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstNicIp</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">_</span>,
+        <span class="sig-arg">nic</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicIp">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get a NIC's IP address.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>nic</code></strong> (<a href="ganeti.objects.NIC-class.html" 
+          class="link">objects.NIC</a>) - NIC object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstNicBridge"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstNicBridge</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">index</span>,
+        <span class="sig-arg">_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicBridge">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get a NIC's bridge.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>index</code></strong> (int) - NIC index</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstAllNicBridges"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstAllNicBridges</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">inst</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstAllNicBridges">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get all network bridges for an instance.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>inst</code></strong> (<a href="ganeti.objects.Instance-class.html" 
+          class="link">objects.Instance</a>) - Instance object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstNicParam"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstNicParam</span>(<span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstNicParam">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Build function for retrieving a NIC parameter.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> (string) - Parameter name</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstanceNetworkFields"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstanceNetworkFields</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceNetworkFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get instance fields involving network interfaces.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>List of field definitions used as input for <a 
+          href="ganeti.query-module.html#_PrepareFieldList" class="link" 
+          onclick="show_private();">_PrepareFieldList</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstDiskUsage"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstDiskUsage</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">inst</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstDiskUsage">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get disk usage for an instance.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>inst</code></strong> (<a href="ganeti.objects.Instance-class.html" 
+          class="link">objects.Instance</a>) - Instance object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstanceConsole"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstanceConsole</span>(<span class="sig-arg">ctx</span>,
+        <span class="sig-arg">inst</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceConsole">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get console information for instance.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>inst</code></strong> (<a href="ganeti.objects.Instance-class.html" 
+          class="link">objects.Instance</a>) - Instance object</li>
+        <li><strong class="pname"><code>ctx</code></strong> (<a href="ganeti.query.InstanceQueryData-class.html" 
+          class="link">InstanceQueryData</a>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstanceDiskFields"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstanceDiskFields</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceDiskFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get instance fields involving disks.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>List of field definitions used as input for <a 
+          href="ganeti.query-module.html#_PrepareFieldList" class="link" 
+          onclick="show_private();">_PrepareFieldList</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GetInstanceParameterFields"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_GetInstanceParameterFields</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="ganeti.query-pysrc.html#_GetInstanceParameterFields">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get instance fields involving parameters.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>List of field definitions used as input for <a 
+          href="ganeti.query-module.html#_PrepareFieldList" class="link" 
+          onclick="show_private();">_PrepareFieldList</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="_VERIFY_FN"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_VERIFY_FN</h3>
+  <p>Verification function for each field type</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{QFT_UNKNOWN: ht.TNone, QFT_TEXT: ht.TString, QFT_BOOL: ht.TBool, QFT_<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+NUMBER: ht.TInt, QFT_UNIT: ht.TInt, QFT_TIMESTAMP: ht.TNumber, QFT_OTH<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ER: lambda _: True,}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_VTToQFT"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_VTToQFT</h3>
+  <p>VType to QFT mapping</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{constants.VTYPE_STRING: QFT_OTHER, constants.VTYPE_MAYBE_STRING: QFT_<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+OTHER, constants.VTYPE_BOOL: QFT_BOOL, constants.VTYPE_SIZE: QFT_UNIT,<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ constants.VTYPE_INT: QFT_NUMBER,}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_NODE_SIMPLE_FIELDS"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_NODE_SIMPLE_FIELDS</h3>
+  <p>Fields that are direct attributes of an <a 
+  href="ganeti.objects.Node-class.html" class="link">objects.Node</a> 
+  object</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{&quot;drained&quot;:(&quot;Drained&quot;, QFT_BOOL), &quot;master_candidate&quot;:(&quot;MasterC&quot;, QFT_B<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+OOL), &quot;master_capable&quot;:(&quot;MasterCapable&quot;, QFT_BOOL), &quot;name&quot;:(&quot;Node&quot;, QF<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+T_TEXT), &quot;offline&quot;:(&quot;Offline&quot;, QFT_BOOL), &quot;serial_no&quot;:(&quot;SerialNo&quot;, QFT<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT), &quot;vm_capable&quot;:(&quot;VMCapable&quot;, QFT_BO<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+OL),}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_NODE_LIVE_FIELDS"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_NODE_LIVE_FIELDS</h3>
+  <p>Fields requiring talking to the node</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{&quot;bootid&quot;:(&quot;BootID&quot;, QFT_TEXT, &quot;bootid&quot;), &quot;cnodes&quot;:(&quot;CNodes&quot;, QFT_NUMB<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ER, &quot;cpu_nodes&quot;), &quot;csockets&quot;:(&quot;CSockets&quot;, QFT_NUMBER, &quot;cpu_sockets&quot;), <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+&quot;ctotal&quot;:(&quot;CTotal&quot;, QFT_NUMBER, &quot;cpu_total&quot;), &quot;dfree&quot;:(&quot;DFree&quot;, QFT_UN<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+IT, &quot;vg_free&quot;), &quot;dtotal&quot;:(&quot;DTotal&quot;, QFT_UNIT, &quot;vg_size&quot;), &quot;mfree&quot;:(&quot;MF<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ree&quot;, QFT_UNIT, &quot;memory_free&quot;), &quot;mnode&quot;:(&quot;MNode&quot;, QFT_UNIT, &quot;memory_do<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+m0&quot;), &quot;mtotal&quot;:(&quot;MTotal&quot;, QFT_UNIT, &quot;memory_total&quot;),}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_INST_SIMPLE_FIELDS"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_INST_SIMPLE_FIELDS</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{&quot;disk_template&quot;:(&quot;Disk_template&quot;, QFT_TEXT), &quot;hypervisor&quot;:(&quot;Hyperviso<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+r&quot;, QFT_TEXT), &quot;name&quot;:(&quot;Instance&quot;, QFT_TEXT), &quot;network_port&quot;:(&quot;Network<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+_port&quot;, QFT_OTHER), &quot;os&quot;:(&quot;OS&quot;, QFT_TEXT), &quot;serial_no&quot;:(&quot;SerialNo&quot;, QF<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+T_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT),}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_GROUP_SIMPLE_FIELDS"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_GROUP_SIMPLE_FIELDS</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+{&quot;alloc_policy&quot;:(&quot;AllocPolicy&quot;, QFT_TEXT), &quot;name&quot;:(&quot;Group&quot;, QFT_TEXT),<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ &quot;serial_no&quot;:(&quot;SerialNo&quot;, QFT_NUMBER), &quot;uuid&quot;:(&quot;UUID&quot;, QFT_TEXT), &quot;ndp<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+arams&quot;:(&quot;NDParams&quot;, QFT_OTHER),}
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ALL_FIELD_LISTS"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">ALL_FIELD_LISTS</h3>
+  <p>All available field lists</p>
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+[NODE_FIELDS, INSTANCE_FIELDS, LOCK_FIELDS, GROUP_FIELDS]
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://code.google.com/p/ganeti/">Ganeti</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Thu Oct 27 14:18:49 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

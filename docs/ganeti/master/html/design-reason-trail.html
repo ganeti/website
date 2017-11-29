@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti reason trail &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti Maintenance Daemon" href="design-repaird.html" />
+    <link rel="prev" title="RAPI authentication and authorization using PAM" href="design-rapi-pam.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-repaird.html" title="Ganeti Maintenance Daemon"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-rapi-pam.html" title="RAPI authentication and authorization using PAM"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-reason-trail">
+<h1><a class="toc-backref" href="#id1">Ganeti reason trail</a><a class="headerlink" href="#ganeti-reason-trail" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-reason-trail" id="id1">Ganeti reason trail</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a></li>
+<li><a class="reference internal" href="#implementation" id="id4">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the implementation of a way for Ganeti to
+track the origin and the reason of every executed command, from its starting
+point (command line, remote API, some htool, etc.) to its actual execution
+time.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>There is currently no way to track why a job and all the operations part of it
+were executed, and who or what triggered the execution.
+This is an inconvenience in general, and also it makes impossible to have
+certain information, such as finding the reason why an instance last changed its
+status (i.e.: why it was started/stopped/rebooted/etc.), or distinguishing
+an admin request from a scheduled maintenance or an automated tool&#8217;s work.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to introduce a new piece of information, that will be called &#8220;reason
+trail&#8221;, to track the path from the issuing of a command to its execution.</p>
+<p>The reason trail will be a list of 3-tuples <tt class="docutils literal"><span class="pre">(source,</span> <span class="pre">reason,</span> <span class="pre">timestamp)</span></tt>,
+with:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">source</span></tt></dt>
+<dd>The entity deciding to perform (or forward) a command.
+It is represented by an arbitrary string, but strings prepended by &#8220;gnt:&#8221;
+are reserved for Ganeti components, and they will be refused by the
+interfaces towards the external world.</dd>
+<dt><tt class="docutils literal"><span class="pre">reason</span></tt></dt>
+<dd>The reason why the entity decided to perform the operation.
+It is represented by an arbitrary string. The string might possibly be empty,
+because certain components of the system might just &#8220;pass on&#8221; the operation
+(therefore wanting to be recorded in the trail) but without an explicit
+reason.</dd>
+<dt><tt class="docutils literal"><span class="pre">timestamp</span></tt></dt>
+<dd>The time when the element was added to the reason trail. It has to be
+expressed in nanoseconds since the unix epoch (0:00:00 January 01, 1970).
+If not enough precision is available (or needed) it can be padded with
+zeroes.</dd>
+</dl>
+<p>The reason trail will be attached at the OpCode level. When it has to be
+serialized externally (such as on the RAPI interface), it will be serialized in
+JSON format. Specifically, it will be serialized as a list of elements.
+Each element will be a list with two strings (for <tt class="docutils literal"><span class="pre">source</span></tt> and <tt class="docutils literal"><span class="pre">reason</span></tt>)
+and one integer number (the <tt class="docutils literal"><span class="pre">timestamp</span></tt>).</p>
+<p>Any component the operation goes through is allowed (but not required) to append
+it&#8217;s own reason to the list. Other than this, the list shouldn&#8217;t be modified.</p>
+<p>As an example here is the reason trail for a shutdown operation invoked from
+the command line through the gnt-instance tool:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="s">&quot;Cleanup of unused instances&quot;</span><span class="p">,</span> <span class="mi">1363088484000000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:client:gnt-instance&quot;</span><span class="p">,</span> <span class="s">&quot;stop&quot;</span><span class="p">,</span> <span class="mi">1363088484020000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:opcode:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;job=1234;index=0&quot;</span><span class="p">,</span> <span class="mi">1363088484026000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:daemon:noded:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">1363088484135000000</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>where the first 3-tuple is determined by a user-specified message, passed to
+gnt-instance through a command line parameter.</p>
+<p>The same operation, launched by an external GUI tool, and executed through the
+remote API, would have a reason trail like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="s">&quot;Cleanup of unused instances&quot;</span><span class="p">,</span> <span class="mi">1363088484000000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;other-app:tool-name&quot;</span><span class="p">,</span> <span class="s">&quot;gui:stop&quot;</span><span class="p">,</span> <span class="mi">1363088484000300000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:client:rapi:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">1363088484020000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:library:rlib2:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">1363088484023000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:opcode:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;job=1234;index=0&quot;</span><span class="p">,</span> <span class="mi">1363088484026000000</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&quot;gnt:daemon:noded:shutdown&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">1363088484135000000</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="implementation">
+<h2><a class="toc-backref" href="#id4">Implementation</a><a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>The OpCode base class will be modified to include a new parameter, &#8220;reason&#8221;.
+This will receive the reason trail as built by all the previous steps.</p>
+<p>When an OpCode is added to a job (in jqueue.py) the job number and the opcode
+index will be recorded as the reason for the existence of that opcode.</p>
+<p>From the command line tools down to the opcodes, the implementation of this
+design will be shared by all the components of the system. After the opcodes
+have been enqueued in a job queue and are dispatched for execution, the
+implementation will have to be OpCode specific because of the current
+structure of the ganeti backend.</p>
+<p>The implementation of opcode-specific parts will start from the operations that
+affect the instance status (as required by the design document about the
+monitoring daemon, for the instance status data collector). Such opcodes will
+be changed so that the &#8220;reason&#8221; is passed to them and they will then export
+the reason trail on a file.</p>
+<p>The implementation for other opcodes will follow when required.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti reason trail</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a></li>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-rapi-pam.html"
+                        title="previous chapter">RAPI authentication and authorization using PAM</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-repaird.html"
+                        title="next chapter">Ganeti Maintenance Daemon</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-reason-trail.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-repaird.html" title="Ganeti Maintenance Daemon"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-rapi-pam.html" title="RAPI authentication and authorization using PAM"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

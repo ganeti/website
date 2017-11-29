@@ -1,0 +1,1028 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.Program.Hbal</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-Program-Hbal.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.Program.Hbal</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Cluster rebalancer.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aoptions"
+>options</A
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AiterateDepth"
+>iterateDepth</A
+> :: Bool -&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+> -&gt; Int -&gt; Bool -&gt; Bool -&gt; Int -&gt; Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AMoveJob"
+>MoveJob</A
+>] -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+> -&gt; Bool -&gt; IO (<A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3AMoveJob"
+>MoveJob</A
+>])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AprintStats"
+>printStats</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AsaveBalanceCommands"
+>saveBalanceCommands</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; String -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AwaitForJobs"
+>waitForJobs</A
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [String] -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckJobsStatus"
+>checkJobsStatus</A
+> :: [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>] -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexecWrapper"
+>execWrapper</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IORef Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AexecJobSet"
+>execJobSet</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IORef Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaybeExecJobs"
+>maybeExecJobs</A
+> ::  <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [a] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhangleSigInt"
+>hangleSigInt</A
+> :: IORef Int -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AhangleSigTerm"
+>hangleSigTerm</A
+> :: IORef Int -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArunJobSet"
+>runJobSet</A
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AselectGroup"
+>selectGroup</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO (String, (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>))</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckCluster"
+>checkCluster</A
+> :: Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckGroup"
+>checkGroup</A
+> :: Int -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcheckNeedRebalance"
+>checkNeedRebalance</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+> -&gt; IO ()</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Amain"
+>main</A
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:options"
+><A NAME="v%3Aoptions"
+></A
+></A
+><B
+>options</B
+> :: [<A HREF="Ganeti-HTools-CLI.html#t%3AOptType"
+>OptType</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#options"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Options list and functions.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:iterateDepth"
+><A NAME="v%3AiterateDepth"
+></A
+></A
+><B
+>iterateDepth</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#iterateDepth"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Bool</TD
+><TD CLASS="rdoc"
+>Whether to print moves
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+></TD
+><TD CLASS="rdoc"
+>The starting table
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Int</TD
+><TD CLASS="rdoc"
+>Remaining length
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Allow disk moves
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Allow instance moves
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Int</TD
+><TD CLASS="rdoc"
+>Max node name len
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Int</TD
+><TD CLASS="rdoc"
+>Max instance name len
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AMoveJob"
+>MoveJob</A
+>]</TD
+><TD CLASS="rdoc"
+>Current command list
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>Score at which to stop
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>Min gain limit
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+></TD
+><TD CLASS="rdoc"
+>Min score gain
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Bool</TD
+><TD CLASS="rdoc"
+>Enable evacuation mode
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; IO (<A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+>, [<A HREF="Ganeti-HTools-Types.html#t%3AMoveJob"
+>MoveJob</A
+>])</TD
+><TD CLASS="rdoc"
+>The resulting table
+ and commands
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Start computing the solution at the given depth and recurse until
+we find a valid solution or we exceed the maximum depth.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:printStats"
+><A NAME="v%3AprintStats"
+></A
+></A
+><B
+>printStats</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#printStats"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Displays the cluster stats.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:saveBalanceCommands"
+><A NAME="v%3AsaveBalanceCommands"
+></A
+></A
+><B
+>saveBalanceCommands</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; String -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#saveBalanceCommands"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Saves the rebalance commands to a text file.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:waitForJobs"
+><A NAME="v%3AwaitForJobs"
+></A
+></A
+><B
+>waitForJobs</B
+> :: <A HREF="Ganeti-Luxi.html#t%3AClient"
+>Client</A
+> -&gt; [String] -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#waitForJobs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Polls a set of jobs at a fixed interval until all are finished
+ one way or another.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkJobsStatus"
+><A NAME="v%3AcheckJobsStatus"
+></A
+></A
+><B
+>checkJobsStatus</B
+> :: [<A HREF="Ganeti-Jobs.html#t%3AJobStatus"
+>JobStatus</A
+>] -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#checkJobsStatus"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that a set of job statuses is all success.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:execWrapper"
+><A NAME="v%3AexecWrapper"
+></A
+></A
+><B
+>execWrapper</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IORef Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#execWrapper"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over execJobSet checking for early termination.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:execJobSet"
+><A NAME="v%3AexecJobSet"
+></A
+></A
+><B
+>execJobSet</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IORef Int -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#execJobSet"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Execute an entire jobset.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maybeExecJobs"
+><A NAME="v%3AmaybeExecJobs"
+></A
+></A
+><B
+>maybeExecJobs</B
+> ::  <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [a] -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#maybeExecJobs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Executes the jobs, if possible and desired.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:hangleSigInt"
+><A NAME="v%3AhangleSigInt"
+></A
+></A
+><B
+>hangleSigInt</B
+> :: IORef Int -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#hangleSigInt"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Signal handler for graceful termination.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:hangleSigTerm"
+><A NAME="v%3AhangleSigTerm"
+></A
+></A
+><B
+>hangleSigTerm</B
+> :: IORef Int -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#hangleSigTerm"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Signal handler for immediate termination.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:runJobSet"
+><A NAME="v%3ArunJobSet"
+></A
+></A
+><B
+>runJobSet</B
+> :: String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AJobSet"
+>JobSet</A
+>] -&gt; IO Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#runJobSet"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Runs a job set with handling of signals.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:selectGroup"
+><A NAME="v%3AselectGroup"
+></A
+></A
+><B
+>selectGroup</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO (String, (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>))</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#selectGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Select the target node group.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkCluster"
+><A NAME="v%3AcheckCluster"
+></A
+></A
+><B
+>checkCluster</B
+> :: Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#checkCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Do a few checks on the cluster data.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkGroup"
+><A NAME="v%3AcheckGroup"
+></A
+></A
+><B
+>checkGroup</B
+> :: Int -&gt; String -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#checkGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Do a few checks on the selected group data.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:checkNeedRebalance"
+><A NAME="v%3AcheckNeedRebalance"
+></A
+></A
+><B
+>checkNeedRebalance</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AScore"
+>Score</A
+> -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#checkNeedRebalance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that we actually need to rebalance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:main"
+><A NAME="v%3Amain"
+></A
+></A
+><B
+>main</B
+> :: <A HREF="Ganeti-HTools-CLI.html#t%3AOptions"
+>Options</A
+> -&gt; [String] -&gt; IO ()</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/Program/Hbal.html#main"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Main function.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

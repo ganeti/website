@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-extstorage-interface(7) Ganeti | Version 2.16.0~rc1</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-extstorage-interface(7) Ganeti | Version 2.16.0~rc1</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#reference">REFERENCE</a><ul>
+<li><a href="#common-environment">Common environment</a></li>
+</ul></li>
+<li><a href="#executable-scripts">EXECUTABLE SCRIPTS</a><ul>
+<li><a href="#create">create</a></li>
+<li><a href="#attach">attach</a></li>
+<li><a href="#detach">detach</a></li>
+<li><a href="#remove">remove</a></li>
+<li><a href="#grow">grow</a></li>
+<li><a href="#setinfo">setinfo</a></li>
+<li><a href="#verify">verify</a></li>
+<li><a href="#snapshot">snapshot</a></li>
+<li><a href="#open">open</a></li>
+<li><a href="#close">close</a></li>
+</ul></li>
+<li><a href="#text-files">TEXT FILES</a><ul>
+<li><a href="#parameters.list">parameters.list</a></li>
+</ul></li>
+<li><a href="#examples">EXAMPLES</a></li>
+<li><a href="#notes">NOTES</a><ul>
+<li><a href="#backwards-compatibility">Backwards compatibility</a></li>
+<li><a href="#common-behaviour">Common behaviour</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>ganeti-extstorage-interface - Specifications for ExtStorage providers</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The method for supporting external shared storage in Ganeti is to have an ExtStorage provider for each external shared storage hardware type. The ExtStorage provider is a set of files (executable scripts and text files), contained inside a directory which is named after the provider. This directory must be present across all nodes of a nodegroup (Ganeti doesn't replicate it), in order for the provider to be usable by Ganeti for this nodegroup (valid). The external shared storage hardware should also be accessible by all nodes of this nodegroup too.</p>
+<h1 id="reference"><a href="#TOC">REFERENCE</a></h1>
+<p>There are eight required files: <em>create</em>, <em>attach</em>, <em>detach</em>, <em>remove</em>, <em>grow</em>, <em>setinfo</em>, <em>verify</em>, (executables) and <em>parameters.list</em> (text file).</p>
+<p>There are also three optional files: <em>open</em>, <em>close</em>, and <em>snapshot</em> (executables).</p>
+<h2 id="common-environment"><a href="#TOC">Common environment</a></h2>
+<p>All commands will get their input via environment variables. A common set of variables will be exported for all commands, and some commands might have extra variables. Note that all counts are zero-based.</p>
+<p>Since Ganeti version 2.5, the environment will be cleaned up before being passed to scripts, therefore they will not inherit the environment in with which the ganeti node daemon was started. If you depend on any environment variables (non-Ganeti), then you will need to define or source them appropriately.</p>
+<dl>
+<dt>VOL_NAME</dt>
+<dd><p>The name of the volume. This is unique for Ganeti and it uses it to refer to a specific volume inside the external storage. Its format is <code>UUID.ext.diskX</code> where <code>UUID</code> is produced by Ganeti and is unique inside the Ganeti context. <code>X</code> is the number of the disk count.</p>
+</dd>
+<dt>VOL_SIZE</dt>
+<dd><p>Available only to the <strong>create</strong> and <strong>grow</strong> scripts. The volume's size in mebibytes.</p>
+</dd>
+<dt>VOL_NEW_SIZE</dt>
+<dd><p>Available only to the <strong>grow</strong> script. It declares the new size of the volume after grow (in mebibytes). To find the amount of grow, the scipt should calculate the number VOL_NEW_SIZE - VOL_SIZE.</p>
+</dd>
+<dt>EXTP_<em>name</em></dt>
+<dd><p>Each ExtStorage parameter (see below) will be exported in its own variable, prefixed with <code>EXTP_</code>, and upper-cased. For example, a <code>fromsnap</code> parameter will be exported as <code>EXTP_FROMSNAP</code>.</p>
+</dd>
+<dt>VOL_METADATA</dt>
+<dd><p>Available only to the <strong>setinfo</strong> script. A string containing metadata to be associated with the volume. Currently, Ganeti sets this value to <code>originstname+X</code> where <code>X</code> is the instance's name.</p>
+</dd>
+<dt>VOL_CNAME</dt>
+<dd><p>The human-readable name of the Disk config object (optional).</p>
+</dd>
+<dt>VOL_UUID</dt>
+<dd><p>The uuid of the Disk config object.</p>
+</dd>
+<dt>VOL_SNAPSHOT_NAME</dt>
+<dd><p>The name of the volume's snapshot.</p>
+</dd>
+<dt>VOL_SNAPSHOT_SIZE</dt>
+<dd><p>The size of the volume's snapshot.</p>
+</dd>
+<dt>VOL_OPEN_EXCLUSIVE</dt>
+<dd><p>Whether the volume will be opened for exclusive access or not. This will be False (denoting shared access) during migration.</p>
+</dd>
+</dl>
+<h1 id="executable-scripts"><a href="#TOC">EXECUTABLE SCRIPTS</a></h1>
+<h2 id="create"><a href="#TOC">create</a></h2>
+<p>The <strong>create</strong> command is used for creating a new volume inside the external storage. The <code>VOL_NAME</code> denotes the volume's name, which should be unique. After creation, Ganeti will refer to this volume by this name for all other actions.</p>
+<p>Ganeti produces this name dynamically and ensures its uniqueness inside the Ganeti context. Therefore, you should make sure not to provision manually additional volumes inside the external storage with this type of name, because this will lead to conflicts and possible loss of data.</p>
+<p>The <code>VOL_SIZE</code> variable denotes the size of the new volume to be created in mebibytes.</p>
+<p>If the script ends successfully, a new volume of size <code>VOL_SIZE</code> should exist inside the external storage. e.g:: a lun inside a NAS appliance.</p>
+<p>The script returns <code>0</code> on success.</p>
+<h2 id="attach"><a href="#TOC">attach</a></h2>
+<p>This command is used in order to make an already created volume visible to the physical node which will host the instance. This is done by mapping the already provisioned volume to a block device inside the host node.</p>
+<p>The <code>VOL_NAME</code> variable denotes the volume to be mapped.</p>
+<p>After successful attachment the script returns to its stdout a string, which is the full path of the block device to which the volume is mapped. e.g:: /dev/dummy1</p>
+<p>When attach returns, this path should be a valid block device on the host node.</p>
+<p>The attach script should be idempotent if the volume is already mapped. If the requested volume is already mapped, then the script should just return to its stdout the path which is already mapped to.</p>
+<p>In case the storage technology supports userspace access to volumes as well, e.g. the QEMU Hypervisor can see an RBD volume using its embedded driver for the RBD protocol, then the provider can return extra lines denoting the available userspace access URIs per hypervisor. The URI should be in the following format: &lt;hypervisor&gt;:&lt;uri&gt;. For example, a RADOS provider should return kvm:rbd:&lt;pool&gt;/&lt;volume name&gt; in the second line of stdout after the local block device path (e.g. /dev/rbd1).</p>
+<p>So, if the <code>access</code> disk parameter is <code>userspace</code> for the ext disk template, then the QEMU command will end up having file=&lt;URI&gt; in the <code>-drive</code> option.</p>
+<p>In case the storage technology supports <em>only</em> userspace access to volumes, then the first line of stdout should be an empty line, denoting that a local block device is not available. If neither a block device nor a URI is returned, then Ganeti will complain.</p>
+<h2 id="detach"><a href="#TOC">detach</a></h2>
+<p>This command is used in order to unmap an already mapped volume from the host node. Detach undoes everything attach did. This is done by unmapping the requested volume from the block device it is mapped to.</p>
+<p>The <code>VOL_NAME</code> variable denotes the volume to be unmapped.</p>
+<p><code>detach</code> doesn't affect the volume itself. It just unmaps it from the host node. The volume continues to exist inside the external storage. It's just not accessible by the node anymore. This script doesn't return anything to its stdout.</p>
+<p>The detach script should be idempotent if the volume is already unmapped. If the volume is not mapped, the script doesn't perform any action at all.</p>
+<p>The script returns <code>0</code> on success.</p>
+<h2 id="remove"><a href="#TOC">remove</a></h2>
+<p>This command is used to remove an existing volume from the external storage. The volume is permanently removed from inside the external storage along with all its data.</p>
+<p>The <code>VOL_NAME</code> variable denotes the volume to be removed.</p>
+<p>The script returns <code>0</code> on success.</p>
+<h2 id="grow"><a href="#TOC">grow</a></h2>
+<p>This command is used to grow an existing volume of the external storage.</p>
+<p>The <code>VOL_NAME</code> variable denotes the volume to grow.</p>
+<p>The <code>VOL_SIZE</code> variable denotes the current volume's size (in mebibytes). The <code>VOL_NEW_SIZE</code> variable denotes the final size after the volume has been grown (in mebibytes).</p>
+<p>The amount of grow can be easily calculated by the scipt and is:</p>
+<p>grow_amount = VOL_NEW_SIZE - VOL_SIZE (in mebibytes)</p>
+<p>Ganeti ensures that: <code>VOL_NEW_SIZE</code> &gt; <code>VOL_SIZE</code></p>
+<p>If the script returns successfully, then the volume inside the external storage will have a new size of <code>VOL_NEW_SIZE</code>. This isn't immediately reflected to the instance's disk. See <code>gnt-instance grow</code> for more details on when the running instance becomes aware of its grown disk.</p>
+<p>The script returns <code>0</code> on success.</p>
+<h2 id="setinfo"><a href="#TOC">setinfo</a></h2>
+<p>This script is used to add metadata to an existing volume. It is helpful when we need to keep an external, Ganeti-independent mapping between instances and volumes; primarily for recovery reasons. This is provider specific and the author of the provider chooses whether/how to implement this. You can just exit with <code>0</code>, if you do not want to implement this feature, without harming the overall functionality of the provider.</p>
+<p>The <code>VOL_METADATA</code> variable contains the metadata of the volume.</p>
+<p>Currently, Ganeti sets this value to <code>originstname+X</code> where <code>X</code> is the instance's name.</p>
+<p>The script returns <code>0</code> on success.</p>
+<h2 id="verify"><a href="#TOC">verify</a></h2>
+<p>The <em>verify</em> script is used to verify consistency of the external parameters (ext-params) (see below). The command should take one or more arguments denoting what checks should be performed, and return a proper exit code depending on whether the validation failed or succeeded.</p>
+<p>Currently, the script is not invoked by Ganeti, but should be present for future use and consistency with gnt-os-interface's verify script.</p>
+<p>The script should return <code>0</code> on success.</p>
+<h2 id="snapshot"><a href="#TOC">snapshot</a></h2>
+<p>The <em>snapshot</em> script is used to take a snapshot of the given volume.</p>
+<p>The <code>VOL_SNAPSHOT_NAME</code> and <code>VOL_SNAPSHOT_SIZE</code> variables contain the name and size of the snapshot we are about to create.</p>
+<p>Currently this operation is used only during gnt-backup export and Ganeti sets those values to <code>VOL_NAME.snap</code> and <code>VOL_SIZE</code> respectively (see above).</p>
+<p>The script returns <code>0</code> on success.</p>
+<p>Please note that this script is optional and not all providers should implement it. Of course if it is not present, instance backup export will not be supported for the given provider.</p>
+<h2 id="open"><a href="#TOC">open</a></h2>
+<p>The <em>open</em> script is used to open the given volume.</p>
+<p>This makes the volume ready for I/O.</p>
+<p>The <code>VOL_OPEN_EXCLUSIVE</code> variable denotes whether the volume will be opened for exclusive access or not. It is True by default and False (denoting shared access) during migration.</p>
+<p>The script returns <code>0</code> on success.</p>
+<p>Please note that this script is optional and not all providers should implement it.</p>
+<h2 id="close"><a href="#TOC">close</a></h2>
+<p>The <em>close</em> script is used to close the given volume.</p>
+<p>This disables I/O on the volume.</p>
+<p>The script returns <code>0</code> on success.</p>
+<p>Please note that this script is optional and not all providers should implement it.</p>
+<h1 id="text-files"><a href="#TOC">TEXT FILES</a></h1>
+<h2 id="parameters.list"><a href="#TOC">parameters.list</a></h2>
+<p>This file declares the parameters supported by the ExtStorage provider, one parameter per line, with name and description (space and/or tab separated). For example:</p>
+<pre><code>fromsnap Snapshot name to create the volume from
+nas_ip The IP of the NAS appliance</code></pre>
+<p>The parameters can then be used during instance add as follows:</p>
+<pre><code># gnt-instance add --disk=0:fromsnap=&quot;file_name&quot;,nas_ip=&quot;1.2.3.4&quot; ...</code></pre>
+<h1 id="examples"><a href="#TOC">EXAMPLES</a></h1>
+<p>In the following examples we assume that you have already installed successfully two ExtStorage providers: <code>pvdr1</code> and <code>pvdr2</code></p>
+<p>Add a new instance with a 10G first disk provided by <code>pvdr1</code> and a 20G second disk provided by <code>pvdr2</code>:</p>
+<pre><code># gnt-instance add -t ext --disk=0:size=10G,provider=pvdr1
+                          --disk=1:size=20G,provider=pvdr2</code></pre>
+<p>Add a new instance with a 5G first disk provided by provider <code>pvdr1</code> and also pass the <code>prm1</code>, <code>prm2</code> parameters to the provider, with the corresponding values <code>val1</code>, <code>val2</code>:</p>
+<pre><code># gnt-instance add -t ext
+                   --disk=0:size=5G,provider=pvdr1,prm1=val1,prm2=val2</code></pre>
+<p>Modify an existing instance of disk type <code>ext</code> by adding a new 30G disk provided by provider <code>pvdr2</code>:</p>
+<pre><code># gnt-instance modify --disk 1:add,size=30G,provider=pvdr2 &lt;instance&gt;</code></pre>
+<p>Modify an existing instance of disk type <code>ext</code> by adding 2 new disks, of different providers, passing one parameter for the first one:</p>
+<pre><code># gnt-instance modify --disk 2:add,size=3G,provider=pvdr1,prm1=val1
+                      --disk 3:add,size=5G,provider=pvdr2
+                      &lt;instance&gt;</code></pre>
+<h1 id="notes"><a href="#TOC">NOTES</a></h1>
+<h2 id="backwards-compatibility"><a href="#TOC">Backwards compatibility</a></h2>
+<p>The ExtStorage Interface was introduced in Ganeti 2.7. Ganeti 2.7 and up is compatible with the ExtStorage Interface.</p>
+<h2 id="common-behaviour"><a href="#TOC">Common behaviour</a></h2>
+<p>All the scripts should display an usage message when called with a wrong number of arguments or when the first argument is <code>-h</code> or <code>--help</code>.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Filtering of jobs for the Ganeti job queue &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti OS installation redesign" href="design-os.html" />
+    <link rel="prev" title="Design for parallelized instance creations and opportunistic locking" href="design-opportunistic-locking.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-os.html" title="Ganeti OS installation redesign"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="filtering-of-jobs-for-the-ganeti-job-queue">
+<h1><a class="toc-backref" href="#id1">Filtering of jobs for the Ganeti job queue</a><a class="headerlink" href="#filtering-of-jobs-for-the-ganeti-job-queue" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#filtering-of-jobs-for-the-ganeti-job-queue" id="id1">Filtering of jobs for the Ganeti job queue</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings" id="id2">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes" id="id3">Proposed changes</a><ul>
+<li><a class="reference internal" href="#format-of-a-filter-rule" id="id4">Format of a Filter rule</a></li>
+<li><a class="reference internal" href="#when-a-filter-rule-applies" id="id5">When a filter rule applies</a></li>
+<li><a class="reference internal" href="#predicates-available-for-the-filter-rules" id="id6">Predicates available for the filter rules</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id7">Examples</a></li>
+<li><a class="reference internal" href="#interface" id="id8">Interface</a></li>
+<li><a class="reference internal" href="#security-considerations" id="id9">Security considerations</a></li>
+<li><a class="reference internal" href="#additional-ad-hoc-rate-limiting" id="id10">Additional Ad-Hoc Rate Limiting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>This is a design document detailing the semantics of the fine-grained control
+of jobs in Ganeti. For the implementation there will be a separate
+design document that also describes the vision for the Ganeti daemon
+structure.</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2><a class="toc-backref" href="#id2">Current state and shortcomings</a><a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>Control of the Ganeti job queue is quite limited. There is a single
+status bit, the &#8220;drained flag&#8221;. If set, no new jobs are accepted to
+the queue. This is too coarse for some use cases.</p>
+<ul class="simple">
+<li>The queue might be required to be drained for several reasons,
+initiated by different persons or automatic programs. Each one
+should be able to indicate that his reasons for draining are over
+without affecting the others.</li>
+<li>There is no support for partial drains. For example, one might want
+to allow all jobs belonging to a manual (or externally coordinated)
+maintenance, while disallowing all other jobs.</li>
+<li>There is no support for blocking jobs by their op-codes, e.g.,
+disallowing all jobs that bring new instances to a cluster. This might
+be part of a maintenance preparation.</li>
+<li>There is no support for a soft version of draining, where all
+jobs currently in the queue are finished, while new jobs entering
+the queue are delayed until the drain is over.</li>
+</ul>
+</div>
+<div class="section" id="proposed-changes">
+<h2><a class="toc-backref" href="#id3">Proposed changes</a><a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>We propose to add filters on the job queue. These will be part of the
+configuration and as such are persisted with it. Conceptionally, the
+filters are always processed when a job enters the queue and while it
+is still in the queue. Of course, in the implementation, reevaluation
+is only carried out, if something could make the result change, e.g.,
+a new job is entered to the queue, or the filter rules are changed.
+There is no distinction between filter processing when a job is about
+to enter the queue and while it is in the queue, as this can be
+expressed by the filter rules themselves (see predicates below).</p>
+<div class="section" id="format-of-a-filter-rule">
+<h3><a class="toc-backref" href="#id4">Format of a Filter rule</a><a class="headerlink" href="#format-of-a-filter-rule" title="Permalink to this headline">¶</a></h3>
+<p>Filter rules are given by the following data.</p>
+<ul>
+<li><p class="first">A UUID. This ensures that there can be different filter rules
+that otherwise have all parameters equal. In this way, multiple
+drains for different reasons are possible. The UUID is used to
+address the filter rule, in particular for deletion.</p>
+<p>If no UUID is provided at rule addition, Ganeti will create one.</p>
+</li>
+<li><p class="first">The watermark. This is the highest job id ever used, as valid in
+the moment when the filter was added. This data will be added
+automatically upon addition of the filter.</p>
+</li>
+<li><p class="first">A priority. This is a non-negative integer. Filters are processed
+in order of increasing priority. While there
+is a well-defined order in which rules of the same priority are
+evaluated (increasing watermark, then the UUID, are taken as tie
+breakers), it is not recommended to have rules of the same priority
+that overlap and have different actions associated.</p>
+</li>
+<li><p class="first">A list of predicates to be matched against the job.</p>
+</li>
+<li><p class="first">An action. For the time being, one of the following, but more
+actions might be added in the future (in particular, future
+implementations might add an action making filtering continue with
+a different filter chain).</p>
+<ul class="simple">
+<li>ACCEPT. The job will be accepted; no further filter rules
+are applied.</li>
+<li>PAUSE. The job will be accepted to the queue and remain there;
+however, it is not executed. If an opcode is currently running,
+it continues, but the next opcode will not be started. For a paused
+job all locks it might have acquired will be released as soon as
+possible, at the latest when the currently running opcode has
+finished. The job queue will take care of this.</li>
+<li>REJECT. The job is rejected. If it is already in the queue,
+it will be cancelled.</li>
+<li>CONTINUE. The filtering continues processing with the next
+rule. Such a rule will never have any direct or indirect effect,
+but it can serve as documentation for a &#8220;normally present, but
+currently disabled&#8221; rule.</li>
+<li>RATE_LIMIT <tt class="docutils literal"><span class="pre">n</span></tt>, where <tt class="docutils literal"><span class="pre">n</span></tt> is a positive integer. The job will
+be held in the queue while <tt class="docutils literal"><span class="pre">n</span></tt> or more jobs where this rule
+applies are running. Jobs that are forked off from luxid are
+considered running. Jobs already running when this rule is added
+are not changed. Logically, this rule is applied job by job
+sequentially, so that the number of jobs where this rule applies
+is limited to <tt class="docutils literal"><span class="pre">n</span></tt> once the jobs running at rule addition have
+finished.</li>
+</ul>
+</li>
+<li><p class="first">A reason trail, in the same format as reason trails for opcodes.
+This allows to find out, which maintenance (or other reason) caused
+the addition of this filter rule.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="when-a-filter-rule-applies">
+<h3><a class="toc-backref" href="#id5">When a filter rule applies</a><a class="headerlink" href="#when-a-filter-rule-applies" title="Permalink to this headline">¶</a></h3>
+<p>A filter rule in a filter chain <em>applies</em> to a job if it is the first rule
+in the chain of which all predicates <em>match</em> the job, and if its action is not
+CONTINUE.</p>
+<p>Filter chains are processed in increasing order of priority (lowest number
+means highest priority), then watermark, then UUID.</p>
+</div>
+<div class="section" id="predicates-available-for-the-filter-rules">
+<span id="filter-predicates"></span><h3><a class="toc-backref" href="#id6">Predicates available for the filter rules</a><a class="headerlink" href="#predicates-available-for-the-filter-rules" title="Permalink to this headline">¶</a></h3>
+<p>A predicate is a list, with the first element being the name of the
+predicate and the rest being parameters suitable for that predicate.
+In most cases, the name of the predicate will be a field of a job,
+and there will be a single parameter, which is a boolean expression
+(<tt class="docutils literal"><span class="pre">filter</span></tt>) in the sense
+of the Ganeti query language. However, no assumption should be made
+that all predicates are of this shape. More predicates may be added
+in the future.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">jobid</span></tt>. Only parameter is a boolean expression. For this expression,
+there is only one field available, <tt class="docutils literal"><span class="pre">id</span></tt>, which represents the id the job to be
+filtered. In all value positions, the string <tt class="docutils literal"><span class="pre">watermark</span></tt> will be
+replaced by the value of the watermark.</li>
+<li><tt class="docutils literal"><span class="pre">opcode</span></tt>. Only parameter is a boolean expression. For this expression, <tt class="docutils literal"><span class="pre">OP_ID</span></tt>
+and all other fields present in the opcode are available. This predicate
+will hold true, if the expression is true for at least one opcode in
+the job.</li>
+<li><tt class="docutils literal"><span class="pre">reason</span></tt>. Only parameter is a boolean expression. For this expression, the three
+fields <tt class="docutils literal"><span class="pre">source</span></tt>, <tt class="docutils literal"><span class="pre">reason</span></tt>, <tt class="docutils literal"><span class="pre">timestamp</span></tt> of reason trail entries
+are available. This predicate is true, if one of the entries of one
+of the opcodes in this job satisfies the expression.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id7">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Draining the queue.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s">&quot;predicates&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s">&quot;jobid&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;watermark&quot;</span><span class="p">]]],</span>
+ <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;REJECT&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Soft draining could be achieved by replacing <tt class="docutils literal"><span class="pre">REJECT</span></tt> by <tt class="docutils literal"><span class="pre">PAUSE</span></tt> in the
+above example.</p>
+<p>Pausing all new jobs not belonging to a specific maintenance.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s">&quot;predicates&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s">&quot;reason&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;=~&quot;</span><span class="p">,</span> <span class="s">&quot;reason&quot;</span><span class="p">,</span> <span class="s">&quot;maintenance pink bunny&quot;</span><span class="p">]]],</span>
+ <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;ACCEPT&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+ <span class="s">&quot;predicates&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s">&quot;jobid&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;watermark&quot;</span><span class="p">]]],</span>
+ <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;PAUSE&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Cancelling all queued instance creations and disallowing new such jobs.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+ <span class="s">&quot;predicates&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s">&quot;opcode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ID&quot;</span><span class="p">,</span> <span class="s">&quot;OP_INSTANCE_CREATE&quot;</span><span class="p">]]],</span>
+ <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="s">&quot;REJECT&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Limiting the number of simultaneous instance disk replacements to 10 in order
+to throttle replication traffic.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+ <span class="s">&quot;predicates&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s">&quot;opcode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="s">&quot;OP_ID&quot;</span><span class="p">,</span> <span class="s">&quot;OP_INSTANCE_REPLACE_DISKS&quot;</span><span class="p">]]],</span>
+ <span class="s">&quot;action&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;RATE_LIMIT&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">]}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="interface">
+<h2><a class="toc-backref" href="#id8">Interface</a><a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h2>
+<p>Since queue control is intended to be used by external maintenance-handling
+tools as well, the primary interface for manipulating queue filters is the
+<a class="reference internal" href="rapi.html"><em>Ganeti remote API</em></a>. For convenience, a command-line interface will be added as well.</p>
+<p>The following resources will be added.</p>
+<ul class="simple">
+<li>/2/filters/<ul>
+<li>GET returns the list of all currently set filters</li>
+<li>POST adds a new filter</li>
+</ul>
+</li>
+<li>/2/filters/[uuid]<ul>
+<li>GET returns the description of the specified filter</li>
+<li>DELETE removes the specified filter</li>
+<li>PUT replaces the specified filter rule, or creates it,
+if it doesn&#8217;t exist already.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="security-considerations">
+<h2><a class="toc-backref" href="#id9">Security considerations</a><a class="headerlink" href="#security-considerations" title="Permalink to this headline">¶</a></h2>
+<p>Filtering of jobs is not a security feature. It merely serves the purpose
+of coordinating efforts and avoiding accidental conflicting
+jobs. Everybody with appropriate credentials can modify the filter
+rules, not just the originator of a rule. To avoid accidental
+lock-out, requests modifying the queue are executed directly and not
+going through the queue themselves.</p>
+</div>
+<div class="section" id="additional-ad-hoc-rate-limiting">
+<h2><a class="toc-backref" href="#id10">Additional Ad-Hoc Rate Limiting</a><a class="headerlink" href="#additional-ad-hoc-rate-limiting" title="Permalink to this headline">¶</a></h2>
+<p>Besides a general policy to control the job queue, it is often very
+useful to have a lightweight way for one-off rate-limiting. One
+example would be evacuating a node but limiting the number of
+simultaneous instance moves to no overload the replication network.</p>
+<p>Therefore, an additional rate limiting is done over the
+<a class="reference internal" href="design-reason-trail.html"><em>Ganeti reason trail</em></a> as follows. <tt class="docutils literal"><span class="pre">reason</span></tt> fields in a reason
+3-tuple starting with <tt class="docutils literal"><span class="pre">rate-limit:n:</span></tt> where <tt class="docutils literal"><span class="pre">n</span></tt> is a positive
+integer are considered rate-limiting buckets. A job belongs to a
+rate-limiting bucket if it contains at least one op-code with at least
+one reason-trail 3-tuple with that particular <tt class="docutils literal"><span class="pre">reason</span></tt> field. The
+scheduler will ensure that, for each rate-limiting bucket, there are
+at most <tt class="docutils literal"><span class="pre">n</span></tt> jobs belonging to that bucket that are running in
+parallel.</p>
+<p>The limiting in the initial example can then be done as follows.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node evacuate --reason=&#39;rate-limit:7:operation pink bunny&#39; node1</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Filtering of jobs for the Ganeti job queue</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current state and shortcomings</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed changes</a><ul>
+<li><a class="reference internal" href="#format-of-a-filter-rule">Format of a Filter rule</a></li>
+<li><a class="reference internal" href="#when-a-filter-rule-applies">When a filter rule applies</a></li>
+<li><a class="reference internal" href="#predicates-available-for-the-filter-rules">Predicates available for the filter rules</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#interface">Interface</a></li>
+<li><a class="reference internal" href="#security-considerations">Security considerations</a></li>
+<li><a class="reference internal" href="#additional-ad-hoc-rate-limiting">Additional Ad-Hoc Rate Limiting</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-opportunistic-locking.html"
+                        title="previous chapter">Design for parallelized instance creations and opportunistic locking</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-os.html"
+                        title="next chapter">Ganeti OS installation redesign</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-optables.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-os.html" title="Ganeti OS installation redesign"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-opportunistic-locking.html" title="Design for parallelized instance creations and opportunistic locking"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

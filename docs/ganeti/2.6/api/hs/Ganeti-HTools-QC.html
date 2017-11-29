@@ -1,0 +1,3521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.HTools.QC</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-HTools-QC.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/HTools/QC.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.HTools.QC</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Constants
+</A
+></DT
+><DT
+><A HREF="#2"
+>Helper functions
+</A
+></DT
+><DT
+><A HREF="#3"
+>Arbitrary instances
+</A
+></DT
+><DT
+><A HREF="#4"
+>Actual tests
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#5"
+>Utils tests
+</A
+></DT
+><DT
+><A HREF="#6"
+>PeerMap tests
+</A
+></DT
+><DT
+><A HREF="#7"
+>Container tests
+</A
+></DT
+><DT
+><A HREF="#8"
+>Instance tests
+</A
+></DT
+><DT
+><A HREF="#9"
+>Backends
+</A
+></DT
+><DD
+><DL
+><DT
+><A HREF="#10"
+>Text backend tests
+</A
+></DT
+><DT
+><A HREF="#11"
+>Simu backend
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#12"
+>Node tests
+</A
+></DT
+><DT
+><A HREF="#13"
+>Cluster tests
+</A
+></DT
+><DT
+><A HREF="#14"
+>OpCodes tests
+</A
+></DT
+><DT
+><A HREF="#15"
+>Jobs tests
+</A
+></DT
+><DT
+><A HREF="#16"
+>Loader tests
+</A
+></DT
+><DT
+><A HREF="#17"
+>Types tests
+</A
+></DT
+><DT
+><A HREF="#18"
+>CLI tests
+</A
+></DT
+></DL
+></DD
+><DT
+><A HREF="#19"
+>JSON tests
+</A
+></DT
+><DT
+><A HREF="#20"
+>Luxi tests
+</A
+></DT
+><DT
+><A HREF="#21"
+>Ssconf tests
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Unittests for ganeti-htools.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxMem"
+>maxMem</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxDsk"
+>maxDsk</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxCpu"
+>maxCpu</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxVcpuRatio"
+>maxVcpuRatio</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxSpindleRatio"
+>maxSpindleRatio</A
+> :: Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxNodes"
+>maxNodes</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmaxOpCodes"
+>maxOpCodes</A
+> :: Int</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AallDiskTemplates"
+>allDiskTemplates</A
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefGroup"
+>defGroup</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefGroupList"
+>defGroupList</A
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AdefGroupAssoc"
+>defGroupAssoc</A
+> :: Map String <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisFailure"
+>isFailure</A
+> ::  <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> a -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3A%3D%3D%3F"
+>(==?)</A
+> :: (Show a, Eq a) =&gt; a -&gt; a -&gt; Property</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AfailTest"
+>failTest</A
+> :: String -&gt; Property</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmakeSmallCluster"
+>makeSmallCluster</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AmakeSmallEmptyCluster"
+>makeSmallEmptyCluster</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisNodeBig"
+>isNodeBig</A
+> :: Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcanBalance"
+>canBalance</A
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+> -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AassignInstance"
+>assignInstance</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenUniquesList"
+>genUniquesList</A
+> :: (Eq a, Arbitrary a) =&gt; Int -&gt; Gen [a]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AisMirrored"
+>isMirrored</A
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AevacModeOptions"
+>evacModeOptions</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AMirrorType"
+>MirrorType</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AEvacMode"
+>EvacMode</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A HREF="#t%3ADNSChar"
+>DNSChar</A
+>  = <A HREF="#v%3ADNSChar"
+>DNSChar</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AdnsGetChar"
+>dnsGetChar</A
+> :: Char</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetName"
+>getName</A
+> :: Gen String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetFQDN"
+>getFQDN</A
+> :: Gen String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetMaybe"
+>getMaybe</A
+> ::  Gen a -&gt; Gen (Maybe a)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetFields"
+>getFields</A
+> :: Gen [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A HREF="#t%3ATagChar"
+>TagChar</A
+>  = <A HREF="#v%3ATagChar"
+>TagChar</A
+> {<TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="recfield"
+><A HREF="#v%3AtagGetChar"
+>tagGetChar</A
+> :: Char</TD
+></TR
+></TABLE
+>}</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtagChar"
+>tagChar</A
+> :: [Char]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenTag"
+>genTag</A
+> :: Gen [<A HREF="Ganeti-HTools-QC.html#t%3ATagChar"
+>TagChar</A
+>]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenTags"
+>genTags</A
+> :: Gen [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenInstanceSmallerThan"
+>genInstanceSmallerThan</A
+> :: Int -&gt; Int -&gt; Int -&gt; Gen <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenInstanceSmallerThanNode"
+>genInstanceSmallerThanNode</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Gen <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenNode"
+>genNode</A
+> :: Maybe Int -&gt; Maybe Int -&gt; Gen <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenOnlineNode"
+>genOnlineNode</A
+> :: Gen <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A HREF="#t%3ASmallRatio"
+>SmallRatio</A
+>  = <A HREF="#v%3ASmallRatio"
+>SmallRatio</A
+> Double</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenBiggerISpec"
+>genBiggerISpec</A
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AISpec"
+>ISpec</A
+> -&gt; Gen <A HREF="Ganeti-HTools-Types.html#t%3AISpec"
+>ISpec</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Utils_if%27if"
+>prop_Utils_if'if</A
+> :: Bool -&gt; Int -&gt; Int -&gt; Gen Prop</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Utils_select"
+>prop_Utils_select</A
+> :: Int -&gt; [Int] -&gt; [Int] -&gt; Gen Prop</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Utils_select_undefd"
+>prop_Utils_select_undefd</A
+> :: [Int] -&gt; NonEmptyList Int -&gt; Gen Prop</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Utils_select_undefv"
+>prop_Utils_select_undefv</A
+> :: [Int] -&gt; NonEmptyList Int -&gt; Gen Prop</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestUtils"
+>testUtils</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestPeerMap"
+>testPeerMap</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestContainer"
+>testContainer</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestInstance"
+>testInstance</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestText"
+>testText</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgenSimuSpec"
+>genSimuSpec</A
+> :: Gen (String, Int, Int, Int, Int)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestSimu"
+>testSimu</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestNode"
+>testNode</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcanAllocOn"
+>canAllocOn</A
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestCluster"
+>testCluster</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestOpCodes"
+>testOpCodes</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestJobs"
+>testJobs</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Loader_compareNameComponent_equal"
+>prop_Loader_compareNameComponent_equal</A
+> :: String -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Loader_compareNameComponent_prefix"
+>prop_Loader_compareNameComponent_prefix</A
+> :: NonEmptyList Char -&gt; String -&gt; Bool</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestLoader"
+>testLoader</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestTypes"
+>testTypes</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestCLI"
+>testCLI</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_JSON_toArray"
+>prop_JSON_toArray</A
+> :: [Int] -&gt; Property</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_JSON_toArrayFail"
+>prop_JSON_toArrayFail</A
+> :: Int -&gt; String -&gt; Bool -&gt; Property</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestJSON"
+>testJSON</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3Aprop_Luxi_CallEncoding"
+>prop_Luxi_CallEncoding</A
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; Property</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestLUXI"
+>testLUXI</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AtestSsconf"
+>testSsconf</A
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Constants
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxMem"
+><A NAME="v%3AmaxMem"
+></A
+></A
+><B
+>maxMem</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxMem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Maximum memory (1TiB, somewhat random value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxDsk"
+><A NAME="v%3AmaxDsk"
+></A
+></A
+><B
+>maxDsk</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxDsk"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Maximum disk (8TiB, somewhat random value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxCpu"
+><A NAME="v%3AmaxCpu"
+></A
+></A
+><B
+>maxCpu</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxCpu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Max CPUs (1024, somewhat random value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxVcpuRatio"
+><A NAME="v%3AmaxVcpuRatio"
+></A
+></A
+><B
+>maxVcpuRatio</B
+> :: Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxVcpuRatio"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Max vcpu ratio (random value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxSpindleRatio"
+><A NAME="v%3AmaxSpindleRatio"
+></A
+></A
+><B
+>maxSpindleRatio</B
+> :: Double</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxSpindleRatio"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Max spindle ratio (random value).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxNodes"
+><A NAME="v%3AmaxNodes"
+></A
+></A
+><B
+>maxNodes</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Max nodes, used just to limit arbitrary instances for smaller
+ opcode definitions (e.g. list of nodes in OpTestDelay).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:maxOpCodes"
+><A NAME="v%3AmaxOpCodes"
+></A
+></A
+><B
+>maxOpCodes</B
+> :: Int</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#maxOpCodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Max opcodes or jobs in a submit job and submit many jobs.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:allDiskTemplates"
+><A NAME="v%3AallDiskTemplates"
+></A
+></A
+><B
+>allDiskTemplates</B
+> :: [<A HREF="Ganeti-HTools-Types.html#t%3ADiskTemplate"
+>DiskTemplate</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#allDiskTemplates"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>All disk templates (used later)
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defGroup"
+><A NAME="v%3AdefGroup"
+></A
+></A
+><B
+>defGroup</B
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AGroup"
+>Group</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#defGroup"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Null iPolicy, and by null we mean very liberal.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defGroupList"
+><A NAME="v%3AdefGroupList"
+></A
+></A
+><B
+>defGroupList</B
+> :: <A HREF="Ganeti-HTools-Group.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#defGroupList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:defGroupAssoc"
+><A NAME="v%3AdefGroupAssoc"
+></A
+></A
+><B
+>defGroupAssoc</B
+> :: Map String <A HREF="Ganeti-HTools-Types.html#t%3AGdx"
+>Gdx</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#defGroupAssoc"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="2"
+><A NAME="2"
+>Helper functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isFailure"
+><A NAME="v%3AisFailure"
+></A
+></A
+><B
+>isFailure</B
+> ::  <A HREF="Ganeti-HTools-Types.html#t%3AOpResult"
+>OpResult</A
+> a -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#isFailure"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simple checker for whether OpResult is fail or pass.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:==?"
+><A NAME="v%3A%3D%3D%3F"
+></A
+></A
+><B
+>(==?)</B
+> :: (Show a, Eq a) =&gt; a -&gt; a -&gt; Property</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#%3D%3D%3F"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks for equality with proper annotation.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:failTest"
+><A NAME="v%3AfailTest"
+></A
+></A
+><B
+>failTest</B
+> :: String -&gt; Property</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#failTest"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Show a message and fail the test.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:makeSmallCluster"
+><A NAME="v%3AmakeSmallCluster"
+></A
+></A
+><B
+>makeSmallCluster</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#makeSmallCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Update an instance to be smaller than a node.
+</P
+><P
+>Create an instance given its spec.
+</P
+><P
+>Create a small cluster by repeating a node spec.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:makeSmallEmptyCluster"
+><A NAME="v%3AmakeSmallEmptyCluster"
+></A
+></A
+><B
+>makeSmallEmptyCluster</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#makeSmallEmptyCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Make a small cluster, both nodes and instances.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isNodeBig"
+><A NAME="v%3AisNodeBig"
+></A
+></A
+><B
+>isNodeBig</B
+> :: Int -&gt; <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#isNodeBig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks if a node is <A HREF="big.html"
+>big</A
+> enough.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:canBalance"
+><A NAME="v%3AcanBalance"
+></A
+></A
+><B
+>canBalance</B
+> :: <A HREF="Ganeti-HTools-Cluster.html#t%3ATable"
+>Table</A
+> -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#canBalance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:assignInstance"
+><A NAME="v%3AassignInstance"
+></A
+></A
+><B
+>assignInstance</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+> -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; <A HREF="Ganeti-HTools-Types.html#t%3AIdx"
+>Idx</A
+> -&gt; (<A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+>, <A HREF="Ganeti-HTools-Instance.html#t%3AList"
+>List</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#assignInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Assigns a new fresh instance to a cluster; this is not
+ allocation, so no resource checks are done.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genUniquesList"
+><A NAME="v%3AgenUniquesList"
+></A
+></A
+><B
+>genUniquesList</B
+> :: (Eq a, Arbitrary a) =&gt; Int -&gt; Gen [a]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genUniquesList"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a list of a given size with non-duplicate elements.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:isMirrored"
+><A NAME="v%3AisMirrored"
+></A
+></A
+><B
+>isMirrored</B
+> :: <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#isMirrored"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks if an instance is mirrored.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:evacModeOptions"
+><A NAME="v%3AevacModeOptions"
+></A
+></A
+><B
+>evacModeOptions</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AMirrorType"
+>MirrorType</A
+> -&gt; [<A HREF="Ganeti-HTools-Types.html#t%3AEvacMode"
+>EvacMode</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#evacModeOptions"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the possible change node types for a disk template.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="3"
+><A NAME="3"
+>Arbitrary instances
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A NAME="t:DNSChar"
+><A NAME="t%3ADNSChar"
+></A
+></A
+><B
+>DNSChar</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#DNSChar"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Defines a DNS name.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:DNSChar"
+><A NAME="v%3ADNSChar"
+></A
+></A
+><B
+>DNSChar</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:dnsGetChar"
+><A NAME="v%3AdnsGetChar"
+></A
+></A
+><B
+>dnsGetChar</B
+> :: Char</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getName"
+><A NAME="v%3AgetName"
+></A
+></A
+><B
+>getName</B
+> :: Gen String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#getName"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a single name component.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getFQDN"
+><A NAME="v%3AgetFQDN"
+></A
+></A
+><B
+>getFQDN</B
+> :: Gen String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#getFQDN"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates an entire FQDN.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getMaybe"
+><A NAME="v%3AgetMaybe"
+></A
+></A
+><B
+>getMaybe</B
+> ::  Gen a -&gt; Gen (Maybe a)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#getMaybe"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Combinator that generates a <TT
+>Maybe</TT
+> using a sub-combinator.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getFields"
+><A NAME="v%3AgetFields"
+></A
+></A
+><B
+>getFields</B
+> :: Gen [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#getFields"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a fields list. This uses the same character set as a
+ DNS name (just for simplicity).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A NAME="t:TagChar"
+><A NAME="t%3ATagChar"
+></A
+></A
+><B
+>TagChar</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#TagChar"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="ndoc"
+>Defines a tag type.
+</TD
+></TR
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="5" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:TagChar"
+><A NAME="v%3ATagChar"
+></A
+></A
+><B
+>TagChar</B
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="body" COLSPAN="2"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:tagGetChar"
+><A NAME="v%3AtagGetChar"
+></A
+></A
+><B
+>tagGetChar</B
+> :: Char</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:tagChar"
+><A NAME="v%3AtagChar"
+></A
+></A
+><B
+>tagChar</B
+> :: [Char]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#tagChar"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>All valid tag chars. This doesn't need to match _exactly_
+ Ganeti's own tag regex, just enough for it to be close.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genTag"
+><A NAME="v%3AgenTag"
+></A
+></A
+><B
+>genTag</B
+> :: Gen [<A HREF="Ganeti-HTools-QC.html#t%3ATagChar"
+>TagChar</A
+>]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genTag"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a tag
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genTags"
+><A NAME="v%3AgenTags"
+></A
+></A
+><B
+>genTags</B
+> :: Gen [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genTags"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a list of tags (correctly upper bounded).
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genInstanceSmallerThan"
+><A NAME="v%3AgenInstanceSmallerThan"
+></A
+></A
+><B
+>genInstanceSmallerThan</B
+> :: Int -&gt; Int -&gt; Int -&gt; Gen <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genInstanceSmallerThan"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a random instance with maximum disk<EM
+>mem</EM
+>cpu values.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genInstanceSmallerThanNode"
+><A NAME="v%3AgenInstanceSmallerThanNode"
+></A
+></A
+><B
+>genInstanceSmallerThanNode</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+> -&gt; Gen <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genInstanceSmallerThanNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates an instance smaller than a node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genNode"
+><A NAME="v%3AgenNode"
+></A
+></A
+><B
+>genNode</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Maybe Int</TD
+><TD CLASS="rdoc"
+>Minimum node size in terms of units
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Maybe Int</TD
+><TD CLASS="rdoc"
+>Maximum node size (when Nothing, bounded
+ just by the max... constants)
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Gen <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="rdoc"
+></TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Generas an arbitrary node based on sizing information.
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genOnlineNode"
+><A NAME="v%3AgenOnlineNode"
+></A
+></A
+><B
+>genOnlineNode</B
+> :: Gen <A HREF="Ganeti-HTools-Node.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genOnlineNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Helper function to generate a sane node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>newtype</SPAN
+>  <A NAME="t:SmallRatio"
+><A NAME="t%3ASmallRatio"
+></A
+></A
+><B
+>SmallRatio</B
+>  </TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#SmallRatio"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+>Constructors</TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="1" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+><A NAME="v:SmallRatio"
+><A NAME="v%3ASmallRatio"
+></A
+></A
+><B
+>SmallRatio</B
+> Double</TD
+><TD CLASS="rdoc"
+></TD
+></TR
+></TABLE
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genBiggerISpec"
+><A NAME="v%3AgenBiggerISpec"
+></A
+></A
+><B
+>genBiggerISpec</B
+> :: <A HREF="Ganeti-HTools-Types.html#t%3AISpec"
+>ISpec</A
+> -&gt; Gen <A HREF="Ganeti-HTools-Types.html#t%3AISpec"
+>ISpec</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genBiggerISpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates an ispec bigger than the given one.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="4"
+><A NAME="4"
+>Actual tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="5"
+><A NAME="5"
+>Utils tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Utils_if'if"
+><A NAME="v%3Aprop_Utils_if%27if"
+></A
+></A
+><B
+>prop_Utils_if'if</B
+> :: Bool -&gt; Int -&gt; Int -&gt; Gen Prop</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Utils_if%27if"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Helper to generate a small string that doesn't contain commas.
+</P
+><P
+>If the list is not just an empty element, and if the elements do
+ not contain commas, then join+split should be idempotent.
+</P
+><P
+>Split and join should always be idempotent.
+</P
+><P
+>fromObjWithDefault, we test using the Maybe monad and an integer
+ value.
+</P
+><P
+>Test that functional if' behaves like the syntactic sugar if.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Utils_select"
+><A NAME="v%3Aprop_Utils_select"
+></A
+></A
+><B
+>prop_Utils_select</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Utils_select"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: Int</TD
+><TD CLASS="rdoc"
+>Default result
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [Int]</TD
+><TD CLASS="rdoc"
+>List of False values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; [Int]</TD
+><TD CLASS="rdoc"
+>List of True values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Gen Prop</TD
+><TD CLASS="rdoc"
+>Test result
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Test basic select functionality
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Utils_select_undefd"
+><A NAME="v%3Aprop_Utils_select_undefd"
+></A
+></A
+><B
+>prop_Utils_select_undefd</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Utils_select_undefd"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [Int]</TD
+><TD CLASS="rdoc"
+>List of False values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; NonEmptyList Int</TD
+><TD CLASS="rdoc"
+>List of True values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Gen Prop</TD
+><TD CLASS="rdoc"
+>Test result
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Test basic select functionality with undefined default
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Utils_select_undefv"
+><A NAME="v%3Aprop_Utils_select_undefv"
+></A
+></A
+><B
+>prop_Utils_select_undefv</B
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Utils_select_undefv"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="arg"
+>:: [Int]</TD
+><TD CLASS="rdoc"
+>List of False values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; NonEmptyList Int</TD
+><TD CLASS="rdoc"
+>List of True values
+</TD
+></TR
+><TR
+><TD CLASS="arg"
+>-&gt; Gen Prop</TD
+><TD CLASS="rdoc"
+>Test result
+</TD
+></TR
+><TR
+><TD CLASS="ndoc" COLSPAN="2"
+>Test basic select functionality with undefined list values
+</TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testUtils"
+><A NAME="v%3AtestUtils"
+></A
+></A
+><B
+>testUtils</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testUtils"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Test list for the Utils module.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="6"
+><A NAME="6"
+>PeerMap tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testPeerMap"
+><A NAME="v%3AtestPeerMap"
+></A
+></A
+><B
+>testPeerMap</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testPeerMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Make sure add is idempotent.
+</P
+><P
+>Make sure remove is idempotent.
+</P
+><P
+>Make sure a missing item returns 0.
+</P
+><P
+>Make sure an added item is found.
+</P
+><P
+>Manual check that maxElem returns the maximum indeed, or 0 for null.
+</P
+><P
+>List of tests for the PeerMap module.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="7"
+><A NAME="7"
+>Container tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testContainer"
+><A NAME="v%3AtestContainer"
+></A
+></A
+><B
+>testContainer</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testContainer"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>We test that in a cluster, given a random node, we can find it by
+ its name and alias, as long as all names and aliases are unique,
+ and that we fail to find a non-existing name.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="8"
+><A NAME="8"
+>Instance tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testInstance"
+><A NAME="v%3AtestInstance"
+></A
+></A
+><B
+>testInstance</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="9"
+><A NAME="9"
+>Backends
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section3"
+><A NAME="10"
+><A NAME="10"
+>Text backend tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testText"
+><A NAME="v%3AtestText"
+></A
+></A
+><B
+>testText</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testText"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>This property, while being in the text tests, does more than just
+ test end-to-end the serialisation and loading back workflow; it
+ also tests the Loader.mergeData and the actuall
+ Cluster.iterateAlloc (for well-behaving w.r.t. instance
+ allocations, not for the business logic). As such, it's a quite
+ complex and slow test, and that's the reason we restrict it to
+ small cluster sizes.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section3"
+><A NAME="11"
+><A NAME="11"
+>Simu backend
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:genSimuSpec"
+><A NAME="v%3AgenSimuSpec"
+></A
+></A
+><B
+>genSimuSpec</B
+> :: Gen (String, Int, Int, Int, Int)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#genSimuSpec"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generates a tuple of specs for simulation.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testSimu"
+><A NAME="v%3AtestSimu"
+></A
+></A
+><B
+>testSimu</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testSimu"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks that given a set of corrects specs, we can load them
+ successfully, and that at high-level the values look right.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="12"
+><A NAME="12"
+>Node tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testNode"
+><A NAME="v%3AtestNode"
+></A
+></A
+><B
+>testNode</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Check that an instance add with too high memory or disk will be
+ rejected.
+</P
+><P
+>Check that adding a primary instance with too much disk fails
+ with type FailDisk.
+</P
+><P
+>Check that adding a primary instance with too many VCPUs fails
+ with type FailCPU.
+</P
+><P
+>Check that an instance add with too high memory or disk will be
+ rejected.
+</P
+><P
+>Check that an offline instance with reasonable disk size but
+ extra mem/cpu can always be added.
+</P
+><P
+>Check that an offline instance with reasonable disk size but
+ extra mem/cpu can always be added.
+</P
+><P
+>Checks for memory reservation changes.
+</P
+><P
+>Check mdsk setting.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="13"
+><A NAME="13"
+>Cluster tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:canAllocOn"
+><A NAME="v%3AcanAllocOn"
+></A
+></A
+><B
+>canAllocOn</B
+> :: <A HREF="Ganeti-HTools-Node.html#t%3AList"
+>List</A
+> -&gt; Int -&gt; <A HREF="Ganeti-HTools-Instance.html#t%3AInstance"
+>Instance</A
+> -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#canAllocOn"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Check that the cluster score is close to zero for a homogeneous
+ cluster.
+</P
+><P
+>Check that cluster stats are sane.
+</P
+><P
+>Check that one instance is allocated correctly, without
+ rebalances needed.
+</P
+><P
+>Checks that on a 2-5 node cluster, we can allocate a random
+ instance spec via tiered allocation (whatever the original instance
+ spec), on either one or two nodes. Furthermore, we test that
+ computed allocation statistics are correct.
+</P
+><P
+>Helper function to create a cluster with the given range of nodes
+ and allocate an instance on it.
+</P
+><P
+>Checks that on a 4-8 node cluster, once we allocate an instance,
+ we can also relocate it.
+</P
+><P
+>Helper property checker for the result of a nodeEvac or
+ changeGroup operation.
+</P
+><P
+>Checks that on a 4-8 node cluster, once we allocate an instance,
+ we can also node-evacuate it.
+</P
+><P
+>Checks that on a 4-8 node cluster with two node groups, once we
+ allocate an instance on the first node group, we can also change
+ its group.
+</P
+><P
+>Check that allocating multiple instances on a cluster, then
+ adding an empty node, results in a valid rebalance.
+</P
+><P
+>Checks consistency.
+</P
+><P
+>For now, we only test that we don't lose instances during the split.
+</P
+><P
+>Helper function to check if we can allocate an instance on a
+ given node list.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testCluster"
+><A NAME="v%3AtestCluster"
+></A
+></A
+><B
+>testCluster</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testCluster"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Checks that allocation obeys minimum and maximum instance
+ policies. The unittest generates a random node, duplicates it count
+ times, and generates a random instance that can be allocated on
+ this mini-cluster; it then checks that after applying a policy that
+ the instance doesn't fits, the allocation fails.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="14"
+><A NAME="14"
+>OpCodes tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testOpCodes"
+><A NAME="v%3AtestOpCodes"
+></A
+></A
+><B
+>testOpCodes</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testOpCodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that opcode serialization is idempotent.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="15"
+><A NAME="15"
+>Jobs tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testJobs"
+><A NAME="v%3AtestJobs"
+></A
+></A
+><B
+>testJobs</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testJobs"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that (queued) job/opcode status serialization is idempotent.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="16"
+><A NAME="16"
+>Loader tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Loader_compareNameComponent_equal"
+><A NAME="v%3Aprop_Loader_compareNameComponent_equal"
+></A
+></A
+><B
+>prop_Loader_compareNameComponent_equal</B
+> :: String -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Loader_compareNameComponent_equal"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Checks that the number of primary instances recorded on the nodes
+ is zero.
+</P
+><P
+>Check that compareNameComponent on equal strings works.
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Loader_compareNameComponent_prefix"
+><A NAME="v%3Aprop_Loader_compareNameComponent_prefix"
+></A
+></A
+><B
+>prop_Loader_compareNameComponent_prefix</B
+> :: NonEmptyList Char -&gt; String -&gt; Bool</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Loader_compareNameComponent_prefix"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Check that compareNameComponent on prefix strings works.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testLoader"
+><A NAME="v%3AtestLoader"
+></A
+></A
+><B
+>testLoader</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testLoader"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="17"
+><A NAME="17"
+>Types tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testTypes"
+><A NAME="v%3AtestTypes"
+></A
+></A
+><B
+>testTypes</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testTypes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section2"
+><A NAME="18"
+><A NAME="18"
+>CLI tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testCLI"
+><A NAME="v%3AtestCLI"
+></A
+></A
+><B
+>testCLI</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testCLI"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Test correct parsing.
+</P
+><P
+>Test parsing failure due to wrong section count.
+</P
+><P
+>Test parseYesNo.
+</P
+><P
+>Helper to check for correct parsing of string arg.
+</P
+><P
+>Test a few string arguments.
+</P
+><P
+>Helper to test that a given option is accepted OK with quick exit.
+</P
+><P
+>Test that all binaries support some common options. There is
+ nothing actually random about this test...
+</P
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="19"
+><A NAME="19"
+>JSON tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_JSON_toArray"
+><A NAME="v%3Aprop_JSON_toArray"
+></A
+></A
+><B
+>prop_JSON_toArray</B
+> :: [Int] -&gt; Property</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_JSON_toArray"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_JSON_toArrayFail"
+><A NAME="v%3Aprop_JSON_toArrayFail"
+></A
+></A
+><B
+>prop_JSON_toArrayFail</B
+> :: Int -&gt; String -&gt; Bool -&gt; Property</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_JSON_toArrayFail"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testJSON"
+><A NAME="v%3AtestJSON"
+></A
+></A
+><B
+>testJSON</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testJSON"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="20"
+><A NAME="20"
+>Luxi tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:prop_Luxi_CallEncoding"
+><A NAME="v%3Aprop_Luxi_CallEncoding"
+></A
+></A
+><B
+>prop_Luxi_CallEncoding</B
+> :: <A HREF="Ganeti-Luxi.html#t%3ALuxiOp"
+>LuxiOp</A
+> -&gt; Property</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#prop_Luxi_CallEncoding"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Simple check that encoding/decoding of LuxiOp works.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testLUXI"
+><A NAME="v%3AtestLUXI"
+></A
+></A
+><B
+>testLUXI</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testLUXI"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="21"
+><A NAME="21"
+>Ssconf tests
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:testSsconf"
+><A NAME="v%3AtestSsconf"
+></A
+></A
+><B
+>testSsconf</B
+> :: (String, [(Args -&gt; IO Result, String)])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/HTools/QC.html#testSsconf"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

@@ -1,0 +1,143 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Migration speed accounting in Hbal &mdash; Ganeti 2.18.0~alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.18.0~alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.18.0~alpha1 documentation" href="index.html" />
+    <link rel="next" title="Ganeti monitoring agent" href="design-monitoring-agent.html" />
+    <link rel="prev" title="Memory Over Commitment" href="design-memory-over-commitment.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-monitoring-agent.html" title="Ganeti monitoring agent"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-memory-over-commitment.html" title="Memory Over Commitment"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="migration-speed-accounting-in-hbal">
+<h1><a class="toc-backref" href="#id1">Migration speed accounting in Hbal</a><a class="headerlink" href="#migration-speed-accounting-in-hbal" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#migration-speed-accounting-in-hbal" id="id1">Migration speed accounting in Hbal</a><ul>
+<li><a class="reference internal" href="#avoiding-insignificant-disk-moves" id="id2">Avoiding insignificant disk moves</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Hbal usually performs complex sequence of moves during cluster balancing in
+order to achieve local optimal cluster state. Unfortunately, each move may take
+significant amount of time. Thus, during the sequence of moves the situation on
+cluster may change (e.g., because of adding new instance or because of instance
+or node parameters change) and desired moves can become unprofitable.</p>
+<p>Usually disk moves become a bottleneck and require sufficient amount of time.
+<a class="reference internal" href="design-move-instance-improvements.html#move-performance"><em>Instance move improvements</em></a> considers
+disk moves speed in more details. Currently, <tt class="docutils literal"><span class="pre">hbal</span></tt> has a <tt class="docutils literal"><span class="pre">--no-disk-moves</span></tt>
+option preventing disk moves during cluster balancing in order to perform fast
+(but of course non optimal) balancing. It may be useful, but ideally we need to
+find a balance between optimal configuration and time to reach this
+configuration.</p>
+<div class="section" id="avoiding-insignificant-disk-moves">
+<h2><a class="toc-backref" href="#id2">Avoiding insignificant disk moves</a><a class="headerlink" href="#avoiding-insignificant-disk-moves" title="Permalink to this headline">¶</a></h2>
+<p>Allowing only profitable enough disk moves may become a first step to reach
+a compromise between moves speed and optimal scoring. This can be implemented
+by introducing <tt class="docutils literal"><span class="pre">--avoid-disk-moves</span> <span class="pre">*FACTOR*</span></tt> option which will admit disk
+moves only if the gain in the cluster metrics is <em>FACTOR</em> times
+higher than the gain achievable by non disk moves.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Migration speed accounting in Hbal</a><ul>
+<li><a class="reference internal" href="#avoiding-insignificant-disk-moves">Avoiding insignificant disk moves</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-memory-over-commitment.html"
+                        title="previous chapter">Memory Over Commitment</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-monitoring-agent.html"
+                        title="next chapter">Ganeti monitoring agent</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-migration-speed-hbal.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-monitoring-agent.html" title="Ganeti monitoring agent"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-memory-over-commitment.html" title="Memory Over Commitment"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.18.0~alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

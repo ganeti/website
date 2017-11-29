@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ganeti shared storage support &mdash; Ganeti 2.13.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.13.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.13.3 documentation" href="index.html" />
+    <link rel="next" title="Design for supporting custom SSH ports for nodes" href="design-ssh-ports.html" />
+    <link rel="prev" title="Design for executing commands via RPC" href="design-restricted-commands.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-restricted-commands.html" title="Design for executing commands via RPC"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ganeti-shared-storage-support">
+<h1><a class="toc-backref" href="#id3">Ganeti shared storage support</a><a class="headerlink" href="#ganeti-shared-storage-support" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the changes in Ganeti 2.3+ compared to Ganeti
+2.3 storage model. It also documents the ExtStorage Interface.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#ganeti-shared-storage-support" id="id3">Ganeti shared storage support</a><ul>
+<li><a class="reference internal" href="#objective" id="id4">Objective</a></li>
+<li><a class="reference internal" href="#background" id="id5">Background</a></li>
+<li><a class="reference internal" href="#use-cases" id="id6">Use cases</a></li>
+<li><a class="reference internal" href="#design-overview" id="id7">Design Overview</a></li>
+<li><a class="reference internal" href="#refactoring-of-all-code-referring-to-constants-dts-net-mirror" id="id8">Refactoring of all code referring to constants.DTS_NET_MIRROR</a></li>
+<li><a class="reference internal" href="#obsolescence-of-the-primary-secondary-node-model" id="id9">Obsolescence of the primary-secondary node model</a></li>
+<li><a class="reference internal" href="#introduction-of-a-shared-file-disk-template" id="id10">Introduction of a shared file disk template</a></li>
+<li><a class="reference internal" href="#introduction-of-a-shared-block-device-template" id="id11">Introduction of a shared block device template</a></li>
+<li><a class="reference internal" href="#introduction-of-the-external-storage-interface" id="id12">Introduction of the External Storage Interface</a><ul>
+<li><a class="reference internal" href="#overview" id="id13">Overview</a></li>
+<li><a class="reference internal" href="#implementation" id="id14">Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extstorage-interface-support-for-userspace-access" id="id15">ExtStorage Interface support for userspace access</a><ul>
+<li><a class="reference internal" href="#id1" id="id16">Overview</a></li>
+<li><a class="reference internal" href="#id2" id="id17">Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#long-term-shared-storage-goals" id="id18">Long-term shared storage goals</a><ul>
+<li><a class="reference internal" href="#storage-pool-handling" id="id19">Storage pool handling</a></li>
+<li><a class="reference internal" href="#gnt-storage" id="id20">gnt-storage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="objective">
+<h2><a class="toc-backref" href="#id4">Objective</a><a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>The aim is to introduce support for externally mirrored, shared storage.
+This includes two distinct disk templates:</p>
+<ul class="simple">
+<li>A shared filesystem containing instance disks as regular files
+typically residing on a networked or cluster filesystem (e.g. NFS,
+AFS, Ceph, OCFS2, etc.).</li>
+<li>Instance images being shared block devices, typically LUNs residing on
+a SAN appliance.</li>
+</ul>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id5">Background</a><a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>DRBD is currently the only shared storage backend supported by Ganeti.
+DRBD offers the advantages of high availability while running on
+commodity hardware at the cost of high network I/O for block-level
+synchronization between hosts. DRBD&#8217;s master-slave model has greatly
+influenced Ganeti&#8217;s design, primarily by introducing the concept of
+primary and secondary nodes and thus defining an instance&#8217;s “mobility
+domain”.</p>
+<p>Although DRBD has many advantages, many sites choose to use networked
+storage appliances for Virtual Machine hosting, such as SAN and/or NAS,
+which provide shared storage without the administrative overhead of DRBD
+nor the limitation of a 1:1 master-slave setup. Furthermore, new
+distributed filesystems such as Ceph are becoming viable alternatives to
+expensive storage appliances. Support for both modes of operation, i.e.
+shared block storage and shared file storage backend would make Ganeti a
+robust choice for high-availability virtualization clusters.</p>
+<p>Throughout this document, the term “externally mirrored storage” will
+refer to both modes of shared storage, suggesting that Ganeti does not
+need to take care about the mirroring process from one host to another.</p>
+</div>
+<div class="section" id="use-cases">
+<h2><a class="toc-backref" href="#id6">Use cases</a><a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h2>
+<p>We consider the following use cases:</p>
+<ul class="simple">
+<li>A virtualization cluster with FibreChannel shared storage, mapping at
+least one LUN per instance, accessible by the whole cluster.</li>
+<li>A virtualization cluster with instance images stored as files on an
+NFS server.</li>
+<li>A virtualization cluster storing instance images on a Ceph volume.</li>
+</ul>
+</div>
+<div class="section" id="design-overview">
+<h2><a class="toc-backref" href="#id7">Design Overview</a><a class="headerlink" href="#design-overview" title="Permalink to this headline">¶</a></h2>
+<p>The design addresses the following procedures:</p>
+<ul class="simple">
+<li>Refactoring of all code referring to constants.DTS_NET_MIRROR.</li>
+<li>Obsolescence of the primary-secondary concept for externally mirrored
+storage.</li>
+<li>Introduction of a shared file storage disk template for use with networked
+filesystems.</li>
+<li>Introduction of a shared block device disk template with device
+adoption.</li>
+<li>Introduction of the External Storage Interface.</li>
+</ul>
+<p>Additionally, mid- to long-term goals include:</p>
+<ul class="simple">
+<li>Support for external “storage pools”.</li>
+</ul>
+</div>
+<div class="section" id="refactoring-of-all-code-referring-to-constants-dts-net-mirror">
+<h2><a class="toc-backref" href="#id8">Refactoring of all code referring to constants.DTS_NET_MIRROR</a><a class="headerlink" href="#refactoring-of-all-code-referring-to-constants-dts-net-mirror" title="Permalink to this headline">¶</a></h2>
+<p>Currently, all storage-related decision-making depends on a number of
+frozensets in lib/constants.py, typically constants.DTS_NET_MIRROR.
+However, constants.DTS_NET_MIRROR is used to signify two different
+attributes:</p>
+<ul class="simple">
+<li>A storage device that is shared</li>
+<li>A storage device whose mirroring is supervised by Ganeti</li>
+</ul>
+<p>We propose the introduction of two new frozensets to ease
+decision-making:</p>
+<ul class="simple">
+<li>constants.DTS_EXT_MIRROR, holding externally mirrored disk templates</li>
+<li>constants.DTS_MIRRORED, being a union of constants.DTS_EXT_MIRROR and
+DTS_NET_MIRROR.</li>
+</ul>
+<p>Additionally, DTS_NET_MIRROR will be renamed to DTS_INT_MIRROR to reflect
+the status of the storage as internally mirrored by Ganeti.</p>
+<p>Thus, checks could be grouped into the following categories:</p>
+<ul class="simple">
+<li>Mobility checks, like whether an instance failover or migration is
+possible should check against constants.DTS_MIRRORED</li>
+<li>Syncing actions should be performed only for templates in
+constants.DTS_NET_MIRROR</li>
+</ul>
+</div>
+<div class="section" id="obsolescence-of-the-primary-secondary-node-model">
+<h2><a class="toc-backref" href="#id9">Obsolescence of the primary-secondary node model</a><a class="headerlink" href="#obsolescence-of-the-primary-secondary-node-model" title="Permalink to this headline">¶</a></h2>
+<p>The primary-secondary node concept has primarily evolved through the use
+of DRBD. In a globally shared storage framework without need for
+external sync (e.g. SAN, NAS, etc.), such a notion does not apply for the
+following reasons:</p>
+<ol class="arabic simple">
+<li>Access to the storage does not necessarily imply different roles for
+the nodes (e.g. primary vs secondary).</li>
+<li>The same storage is available to potentially more than 2 nodes. Thus,
+an instance backed by a SAN LUN for example may actually migrate to
+any of the other nodes and not just a pre-designated failover node.</li>
+</ol>
+<p>The proposed solution is using the iallocator framework for run-time
+decision making during migration and failover, for nodes with disk
+templates in constants.DTS_EXT_MIRROR. Modifications to gnt-instance and
+gnt-node will be required to accept target node and/or iallocator
+specification for these operations. Modifications of the iallocator
+protocol will be required to address at least the following needs:</p>
+<ul class="simple">
+<li>Allocation tools must be able to distinguish between internal and
+external storage</li>
+<li>Migration/failover decisions must take into account shared storage
+availability</li>
+</ul>
+</div>
+<div class="section" id="introduction-of-a-shared-file-disk-template">
+<h2><a class="toc-backref" href="#id10">Introduction of a shared file disk template</a><a class="headerlink" href="#introduction-of-a-shared-file-disk-template" title="Permalink to this headline">¶</a></h2>
+<p>Basic shared file storage support can be implemented by creating a new
+disk template based on the existing FileStorage class, with only minor
+modifications in lib/bdev.py. The shared file disk template relies on a
+shared filesystem (e.g. NFS, AFS, Ceph, OCFS2 over SAN or DRBD) being
+mounted on all nodes under the same path, where instance images will be
+saved.</p>
+<p>A new cluster initialization option is added to specify the mountpoint
+of the shared filesystem.</p>
+<p>The remainder of this document deals with shared block storage.</p>
+</div>
+<div class="section" id="introduction-of-a-shared-block-device-template">
+<h2><a class="toc-backref" href="#id11">Introduction of a shared block device template</a><a class="headerlink" href="#introduction-of-a-shared-block-device-template" title="Permalink to this headline">¶</a></h2>
+<p>Basic shared block device support will be implemented with an additional
+disk template. This disk template will not feature any kind of storage
+control (provisioning, removal, resizing, etc.), but will instead rely
+on the adoption of already-existing block devices (e.g. SAN LUNs, NBD
+devices, remote iSCSI targets, etc.).</p>
+<p>The shared block device template will make the following assumptions:</p>
+<ul class="simple">
+<li>The adopted block device has a consistent name across all nodes,
+enforced e.g. via udev rules.</li>
+<li>The device will be available with the same path under all nodes in the
+node group.</li>
+</ul>
+</div>
+<div class="section" id="introduction-of-the-external-storage-interface">
+<h2><a class="toc-backref" href="#id12">Introduction of the External Storage Interface</a><a class="headerlink" href="#introduction-of-the-external-storage-interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h3><a class="toc-backref" href="#id13">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>To extend the shared block storage template and give Ganeti the ability
+to control and manipulate external storage (provisioning, removal,
+growing, etc.) we need a more generic approach. The generic method for
+supporting external shared storage in Ganeti will be to have an
+ExtStorage provider for each external shared storage hardware type. The
+ExtStorage provider will be a set of files (executable scripts and text
+files), contained inside a directory which will be named after the
+provider. This directory must be present across all nodes of a nodegroup
+(Ganeti doesn&#8217;t replicate it), in order for the provider to be usable by
+Ganeti for this nodegroup (valid). The external shared storage hardware
+should also be accessible by all nodes of this nodegroup too.</p>
+<p>An “ExtStorage provider” will have to provide the following methods:</p>
+<ul class="simple">
+<li>Create a disk</li>
+<li>Remove a disk</li>
+<li>Grow a disk</li>
+<li>Attach a disk to a given node</li>
+<li>Detach a disk from a given node</li>
+<li>SetInfo to a disk (add metadata)</li>
+<li>Verify its supported parameters</li>
+<li>Snapshot a disk (currently used during gnt-backup export)</li>
+</ul>
+<p>The proposed ExtStorage interface borrows heavily from the OS
+interface and follows a one-script-per-function approach. An ExtStorage
+provider is expected to provide the following scripts:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">create</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">remove</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">grow</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">attach</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">detach</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">setinfo</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">verify</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">snapshot</span></tt> (optional)</li>
+</ul>
+<p>All scripts will be called with no arguments and get their input via
+environment variables. A common set of variables will be exported for
+all commands, and some of them might have extra ones.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">VOL_NAME</span></tt></dt>
+<dd>The name of the volume. This is unique for Ganeti and it
+uses it to refer to a specific volume inside the external storage.</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_SIZE</span></tt></dt>
+<dd>The volume&#8217;s size in mebibytes.</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_NEW_SIZE</span></tt></dt>
+<dd>Available only to the <cite>grow</cite> script. It declares the
+new size of the volume after grow (in mebibytes).</dd>
+<dt><tt class="docutils literal"><span class="pre">EXTP_name</span></tt></dt>
+<dd>ExtStorage parameter, where <cite>name</cite> is the parameter in
+upper-case (same as OS interface&#8217;s <tt class="docutils literal"><span class="pre">OSP_*</span></tt> parameters).</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_METADATA</span></tt></dt>
+<dd>A string containing metadata to be set for the volume.
+This is exported only to the <tt class="docutils literal"><span class="pre">setinfo</span></tt> script.</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_CNAME</span></tt></dt>
+<dd>The human readable name of the disk (if any).</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_SNAPSHOT_NAME</span></tt></dt>
+<dd>The name of the volume&#8217;s snapshot to be taken.
+Available only to the <cite>snapshot</cite> script.</dd>
+<dt><tt class="docutils literal"><span class="pre">VOL_SNAPSHOT_SIZE</span></tt></dt>
+<dd>The size of the volume&#8217;s snapshot to be taken.
+Available only to the <cite>snapshot</cite> script.</dd>
+</dl>
+<p>All scripts except <cite>attach</cite> should return 0 on success and non-zero on
+error, accompanied by an appropriate error message on stderr. The
+<cite>attach</cite> script should return a string on stdout on success, which is
+the block device&#8217;s full path, after it has been successfully attached to
+the host node. On error it should return non-zero.</p>
+<p>To keep backwards compatibility we let the <tt class="docutils literal"><span class="pre">snapshot</span></tt> script be
+optional. If present then the provider will support instance backup
+export as well.</p>
+</div>
+<div class="section" id="implementation">
+<h3><a class="toc-backref" href="#id14">Implementation</a><a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
+<p>To support the ExtStorage interface, we will introduce a new disk
+template called <cite>ext</cite>. This template will implement the existing Ganeti
+disk interface in <cite>lib/bdev.py</cite> (create, remove, attach, assemble,
+shutdown, grow, setinfo), and will simultaneously pass control to the
+external scripts to actually handle the above actions. The <cite>ext</cite> disk
+template will act as a translation layer between the current Ganeti disk
+interface and the ExtStorage providers.</p>
+<p>We will also introduce a new IDISK_PARAM called <cite>IDISK_PROVIDER =
+provider</cite>, which will be used at the command line to select the desired
+ExtStorage provider. This parameter will be valid only for template
+<cite>ext</cite> e.g.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-instance</span> <span class="gs">add</span> <span class="gs">-t</span> <span class="gs">ext</span> <span class="gs">--disk=0:size=2G,provider=sample_provider1</span>
+</pre></div>
+</div>
+<p>The Extstorage interface will support different disks to be created by
+different providers. e.g.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-instance</span> <span class="gs">add</span> <span class="gs">-t</span> <span class="gs">ext</span> <span class="gs">--disk=0:size=2G,provider=sample_provider1</span> <span class="gs">\</span>
+                          <span class="gs">--disk=1:size=1G,provider=sample_provider2</span> <span class="gs">\</span>
+                          <span class="gs">--disk=2:size=3G,provider=sample_provider1</span>
+</pre></div>
+</div>
+<p>Finally, the ExtStorage interface will support passing of parameters to
+the ExtStorage provider. This will also be done per disk, from the
+command line:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-instance</span> <span class="gs">add</span> <span class="gs">-t</span> <span class="gs">ext</span> <span class="gs">--disk=0:size=1G,provider=sample_provider1,\</span>
+                                           <span class="gs">param1=value1,param2=value2</span>
+</pre></div>
+</div>
+<p>The above parameters will be exported to the ExtStorage provider&#8217;s
+scripts as the enviromental variables:</p>
+<ul class="simple">
+<li><cite>EXTP_PARAM1 = str(value1)</cite></li>
+<li><cite>EXTP_PARAM2 = str(value2)</cite></li>
+</ul>
+<p>We will also introduce a new Ganeti client called <cite>gnt-storage</cite> which
+will be used to diagnose ExtStorage providers and show information about
+them, similarly to the way  <cite>gnt-os diagose</cite> and <cite>gnt-os info</cite> handle OS
+definitions.</p>
+</div>
+</div>
+<div class="section" id="extstorage-interface-support-for-userspace-access">
+<h2><a class="toc-backref" href="#id15">ExtStorage Interface support for userspace access</a><a class="headerlink" href="#extstorage-interface-support-for-userspace-access" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id16">Overview</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The ExtStorage Interface gets extended to cater for ExtStorage providers
+that support userspace access. This will allow the instances to access
+their external storage devices directly without going through a block
+device, avoiding expensive context switches with kernel space and the
+potential for deadlocks in low memory scenarios. The implementation
+should be backwards compatible and allow existing ExtStorage
+providers to work as is.</p>
+</div>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id17">Implementation</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Since the implementation should be backwards compatible we are not going
+to add a new script in the set of scripts an ExtStorage provider should
+ship with. Instead, the &#8216;attach&#8217; script, which is currently responsible
+to map the block device and return a valid device path, should also be
+responsible for providing the URIs that will be used by each
+hypervisor. Even though Ganeti currently allows userspace access only
+for the KVM hypervisor, we want the implementation to enable the
+extstorage providers to support more than one hypervisors for future
+compliance.</p>
+<p>More specifically, the &#8216;attach&#8217; script will be allowed to return more
+than one line. The first line will contain as always the block device
+path. Each one of the extra lines will contain a URI to be used for the
+userspace access by a specific hypervisor. Each URI should be prefixed
+with the hypervisor it corresponds to (e.g. kvm:&lt;uri&gt;). The prefix will
+be case insensitive. If the &#8216;attach&#8217; script doesn&#8217;t return any extra
+lines, we assume that the ExtStorage provider doesn&#8217;t support userspace
+access (this way we maintain backward compatibility with the existing
+&#8216;attach&#8217; scripts).</p>
+<p>The &#8216;GetUserspaceAccessUri&#8217; method of the &#8216;ExtStorageDevice&#8217; class will
+parse the output of the &#8216;attach&#8217; script and if the provider supports
+userspace access for the requested hypervisor, it will use the
+corresponding URI instead of the block device itself.</p>
+</div>
+</div>
+<div class="section" id="long-term-shared-storage-goals">
+<h2><a class="toc-backref" href="#id18">Long-term shared storage goals</a><a class="headerlink" href="#long-term-shared-storage-goals" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="storage-pool-handling">
+<h3><a class="toc-backref" href="#id19">Storage pool handling</a><a class="headerlink" href="#storage-pool-handling" title="Permalink to this headline">¶</a></h3>
+<p>A new cluster configuration attribute will be introduced, named
+“storage_pools”, modeled as a dictionary mapping storage pools to
+external storage providers (see below), e.g.:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>{
+ &quot;nas1&quot;: &quot;foostore&quot;,
+ &quot;nas2&quot;: &quot;foostore&quot;,
+ &quot;cloud1&quot;: &quot;barcloud&quot;,
+}
+</pre></div>
+</div>
+<p>Ganeti will not interpret the contents of this dictionary, although it
+will provide methods for manipulating them under some basic constraints
+(pool identifier uniqueness, driver existence). The manipulation of
+storage pools will be performed by implementing new options to the
+<cite>gnt-cluster</cite> command:</p>
+<div class="highlight-shell-example"><div class="highlight"><pre>$ <span class="gs">gnt-cluster</span> <span class="gs">modify</span> <span class="gs">--add-pool</span> <span class="gs">nas1</span> <span class="gs">foostore</span>
+$ <span class="gs">gnt-cluster</span> <span class="gs">modify</span> <span class="gs">--remove-pool</span> <span class="gs">nas1</span> <span class="c1"># There must be no instances using</span>
+                                        <span class="c1"># the pool to remove it</span>
+</pre></div>
+</div>
+<p>Furthermore, the storage pools will be used to indicate the availability
+of storage pools to different node groups, thus specifying the
+instances&#8217; “mobility domain”.</p>
+<p>The pool, in which to put the new instance&#8217;s disk, will be defined at
+the command line during <cite>instance add</cite>. This will become possible by
+replacing the IDISK_PROVIDER parameter with a new one, called <cite>IDISK_POOL
+= pool</cite>. The cmdlib logic will then look at the cluster-level mapping
+dictionary to determine the ExtStorage provider for the given pool.</p>
+</div>
+<div class="section" id="gnt-storage">
+<h3><a class="toc-backref" href="#id20">gnt-storage</a><a class="headerlink" href="#gnt-storage" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">gnt-storage</span></tt> client can be extended to support pool management
+(creation/modification/deletion of pools, connection/disconnection of
+pools to nodegroups, etc.). It can also be extended to diagnose and
+provide information for internal disk templates too, such as lvm and
+drbd.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ganeti shared storage support</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#use-cases">Use cases</a></li>
+<li><a class="reference internal" href="#design-overview">Design Overview</a></li>
+<li><a class="reference internal" href="#refactoring-of-all-code-referring-to-constants-dts-net-mirror">Refactoring of all code referring to constants.DTS_NET_MIRROR</a></li>
+<li><a class="reference internal" href="#obsolescence-of-the-primary-secondary-node-model">Obsolescence of the primary-secondary node model</a></li>
+<li><a class="reference internal" href="#introduction-of-a-shared-file-disk-template">Introduction of a shared file disk template</a></li>
+<li><a class="reference internal" href="#introduction-of-a-shared-block-device-template">Introduction of a shared block device template</a></li>
+<li><a class="reference internal" href="#introduction-of-the-external-storage-interface">Introduction of the External Storage Interface</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extstorage-interface-support-for-userspace-access">ExtStorage Interface support for userspace access</a><ul>
+<li><a class="reference internal" href="#id1">Overview</a></li>
+<li><a class="reference internal" href="#id2">Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#long-term-shared-storage-goals">Long-term shared storage goals</a><ul>
+<li><a class="reference internal" href="#storage-pool-handling">Storage pool handling</a></li>
+<li><a class="reference internal" href="#gnt-storage">gnt-storage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-restricted-commands.html"
+                        title="previous chapter">Design for executing commands via RPC</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-ssh-ports.html"
+                        title="next chapter">Design for supporting custom SSH ports for nodes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-shared-storage.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-ssh-ports.html" title="Design for supporting custom SSH ports for nodes"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-restricted-commands.html" title="Design for executing commands via RPC"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.13.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

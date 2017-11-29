@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gnt-node &mdash; Ganeti 2.9.7 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.9.7',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.9.7 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-os" href="man-gnt-os.html" />
+    <link rel="prev" title="gnt-network" href="man-gnt-network.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-os.html" title="gnt-os"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-gnt-network.html" title="gnt-network"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.9.7 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gnt-node">
+<h1>gnt-node<a class="headerlink" href="#gnt-node" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>gnt-node - Node administration</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>gnt-node</strong> {command} [arguments...]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>gnt-node</strong> is used for managing the (physical) nodes in the
+Ganeti system.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="add">
+<h3>ADD<a class="headerlink" href="#add" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>add</strong> [&#8211;readd] [{-s|&#8211;secondary-ip} <em>secondary_ip</em>]</div>
+<div class="line">[{-g|&#8211;node-group} <em>nodegroup</em>]</div>
+<div class="line">[&#8211;master-capable=``yes|no``] [&#8211;vm-capable=``yes|no``]</div>
+<div class="line">[&#8211;node-parameters <em>ndparams</em>]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">{<em>nodename</em>}</div>
+</div>
+<p>Adds the given node to the cluster.</p>
+<p>This command is used to join a new node to the cluster. You will
+have to provide the password for root of the node to be able to add
+the node in the cluster. The command needs to be run on the Ganeti
+master.</p>
+<p>Note that the command is potentially destructive, as it will
+forcibly join the specified host the cluster, not paying attention
+to its current status (it could be already in a cluster, etc.)</p>
+<p>The <tt class="docutils literal"><span class="pre">-s</span> <span class="pre">(--secondary-ip)</span></tt> is used in dual-home clusters and
+specifies the new node&#8217;s IP in the secondary network. See the
+discussion in <strong>gnt-cluster</strong>(8) for more information.</p>
+<p>In case you&#8217;re readding a node after hardware failure, you can use
+the <tt class="docutils literal"><span class="pre">--readd</span></tt> parameter. In this case, you don&#8217;t need to pass the
+secondary IP again, it will reused from the cluster. Also, the
+drained and offline flags of the node will be cleared before
+re-adding it.</p>
+<p>The <tt class="docutils literal"><span class="pre">-g</span> <span class="pre">(--node-group)</span></tt> option is used to add the new node into a
+specific node group, specified by UUID or name. If only one node group
+exists you can skip this option, otherwise it&#8217;s mandatory.</p>
+<p>The <tt class="docutils literal"><span class="pre">vm_capable</span></tt>, <tt class="docutils literal"><span class="pre">master_capable</span></tt>, <tt class="docutils literal"><span class="pre">ndparams</span></tt>, <tt class="docutils literal"><span class="pre">diskstate</span></tt> and
+<tt class="docutils literal"><span class="pre">hvstate</span></tt> options are described in <strong>ganeti</strong>(7), and are used to set
+the properties of the new node.</p>
+<p>The command performs some operations that change the state of the master
+and the new node, like copying certificates and starting the node daemon
+on the new node, or updating <tt class="docutils literal"><span class="pre">/etc/hosts</span></tt> on the master node.  If the
+command fails at a later stage, it doesn&#8217;t undo such changes.  This
+should not be a problem, as a successful run of <tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">add</span></tt> will
+bring everything back in sync.</p>
+<p>If the node was previously part of another cluster and still has daemons
+running, the <tt class="docutils literal"><span class="pre">node-cleanup</span></tt> tool can be run on the machine to be added
+to clean remains of the previous cluster from the node.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node add node5.example.com</span>
+<span class="c"># gnt-node add -s 192.0.2.5 node5.example.com</span>
+<span class="c"># gnt-node add -g group2 -s 192.0.2.9 node9.group2.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evacuate">
+<h3>EVACUATE<a class="headerlink" href="#evacuate" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>evacuate</strong> [-f] [&#8211;early-release] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[{-I|&#8211;iallocator} <em>NAME</em> | {-n|&#8211;new-secondary} <em>destination_node</em>]</div>
+<div class="line">[{-p|&#8211;primary-only} | {-s|&#8211;secondary-only} ]</div>
+<div class="line-block">
+<div class="line">{<em>node</em>}</div>
+</div>
+</div>
+<p>This command will move instances away from the given node. If
+<tt class="docutils literal"><span class="pre">--primary-only</span></tt> is given, only primary instances are evacuated, with
+<tt class="docutils literal"><span class="pre">--secondary-only</span></tt> only secondaries. If neither is given, all
+instances are evacuated. It works only for instances having a drbd disk
+template.</p>
+<p>The new location for the instances can be specified in two ways:</p>
+<ul class="simple">
+<li>as a single node for all instances, via the <tt class="docutils literal"><span class="pre">-n</span> <span class="pre">(--new-secondary)</span></tt>
+option</li>
+<li>or via the <tt class="docutils literal"><span class="pre">-I</span> <span class="pre">(--iallocator)</span></tt> option, giving a script name as
+parameter (or <tt class="docutils literal"><span class="pre">.</span></tt> to use the default allocator), so each instance
+will be in turn placed on the (per the script) optimal node</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">--early-release</span></tt> changes the code so that the old storage on
+node being evacuated is removed early (before the resync is
+completed) and the internal Ganeti locks are also released for both
+the current secondary and the new secondary, thus allowing more
+parallelism in the cluster operation. This should be used only when
+recovering from a disk failure on the current secondary (thus the
+old storage is already broken) or when the storage on the primary
+node is known to be fine (thus we won&#8217;t need the old storage for
+potential recovery).</p>
+<p>Note that this command is equivalent to using per-instance commands for
+each affected instance individually:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">--primary-only</span></tt> is equivalent to performing <tt class="docutils literal"><span class="pre">gnt-instance</span>
+<span class="pre">migrate</span></tt> for every primary instance running on the node that can be
+migrated and <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">failover</span></tt> for every primary instance that
+cannot be migrated.</li>
+<li><tt class="docutils literal"><span class="pre">--secondary-only</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">gnt-instance</span> <span class="pre">replace-disks</span></tt>
+in secondary node change mode (<tt class="docutils literal"><span class="pre">--new-secondary</span></tt>) for every DRBD
+instance that the node is a secondary for.</li>
+<li>when neither of the above is done a combination of the two cases is run</li>
+</ul>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node evacuate -I hail node3.example.com</span>
+</pre></div>
+</div>
+<p>Note that, due to an issue with the iallocator interface, evacuation of
+all instances at once is not yet implemented. Full evacuation can
+currently be achieved by sequentially evacuating primaries and
+secondaries.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node evacuate -p node3.example.com</span>
+<span class="c"># gnt-node evacuate -s node3.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="failover">
+<h3>FAILOVER<a class="headerlink" href="#failover" title="Permalink to this headline">¶</a></h3>
+<p><strong>failover</strong> [-f] [&#8211;ignore-consistency] {<em>node</em>}</p>
+<p>This command will fail over all instances having the given node as
+primary to their secondary nodes. This works only for instances having
+a drbd disk template.</p>
+<p>Note that failover will stop any running instances on the given node and
+restart them again on the new primary.
+See also FAILOVER in <strong>gnt-instance</strong>(8).</p>
+<p>Normally the failover will check the consistency of the disks before
+failing over the instance. If you are trying to migrate instances off
+a dead node, this will fail. Use the <tt class="docutils literal"><span class="pre">--ignore-consistency</span></tt> option
+for this purpose.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node failover node1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="info">
+<h3>INFO<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h3>
+<p><strong>info</strong> [<em>node</em>...]</p>
+<p>Show detailed information about the nodes in the cluster. If you
+don&#8217;t give any arguments, all nodes will be shows, otherwise the
+output will be restricted to the given names.</p>
+</div>
+<div class="section" id="list">
+<h3>LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>list</strong></div>
+<div class="line">[&#8211;no-headers] [&#8211;separator=*SEPARATOR*]</div>
+<div class="line">[&#8211;units=*UNITS*] [-v] [{-o|&#8211;output} <em>[+]FIELD,...</em>]</div>
+<div class="line">[&#8211;filter]</div>
+<div class="line">[node...]</div>
+</div>
+<p>Lists the nodes in the cluster.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The units used to display the numeric values in the output varies,
+depending on the options given. By default, the values will be
+formatted in the most appropriate unit. If the <tt class="docutils literal"><span class="pre">--separator</span></tt>
+option is given, then the values are shown in mebibytes to allow
+parsing by scripts. In both cases, the <tt class="docutils literal"><span class="pre">--units</span></tt> option can be
+used to enforce a given output unit.</p>
+<p>Queries of nodes will be done in parallel with any running jobs. This might
+give inconsistent results for the free disk/memory.</p>
+<p>The <tt class="docutils literal"><span class="pre">-v</span></tt> option activates verbose mode, which changes the display of
+special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--output)</span></tt> option takes a comma-separated list of output
+fields. The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">bootid</span></tt></dt>
+<dd>Random UUID renewed for each system reboot, can be used for detecting reboots by tracking changes</dd>
+<dt><tt class="docutils literal"><span class="pre">cnodes</span></tt></dt>
+<dd>Number of NUMA domains on node (if exported by hypervisor)</dd>
+<dt><tt class="docutils literal"><span class="pre">cnos</span></tt></dt>
+<dd>Number of logical processors used by the node OS (dom0 for Xen)</dd>
+<dt><tt class="docutils literal"><span class="pre">csockets</span></tt></dt>
+<dd>Number of physical CPU sockets (if exported by hypervisor)</dd>
+<dt><tt class="docutils literal"><span class="pre">ctime</span></tt></dt>
+<dd>Creation timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">ctotal</span></tt></dt>
+<dd>Number of logical processors</dd>
+<dt><tt class="docutils literal"><span class="pre">custom_ndparams</span></tt></dt>
+<dd>Custom node parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">dfree</span></tt></dt>
+<dd>Available storage space in storage unit</dd>
+<dt><tt class="docutils literal"><span class="pre">disk_state</span></tt></dt>
+<dd>Disk state</dd>
+<dt><tt class="docutils literal"><span class="pre">drained</span></tt></dt>
+<dd>Whether node is drained</dd>
+<dt><tt class="docutils literal"><span class="pre">dtotal</span></tt></dt>
+<dd>Total storage space in storage unit used for instance disk allocation</dd>
+<dt><tt class="docutils literal"><span class="pre">group</span></tt></dt>
+<dd>Node group</dd>
+<dt><tt class="docutils literal"><span class="pre">group.uuid</span></tt></dt>
+<dd>UUID of node group</dd>
+<dt><tt class="docutils literal"><span class="pre">hv_state</span></tt></dt>
+<dd>Hypervisor state</dd>
+<dt><tt class="docutils literal"><span class="pre">master</span></tt></dt>
+<dd>Whether node is master</dd>
+<dt><tt class="docutils literal"><span class="pre">master_candidate</span></tt></dt>
+<dd>Whether node is a master candidate</dd>
+<dt><tt class="docutils literal"><span class="pre">master_capable</span></tt></dt>
+<dd>Whether node can become a master candidate</dd>
+<dt><tt class="docutils literal"><span class="pre">mfree</span></tt></dt>
+<dd>Memory available for instance allocations</dd>
+<dt><tt class="docutils literal"><span class="pre">mnode</span></tt></dt>
+<dd>Amount of memory used by node (dom0 for Xen)</dd>
+<dt><tt class="docutils literal"><span class="pre">mtime</span></tt></dt>
+<dd>Modification timestamp</dd>
+<dt><tt class="docutils literal"><span class="pre">mtotal</span></tt></dt>
+<dd>Total amount of memory of physical machine</dd>
+<dt><tt class="docutils literal"><span class="pre">name</span></tt></dt>
+<dd>Node name</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/exclusive_storage</span></tt></dt>
+<dd>The &#8220;exclusive_storage&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/oob_program</span></tt></dt>
+<dd>The &#8220;oob_program&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndp/spindle_count</span></tt></dt>
+<dd>The &#8220;spindle_count&#8221; node parameter</dd>
+<dt><tt class="docutils literal"><span class="pre">ndparams</span></tt></dt>
+<dd>Merged node parameters</dd>
+<dt><tt class="docutils literal"><span class="pre">offline</span></tt></dt>
+<dd>Whether node is marked offline</dd>
+<dt><tt class="docutils literal"><span class="pre">pinst_cnt</span></tt></dt>
+<dd>Number of instances with this node as primary</dd>
+<dt><tt class="docutils literal"><span class="pre">pinst_list</span></tt></dt>
+<dd>List of instances with this node as primary</dd>
+<dt><tt class="docutils literal"><span class="pre">pip</span></tt></dt>
+<dd>Primary IP address</dd>
+<dt><tt class="docutils literal"><span class="pre">powered</span></tt></dt>
+<dd>Whether node is thought to be powered on</dd>
+<dt><tt class="docutils literal"><span class="pre">role</span></tt></dt>
+<dd>Node role; &#8220;M&#8221; for master, &#8220;C&#8221; for master candidate, &#8220;R&#8221; for regular, &#8220;D&#8221; for drained, &#8220;O&#8221; for offline</dd>
+<dt><tt class="docutils literal"><span class="pre">serial_no</span></tt></dt>
+<dd>Node object serial number, incremented on each modification</dd>
+<dt><tt class="docutils literal"><span class="pre">sinst_cnt</span></tt></dt>
+<dd>Number of instances with this node as secondary</dd>
+<dt><tt class="docutils literal"><span class="pre">sinst_list</span></tt></dt>
+<dd>List of instances with this node as secondary</dd>
+<dt><tt class="docutils literal"><span class="pre">sip</span></tt></dt>
+<dd>Secondary IP address</dd>
+<dt><tt class="docutils literal"><span class="pre">spfree</span></tt></dt>
+<dd>Available spindles in volume group (exclusive storage only)</dd>
+<dt><tt class="docutils literal"><span class="pre">sptotal</span></tt></dt>
+<dd>Total spindles in volume group (exclusive storage only)</dd>
+<dt><tt class="docutils literal"><span class="pre">tags</span></tt></dt>
+<dd>Tags</dd>
+<dt><tt class="docutils literal"><span class="pre">uuid</span></tt></dt>
+<dd>Node UUID</dd>
+<dt><tt class="docutils literal"><span class="pre">vm_capable</span></tt></dt>
+<dd>Whether node can host instances</dd>
+</dl>
+<p>If the value of the option starts with the character <tt class="docutils literal"><span class="pre">+</span></tt>, the new
+fields will be added to the default list. This allows one to quickly
+see the default list plus a few other fields, instead of retyping
+the entire list of fields.</p>
+<p>Note that some of these fields are known from the configuration of the
+cluster (e.g. <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">pinst</span></tt>, <tt class="docutils literal"><span class="pre">sinst</span></tt>, <tt class="docutils literal"><span class="pre">pip</span></tt>, <tt class="docutils literal"><span class="pre">sip</span></tt>) and thus
+the master does not need to contact the node for this data (making the
+listing fast if only fields from this set are selected), whereas the
+other fields are &#8220;live&#8221; fields and require a query to the cluster nodes.</p>
+<p>Depending on the virtualization type and implementation details, the
+<tt class="docutils literal"><span class="pre">mtotal</span></tt>, <tt class="docutils literal"><span class="pre">mnode</span></tt> and <tt class="docutils literal"><span class="pre">mfree</span></tt> fields may have slightly varying
+meanings. For example, some solutions share the node memory with the
+pool of memory used for instances (KVM), whereas others have separate
+memory for the node and for the instances (Xen).</p>
+<p>If exactly one argument is given and it appears to be a query filter
+(see <strong>ganeti</strong>(7)), the query result is filtered accordingly. For
+ambiguous cases (e.g. a single field name as a filter) the <tt class="docutils literal"><span class="pre">--filter</span></tt>
+(<tt class="docutils literal"><span class="pre">-F</span></tt>) option forces the argument to be treated as a filter (e.g.
+<tt class="docutils literal"><span class="pre">gnt-node</span> <span class="pre">list</span> <span class="pre">-F</span> <span class="pre">master_candidate</span></tt>).</p>
+<p>If no node names are given, then all nodes are queried. Otherwise,
+only the given nodes will be listed.</p>
+</div>
+<div class="section" id="list-drbd">
+<h3>LIST-DRBD<a class="headerlink" href="#list-drbd" title="Permalink to this headline">¶</a></h3>
+<p><strong>list-drbd</strong> [&#8211;no-headers] [&#8211;separator=*SEPARATOR*] node</p>
+<p>Lists the mapping of DRBD minors for a given node. This outputs a static
+list of fields (it doesn&#8217;t accept the <tt class="docutils literal"><span class="pre">--output</span></tt> option), as follows:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">Node</span></tt></dt>
+<dd>The (full) name of the node we are querying</dd>
+<dt><tt class="docutils literal"><span class="pre">Minor</span></tt></dt>
+<dd>The DRBD minor</dd>
+<dt><tt class="docutils literal"><span class="pre">Instance</span></tt></dt>
+<dd>The instance the DRBD minor belongs to</dd>
+<dt><tt class="docutils literal"><span class="pre">Disk</span></tt></dt>
+<dd>The disk index that the DRBD minor belongs to</dd>
+<dt><tt class="docutils literal"><span class="pre">Role</span></tt></dt>
+<dd>Either <tt class="docutils literal"><span class="pre">primary</span></tt> or <tt class="docutils literal"><span class="pre">secondary</span></tt>, denoting the role of the node for
+the instance (note: this is not the live status of the DRBD device,
+but the configuration value)</dd>
+<dt><tt class="docutils literal"><span class="pre">PeerNode</span></tt></dt>
+<dd>The node that the minor is connected to on the other end</dd>
+</dl>
+<p>This command can be used as a reverse lookup (from node and minor) to a
+given instance, which can be useful when debugging DRBD issues.</p>
+<p>Note that this command queries Ganeti via <strong>ganeti-confd</strong>(8), so
+it won&#8217;t be available if support for <tt class="docutils literal"><span class="pre">confd</span></tt> has not been enabled at
+build time; furthermore, in Ganeti 2.6 this is only available via the
+Haskell version of confd (again selected at build time).</p>
+</div>
+<div class="section" id="list-fields">
+<h3>LIST-FIELDS<a class="headerlink" href="#list-fields" title="Permalink to this headline">¶</a></h3>
+<p><strong>list-fields</strong> [field...]</p>
+<p>Lists available fields for nodes.</p>
+</div>
+<div class="section" id="migrate">
+<h3>MIGRATE<a class="headerlink" href="#migrate" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>migrate</strong> [-f] [&#8211;non-live] [&#8211;migration-mode=live|non-live]</div>
+<div class="line">[&#8211;ignore-ipolicy] [&#8211;submit] [&#8211;print-job-id] {<em>node</em>}</div>
+</div>
+<p>This command will migrate all instances having the given node as
+primary to their secondary nodes. This works only for instances
+having a drbd disk template.</p>
+<p>As for the <strong>gnt-instance migrate</strong> command, the options
+<tt class="docutils literal"><span class="pre">--no-live</span></tt>, <tt class="docutils literal"><span class="pre">--migration-mode</span></tt> and <tt class="docutils literal"><span class="pre">--no-runtime-changes</span></tt>
+can be given to influence the migration type.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations
+occurring during this operation are ignored.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node migrate node1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modify">
+<h3>MODIFY<a class="headerlink" href="#modify" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>modify</strong> [-f] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">[{-C|&#8211;master-candidate} <tt class="docutils literal"><span class="pre">yes|no</span></tt>]</div>
+<div class="line">[{-D|&#8211;drained} <tt class="docutils literal"><span class="pre">yes|no</span></tt>] [{-O|&#8211;offline} <tt class="docutils literal"><span class="pre">yes|no</span></tt>]</div>
+<div class="line">[&#8211;master-capable=``yes|no``] [&#8211;vm-capable=``yes|no``] [&#8211;auto-promote]</div>
+<div class="line">[{-s|&#8211;secondary-ip} <em>secondary_ip</em>]</div>
+<div class="line">[&#8211;node-parameters <em>ndparams</em>]</div>
+<div class="line">[&#8211;node-powered=``yes|no``]</div>
+<div class="line">[&#8211;hypervisor-state <em>hvstate</em>]</div>
+<div class="line">[&#8211;disk-state <em>diskstate</em>]</div>
+<div class="line">{<em>node</em>}</div>
+</div>
+<p>This command changes the role of the node. Each options takes
+either a literal yes or no, and only one option should be given as
+yes. The meaning of the roles and flags are described in the
+manpage <strong>ganeti</strong>(7).</p>
+<p>The option <tt class="docutils literal"><span class="pre">--node-powered</span></tt> can be used to modify state-of-record if
+it doesn&#8217;t reflect the reality anymore.</p>
+<p>In case a node is demoted from the master candidate role, the
+operation will be refused unless you pass the <tt class="docutils literal"><span class="pre">--auto-promote</span></tt>
+option. This option will cause the operation to lock all cluster nodes
+(thus it will not be able to run in parallel with most other jobs),
+but it allows automated maintenance of the cluster candidate pool. If
+locking all cluster node is too expensive, another option is to
+promote manually another node to master candidate before demoting the
+current one.</p>
+<p>Example (setting a node offline, which will demote it from master
+candidate role if is in that role):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node modify --offline=yes node1.example.com</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-s</span> <span class="pre">(--secondary-ip)</span></tt> option can be used to change the node&#8217;s
+secondary ip. No drbd instances can be running on the node, while this
+operation is taking place. Remember that the secondary ip must be
+reachable from the master secondary ip, when being changed, so be sure
+that the node has the new IP already configured and active. In order to
+convert a cluster from single homed to multi-homed or vice versa
+<tt class="docutils literal"><span class="pre">--force</span></tt> is needed as well, and the target node for the first change
+must be the master.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example (setting the node back to online and master candidate):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node modify --offline=no --master-candidate=yes node1.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="remove">
+<h3>REMOVE<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<p><strong>remove</strong> {<em>nodename</em>}</p>
+<p>Removes a node from the cluster. Instances must be removed or
+migrated to another cluster before.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node remove node5.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="volumes">
+<h3>VOLUMES<a class="headerlink" href="#volumes" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>volumes</strong> [&#8211;no-headers] [&#8211;human-readable]</div>
+<div class="line">[&#8211;separator=*SEPARATOR*] [{-o|&#8211;output} <em>FIELDS</em>]</div>
+<div class="line">[<em>node</em>...]</div>
+</div>
+<p>Lists all logical volumes and their physical disks from the node(s)
+provided.</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The units used to display the numeric values in the output varies,
+depending on the options given. By default, the values will be
+formatted in the most appropriate unit. If the <tt class="docutils literal"><span class="pre">--separator</span></tt>
+option is given, then the values are shown in mebibytes to allow
+parsing by scripts. In both cases, the <tt class="docutils literal"><span class="pre">--units</span></tt> option can be
+used to enforce a given output unit.</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--output)</span></tt> option takes a comma-separated list of output
+fields. The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt>node</dt>
+<dd>the node name on which the volume exists</dd>
+<dt>phys</dt>
+<dd>the physical drive (on which the LVM physical volume lives)</dd>
+<dt>vg</dt>
+<dd>the volume group name</dd>
+<dt>name</dt>
+<dd>the logical volume name</dd>
+<dt>size</dt>
+<dd>the logical volume size</dd>
+<dt>instance</dt>
+<dd>The name of the instance to which this volume belongs, or (in case
+it&#8217;s an orphan volume) the character &#8220;-&#8220;</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python"><pre># gnt-node volumes node5.example.com
+Node              PhysDev   VG    Name                                 Size Instance
+node1.example.com /dev/hdc1 xenvg instance1.example.com-sda_11000.meta 128  instance1.example.com
+node1.example.com /dev/hdc1 xenvg instance1.example.com-sda_11001.data 256  instance1.example.com</pre>
+</div>
+</div>
+<div class="section" id="list-storage">
+<h3>LIST-STORAGE<a class="headerlink" href="#list-storage" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>list-storage</strong> [&#8211;no-headers] [&#8211;human-readable]</div>
+<div class="line">[&#8211;separator=*SEPARATOR*] [&#8211;storage-type=*STORAGE_TYPE*]</div>
+<div class="line">[{-o|&#8211;output} <em>FIELDS</em>]</div>
+<div class="line">[<em>node</em>...]</div>
+</div>
+<p>Lists the available storage units and their details for the given
+node(s).</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The units used to display the numeric values in the output varies,
+depending on the options given. By default, the values will be
+formatted in the most appropriate unit. If the <tt class="docutils literal"><span class="pre">--separator</span></tt>
+option is given, then the values are shown in mebibytes to allow
+parsing by scripts. In both cases, the <tt class="docutils literal"><span class="pre">--units</span></tt> option can be
+used to enforce a given output unit.</p>
+<p>The <tt class="docutils literal"><span class="pre">--storage-type</span></tt> option can be used to choose a storage unit
+type. Possible choices are lvm-pv, lvm-vg or file.</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span> <span class="pre">(--output)</span></tt> option takes a comma-separated list of output
+fields. The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt>node</dt>
+<dd>the node name on which the volume exists</dd>
+<dt>type</dt>
+<dd>the type of the storage unit (currently just what is passed in via
+<tt class="docutils literal"><span class="pre">--storage-type</span></tt>)</dd>
+<dt>name</dt>
+<dd>the path/identifier of the storage unit</dd>
+<dt>size</dt>
+<dd>total size of the unit; for the file type see a note below</dd>
+<dt>used</dt>
+<dd>used space in the unit; for the file type see a note below</dd>
+<dt>free</dt>
+<dd>available disk space</dd>
+<dt>allocatable</dt>
+<dd>whether we the unit is available for allocation (only lvm-pv can
+change this setting, the other types always report true)</dd>
+</dl>
+<p>Note that for the &#8220;file&#8221; type, the total disk space might not equal
+to the sum of used and free, due to the method Ganeti uses to
+compute each of them. The total and free values are computed as the
+total and free space values for the filesystem to which the
+directory belongs, but the used space is computed from the used
+space under that directory <em>only</em>, which might not be necessarily
+the root of the filesystem, and as such there could be files
+outside the file storage directory using disk space and causing a
+mismatch in the values.</p>
+<p>Example:</p>
+<div class="highlight-python"><pre>node1# gnt-node list-storage node2
+Node  Type   Name        Size Used   Free Allocatable
+node2 lvm-pv /dev/sda7 673.8G 1.5G 672.3G Y
+node2 lvm-pv /dev/sdb1 698.6G   0M 698.6G Y</pre>
+</div>
+</div>
+<div class="section" id="modify-storage">
+<h3>MODIFY-STORAGE<a class="headerlink" href="#modify-storage" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>modify-storage</strong> [&#8211;allocatable={yes|no}] [&#8211;submit] [&#8211;print-job-id]</div>
+<div class="line">{<em>node</em>} {<em>storage-type</em>} {<em>volume-name</em>}</div>
+</div>
+<p>Modifies storage volumes on a node. Only LVM physical volumes can
+be modified at the moment. They have a storage type of &#8220;lvm-pv&#8221;.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node modify-storage --allocatable no node5.example.com lvm-pv /dev/sdb1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repair-storage">
+<h3>REPAIR-STORAGE<a class="headerlink" href="#repair-storage" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>repair-storage</strong> [&#8211;ignore-consistency] ]&#8211;submit]</div>
+<div class="line">{<em>node</em>} {<em>storage-type</em>} {<em>volume-name</em>}</div>
+</div>
+<p>Repairs a storage volume on a node. Only LVM volume groups can be
+repaired at this time. They have the storage type &#8220;lvm-vg&#8221;.</p>
+<p>On LVM volume groups, <strong>repair-storage</strong> runs <tt class="docutils literal"><span class="pre">vgreduce</span>
+<span class="pre">--removemissing</span></tt>.</p>
+<p><strong>Caution:</strong> Running this command can lead to data loss. Use it with
+care.</p>
+<p>The <tt class="docutils literal"><span class="pre">--ignore-consistency</span></tt> option will ignore any inconsistent
+disks (on the nodes paired with this one). Use of this option is
+most likely to lead to data-loss.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node repair-storage node5.example.com lvm-vg xenvg</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="powercycle">
+<h3>POWERCYCLE<a class="headerlink" href="#powercycle" title="Permalink to this headline">¶</a></h3>
+<p><strong>powercycle</strong> [&#8211;yes] [&#8211;force] [&#8211;submit] [&#8211;print-job-id] {<em>node</em>}</p>
+<p>This command (tries to) forcefully reboot a node. It is a command
+that can be used if the node environment is broken, such that the
+admin can no longer login over SSH, but the Ganeti node daemon is
+still working.</p>
+<p>Note that this command is not guaranteed to work; it depends on the
+hypervisor how effective is the reboot attempt. For Linux, this
+command requires the kernel option <tt class="docutils literal"><span class="pre">CONFIG_MAGIC_SYSRQ</span></tt> to be
+enabled.</p>
+<p>The <tt class="docutils literal"><span class="pre">--yes</span></tt> option can be used to skip confirmation, while the
+<tt class="docutils literal"><span class="pre">--force</span></tt> option is needed if the target node is the master
+node.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+</div>
+<div class="section" id="power">
+<h3>POWER<a class="headerlink" href="#power" title="Permalink to this headline">¶</a></h3>
+<p><strong>power</strong> [<tt class="docutils literal"><span class="pre">--force</span></tt>] [<tt class="docutils literal"><span class="pre">--ignore-status</span></tt>] [<tt class="docutils literal"><span class="pre">--all</span></tt>]
+[<tt class="docutils literal"><span class="pre">--power-delay</span></tt>] on|off|cycle|status [<em>nodes</em>]</p>
+<p>This command calls out to out-of-band management to change the power
+state of given node. With <tt class="docutils literal"><span class="pre">status</span></tt> you get the power status as reported
+by the out-of-band management script.</p>
+<p>Note that this command will only work if the out-of-band functionality
+is configured and enabled on the cluster. If this is not the case,
+please use the <strong>powercycle</strong> command above.</p>
+<p>Using <tt class="docutils literal"><span class="pre">--force</span></tt> you skip the confirmation to do the operation.
+Currently this only has effect on <tt class="docutils literal"><span class="pre">off</span></tt> and <tt class="docutils literal"><span class="pre">cycle</span></tt>. On those two
+you can <em>not</em> operate on the master. However, the command will provide
+you with the command to invoke to operate on the master nerver-mind.
+This is considered harmful and Ganeti does not support the use of it.</p>
+<p>Providing <tt class="docutils literal"><span class="pre">--ignore-status</span></tt> will ignore the offline=N state of a node
+and continue with power off.</p>
+<p><tt class="docutils literal"><span class="pre">--power-delay</span></tt> specifies the time in seconds (factions allowed)
+waited between powering on the next node. This is by default 2 seconds
+but can increased if needed with this option.</p>
+<p><em>nodes</em> are optional. If not provided it will call out for every node in
+the cluster. Except for the <tt class="docutils literal"><span class="pre">off</span></tt> and <tt class="docutils literal"><span class="pre">cycle</span></tt> command where you&#8217;ve
+to explicit use <tt class="docutils literal"><span class="pre">--all</span></tt> to select all.</p>
+</div>
+<div class="section" id="health">
+<h3>HEALTH<a class="headerlink" href="#health" title="Permalink to this headline">¶</a></h3>
+<p><strong>health</strong> [<em>nodes</em>]</p>
+<p>This command calls out to out-of-band management to ask for the health status
+of all or given nodes. The health contains the node name and then the items
+element with their status in a <tt class="docutils literal"><span class="pre">item=status</span></tt> manner. Where <tt class="docutils literal"><span class="pre">item</span></tt> is script
+specific and <tt class="docutils literal"><span class="pre">status</span></tt> can be one of <tt class="docutils literal"><span class="pre">OK</span></tt>, <tt class="docutils literal"><span class="pre">WARNING</span></tt>, <tt class="docutils literal"><span class="pre">CRITICAL</span></tt> or
+<tt class="docutils literal"><span class="pre">UNKNOWN</span></tt>. Items with status <tt class="docutils literal"><span class="pre">WARNING</span></tt> or <tt class="docutils literal"><span class="pre">CRITICAL</span></tt> are logged and
+annotated in the command line output.</p>
+</div>
+<div class="section" id="restricted-command">
+<h3>RESTRICTED-COMMAND<a class="headerlink" href="#restricted-command" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>restricted-command</strong> [-M] [&#8211;sync]</div>
+<div class="line">{ -g <em>group</em> <em>command</em> | <em>command</em> <em>nodes</em>... }</div>
+</div>
+<p>Executes a restricted command on the specified nodes. Restricted commands are
+not arbitrary, but must reside in
+<tt class="docutils literal"><span class="pre">/etc/ganeti/restricted-commands</span></tt> on a node, either as a regular
+file or as a symlink. The directory must be owned by root and not be
+world- or group-writable. If a command fails verification or otherwise
+fails to start, the node daemon log must be consulted for more detailed
+information.</p>
+<p>Example for running a command on two nodes:</p>
+<div class="highlight-python"><pre># gnt-node restricted-command mycommand \
+  node1.example.com node2.example.com</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-g</span></tt> option can be used to run a command only on a specific node
+group, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-node restricted-command -g default mycommand</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-M</span></tt> option can be used to prepend the node name to all command
+output lines. <tt class="docutils literal"><span class="pre">--sync</span></tt> forces the opcode to acquire the node lock(s)
+in exclusive mode.</p>
+</div>
+<div class="section" id="tags">
+<h3>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="add-tags">
+<h4>ADD-TAGS<a class="headerlink" href="#add-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>add-tags</strong> [&#8211;from <em>file</em>] {<em>nodename</em>} {<em>tag</em>...}</p>
+<p>Add tags to the given node. If any of the tags contains invalid
+characters, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags will be
+extended with the contents of that file (each line becomes a tag).
+In this case, there is not need to pass tags on the command line
+(if you do, both sources will be used). A file name of - will be
+interpreted as stdin.</p>
+</div>
+<div class="section" id="list-tags">
+<h4>LIST-TAGS<a class="headerlink" href="#list-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>list-tags</strong> {<em>nodename</em>}</p>
+<p>List the tags of the given node.</p>
+</div>
+<div class="section" id="remove-tags">
+<h4>REMOVE-TAGS<a class="headerlink" href="#remove-tags" title="Permalink to this headline">¶</a></h4>
+<p><strong>remove-tags</strong> [&#8211;from <em>file</em>] {<em>nodename</em>} {<em>tag</em>...}</p>
+<p>Remove tags from the given node. If any of the tags are not
+existing on the node, the entire operation will abort.</p>
+<p>If the <tt class="docutils literal"><span class="pre">--from</span></tt> option is given, the list of tags to be removed will
+be extended with the contents of that file (each line becomes a tag).
+In this case, there is not need to pass tags on the command line (if
+you do, tags from both sources will be removed). A file name of - will
+be interpreted as stdin.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gnt-node</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#commands">COMMANDS</a><ul>
+<li><a class="reference internal" href="#add">ADD</a></li>
+<li><a class="reference internal" href="#evacuate">EVACUATE</a></li>
+<li><a class="reference internal" href="#failover">FAILOVER</a></li>
+<li><a class="reference internal" href="#info">INFO</a></li>
+<li><a class="reference internal" href="#list">LIST</a></li>
+<li><a class="reference internal" href="#list-drbd">LIST-DRBD</a></li>
+<li><a class="reference internal" href="#list-fields">LIST-FIELDS</a></li>
+<li><a class="reference internal" href="#migrate">MIGRATE</a></li>
+<li><a class="reference internal" href="#modify">MODIFY</a></li>
+<li><a class="reference internal" href="#remove">REMOVE</a></li>
+<li><a class="reference internal" href="#volumes">VOLUMES</a></li>
+<li><a class="reference internal" href="#list-storage">LIST-STORAGE</a></li>
+<li><a class="reference internal" href="#modify-storage">MODIFY-STORAGE</a></li>
+<li><a class="reference internal" href="#repair-storage">REPAIR-STORAGE</a></li>
+<li><a class="reference internal" href="#powercycle">POWERCYCLE</a></li>
+<li><a class="reference internal" href="#power">POWER</a></li>
+<li><a class="reference internal" href="#health">HEALTH</a></li>
+<li><a class="reference internal" href="#restricted-command">RESTRICTED-COMMAND</a></li>
+<li><a class="reference internal" href="#tags">Tags</a><ul>
+<li><a class="reference internal" href="#add-tags">ADD-TAGS</a></li>
+<li><a class="reference internal" href="#list-tags">LIST-TAGS</a></li>
+<li><a class="reference internal" href="#remove-tags">REMOVE-TAGS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-gnt-network.html"
+                        title="previous chapter">gnt-network</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-os.html"
+                        title="next chapter">gnt-os</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-gnt-node.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-os.html" title="gnt-os"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-gnt-network.html" title="gnt-network"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.9.7 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

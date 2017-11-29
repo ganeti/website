@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-masterd(8) Ganeti | Version 2.8.4</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-masterd(8) Ganeti | Version 2.8.4</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a><ul>
+<li><a href="#role">ROLE</a></li>
+<li><a href="#startup">STARTUP</a></li>
+<li><a href="#shutdown">SHUTDOWN</a></li>
+<li><a href="#job-queue">JOB QUEUE</a></li>
+<li><a href="#communication-protocol">COMMUNICATION PROTOCOL</a></li>
+</ul></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>ganeti-masterd - Ganeti master daemon</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>ganeti-masterd</strong> [-f] [-d] [--no-voting]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>ganeti-masterd</strong> is the daemon which is responsible for the overall cluster coordination. Without it, no change can be performed on the cluster.</p>
+<p>For testing purposes, you can give the <code>-f</code> option and the program won't detach from the running terminal.</p>
+<p>Debug-level message can be activated by giving the <code>-d</code> option.</p>
+<h2 id="role"><a href="#TOC">ROLE</a></h2>
+<p>The role of the master daemon is to coordinate all the actions that change the state of the cluster. Things like accepting new jobs, coordinating the changes on nodes (via RPC calls to the respective node daemons), maintaining the configuration and so on are done via this daemon.</p>
+<p>The only action that can be done without the master daemon is the failover of the master role to another node in the cluster, via the <strong>gnt-cluster master-failover</strong> command.</p>
+<p>If the master daemon is stopped, the instances are not affected, but they won't be restarted automatically in case of failure.</p>
+<h2 id="startup"><a href="#TOC">STARTUP</a></h2>
+<p>At startup, the master daemon will confirm with the node daemons that the node it is running is indeed the master node of the cluster. It will abort if it doesn't get half plus one positive answers (offline nodes are queried too, just in case our configuration is stale).</p>
+<p>For small clusters with a number of nodes down, and especially for two-node clusters where the other has gone done, this creates a problem. In this case the <code>--no-voting</code> option can be used to skip this process. The option requires interactive confirmation, as having two masters on the same cluster is a very dangerous situation and will most likely lead to data loss.</p>
+<h2 id="shutdown"><a href="#TOC">SHUTDOWN</a></h2>
+<p>When the master daemon receives a <code>SIGINT</code> (Ctrl-C) or <code>SIGTERM</code> signal, it stops accepting new jobs and prepares to shut down shortly after jobs running at the time finish. Meanwhile it still responds to LUXI requests. Pending jobs are re-queued after the daemon is started again. When a second signal is received, the master daemon terminates without waiting (it might still need to wait for some threads to finish). Note that the latter, as well as sending <code>SIGKILL</code>, may leave the cluster in an inconsistent state.</p>
+<h2 id="job-queue"><a href="#TOC">JOB QUEUE</a></h2>
+<p>The master daemon maintains a job queue (located under the directory <code>/var/lib/ganeti/queue</code>) in which all current jobs are stored, one job per file serialized in JSON format; in this directory a subdirectory called <code>archive</code> holds archived job files.</p>
+<p>The moving of jobs from the current to the queue directory is done via a request to the master; this can be accomplished from the command line with the <strong>gnt-job archive</strong> or <strong>gnt-job autoarchive</strong> commands. In case of problems with the master, a job file can simply be moved away or deleted (but this might leave the cluster inconsistent).</p>
+<h2 id="communication-protocol"><a href="#TOC">COMMUNICATION PROTOCOL</a></h2>
+<p>The master accepts commands over a Unix socket, using JSON serialized messages separated by a specific byte sequence. For more details, see the design documentation supplied with Ganeti.</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-masterd</strong>(8) (master daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Google Inc. Permission is granted to copy, distribute and/or modify under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>On Debian systems, the complete text of the GNU General Public License can be found in /usr/share/common-licenses/GPL.</p>
+</body>
+</html>

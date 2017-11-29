@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>ganeti-rapi(8) Ganeti | Version 2.12.6</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">ganeti-rapi(8) Ganeti | Version 2.12.6</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#access-controls">ACCESS CONTROLS</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>ganeti-rapi - Ganeti remote API daemon</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>ganeti-rapi</strong> [-d] [-f] [-p <em>PORT</em>] [-b <em>ADDRESS</em>] [-i <em>INTERFACE</em>]<br />[--no-ssl] [-K <em>SSL_KEY_FILE</em>] [-C <em>SSL_CERT_FILE</em>]<br />[--require-authentication]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p><strong>ganeti-rapi</strong> is the daemon providing a remote API for Ganeti clusters.</p>
+<p>It is automatically started on the master node, and by default it uses SSL encryption. This can be disabled by passing the <code>--no-ssl</code> option, or alternatively the certificate used can be changed via the <code>-C</code> option and the key via the <code>-K</code> option.</p>
+<p>The daemon will listen to the &quot;ganeti-rapi&quot; TCP port, as listed in the system services database, or if not defined, to port 5080 by default. The port can be overridded by passing the <code>-p</code> option. The <code>-b</code> option can be used to specify the address to bind to (defaults to <code>0.0.0.0</code>). Note that if you specify the address, the watcher needs to be informed about it using its option <code>--rapi-ip</code>, otherwise it will not be able to reach the RAPI interface and will attempt to restart it all the time. Alternatively to setting the IP with <code>--b</code>, the <code>-i</code> option can be used to specify the interface to bind do.</p>
+<p>See the <em>Ganeti remote API</em> documentation for further information.</p>
+<p>Requests are logged to <code>/var/log/ganeti/rapi-daemon.log</code>, in the same format as for the node and master daemon.</p>
+<h1 id="access-controls"><a href="#TOC">ACCESS CONTROLS</a></h1>
+<p>Most query operations are allowed without authentication. Only the modification operations require authentication, in the form of basic authentication. Specify the <code>--require-authentication</code> command line flag to always require authentication.</p>
+<p>The users and their rights are defined in the <code>/var/lib/ganeti/rapi/users</code> file. The format of this file is described in the Ganeti documentation (<code>rapi.html</code>).</p>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DRBD Sync Rate Throttling &mdash; Ganeti 2.17.0~beta1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.17.0~beta1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.17.0~beta1 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Network Management (revised)" href="design-network2.html" />
+    <link rel="prev" title="Instance Reservations" href="design-reservations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-network2.html" title="Network Management (revised)"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-reservations.html" title="Instance Reservations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="drbd-sync-rate-throttling">
+<h1>DRBD Sync Rate Throttling<a class="headerlink" href="#drbd-sync-rate-throttling" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>This document outlines the functionality to conveniently set rate limits for
+synchronization tasks. A use-case of this is that moving instances might
+otherwise clog the network for the nodes. If the replication network differs
+from the network used by the instances, there would be no benefits.</p>
+<p>Namely there should be two limits that can be set:</p>
+<ul class="simple">
+<li><cite>resync-rate</cite>: which should not be exceeded for each device. This exists
+already.</li>
+<li><cite>total-resync-rate</cite>: which should not be exceeded collectively for each
+node.</li>
+</ul>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Suggested command line parameters for controlling throttling are as
+follows:</p>
+<div class="highlight-python"><pre>gnt-cluster modify -D resync-rate=&lt;bytes-per-second&gt;
+gnt-cluster modify -D total-resync-rate=&lt;bytes-per-second&gt;</pre>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">bytes-per-second</span></tt> can be in the format <tt class="docutils literal"><span class="pre">&lt;N&gt;{b,k,M,G}</span></tt> to set the
+limit to N bytes, kilobytes, megabytes, and gigabytes respectively.</p>
+</div>
+<div class="section" id="semantics">
+<h2>Semantics<a class="headerlink" href="#semantics" title="Permalink to this headline">¶</a></h2>
+<p>The rate limit that is set for the drbdsetup is at least</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>rate = min(resync-rate,</dt>
+<dd>total-resync-rate/number-of-syncing-devices)</dd>
+</dl>
+</div></blockquote>
+<p>where number-of-syncing-devices is checked on beginning and end of syncs. This
+is set on each node with</p>
+<blockquote>
+<div>drbdsetup &lt;minor&gt; disk-options &#8211;resync-rate &lt;rate&gt; &#8211;c-max-rate &lt;rate&gt;</div></blockquote>
+<p>Later versions might free additional bandwidth on the source/target if the
+target/source is more throttled.</p>
+</div>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>The code to adjust the sync rates is collected in a separate tool <tt class="docutils literal"><span class="pre">hrates</span></tt>
+that</p>
+<ol class="arabic simple">
+<li>is run when a new sync is started or finished.</li>
+<li>can be run manually if necessary.</li>
+</ol>
+<p>Since the rates don&#8217;t depend on the job, an unparameterized RPC
+<tt class="docutils literal"><span class="pre">perspective_node_run_hrates</span></tt> to NodeD will trigger the execution of the
+tool.</p>
+<p>A first version will query ConfD for the other nodes of the group and request
+the sync state for all of them.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DRBD Sync Rate Throttling</a><ul>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#semantics">Semantics</a></li>
+<li><a class="reference internal" href="#architecture">Architecture</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-reservations.html"
+                        title="previous chapter">Instance Reservations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-network2.html"
+                        title="next chapter">Network Management (revised)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-sync-rate-throttling.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-network2.html" title="Network Management (revised)"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-reservations.html" title="Instance Reservations"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.17.0~beta1 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

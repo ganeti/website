@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>gnt-filter(8) Ganeti | Version 2.16.0~rc1</title>
+</head>
+<body>
+<div id="header">
+<h1 class="title">gnt-filter(8) Ganeti | Version 2.16.0~rc1</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#commands">COMMANDS</a><ul>
+<li><a href="#add">ADD</a></li>
+<li><a href="#replace">REPLACE</a></li>
+<li><a href="#delete">DELETE</a></li>
+<li><a href="#list">LIST</a></li>
+<li><a href="#list-fields">LIST-FIELDS</a></li>
+<li><a href="#info">INFO</a></li>
+</ul></li>
+<li><a href="#examples">EXAMPLES</a></li>
+<li><a href="#reporting-bugs">REPORTING BUGS</a></li>
+<li><a href="#see-also">SEE ALSO</a></li>
+<li><a href="#copyright">COPYRIGHT</a></li>
+</ul>
+</div>
+<h1 id="name"><a href="#TOC">Name</a></h1>
+<p>gnt-filter - Ganeti job filter rule administration</p>
+<h1 id="synopsis"><a href="#TOC">Synopsis</a></h1>
+<p><strong>gnt-filter</strong> {command} [options...] [arguments...]</p>
+<h1 id="description"><a href="#TOC">DESCRIPTION</a></h1>
+<p>The <strong>gnt-filter</strong> command is used for managing job filter rules in the Ganeti system. Filter rules are used by the Ganeti job scheduler to determine which jobs should be accepted, rejected, paused or rate-limited.</p>
+<p>Filter rules consist of the following:</p>
+<ul>
+<li><p>A <code>UUID</code>, used to refer to existing filters.</p></li>
+<li><p>A <code>watermark</code>. This is the highest job id ever used, as valid in the moment when the filter was added or replaced.</p></li>
+<li><p>A <code>priority</code>. This is a non-negative integer. Filters are processed in order of increasing priority. While there is a well-defined order in which rules of the same priority are evaluated (increasing watermark, then the UUID, are taken as tie breakers), it is not recommended to have rules of the same priority that overlap and have different actions associated.</p></li>
+<li><p>A list of <code>predicates</code> to be matched against the job.</p>
+<p>A predicate is a list, with the first element being the name of the predicate and the rest being parameters suitable for that predicate. Most predicates take a single parameter, which is a boolean expression formulated in the of the Ganeti query language. The currently supported predicate names are:</p>
+<ul>
+<li><p><code>jobid</code>. Only parameter is a boolean expression. For this expression, there is only one field available, <code>id</code>, which represents the id the job to be filtered. In all value positions, the string <code>watermark</code> is replaced by the value of the watermark of the filter rule.</p></li>
+<li><p><code>opcode</code>. Only parameter is a boolean expression. For this expression, <code>OP_ID</code> and all other fields present in the opcode are available. This predicate will hold true, if the expression is true for at least one opcode in the job.</p></li>
+<li><p><code>reason</code>. Only parameter is a boolean expression. For this expression, the three fields <code>source</code>, <code>reason</code>, <code>timestamp</code> of reason trail entries are available. This predicate is true, if one of the entries of one of the opcodes in this job satisfies the expression.</p></li>
+</ul></li>
+<li><p>An <code>action</code>. One of:</p>
+<ul>
+<li>ACCEPT. The job will be accepted; no further filter rules are applied.</li>
+<li>PAUSE. The job will be accepted to the queue and remain there; however, it is not executed. Has no effect if the job is already running.</li>
+<li>REJECT. The job is rejected. If it is already in the queue, it will be cancelled.</li>
+<li>CONTINUE. The filtering continues processing with the next rule. Such a rule will never have any direct or indirect effect, but it can serve as documentation for a &quot;normally present, but currently disabled&quot; rule.</li>
+<li>RATE_LIMIT <code>n</code>, where <code>n</code> is a positive integer. The job will be held in the queue while <code>n</code> or more jobs where this rule applies are running. Jobs already running when this rule is added are not changed. Logically, this rule is applied job by job sequentially, so that the number of jobs where this rule applies is limited to <code>n</code> once the jobs running at rule addition have finished.</li>
+</ul></li>
+<li><p>A reason trail, in the same format as reason trails for job opcodes (see the <code>--reason</code> option in <strong>ganeti</strong>(7)). This allows to find out which maintenance (or other reason) caused the addition of this filter rule.</p></li>
+</ul>
+<h1 id="commands"><a href="#TOC">COMMANDS</a></h1>
+<h2 id="add"><a href="#TOC">ADD</a></h2>
+<p><strong>add</strong><br />[--priority=<em>PRIORITY</em>]<br />[--predicates=<em>PREDICATES</em>]<br />[--action=<em>ACTION</em>]</p>
+<p>Creates a new filter rule. A UUID is automatically assigned.</p>
+<p>The <code>--priority</code> option sets the priority of the filter. It is a non-negative integer. Default: 0 (the highest possible priority).</p>
+<p>The <code>--predicates</code> option sets the predicates of the filter. It is a list of predicates in the format described in the <strong>DESCRIPTION</strong> above. Default: [] (no predicate, filter always matches).</p>
+<p>The <code>--action</code> option sets the action of the filter. It is one of the strings <code>ACCEPT</code>, <code>PAUSE</code>, <code>REJECT</code>, <code>CONTINUE</code>, or <code>RATE_LIMIT n</code> (see the <strong>DESCRIPTION</strong> above). Default: <code>CONTINUE</code>.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--reason</code> and other common options.</p>
+<h2 id="replace"><a href="#TOC">REPLACE</a></h2>
+<p><strong>replace</strong><br />[--priority=<em>PRIORITY</em>]<br />[--predicates=<em>PREDICATES</em>]<br />[--action=<em>ACTION</em>]<br />[--reason=<em>REASON</em>]<br />{<em>filter_uuid</em>}</p>
+<p>Replaces a filter rule, or creates one if it doesn't already exist.</p>
+<p>Accepts all options described above in <code>ADD</code>.</p>
+<p>When being replaced, the filter will be assigned an updated watermark.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <code>--reason</code> and other common options.</p>
+<h2 id="delete"><a href="#TOC">DELETE</a></h2>
+<p><strong>delete</strong> {<em>filter_uuid</em>}</p>
+<p>Deletes the indicated filter rule.</p>
+<h2 id="list"><a href="#TOC">LIST</a></h2>
+<p><strong>list</strong> [--no-headers] [--separator=<em>SEPARATOR</em>] [-v]<br />[-o <em>[+]FIELD,...</em>] [filter_uuid...]</p>
+<p>Lists all existing filters in the cluster. If no filter UUIDs are given, then all filters are included. Otherwise, only the given filters will be listed.</p>
+<p>The <code>--no-headers</code> option will skip the initial header line. The <code>--separator</code> option takes an argument which denotes what will be used between the output fields. Both these options are to help scripting.</p>
+<p>The <code>-v</code> option activates verbose mode, which changes the display of special field states (see <strong>ganeti</strong>(7)).</p>
+<p>The <code>-o</code> option takes a comma-separated list of output fields. If the value of the option starts with the character <code>+</code>, the new fields will be added to the default list. This allows to quickly see the default list plus a few other fields, instead of retyping the entire list of fields.</p>
+<p>The available fields and their meaning are:</p>
+<dl>
+<dt><code>action</code></dt>
+<dd><p>Action</p>
+</dd>
+<dt><code>predicates</code></dt>
+<dd><p>Predicates</p>
+</dd>
+<dt><code>priority</code></dt>
+<dd><p>Priority</p>
+</dd>
+<dt><code>reason_trail</code></dt>
+<dd><p>Reason trail</p>
+</dd>
+<dt><code>uuid</code></dt>
+<dd><p>Network UUID</p>
+</dd>
+<dt><code>watermark</code></dt>
+<dd><p>Watermark</p>
+</dd>
+</dl>
+<h2 id="list-fields"><a href="#TOC">LIST-FIELDS</a></h2>
+<p><strong>list-fields</strong> [field...]</p>
+<p>List available fields for filters.</p>
+<h2 id="info"><a href="#TOC">INFO</a></h2>
+<p><strong>info</strong> [filter_uuid...]</p>
+<p>Displays information about a given filter.</p>
+<h1 id="examples"><a href="#TOC">EXAMPLES</a></h1>
+<p>Draining the queue.</p>
+<pre><code>gnt-filter add &#39;--predicates=[[&quot;jobid&quot;, [&quot;&gt;&quot;, &quot;id&quot;, &quot;watermark&quot;]]]&#39; --action=REJECT</code></pre>
+<p>Soft draining could be achieved by replacing <code>REJECT</code> by <code>PAUSE</code> in the above example.</p>
+<p>Pausing all new jobs not belonging to a specific maintenance.</p>
+<pre><code>gnt-filter add --priority=0 &#39;--predicates=[[&quot;reason&quot;, [&quot;=~&quot;, &quot;reason&quot;, &quot;maintenance pink bunny&quot;]]]&#39; --action=ACCEPT
+gnt-filter add --priority=1 &#39;--predicates=[[&quot;jobid&quot;, [&quot;&gt;&quot;, &quot;id&quot;, &quot;watermark&quot;]]]&#39; --action=PAUSE</code></pre>
+<p>Cancelling all queued instance creations and disallowing new such jobs.</p>
+<pre><code>gnt-filter add &#39;--predicates=[[&quot;opcode&quot;, [&quot;=&quot;, &quot;OP_ID&quot;, &quot;OP_INSTANCE_CREATE&quot;]]]&#39; --action=REJECT</code></pre>
+<p>Limiting the number of simultaneous instance disk replacements to 10 in order to throttle replication traffic.</p>
+<pre><code>gnt-filter add &#39;--predicates=[[&quot;opcode&quot;, [&quot;=&quot;, &quot;OP_ID&quot;, &quot;OP_INSTANCE_REPLACE_DISKS&quot;]]]&#39; &#39;--action=RATE_LIMIT 10&#39;</code></pre>
+<h1 id="reporting-bugs"><a href="#TOC">REPORTING BUGS</a></h1>
+<p>Report bugs to <a href="http://code.google.com/p/ganeti/">project website</a> or contact the developers using the <a href="ganeti@googlegroups.com">Ganeti mailing list</a>.</p>
+<h1 id="see-also"><a href="#TOC">SEE ALSO</a></h1>
+<p>Ganeti overview and specifications: <strong>ganeti</strong>(7) (general overview), <strong>ganeti-os-interface</strong>(7) (guest OS definitions), <strong>ganeti-extstorage-interface</strong>(7) (external storage providers).</p>
+<p>Ganeti commands: <strong>gnt-cluster</strong>(8) (cluster-wide commands), <strong>gnt-job</strong>(8) (job-related commands), <strong>gnt-node</strong>(8) (node-related commands), <strong>gnt-instance</strong>(8) (instance commands), <strong>gnt-os</strong>(8) (guest OS commands), <strong>gnt-storage</strong>(8) (storage commands), <strong>gnt-group</strong>(8) (node group commands), <strong>gnt-backup</strong>(8) (instance import/export commands), <strong>gnt-debug</strong>(8) (debug commands).</p>
+<p>Ganeti daemons: <strong>ganeti-watcher</strong>(8) (automatic instance restarter), <strong>ganeti-cleaner</strong>(8) (job queue cleaner), <strong>ganeti-noded</strong>(8) (node daemon), <strong>ganeti-rapi</strong>(8) (remote API daemon).</p>
+<p>Ganeti htools: <strong>htools</strong>(1) (generic binary), <strong>hbal</strong>(1) (cluster balancer), <strong>hspace</strong>(1) (capacity calculation), <strong>hail</strong>(1) (IAllocator plugin), <strong>hscan</strong>(1) (data gatherer from remote clusters), <strong>hinfo</strong>(1) (cluster information printer), <strong>mon-collector</strong>(7) (data collectors interface).</p>
+<h1 id="copyright"><a href="#TOC">COPYRIGHT</a></h1>
+<p>Copyright (C) 2006-2015 Google Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
+<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</body>
+</html>

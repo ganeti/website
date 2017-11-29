@@ -1,0 +1,1067 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"
+><TITLE
+>Ganeti.Config</TITLE
+><LINK HREF="haddock.css" REL="stylesheet" TYPE="text/css"
+><SCRIPT SRC="haddock-util.js" TYPE="text/javascript"
+></SCRIPT
+><SCRIPT TYPE="text/javascript"
+>window.onload = function () {setSynopsis("mini_Ganeti-Config.html")};</SCRIPT
+></HEAD
+><BODY
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="topbar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><IMG SRC="haskell_icon.gif" WIDTH="16" HEIGHT="16" ALT=" "
+></TD
+><TD CLASS="title"
+>ganeti-htools</TD
+><TD CLASS="topbut"
+><A HREF="Ganeti/Config.html"
+>Source code</A
+></TD
+><TD CLASS="topbut"
+><A HREF="index.html"
+>Contents</A
+></TD
+><TD CLASS="topbut"
+><A HREF="doc-index.html"
+>Index</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="modulebar"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD
+><FONT SIZE="6"
+>Ganeti.Config</FONT
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="section4"
+><B
+>Contents</B
+></TD
+></TR
+><TR
+><TD
+><DL
+><DT
+><A HREF="#1"
+>Query functions
+</A
+></DT
+></DL
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Description</TD
+></TR
+><TR
+><TD CLASS="doc"
+>Implementation of the Ganeti configuration database.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Synopsis</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="body"
+><TABLE CLASS="vanilla" CELLSPACING="0" CELLPADDING="0"
+><TR
+><TD CLASS="decl"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A HREF="#t%3ALinkIpMap"
+>LinkIpMap</A
+> = Map String (Map String String)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AreadConfig"
+>readConfig</A
+> :: FilePath -&gt; IO String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AparseConfig"
+>parseConfig</A
+> :: String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AloadConfig"
+>loadConfig</A
+> :: FilePath -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>)</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AcomputeDiskNodes"
+>computeDiskNodes</A
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; Set String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinstDiskNodes"
+>instDiskNodes</A
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinstNodes"
+>instNodes</A
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AinstSecondaryNodes"
+>instSecondaryNodes</A
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetNodeInstances"
+>getNodeInstances</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; ([<A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+>], [<A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+>])</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetDefaultNicLink"
+>getDefaultNicLink</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstancesIpByLink"
+>getInstancesIpByLink</A
+> :: <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+> -&gt; String -&gt; [String]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetItem"
+>getItem</A
+> ::  String -&gt; String -&gt; Map String a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetNode"
+>getNode</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstance"
+>getInstance</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstPrimaryNode"
+>getInstPrimaryNode</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetDrbdMinorsForNode"
+>getDrbdMinorsForNode</A
+> :: String -&gt; <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; [(Int, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3ArolePrimary"
+>rolePrimary</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AroleSecondary"
+>roleSecondary</A
+> :: String</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AgetInstMinorsForNode"
+>getInstMinorsForNode</A
+> :: String -&gt; <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; [(String, Int, String, String, String, String)]</TD
+></TR
+><TR
+><TD CLASS="s8"
+></TD
+></TR
+><TR
+><TD CLASS="decl"
+><A HREF="#v%3AbuildLinkIpInstnameMap"
+>buildLinkIpInstnameMap</A
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+>Documentation</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><SPAN CLASS="keyword"
+>type</SPAN
+> <A NAME="t:LinkIpMap"
+><A NAME="t%3ALinkIpMap"
+></A
+></A
+><B
+>LinkIpMap</B
+> = Map String (Map String String)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#LinkIpMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Type alias for the link and ip map.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:readConfig"
+><A NAME="v%3AreadConfig"
+></A
+></A
+><B
+>readConfig</B
+> :: FilePath -&gt; IO String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#readConfig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Reads the config file.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:parseConfig"
+><A NAME="v%3AparseConfig"
+></A
+></A
+><B
+>parseConfig</B
+> :: String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#parseConfig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Parses the configuration file.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:loadConfig"
+><A NAME="v%3AloadConfig"
+></A
+></A
+><B
+>loadConfig</B
+> :: FilePath -&gt; IO (<A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+>)</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#loadConfig"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Wrapper over <TT
+><A HREF="Ganeti-Config.html#v%3AreadConfig"
+>readConfig</A
+></TT
+> and <TT
+><A HREF="Ganeti-Config.html#v%3AparseConfig"
+>parseConfig</A
+></TT
+>.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="section1"
+><A NAME="1"
+><A NAME="1"
+>Query functions
+</A
+></A
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:computeDiskNodes"
+><A NAME="v%3AcomputeDiskNodes"
+></A
+></A
+><B
+>computeDiskNodes</B
+> :: <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; Set String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#computeDiskNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the nodes covered by a disk.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:instDiskNodes"
+><A NAME="v%3AinstDiskNodes"
+></A
+></A
+><B
+>instDiskNodes</B
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#instDiskNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes all disk-related nodes of an instance. For non-DRBD,
+ this will be empty, for DRBD it will contain both the primary and
+ the secondaries.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:instNodes"
+><A NAME="v%3AinstNodes"
+></A
+></A
+><B
+>instNodes</B
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#instNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes all nodes of an instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:instSecondaryNodes"
+><A NAME="v%3AinstSecondaryNodes"
+></A
+></A
+><B
+>instSecondaryNodes</B
+> :: <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; Set String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#instSecondaryNodes"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Computes the secondary nodes of an instance. Since this is valid
+ only for DRBD, we call directly <TT
+><A HREF="Ganeti-Config.html#v%3AinstDiskNodes"
+>instDiskNodes</A
+></TT
+>, skipping over the
+ extra primary insert.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getNodeInstances"
+><A NAME="v%3AgetNodeInstances"
+></A
+></A
+><B
+>getNodeInstances</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; ([<A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+>], [<A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+>])</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getNodeInstances"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Get instances of a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getDefaultNicLink"
+><A NAME="v%3AgetDefaultNicLink"
+></A
+></A
+><B
+>getDefaultNicLink</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getDefaultNicLink"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns the default cluster link.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstancesIpByLink"
+><A NAME="v%3AgetInstancesIpByLink"
+></A
+></A
+><B
+>getInstancesIpByLink</B
+> :: <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+> -&gt; String -&gt; [String]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getInstancesIpByLink"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Returns instances of a given link.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getItem"
+><A NAME="v%3AgetItem"
+></A
+></A
+><B
+>getItem</B
+> ::  String -&gt; String -&gt; Map String a -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> a</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getItem"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Generic lookup function that converts from a possible abbreviated
+ name to a full name.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getNode"
+><A NAME="v%3AgetNode"
+></A
+></A
+><B
+>getNode</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Looks up a node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstance"
+><A NAME="v%3AgetInstance"
+></A
+></A
+><B
+>getInstance</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getInstance"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Looks up an instance.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstPrimaryNode"
+><A NAME="v%3AgetInstPrimaryNode"
+></A
+></A
+><B
+>getInstPrimaryNode</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; String -&gt; <A HREF="Ganeti-BasicTypes.html#t%3AResult"
+>Result</A
+> <A HREF="Ganeti-Objects.html#t%3ANode"
+>Node</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getInstPrimaryNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Looks up an instance's primary node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getDrbdMinorsForNode"
+><A NAME="v%3AgetDrbdMinorsForNode"
+></A
+></A
+><B
+>getDrbdMinorsForNode</B
+> :: String -&gt; <A HREF="Ganeti-Objects.html#t%3ADisk"
+>Disk</A
+> -&gt; [(Int, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getDrbdMinorsForNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Filters DRBD minors for a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:rolePrimary"
+><A NAME="v%3ArolePrimary"
+></A
+></A
+><B
+>rolePrimary</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#rolePrimary"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>String for primary role.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:roleSecondary"
+><A NAME="v%3AroleSecondary"
+></A
+></A
+><B
+>roleSecondary</B
+> :: String</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#roleSecondary"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>String for secondary role.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:getInstMinorsForNode"
+><A NAME="v%3AgetInstMinorsForNode"
+></A
+></A
+><B
+>getInstMinorsForNode</B
+> :: String -&gt; <A HREF="Ganeti-Objects.html#t%3AInstance"
+>Instance</A
+> -&gt; [(String, Int, String, String, String, String)]</TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#getInstMinorsForNode"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+>Gets the list of DRBD minors for an instance that are related to
+ a given node.
+</TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="topdecl"
+><TABLE CLASS="declbar"
+><TR
+><TD CLASS="declname"
+><A NAME="v:buildLinkIpInstnameMap"
+><A NAME="v%3AbuildLinkIpInstnameMap"
+></A
+></A
+><B
+>buildLinkIpInstnameMap</B
+> :: <A HREF="Ganeti-Objects.html#t%3AConfigData"
+>ConfigData</A
+> -&gt; <A HREF="Ganeti-Config.html#t%3ALinkIpMap"
+>LinkIpMap</A
+></TD
+><TD CLASS="declbut"
+><A HREF="Ganeti/Config.html#buildLinkIpInstnameMap"
+>Source</A
+></TD
+></TR
+></TABLE
+></TD
+></TR
+><TR
+><TD CLASS="doc"
+><P
+>Builds link -&gt; ip -&gt; instname map.
+</P
+><P
+>TODO: improve this by splitting it into multiple independent functions:
+</P
+><UL
+><LI
+> abstract the &quot;fetch instance with filled params&quot; functionality
+</LI
+><LI
+> abstsract the [instance] -&gt; [(nic, instance_name)] part
+</LI
+><LI
+> etc.
+</LI
+></UL
+></TD
+></TR
+><TR
+><TD CLASS="s15"
+></TD
+></TR
+><TR
+><TD CLASS="botbar"
+>Produced by <A HREF="http://www.haskell.org/haddock/"
+>Haddock</A
+> version 2.6.0</TD
+></TR
+></TABLE
+></BODY
+></HTML
+>

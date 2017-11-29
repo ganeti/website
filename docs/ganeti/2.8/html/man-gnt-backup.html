@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gnt-backup &mdash; Ganeti 2.8.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.8.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.8.4 documentation" href="index.html" />
+    <link rel="up" title="Man pages" href="manpages.html" />
+    <link rel="next" title="gnt-cluster" href="man-gnt-cluster.html" />
+    <link rel="prev" title="ganeti" href="man-ganeti.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-cluster.html" title="gnt-cluster"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="man-ganeti.html" title="ganeti"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" accesskey="U">Man pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gnt-backup">
+<h1>gnt-backup<a class="headerlink" href="#gnt-backup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>gnt-backup - Ganeti instance import/export</p>
+</div>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><strong>gnt-backup</strong> {command} [arguments...]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>gnt-backup</strong> is used for importing and exporting instances
+and their configuration from a Ganeti system. It is useful for
+backing up instances and also to migrate them between clusters.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="export">
+<h3>EXPORT<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>export</strong> {-n <em>node</em>} [&#8211;shutdown-timeout=*N*] [&#8211;noshutdown]</div>
+<div class="line">[&#8211;remove-instance] [&#8211;ignore-remove-failures] [&#8211;submit]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Exports an instance to the target node. All the instance data and
+its configuration will be exported under the
+<tt class="docutils literal"><span class="pre">/srv/ganeti/export/$instance</span></tt> directory on the target node.</p>
+<p>The <tt class="docutils literal"><span class="pre">--shutdown-timeout</span></tt> is used to specify how much time to wait
+before forcing the shutdown (xm destroy in xen, killing the kvm
+process, for kvm). By default two minutes are given to each
+instance to stop.</p>
+<p>The <tt class="docutils literal"><span class="pre">--noshutdown</span></tt> option will create a snapshot disk of the
+instance without shutting it down first. While this is faster and
+involves no downtime, it cannot be guaranteed that the instance
+data will be in a consistent state in the exported dump.</p>
+<p>The <tt class="docutils literal"><span class="pre">--remove</span></tt> option can be used to remove the instance after it
+was exported. This is useful to make one last backup before
+removing the instance.</p>
+<p>The exit code of the command is 0 if all disks were backed up
+successfully, 1 if no data was backed up or if the configuration
+export failed, and 2 if just some of the disks failed to backup.
+The exact details of the failures will be shown during the command
+execution (and will be stored in the job log). It is recommended
+that for any non-zero exit code, the backup is considered invalid,
+and retried.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-backup export -n node1.example.com instance3.example.com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="import">
+<h3>IMPORT<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>import</strong></div>
+<div class="line">{-n <em>node[:secondary-node]</em> | &#8211;iallocator <em>name</em>}</div>
+<div class="line">[&#8211;disk <em>N</em>:size=*VAL* [,vg=*VG*], [,mode=*ro|rw*]...]</div>
+<div class="line">[&#8211;net <em>N</em> [:options...] | &#8211;no-nics]</div>
+<div class="line">[-B <em>BEPARAMS</em>]</div>
+<div class="line">[-H <em>HYPERVISOR</em> [: option=*value*... ]]</div>
+<div class="line">[&#8211;src-node=*source-node*] [&#8211;src-dir=*source-dir*]</div>
+<div class="line">[-t [diskless | plain | drbd | file]]</div>
+<div class="line">[&#8211;identify-defaults]</div>
+<div class="line">[&#8211;ignore-ipolicy]</div>
+<div class="line">[&#8211;submit]</div>
+<div class="line">{<em>instance</em>}</div>
+</div>
+<p>Imports a new instance from an export residing on <em>source-node</em> in
+<em>source-dir</em>. <em>instance</em> must be in DNS and resolve to a IP in the
+same network as the nodes in the cluster. If the source node and
+directory are not passed, the last backup in the cluster is used,
+as visible with the <strong>list</strong> command.</p>
+<p>The <tt class="docutils literal"><span class="pre">disk</span></tt> option specifies the parameters for the disks of the
+instance. The numbering of disks starts at zero. For each disk, at
+least the size needs to be given, and optionally the access mode
+(read-only or the default of read-write) and LVM volume group can also
+be specified. The size is interpreted (when no unit is given) in
+mebibytes. You can also use one of the suffixes m, g or t to specificy
+the exact the units used; these suffixes map to mebibytes, gibibytes
+and tebibytes.</p>
+<p>Alternatively, a single-disk instance can be created via the <tt class="docutils literal"><span class="pre">-s</span></tt>
+option which takes a single argument, the size of the disk. This is
+similar to the Ganeti 1.2 version (but will only create one disk).</p>
+<p>If no disk information is passed, the disk configuration saved at
+export time will be used.</p>
+<p>The minimum disk specification is therefore empty (export information
+will be used), a single disk can be specified as <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=20G</span></tt>
+(or <tt class="docutils literal"><span class="pre">-s</span> <span class="pre">20G</span></tt> when using the <tt class="docutils literal"><span class="pre">-s</span></tt> option), and a three-disk
+instance can be specified as <tt class="docutils literal"><span class="pre">--disk</span> <span class="pre">0:size=20G</span> <span class="pre">--disk</span> <span class="pre">1:size=4G</span>
+<span class="pre">--disk</span> <span class="pre">2:size=100G</span></tt>.</p>
+<p>The NICs of the instances can be specified via the <tt class="docutils literal"><span class="pre">--net</span></tt>
+option. By default, the NIC configuration of the original
+(exported) instance will be reused. Each NIC can take up to three
+parameters (all optional):</p>
+<dl class="docutils">
+<dt>mac</dt>
+<dd>either a value or <tt class="docutils literal"><span class="pre">generate</span></tt> to generate a new unique MAC, or
+<tt class="docutils literal"><span class="pre">auto</span></tt> to reuse the old MAC</dd>
+<dt>ip</dt>
+<dd>specifies the IP address assigned to the instance from the Ganeti
+side (this is not necessarily what the instance will use, but what
+the node expects the instance to use)</dd>
+<dt>mode</dt>
+<dd>specifies the connection mode for this NIC: <tt class="docutils literal"><span class="pre">routed</span></tt>,
+<tt class="docutils literal"><span class="pre">bridged</span></tt> or <tt class="docutils literal"><span class="pre">openvswitch</span></tt></dd>
+<dt>link</dt>
+<dd>in bridged and openvswitch mode specifies the interface to attach
+this NIC to, in routed mode it&#8217;s intended to differentiate between
+different routing tables/instance groups (but the meaning is
+dependent on the network script in use, see <strong>gnt-cluster</strong>(8) for
+more details)</dd>
+</dl>
+<p>Of these <tt class="docutils literal"><span class="pre">mode</span></tt> and <tt class="docutils literal"><span class="pre">link</span></tt> are NIC parameters, and inherit their
+default at cluster level.</p>
+<p>If no network is desired for the instance, you should create a single
+empty NIC and delete it afterwards via <strong>gnt-instance modify &#8211;net
+delete</strong>.</p>
+<p>The <tt class="docutils literal"><span class="pre">-B</span></tt> option specifies the backend parameters for the
+instance. If no such parameters are specified, the values are
+inherited from the export. Possible parameters are:</p>
+<dl class="docutils">
+<dt>maxmem</dt>
+<dd>the maximum memory size of the instance; as usual, suffixes can be
+used to denote the unit, otherwise the value is taken in mebibytes</dd>
+<dt>minmem</dt>
+<dd>the minimum memory size of the instance; as usual, suffixes can be
+used to denote the unit, otherwise the value is taken in mebibytes</dd>
+<dt>vcpus</dt>
+<dd>the number of VCPUs to assign to the instance (if this value makes
+sense for the hypervisor)</dd>
+<dt>auto_balance</dt>
+<dd>whether the instance is considered in the N+1 cluster checks
+(enough redundancy in the cluster to survive a node failure)</dd>
+<dt>always_failover</dt>
+<dd><tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>, whether the instance must be failed over
+(shut down and rebooted) always or it may be migrated (briefly
+suspended)</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">-t</span></tt> options specifies the disk layout type for the instance.
+If not passed, the configuration of the original instance is used.
+The available choices are:</p>
+<dl class="docutils">
+<dt>diskless</dt>
+<dd>This creates an instance with no disks. Its useful for testing only
+(or other special cases).</dd>
+<dt>plain</dt>
+<dd>Disk devices will be logical volumes.</dd>
+<dt>drbd</dt>
+<dd>Disk devices will be drbd (version 8.x) on top of lvm volumes.</dd>
+<dt>file</dt>
+<dd>Disk devices will be backed up by files, under the directory
+<tt class="docutils literal"><span class="pre">/srv/ganeti/file-storage</span></tt>. By default, each instance will get a
+directory (as its own name) under this path, and each disk is
+stored as individual files in this (instance-specific) directory.</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">--iallocator</span></tt> option specifies the instance allocator plugin
+to use. If you pass in this option the allocator will select nodes
+for this instance automatically, so you don&#8217;t need to pass them
+with the <tt class="docutils literal"><span class="pre">-n</span></tt> option. For more information please refer to the
+instance allocator documentation.</p>
+<p>The optional second value of the <tt class="docutils literal"><span class="pre">--node</span></tt> is used for the drbd
+template and specifies the remote node.</p>
+<p>The <tt class="docutils literal"><span class="pre">--src-dir</span></tt> option allows importing instances from a directory
+below <tt class="docutils literal"><span class="pre">/srv/ganeti/export</span></tt>.</p>
+<p>If <tt class="docutils literal"><span class="pre">--ignore-ipolicy</span></tt> is given any instance policy violations occuring
+during this operation are ignored.</p>
+<p>Since many of the parameters are by default read from the exported
+instance information and used as such, the new instance will have
+all parameters explicitly specified, the opposite of a newly added
+instance which has most parameters specified via cluster defaults.
+To change the import behaviour to recognize parameters whose saved
+value matches the current cluster default and mark it as such
+(default value), pass the <tt class="docutils literal"><span class="pre">--identify-defaults</span></tt> option. This will
+affect the hypervisor, backend and NIC parameters, both read from
+the export file and passed in via the command line.</p>
+<p>See <strong>ganeti</strong>(7) for a description of <tt class="docutils literal"><span class="pre">--submit</span></tt> and other common
+options.</p>
+<p>Example for identical instance import:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-backup import -n node1.example.com instance3.example.com</span>
+</pre></div>
+</div>
+<p>Explicit configuration example:</p>
+<div class="highlight-python"><pre># gnt-backup import -t plain --disk 0:size=1G -B memory=512 \
+&gt; -n node1.example.com \
+&gt; instance3.example.com</pre>
+</div>
+</div>
+<div class="section" id="list">
+<h3>LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><strong>list</strong> [&#8211;node=*NODE*] [&#8211;no-headers] [&#8211;separator=*SEPARATOR*]</div>
+<div class="line">[-o <em>[+]FIELD,...</em>]</div>
+</div>
+<p>Lists the exports currently available in the default directory in
+all the nodes of the current cluster, or optionally only a subset
+of them specified using the <tt class="docutils literal"><span class="pre">--node</span></tt> option (which can be used
+multiple times)</p>
+<p>The <tt class="docutils literal"><span class="pre">--no-headers</span></tt> option will skip the initial header line. The
+<tt class="docutils literal"><span class="pre">--separator</span></tt> option takes an argument which denotes what will be
+used between the output fields. Both these options are to help
+scripting.</p>
+<p>The <tt class="docutils literal"><span class="pre">-o</span></tt> option takes a comma-separated list of output fields.
+The available fields and their meaning are:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">export</span></tt></dt>
+<dd>Export name</dd>
+<dt><tt class="docutils literal"><span class="pre">node</span></tt></dt>
+<dd>Node name</dd>
+</dl>
+<p>If the value of the option starts with the character <tt class="docutils literal"><span class="pre">+</span></tt>, the new
+fields will be added to the default list. This allows one to quickly
+see the default list plus a few other fields, instead of retyping
+the entire list of fields.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># gnt-backup list --node node1 --node node2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-fields">
+<h3>LIST-FIELDS<a class="headerlink" href="#list-fields" title="Permalink to this headline">¶</a></h3>
+<p><strong>list-fields</strong> [field...]</p>
+<p>Lists available fields for exports.</p>
+</div>
+<div class="section" id="remove">
+<h3>REMOVE<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<p><strong>remove</strong> {instance_name}</p>
+<p>Removes the backup for the given instance name, if any. If the backup
+was for a deleted instance, it is needed to pass the FQDN of the
+instance, and not only the short hostname.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gnt-backup</a><ul>
+<li><a class="reference internal" href="#name">Name</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#commands">COMMANDS</a><ul>
+<li><a class="reference internal" href="#export">EXPORT</a></li>
+<li><a class="reference internal" href="#import">IMPORT</a></li>
+<li><a class="reference internal" href="#list">LIST</a></li>
+<li><a class="reference internal" href="#list-fields">LIST-FIELDS</a></li>
+<li><a class="reference internal" href="#remove">REMOVE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="man-ganeti.html"
+                        title="previous chapter">ganeti</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="man-gnt-cluster.html"
+                        title="next chapter">gnt-cluster</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/man-gnt-backup.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="man-gnt-cluster.html" title="gnt-cluster"
+             >next</a></li>
+        <li class="right" >
+          <a href="man-ganeti.html" title="ganeti"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.8.4 documentation</a> &raquo;</li>
+          <li><a href="manpages.html" >Man pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

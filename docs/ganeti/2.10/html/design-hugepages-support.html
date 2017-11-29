@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Huge Pages Support for Ganeti &mdash; Ganeti 2.10.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.10.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Ganeti 2.10.8 documentation" href="index.html" />
+    <link rel="up" title="Design document drafts" href="design-draft.html" />
+    <link rel="next" title="Filtering of jobs for the Ganeti job queue" href="design-optables.html" />
+    <link rel="prev" title="GlusterFS Ganeti support" href="design-glusterfs-ganeti-support.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-optables.html" title="Filtering of jobs for the Ganeti job queue"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="design-glusterfs-ganeti-support.html" title="GlusterFS Ganeti support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" accesskey="U">Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="huge-pages-support-for-ganeti">
+<h1>Huge Pages Support for Ganeti<a class="headerlink" href="#huge-pages-support-for-ganeti" title="Permalink to this headline">¶</a></h1>
+<p>This is a design document about implementing support for huge pages in
+Ganeti. (Please note that Ganeti works with Transparent Huge Pages i.e.
+THP and any reference in this document to Huge Pages refers to explicit
+Huge Pages).</p>
+<div class="section" id="current-state-and-shortcomings">
+<h2>Current State and Shortcomings:<a class="headerlink" href="#current-state-and-shortcomings" title="Permalink to this headline">¶</a></h2>
+<p>The Linux kernel allows using pages of larger size by setting aside a
+portion of the memory. Using larger page size may enhance the
+performance of applications that require a lot of memory by improving
+page hits. To use huge pages, memory has to be reserved beforehand. This
+portion of memory is subtracted from free memory and is considered as in
+use. Currently Ganeti cannot take proper advantage of huge pages. On a
+node, if huge pages are reserved and are available to fulfill the VM
+request, Ganeti fails to recognize huge pages and considers the memory
+reserved for huge pages as used memory.  This leads to failure of
+launching VMs on a node where memory is available in the form of huge
+pages rather than normal pages.</p>
+</div>
+<div class="section" id="proposed-changes">
+<h2>Proposed Changes:<a class="headerlink" href="#proposed-changes" title="Permalink to this headline">¶</a></h2>
+<p>The following components will be changed in order for Ganeti to take
+advantage of Huge Pages.</p>
+</div>
+<div class="section" id="hypervisor-parameters">
+<h2>Hypervisor Parameters:<a class="headerlink" href="#hypervisor-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Currently, It is possible to set or modify huge pages mount point at
+cluster level via the hypervisor parameter <tt class="docutils literal"><span class="pre">mem_path</span></tt> as:</p>
+<div class="highlight-python"><pre>$ gnt-cluster init \
+&gt;--enabled-hypervisors=kvm -nic-parameters link=br100 \
+&gt; -H kvm:mem_path=/mount/point/for/hugepages</pre>
+</div>
+<p>This hypervisor parameter is inherited by all the instances as
+default although it can be overriden at the instance level.</p>
+<p>The following changes will be made to the inheritence behaviour.</p>
+<ul>
+<li><p class="first">The hypervisor parameter   <tt class="docutils literal"><span class="pre">mem_path</span></tt> and all other hypervisor
+parameters will be made available at the node group level (in
+addition to the cluster level), so that users can set defaults for
+the node group:</p>
+<div class="highlight-python"><pre>$ gnt-group add/modify\
+&gt; -H hv:parameter=value</pre>
+</div>
+<p>This changes the hypervisor inheritence level as:</p>
+<div class="highlight-python"><pre>cluster -&gt; group -&gt; OS -&gt; instance</pre>
+</div>
+</li>
+<li><p class="first">Furthermore, the hypervisor parameter <tt class="docutils literal"><span class="pre">mem_path</span></tt> will be changeable
+only at the cluster or node group level and users must not be able to
+override this at OS or instance level. The following command must
+produce an error message that <tt class="docutils literal"><span class="pre">mem_path</span></tt> may only be set at either
+the cluster or the node group level:</p>
+<div class="highlight-python"><pre>$ gnt-instance add -H kvm:mem_path=/mount/point/for/hugepages</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="memory-pools">
+<h2>Memory Pools:<a class="headerlink" href="#memory-pools" title="Permalink to this headline">¶</a></h2>
+<p>Memory management of Ganeti will be improved by creating separate pools
+for memory used by the node itself, memory used by the hypervisor and
+the memory reserved for huge pages as:
+- mtotal/xen (Xen memory)
+- mfree/xen (Xen unused memory)
+- mtotal/hp (Memory reserved for Huge Pages)
+- mfree/hp (Memory available from unused huge pages)
+- mpgsize/hp (Size of a huge page)</p>
+<p>mfree and mtotal will be changed to mean &#8220;the total and free memory for
+the default method in this cluster/nodegroup&#8221;. Note that the default
+method depends both on the default hypervisor and its parameters.</p>
+</div>
+<div class="section" id="iallocator-changes">
+<h2>iAllocator Changes:<a class="headerlink" href="#iallocator-changes" title="Permalink to this headline">¶</a></h2>
+<p>If huge pages are set as default for a cluster of node group, then
+iAllocator must consider the huge pages memory on the nodes, as a
+parameter when trying to find the best node for the VM.
+Note that the iallocator will also be changed to use the correct
+parameter depending on the cluster/group.</p>
+</div>
+<div class="section" id="hbal-changes">
+<h2>hbal Changes:<a class="headerlink" href="#hbal-changes" title="Permalink to this headline">¶</a></h2>
+<p>The cluster balancer (hbal) will be changed to use the default  memory
+pool and  recognize memory reserved for huge pages when trying to
+rebalance the cluster.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Huge Pages Support for Ganeti</a><ul>
+<li><a class="reference internal" href="#current-state-and-shortcomings">Current State and Shortcomings:</a></li>
+<li><a class="reference internal" href="#proposed-changes">Proposed Changes:</a></li>
+<li><a class="reference internal" href="#hypervisor-parameters">Hypervisor Parameters:</a></li>
+<li><a class="reference internal" href="#memory-pools">Memory Pools:</a></li>
+<li><a class="reference internal" href="#iallocator-changes">iAllocator Changes:</a></li>
+<li><a class="reference internal" href="#hbal-changes">hbal Changes:</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design-glusterfs-ganeti-support.html"
+                        title="previous chapter">GlusterFS Ganeti support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design-optables.html"
+                        title="next chapter">Filtering of jobs for the Ganeti job queue</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/design-hugepages-support.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="design-optables.html" title="Filtering of jobs for the Ganeti job queue"
+             >next</a></li>
+        <li class="right" >
+          <a href="design-glusterfs-ganeti-support.html" title="GlusterFS Ganeti support"
+             >previous</a> |</li>
+        <li><a href="index.html">Ganeti 2.10.8 documentation</a> &raquo;</li>
+          <li><a href="design-draft.html" >Design document drafts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Google Inc..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
